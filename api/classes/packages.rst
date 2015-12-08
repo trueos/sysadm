@@ -1,26 +1,48 @@
-========
+.. _packages:
+
 packages
-========
+********
 
 Resources related to the packages class.
 
+.. _webclient:
+
 webclient
----------
+=========
 
 The webclient resource is used to...
 
-For up-to-date request options, use :command:`help [pkg | pbi | jail | search]`  to query the syscache daemon for the available options for the specified parameter. This section covers most
+For up-to-date request options, use :command:`help [pkg | pbi | jail | search]`  to query the sysadm daemon for the available options for the specified parameter. This section covers most
 of the common queries and replies.
 
 .. _note: whenever *<jail>* is used in a query, it can be replaced by 
    *#system* to probe the local system or by a jail ID for to specify a particular jail on the system.
 
+.. _Event Notifications:
+   
 Event Notifications
-+++++++++++++++++++
+-------------------
 
-The client may subscribe to per-connection event notifications.
+The dispatcher provides support for the client to subscribe to per-connection event notifications. Event requests use the following parameters:
 
-**JSON Request: Subscribe to Dispatcher Events**
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Value**     | **Description**                                                                                                      |
+|                                 |               |                                                                                                                      |
++=================================+===============+======================================================================================================================+
+| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| name                            | subscribe     | use the desired action                                                                                               |
+|                                 | unsubscribe   |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| namespace                       | events        |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| args                            | dispatcher    |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+
+To subscribe from dispatcher events:
 
 .. code-block:: json
 
@@ -31,8 +53,8 @@ The client may subscribe to per-connection event notifications.
   "args" : ["dispatcher"]
   }
 
-**JSON Request: Unsubscribe to Dispatcher Events**
-
+To unsubscribe from dispatcher events:
+  
 .. code-block:: json
 
   {
@@ -42,7 +64,7 @@ The client may subscribe to per-connection event notifications.
   "args" : ["dispatcher"]
   }
 
-**JSON Reply: Dispatcher Event Occured**
+This response indicates that a dispatcher event occurred:
 
 .. code-block:: json
 
@@ -56,103 +78,159 @@ The client may subscribe to per-connection event notifications.
     }
   }
 
+.. _Dispatcher Usage:
+  
 Dispatcher Usage
-++++++++++++++++
+----------------
 
-**JSON flags for Dispatcher Interaction**
-
-.. code-block:: json
-
- "namespace": "rpc"
- "name": "dispatcher"
- 
- Usage (possible "args"):
- --------------------------------
-   iocage {cmd} [args]
-   queue {pkg|pbi} {origin} {install/delete/info} {__system__|<jailname>}
-   pkgupdate {__system__|<jailname>}
-   service {start|stop|restart} {servicetag} {servicerc} {__system__|<jid>}
-   getcfg {pbicdir} {__system__|<jid>} {key}
-   setcfg {pbicdir} {__system__|<jid>} {key} {value}
-   donecfg {pbicdir} {__system__|<jid>}
-   daemon
-   status
-   results
-   log {hash}
- 
-General syscache Information
-++++++++++++++++++++++++++++
-
-For a query of the syscache information daemon, the *"name"* field of the input JSON object needs to be set to 
-*"syscache"*. 
-
-The *"app-summary"* and 
-*"cage-summary"* options are specifically designed for getting enough information for lots of small app icons in fewer syscache requests. 
-
-The *"app-summary"* return array is: 
-*[pkg origin, name, version, icon path, rating (out of 5), type, comment, config dir, isInstalled, canRemove]*.
-
-The *"cage-summary"* return array is: 
-*[origin, name, icon, architecture, FreeBSD version]*.
-
-**Possible Input Queries for General System Information**
+Dispatcher requests use the following parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Query**                       | **Value**     | **Description**                                                                                                      |
+| **Parameter**                   | **Value**     | **Description**                                                                                                      |
 |                                 |               |                                                                                                                      |
 +=================================+===============+======================================================================================================================+
-| startsync                       |               | Manually start a system information sync (usually unnecessary)                                                       |                                                                                                                    
+| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| needsreboot                     | [true/false]  | Check if the system needs to reboot to finish updates                                                                |
+| name                            | dispatcher    |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| isupdating                      | [true/false]  | Check if the system is currently performing updates                                                                  |
+| namespace                       | rpc           |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| hasupdates                      | [true/false]  | Check if system updates are available                                                                                |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| updatelog                       |               | Raw text output from the check for system updates                                                                    |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| hasmajorupdates                 | [true/false]  | Check if FreeBSD system updates are available                                                                        |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| majorupdatelog                  |               | Details about the major update(s)                                                                                    |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| hassecurityupdates              | [true/false]  | Check if FreeBSD security updates are available                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| securityupdatelog               |               | Details about any security update(s)                                                                                 |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| haspcbsdupdates                 | [true/false]  | Check if any PC-BSD hotfixes are available                                                                           |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| pcbsdupdatelog                  |               | Details about any PC-BSD hotfixes                                                                                    |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| <jail> app-summary <pkg origin> |               | Summary of information for an application                                                                            |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| cage-summary <origin>           |               | Summary of information for a PBI cage                                                                                |
+| args                            |               | values vary by type of request                                                                                       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-**Example JSON Request**
+The following arguments are supported:
+
+* iocage {cmd} [args]
+
+* queue {pkg|pbi} {origin} {install/delete/info} {__system__|<jailname>}
+   
+* pkgupdate {__system__|<jailname>}
+   
+* service {start|stop|restart} {servicetag} {servicerc} {__system__|<jid>}
+   
+* getcfg {pbicdir} {__system__|<jid>} {key}
+   
+* setcfg {pbicdir} {__system__|<jid>} {key} {value}
+   
+* donecfg {pbicdir} {__system__|<jid>}
+   
+* daemon
+   
+* status
+   
+* results
+   
+* log {hash}
+ 
+.. _General sysadm Information:
+
+General sysadm Information
+--------------------------
+
+Queries for information from the sysadm daemon use the following parameters:
+
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Value**     | **Description**                                                                                                      |
+|                                 |               |                                                                                                                      |
++=================================+===============+======================================================================================================================+
+| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| name                            | sysadm        |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| namespace                       | rpc           |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| args                            |               | comma delimited list of information to request                                                                       |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+
+The following *args* are supported. Note that 
+*"app-summary"* and 
+*"cage-summary"* are specifically designed for getting enough information for lots of small app icons in fewer sysadm requests. 
+
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| **Value**                       | **Description**                                                                                                      |
+|                                 |                                                                                                                      |
++=================================+======================================================================================================================+
+| startsync                       | Manually start a system information sync (usually unnecessary)                                                       |                                                                                                                    
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| needsreboot                     | Check if the system needs to reboot to finish updates                                                                |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| isupdating                      | Check if the system is currently performing updates                                                                  |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| hasupdates                      | Check if system updates are available                                                                                |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| updatelog                       | Raw text output from the check for system updates                                                                    |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| hasmajorupdates                 | Check if FreeBSD system updates are available                                                                        |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| majorupdatelog                  | Details about the major update(s)                                                                                    |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| hassecurityupdates              | Check if FreeBSD security updates are available                                                                      |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| securityupdatelog               | Details about any security update(s)                                                                                 |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| haspcbsdupdates                 | Check if any PC-BSD hotfixes are available                                                                           |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| pcbsdupdatelog                  | Details about any PC-BSD hotfixes                                                                                    |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| <jail> app-summary <pkg origin> | Summary of information for an application                                                                            |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| cage-summary <origin>           | Summary of information for a PBI cage                                                                                |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+
+**Request**
 
 .. code-block:: json
 
   {
   "namespace" : "rpc",
-  "name" : "syscache",
+  "name" : "sysadm",
   "id" : "someUniqueID",
   "args" : ["needsreboot", "hasupdates", "updatelog", "#system app-summary mail/thunderbird", "cage-summary multimedia/plexmediaserver"]
   }
 
-**Example JSON Reply**
+As seen in the following example response, the *"app-summary"* return array is: 
+
+* pkg origin
+* name
+* version
+* icon path
+* rating (out of 5)
+* type
+* comment
+* configuration directory
+* isInstalled
+* canRemove
+
+The *"cage-summary"* return array is: 
+
+* origin
+* name
+* icon path
+* architecture
+* FreeBSD version
+
+**Response**
 
 .. code-block:: json
 
@@ -186,33 +264,43 @@ The *"cage-summary"* return array is:
     "namespace": "rpc"
   }
 
+.. _PBI Database Queries:
 
 PBI Database Queries
-++++++++++++++++++++
+--------------------
 
-The following type of queries are supported:
+The following query types are supported when gathering information about installed applications/PBIs. Use the required syntax in the *args* parameter of the request.
 
-* **List Queries:** "pbi list <info>" where <info> can be: "[all/server/graphical/text]apps", "[all/server/graphical/text]cats", or "cages"
++----------------+---------------------------------+------------------------------------------------------------------------------------------------------------------------+
+| **Query Type** | **Command**                     | **<info> Syntax**                                                                                                      |
+|                |                                 |                                                                                                                        |
++================+=================================+========================================================================================================================+
+| List           | "pbi list <info>"               | "[all/server/graphical/text]apps", "[all/server/graphical/text]cats", or "cages"                                       |
+|                |                                 |                                                                                                                        |
++----------------+---------------------------------+------------------------------------------------------------------------------------------------------------------------+
+| App            | "pbi app <pkg origin> <info>"   | "author", "category", "confdir", "dependencies", "origin", "plugins, "rating", "relatedapps", "screenshots",           |
+|                |                                 | "type", "tags", "comment", "description", "license", "maintainer", "name", "options", or "website"                     |
+|                |                                 |                                                                                                                        |
++----------------+---------------------------------+------------------------------------------------------------------------------------------------------------------------+
+| Cage           | "pbi cage <origin> <info>"      | "icon", "name", "description", "arch" fbsdver", "git", "gitbranch", "screenshots", "tags", "website"                   |
+|                |                                 |                                                                                                                        |
++----------------+---------------------------------+------------------------------------------------------------------------------------------------------------------------+
+| Category       | "pbi cat <pkg category> <info>" | "icon", "name", "origin", "comment"                                                                                    |
+|                |                                 |                                                                                                                        |
++----------------+---------------------------------+------------------------------------------------------------------------------------------------------------------------+
 
-* **App Queries:** "pbi app <pkg origin> <info>" where <info> can be: "author", "category", "confdir", "dependencies", "origin", "plugins, "rating", "relatedapps", "screenshots", "type",
-  "tags", "comment", "description", "license", "maintainer", "name", "options", or "website"
-
-* **Cage Queries:** "pbi cage <origin> <info>" where <info> can be: "icon", "name", "description", "arch" fbsdver", "git", "gitbranch", "screenshots", "tags", "website"
-
-* **Category Queries:** "pbi cat <pkg category> <info>"
-
-**Example JSON Query**
+Here is an example of a list and an app query which request five types of information:
 
 .. code-block:: json
 
  {
  "namespace" : "rpc",
- "name" : "syscache",
+ "name" : "sysadm",
  "id" : "someUniqueID",
  "args" : ["pbi list graphicalapps", "pbi list cages", "pbi app www/firefox author", "pbi app www/firefox category", "pbi list graphicalcats" ]
  }
 
-**Example JSON Reply**
+And its response:
 
 .. code-block:: json
 
@@ -251,21 +339,18 @@ The following type of queries are supported:
     "namespace": "rpc"
   }
 
-PBI Category Information Retrieval
-++++++++++++++++++++++++++++++++++
-
-**JSON Query**
+Here is an example of a category query and its response:
 
 .. code-block:: json
 
  {
  "namespace" : "rpc",
- "name" : "syscache",
+ "name" : "sysadm",
  "id" : "someUniqueID",
  "args" : ["pbi cat www name", "pbi cat www icon", "pbi cat www comment", "pbi cat www origin" ]
  }
 
-**JSON Reply**
+**Response**
 
 .. code-block:: json
 
@@ -281,25 +366,18 @@ PBI Category Information Retrieval
     "namespace": "rpc"
   }
 
-PBI Cage Examples
-+++++++++++++++++
-
-DB Request format: "pbi cage <origin> <info>"
-
-Possible <info>: "icon", "name", "description", "arch", "fbsdver", "git", "gitbranch", "screenshots", "tags", "website"
-
-**JSON Query**
+Here is an example of a cage query and its response:
 
 .. code-block:: json
 
  {
  "namespace" : "rpc",
- "name" : "syscache",
+ "name" : "sysadm",
  "id" : "someUniqueID",
  "args" : ["pbi cage multimedia/plexmediaserver tags", "pbi cage multimedia/plexmediaserver website", "pbi cage multimedia/plexmediaserver description", "pbi cage multimedia/plexmediaserver name"]
  }
 
-**JSON Reply**
+**Response**
 
 .. code-block:: json
 
@@ -316,8 +394,10 @@ Possible <info>: "icon", "name", "description", "arch", "fbsdver", "git", "gitbr
   }
 
 
+.. _PKG Database Information:
+  
 PKG Database Information
-++++++++++++++++++++++++
+------------------------
 
 General Queries: "pkg <jail> <info>" where <info> can be: "remotelist", "installedlist", "hasupdates" (true/false returned), or "updatemessage".
 
@@ -329,18 +409,18 @@ Individual pkg queries: "pkg <jail> <local/remote> <pkg origin> <info>"
 
 For "local" pkgs, there are some additional <info> options: "timestamp", "isOrphan", "isLocked", "files", "users", and "groups"
 
-**JSON Query**
+**Request**
 
 .. code-block:: json
 
  {
  "namespace" : "rpc",
- "name" : "syscache",
+ "name" : "sysadm",
  "id" : "someUniqueID",
  "args" : ["pkg #system installedlist", "pkg #system local mail/thunderbird version", "pkg #system remote mail/thunderbird version", "pkg #system local mail/thunderbird files" ]
  }
 
-**JSON Reply**
+**Response**
 
 .. code-block:: json
 
@@ -371,9 +451,10 @@ For "local" pkgs, there are some additional <info> options: "timestamp", "isOrph
     "namespace": "rpc"
  }
 
+.. _Search Capabilities:
 
 Search Capabilities
-+++++++++++++++++++
+-------------------
 
 Query Syntax: "<pkg/pbi> search <search term> [<pkg jail>/<pbi filter>] [result minimum]
 
@@ -393,18 +474,18 @@ highest-priority groups which result in the minimum desired results will be used
 priority, then a minimum search of 2 will only return the "highest" priority group, a minimum search of 4 will return the highest and medium priority groups, and a minimum of 9+ will result
 in all the groups getting returned. 
 
-**JSON Query**
+**Request**
 
 .. code-block:: json
 
  {
  "namespace" : "rpc",
- "name" : "syscache",
+ "name" : "sysadm",
  "id" : "someUniqueID",
  "args" : ["pbi search \"thun\" ", "pbi search \"thun\" text", "pkg search \"thun\""]
  }
 
-**JSON Reply**
+**Response**
 
 .. code-block:: json
 
