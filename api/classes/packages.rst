@@ -266,10 +266,10 @@ The *"cage-summary"* return array is:
 
 .. _PBI Database Queries:
 
-PBI Database Queries
---------------------
+PBI and PKG Database Queries
+----------------------------
 
-The following query types are supported when gathering information about installed applications/PBIs. Use the required syntax in the *args* parameter of the request.
+The following query types are supported when gathering information about installed PBIs. Use the required command and its syntax in the *args* parameter of the request.
 
 +----------------+---------------------------------+------------------------------------------------------------------------------------------------------------------------+
 | **Query Type** | **Command**                     | **<info> Syntax**                                                                                                      |
@@ -393,21 +393,24 @@ Here is an example of a cage query and its response:
     "namespace": "rpc"
   }
 
+Two types of queries are available for retrieving information from the PKG database:
 
-.. _PKG Database Information:
-  
-PKG Database Information
-------------------------
++----------------+-------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| **Query Type** | **Command**                                     | **<info> Syntax**                                                                                             |
+|                |                                                 |                                                                                                               |
++================+=================================================+===============================================================================================================+
+| General        | "pkg <jail> <info>"                             | "remotelist", "installedlist", "hasupdates" (true/false returned), or "updatemessage"                         |
+|                |                                                 |                                                                                                               |
++----------------+-------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
+| Individual     | "pkg <jail> <local/remote> <pkg origin> <info>" | "origin", "name", "version", "maintainer", "comment", "description", "website", "size", "arch", "message",    |
+|                |                                                 | "dependencies", "rdependencies", "categories", "options", "license"                                           |
+|                |                                                 |                                                                                                               |
++----------------+-------------------------------------------------+---------------------------------------------------------------------------------------------------------------+
 
-General Queries: "pkg <jail> <info>" where <info> can be: "remotelist", "installedlist", "hasupdates" (true/false returned), or "updatemessage".
+Note that <local> is used for installed applications while <remote> is for information available on the global repository and might not match what is currently installed. For <local>
+pkg queries, there are some additional <info> options: "timestamp", "isOrphan", "isLocked", "files", "users", and "groups".
 
-Individual pkg queries: "pkg <jail> <local/remote> <pkg origin> <info>"
-
-.. _note: "local" is used for installed applications while "remote" is for information available on the global repository and might not match what is currently installed.
-
-<info> may be: "origin", "name", "version", "maintainer", "comment", "description", "website", "size", "arch", "message", "dependencies", "rdependencies", "categories", "options", "license"
-
-For "local" pkgs, there are some additional <info> options: "timestamp", "isOrphan", "isLocked", "files", "users", and "groups"
+When specifying a jail, precede the jail's name with a *#*:
 
 **Request**
 
@@ -451,28 +454,25 @@ For "local" pkgs, there are some additional <info> options: "timestamp", "isOrph
     "namespace": "rpc"
  }
 
-.. _Search Capabilities:
+Both PBIs and PKGs support the following search query syntax: "<pkg/pbi> search <search term> [<pkg jail>/<pbi filter>] [result minimum]".
 
-Search Capabilities
--------------------
+When performing a search, note that:
 
-Query Syntax: "<pkg/pbi> search <search term> [<pkg jail>/<pbi filter>] [result minimum]
+* The search query always returns an array of <pkg origin>, organized in order of priority where the first element is highest priority and the last element is the lowest priority.
 
-The search always returns an array of <pkg origin>, organized in order of priority where the first element is highest priority and the last element is the lowest priority.
+* <pbi> probes the PBI database of end-user applications and is independent of what is actually available or installed. <pkg> searches all available and installed packages. whether or
+  not they are designed for end-users.
 
-"pbi" probes the PBI database of end-user applications (independent of what is actually available/installed), whereas "pkg" searches all available/installed packages. whether they are
-designed for end-users or not.
+* <pkg jail> may only be used for pkg searches and corresponds to normal <jail> syntax (using "#system" or jail ID). If a jail is not specified, it assumes a search for the
+  local system (#system).
 
-The "<pkg jail>" option may only be used for pkg searches and corresponds to normal <jail> syntax (using "#system" or jail ID). If it is not supplied, it assumes a search for the local
-system (#system).
+* <pbi filter> may only be used for PBI searches to restrict the type of application being looked for, and may be "all" "[not]graphical", "[not]server", and "[not]text". The
+  default value is "all" if no option is supplied.
 
-The "<pbi filter>" option may only be used for PBI searches to restrict the type of application being looked for, and may be: "all" "[not]graphical", "[not]server", and "[not]text". The
-default value is "all" (if that option is not supplied).
-
-The "result minimum" is the number of results the search should try to return (10 by default). The search is done by putting all the apps into various "priority groups", and only the
-highest-priority groups which result in the minimum desired results will be used. For example: if the search comes up with grouping of 3-highest priority, 5-medium priority, and 20-low
-priority, then a minimum search of 2 will only return the "highest" priority group, a minimum search of 4 will return the highest and medium priority groups, and a minimum of 9+ will result
-in all the groups getting returned. 
+* [result minimum] is the number of results the search should try to return, where 10 is the default when not specified. The search is done by putting all the apps into various priority
+  groups, and only the highest-priority groups which result in the minimum desired results will be used. For example, if the search comes up with grouping of 3-highest priority, 
+  5-medium priority, and 20-low priority, then a minimum search of 2 will only return the highest priority group, a minimum search of 4 will return the highest and medium priority
+  groups, and a minimum of 9+ will result in all the groups being returned. 
 
 **Request**
 
