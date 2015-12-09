@@ -16,6 +16,7 @@
 #include <QString>
 #include <QStringList>
 #include <QDateTime>
+#include <QDebug>
 
 //FreeBSD Includes
 #include <sys/types.h>

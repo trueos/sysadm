@@ -66,19 +66,33 @@ QString NetDevice::ipAsString(){
 
 //Fetch the IPv6 and return it as a QString
 QString NetDevice::ipv6AsString(){
-   //Note: New on 6/24/15 - still needs testing
-   struct ifreq ifr;
-   memset(&ifr, 0, sizeof(struct ifreq));
-
-   strncpy(ifr.ifr_name, name.toLocal8Bit(), IFNAMSIZ);
-   int s = socket(PF_INET6, SOCK_DGRAM, 0);
-   
-   ioctl(s, SIOCGIFADDR, &ifr);
-   struct in6_addr in = ((sockaddr_in6 *) &ifr.ifr_addr)->sin6_addr;
-   char straddr[INET6_ADDRSTRLEN];
-   inet_ntop(AF_INET6, &in, straddr, sizeof(straddr));
-   return QString(straddr);
+  //Get the sockaddr for the device
+  struct sockaddr *sadd = 0;
+  struct ifaddrs *addrs;
+  if( 0!=getifaddrs( &addrs ) ){ qDebug() << "Could not get addrs"; return ""; }
+  while(sadd==0 && addrs!=0){
+    if( QString(addrs->ifa_name)==name && addrs->ifa_addr->sa_family==AF_INET6){
+      //Found device (with IPv6 address)
+      sadd = addrs->ifa_addr;
+      break;
+    }else{
+      //Move to the next device
+      addrs = addrs->ifa_next;
+    }
+  }
+  free(addrs);
+  if(sadd==0){ qDebug() << "No socket address found"; return ""; }
+  //Now get the IPv6 address in string form
+  char straddr[INET6_ADDRSTRLEN];
+  int err = getnameinfo(sadd, sadd->sa_len, straddr, sizeof(straddr),NULL, 0, NI_NUMERICHOST);
+  if(err!=0){ 
+    qDebug() << "getnameinfo error:" << gai_strerror(err);
+    return "";
+  }else{
+    return QString(straddr);
+  }
 }
+
 
 //Fetch the netmask and return it as a QString
 QString NetDevice::netmaskAsString(){
