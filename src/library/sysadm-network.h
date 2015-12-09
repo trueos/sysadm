@@ -21,16 +21,16 @@ struct NetworkEntry{
   unsigned int netnum;
 };
 
+//Data structure for rc.conf settings
 struct NetDevSettings{
 	QString device; //the device these settings correspond with (usually unset if there was an error)
 	QString asDevice; //associated device (Example: wifi device -> wlan<num> device)
-	//Wifi
-	QString wifiCountry, wifiSSID, wifiBSSID, wifichannel;
+	//Wifi settings
+	QString wifiCountry, wifiSSID, wifiBSSID, wifiChannel;
 	bool wifihost;
-	//General
-	QString etherMac;
-	//NOTE: All the "static" variables are only used for rc.conf settings
-	//  For the current IP/IPv6 information use the "NetDevice" class below
+	bool wifisecurity; //always recommended for wifi settings - otherwise can't connect to secure access points
+	//Addressing
+	bool useDHCP;
 	QString staticIPv4, staticNetmask, staticIPv6; //assumes DHCP if none are set
 	QString staticGateway;
 };
@@ -72,22 +72,23 @@ public:
 //General data structure for wifi access points (local or available)
 struct NetWifi{
 	NetCrypt encryption;
+	QString BSSID, SSID;
 };
 
 	
 //The general-purpose class that any user/app can utilitize
 class Network{
 public:
-	static QList<NetworkEntry> listNetworkEntries();
+	//static QList<NetworkEntry> listNetworkEntries();
 	static QStringList readRcConf(); //use this when reading /etc/rc.conf for network stuff - prevents opening the file repeatedly
 	static NetDevSettings deviceRCSettings(QString dev); //settings in rc.conf (bootup)
-	static NetDevSettings deviceIfconfigSettings(QString dev); //settings currently running
+	//static NetDevSettings deviceIfconfigSettings(QString dev); //settings currently running
 };
 
 //The class that requires overarching root permissions (usually for changes to system)
 class NetworkRoot{
 public:
-	static bool saveNetworkEntry(NetworkEntry); //**Not implemented yet**
+	//static bool saveNetworkEntry(NetworkEntry); //**Not implemented yet**
 	static bool saveRCSettings(NetDevSettings);	//rc.conf settings (bootup)
 	static bool setIfconfigSettings(NetDevSettings); 	//ifconfig settings (temporary session)
 };
