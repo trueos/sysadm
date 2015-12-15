@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
+#include <sysadm-lifepreserver.h>
 #include <sysadm-network.h>
 
 int main( int argc, char ** argv )
@@ -47,6 +48,12 @@ int main( int argc, char ** argv )
     qDebug() << " - Static Gateway:" << set.staticGateway;
     qDebug() << " - Allow Secure Wifi:" << set.wifisecurity;
   }
+
+  // LP tests
+  qDebug() << "Life-Preserver::listCron()";
+  QList<QStringList> cronSnaps = sysadm::LifePreserver::listCron();
+  for ( int i = 0; i < cronSnaps.size(); i++)
+     qDebug() << cronSnaps.at(i);
   
   return 0;
 }

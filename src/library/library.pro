@@ -12,10 +12,12 @@ VERSION		= 1.0.0
 
 HEADERS	+= sysadm-global.h \
 		sysadm-general.h \
+		sysadm-lifepreserver.h \
 		sysadm-network.h
 		
 
 SOURCES	+= sysadm-general.cpp \
+		sysadm-lifepreserver.cpp \
 		sysadm-network.cpp \
 		NetDevice.cpp
 
