@@ -20,7 +20,7 @@
 //=======================
 //              PUBLIC
 //=======================
-WebServer::WebServer() : QWebSocketServer("syscache-webclient", QWebSocketServer::NonSecureMode){
+WebServer::WebServer() : QWebSocketServer("sysadm-server", QWebSocketServer::NonSecureMode){
   //Setup all the various settings
   //Any SSL changes
     /*QSslConfiguration ssl = this->sslConfiguration();
