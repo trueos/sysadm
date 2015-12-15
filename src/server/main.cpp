@@ -19,7 +19,7 @@
 
 #define DEBUG 1
 
-QFile logfile("/var/log/syscache-webclient.log");
+QFile logfile("/var/log/sysadm-server.log");
 void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg){
   QString txt;
   switch(type){
@@ -50,7 +50,7 @@ int main( int argc, char ** argv )
     QCoreApplication a(argc, argv);
     //Check whether running as root
     if( getuid() != 0){
-      qDebug() << "syscache-webclient must be started as root!";
+      qDebug() << "sysadm-server must be started as root!";
       return 1;
     }
       //Setup the log file
@@ -68,7 +68,7 @@ int main( int argc, char ** argv )
     }
       
     //Create and start the daemon
-    qDebug() << "Starting the PC-BSD syscache websocket client interface....";
+    qDebug() << "Starting the PC-BSD sysadm websocket daemon....";
     WebServer *w = new WebServer(); 
     if( w->startServer() ){
       //Now start the event loop

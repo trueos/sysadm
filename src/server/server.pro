@@ -20,7 +20,7 @@ SOURCES	+= main.cpp \
 		AuthorizationManager.cpp
 
 
-TARGET=syscache-webclient
+TARGET=sysadm-server
 target.path=/usr/local/bin
 
 
