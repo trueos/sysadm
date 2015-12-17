@@ -7,3 +7,7 @@ SUBDIRS+= library binary server
 binary.depends = library
 server.depends = library
 
+rcd.path = /usr/local/etc/rc.d/
+rcd.extra = cp rc.d/* $(INSTALL_ROOT)/usr/local/etc/rc.d/
+
+INSTALLS += rcd
