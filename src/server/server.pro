@@ -27,7 +27,6 @@ target.path=/usr/local/bin
 INSTALLS += target
 
 
-QMAKE_LIBDIR = /usr/local/lib/qt5 /usr/local/lib
-
-INCLUDEPATH += /usr/local/include
+QMAKE_LIBDIR = ../library /usr/local/lib/qt5 /usr/local/lib
+INCLUDEPATH += ../library /usr/local/include
 LIBS += -L../library -L/usr/local/lib -lpam -lutil -lsysadm

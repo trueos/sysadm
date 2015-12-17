@@ -6,8 +6,8 @@
 #include <WebSocket.h>
 
 //sysadm library interface classes
-#include <sysadm-general.h>
-#include <sysadm-network.h>
+#include "sysadm-general.h"
+#include "sysadm-network.h"
 
 #include "syscache-client.h"
 #include "dispatcher-client.h"
