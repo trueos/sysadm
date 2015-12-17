@@ -15,7 +15,7 @@
 name="sysadm"
 rcvar=sysadm_enable
 
-command="/usr/local/bin/syscache-server"
+command="/usr/local/bin/sysadm-server"
 start_cmd="sysadm_start"
 stop_cmd="sysadm_stop"
 
