@@ -16,53 +16,69 @@
 #define SCLISTDELIM QString("::::") //SysCache List Delimiter
 
 void WebSocket::EvaluateBackendRequest(QString name, const QJsonValue args, QJsonObject *out){
-  QJsonObject obj; //output object
-  if(args.isObject()){
-    //For the moment: all arguments are full syscache DB calls - no special ones
-    QStringList reqs = args.toObject().keys();
-    if(!reqs.isEmpty()){
-      if(DEBUG){ qDebug() << "Parsing Inputs:" << reqs; }
-      for(int r=0; r<reqs.length(); r++){
-        QString req =  JsonValueToString(args.toObject().value(reqs[r]));
-        if(DEBUG){ qDebug() << "  ["+reqs[r]+"]="+req; }
-        QStringList values;
-	if(name.toLower()=="syscache"){values = SysCacheClient::parseInputs( QStringList() << req ); }
-	else if(name.toLower()=="dispatcher"){values = DispatcherClient::parseInputs( QStringList() << req, AUTHSYSTEM); }
-        values.removeAll("");
-        //Quick check if a list of outputs was returned
-        if(values.length()==1 && name.toLower()=="syscache"){
-          values = values[0].split(SCLISTDELIM); //split up the return list (if necessary)
-          values.removeAll("");
-        }
-        if(DEBUG){ qDebug() << " - Returns:" << values; }
-        if(values.length()<2){ out->insert(req, QJsonValue(values.join("")) ); }
-        else{
-          //This is an array of outputs
-          QJsonArray arr;
-          for(int i=0; i<values.length(); i++){ arr.append(values[i]); }
-          out->insert(req,arr);
-        }
-      }
-    } //end of special "request" objects
-  }else if(args.isArray()){
-    QStringList inputs = JsonArrayToStringList(args.toArray());
-    if(DEBUG){ qDebug() << "Parsing Array inputs:" << inputs; }
-    QStringList values;
-      if(name.toLower()=="syscache"){values = SysCacheClient::parseInputs( inputs ); }
-      else if(name.toLower()=="dispatcher"){values = DispatcherClient::parseInputs( inputs , AUTHSYSTEM); }
-    if(DEBUG){ qDebug() << " - Returns:" << values; }
-    for(int i=0; i<values.length(); i++){
-      if(name.toLower()=="syscache" && values[i].contains(SCLISTDELIM)){
+  //Go through and forward this request to the appropriate sub-system
+  if(name.toLower()=="syscache"){
+    return EvaluateSyscacheRequest(args, out);
+  }else if(name.toLower()=="dispatcher"){
+    return EvaluateSyscacheRequest(args, out);
+  }else{
+    return RestOutputStruct::BADREQUEST; 
+  }
+
+}
+
+RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue in_args, QJSonObject *out){
+  //syscache only needs a list of sub-commands at the moment (might change later)
+  QStringList in_req;
+
+  //Parse the input arguments structure
+  if(args.isArray()){ in_req = JsonArrayToStringList(args.toArray()); }
+  else if(args.isObject()){
+    QStringList keys = arg.toObject().keys();
+    for(int i=0; i<keys.length(); i++){ in_req << JsonValueToString(args.toObject().value(keys[i])); }
+  }else if(args.isValue()){ in_req << JsonValueToString(args.toValue()); }
+  }else{ return RestOutputStruct::BADREQUEST; }
+
+  //Run the Request (should be one value for each in_req)
+  QStringList values = SysCacheClient::parseInputs(in_req);
+  while(values.length() < in_req.length()){ values << "[ERROR]"; } //ensure lists are same length
+
+  //Format the result
+  for(int i=0; i<values.length(); i++){
+      if(values[i].contains(SCLISTDELIM)){
 	  //This is an array of values from syscache
 	  QStringList vals = values[i].split(SCLISTDELIM);
 	  vals.removeAll("");
 	  QJsonArray arr;
 	    for(int j=0; j<vals.length(); j++){ arr.append(vals[j]); }
-	    out->insert(inputs[i],arr);
+	    out->insert(in_req[i],arr);
       }else{
-          out->insert(inputs[i],values[i]);
+          out->insert(in_req[i],values[i]);
       }
     }
-  } //end array of inputs
-  
+  //Return Success
+  return RestOutputStruct::OK;
 }
+
+RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue in_args, QJSonObject *out){
+  //dispatcher only needs a list of sub-commands at the moment (might change later)
+  QStringList in_req;
+
+  //Parse the input arguments structure
+  if(args.isArray()){ in_req = JsonArrayToStringList(args.toArray()); }
+  else if(args.isObject()){
+    QStringList keys = arg.toObject().keys();
+    for(int i=0; i<keys.length(); i++){ in_req << JsonValueToString(args.toObject().value(keys[i])); }
+  }else if(args.isValue()){ in_req << JsonValueToString(args.toValue()); }
+  }else{ return RestOutputStruct::BADREQUEST; }
+
+  //Run the Request (should be one value for each in_req)
+  QStringList values = DispatcherClient::parseInputs(in_req, AUTHSYSTEM);;
+  while(values.length() < in_req.length()){ values << "[ERROR]"; } //ensure lists are same length
+
+  //Format the result
+  for(int i=0; i<values.length(); i++){ out->insert(in_req[i],values[i]); }
+  //Return Success
+  return RestOutputStruct::OK;
+}
+
