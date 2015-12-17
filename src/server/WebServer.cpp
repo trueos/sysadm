@@ -13,7 +13,7 @@
 
 #define DEBUG 0
 
-#define PORTNUMBER 12142
+#define PORTNUMBER 12150
 
 #define APPCAFEWORKING QString("/var/tmp/appcafe/dispatch-queue.working")
 
