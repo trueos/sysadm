@@ -48,7 +48,9 @@ private:
 	void SetOutputError(QJsonObject *ret, QString id, int err, QString msg);
 
 	//Backend request/reply functions (contained in WebBackend.cpp)
-	void EvaluateBackendRequest(QString name, const QJsonValue in_args, QJsonObject *out);
+	RestOutputStruct::ExitCode EvaluateBackendRequest(QString name, const QJsonValue in_args, QJsonObject *out);
+	RestOutputStruct::ExitCode EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out);
+	RestOutputStruct::ExitCode EvaluateDispatcherRequest(const QJsonValue in_args, QJsonObject *out);
 
 private slots:
 	void checkIdle(); //see if the currently-connected client is idle
