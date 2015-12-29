@@ -15,7 +15,7 @@
 #define DEBUG 0
 #define SCLISTDELIM QString("::::") //SysCache List Delimiter
 
-void WebSocket::EvaluateBackendRequest(QString name, const QJsonValue args, QJsonObject *out){
+RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(QString name, const QJsonValue args, QJsonObject *out){
   //Go through and forward this request to the appropriate sub-system
   if(name.toLower()=="syscache"){
     return EvaluateSyscacheRequest(args, out);
@@ -27,16 +27,15 @@ void WebSocket::EvaluateBackendRequest(QString name, const QJsonValue args, QJso
 
 }
 
-RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue in_args, QJSonObject *out){
+RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out){
   //syscache only needs a list of sub-commands at the moment (might change later)
   QStringList in_req;
 
   //Parse the input arguments structure
-  if(args.isArray()){ in_req = JsonArrayToStringList(args.toArray()); }
-  else if(args.isObject()){
-    QStringList keys = arg.toObject().keys();
-    for(int i=0; i<keys.length(); i++){ in_req << JsonValueToString(args.toObject().value(keys[i])); }
-  }else if(args.isValue()){ in_req << JsonValueToString(args.toValue()); }
+  if(in_args.isArray()){ in_req = JsonArrayToStringList(in_args.toArray()); }
+  else if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    for(int i=0; i<keys.length(); i++){ in_req << JsonValueToString(in_args.toObject().value(keys[i])); }
   }else{ return RestOutputStruct::BADREQUEST; }
 
   //Run the Request (should be one value for each in_req)
@@ -60,16 +59,15 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue i
   return RestOutputStruct::OK;
 }
 
-RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue in_args, QJSonObject *out){
+RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue in_args, QJsonObject *out){
   //dispatcher only needs a list of sub-commands at the moment (might change later)
   QStringList in_req;
 
   //Parse the input arguments structure
-  if(args.isArray()){ in_req = JsonArrayToStringList(args.toArray()); }
-  else if(args.isObject()){
-    QStringList keys = arg.toObject().keys();
-    for(int i=0; i<keys.length(); i++){ in_req << JsonValueToString(args.toObject().value(keys[i])); }
-  }else if(args.isValue()){ in_req << JsonValueToString(args.toValue()); }
+  if(in_args.isArray()){ in_req = JsonArrayToStringList(in_args.toArray()); }
+  else if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    for(int i=0; i<keys.length(); i++){ in_req << JsonValueToString(in_args.toObject().value(keys[i])); }
   }else{ return RestOutputStruct::BADREQUEST; }
 
   //Run the Request (should be one value for each in_req)

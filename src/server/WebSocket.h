@@ -48,7 +48,9 @@ private:
 	void SetOutputError(QJsonObject *ret, QString id, int err, QString msg);
 
 	//Backend request/reply functions (contained in WebBackend.cpp)
+	// -- Main subsystem parser
 	RestOutputStruct::ExitCode EvaluateBackendRequest(QString name, const QJsonValue in_args, QJsonObject *out);
+	// -- Individual subsystems
 	RestOutputStruct::ExitCode EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out);
 	RestOutputStruct::ExitCode EvaluateDispatcherRequest(const QJsonValue in_args, QJsonObject *out);
 

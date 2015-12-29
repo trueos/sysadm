@@ -18,8 +18,8 @@
 #endif
 
 #define DEBUG 1
-#define WSPORTNUMBER 12142 	// WebSocket server default port
-#define PORTNUMBER 12142		// TCP server default port
+#define WSPORTNUMBER 12150 	// WebSocket server default port
+#define PORTNUMBER 12151		// TCP server default port
 
 QFile logfile;
 void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg){
