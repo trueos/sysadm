@@ -12,6 +12,7 @@ WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
   SockID = ID;
   SockAuthToken.clear(); //nothing set initially
   SOCKET = sock;
+  TSOCKET = 0;
   SendAppCafeEvents = false;
   AUTHSYSTEM = auth;
   idletimer = new QTimer(this);
@@ -24,11 +25,31 @@ WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
   idletimer->start();
 }
 
+WebSocket::WebSocket(QTcpSocket *sock, QString ID, AuthorizationManager *auth){
+  SockID = ID;
+  SockAuthToken.clear(); //nothing set initially
+  TSOCKET = sock;
+  SOCKET = 0;
+  SendAppCafeEvents = false;
+  AUTHSYSTEM = auth;
+  idletimer = new QTimer(this);
+    idletimer->setInterval(IDLETIMEOUTMINS*60000); //connection timout for idle sockets
+    idletimer->setSingleShot(true);
+  connect(idletimer, SIGNAL(timeout()), this, SLOT(checkIdle()) );
+  connect(TSOCKET, SIGNAL(readyRead()), this, SLOT(EvaluateTCPMessage()) );
+  connect(TSOCKET, SIGNAL(aboutToClose()), this, SLOT(SocketClosing()) );
+  idletimer->start();
+}
+
 WebSocket::~WebSocket(){
   if(SOCKET!=0){
     SOCKET->close();
+    delete SOCKET;
   }
-  delete SOCKET;
+  if(TSOCKET!=0){
+    TSOCKET->close();
+    delete TSOCKET;
+  }
 }
 
 
@@ -199,7 +220,8 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     out.Header << "Content-Type: text/json; charset=utf-8";
   }
   //Return any information
-  SOCKET->sendTextMessage(out.assembleMessage());
+   if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
+  else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }
 }
 
 // === SYSCACHE REQUEST INTERACTION ===
@@ -303,6 +325,10 @@ void WebSocket::checkIdle(){
     qDebug() << " - Client Timeout: Closing connection...";
     SOCKET->close(); //timeout - close the connection to make way for others
   }
+  if(TSOCKET !=0){
+    qDebug() << " - Client Timeout: Closing connection...";
+    TSOCKET->close(); //timeout - close the connection to make way for others
+  }
 }
 
 void WebSocket::SocketClosing(){
@@ -314,7 +340,9 @@ void WebSocket::SocketClosing(){
   //Stop any current requests
 
   //Reset the pointer
-  SOCKET = 0;	
+  if(SOCKET!=0){ SOCKET = 0;	 }
+  if(TSOCKET!=0){ TSOCKET = 0; }
+  
   emit SocketClosed(SockID);
 }
 
@@ -332,6 +360,15 @@ void WebSocket::EvaluateMessage(const QString &msg){
   EvaluateREST(msg);
   idletimer->start(); 
   qDebug() << "Done with Message";
+}
+
+void WebSocket::EvaluateTcpMessage(){
+  //Need to read the data from the Tcp socket and turn it into a string
+  qDebug() << "New TCP Message:";
+  if(idletimer->isActive()){ idletimer->stop(); }
+  EvaluateREST( QString(TSOCKET->readAll()) );
+  idletimer->start(); 
+  qDebug() << "Done with Message";	
 }
 
 // ======================
@@ -359,5 +396,7 @@ void WebSocket::AppCafeStatusUpdate(QString msg){
       retdoc.setObject(ret);
     out.Body = retdoc.toJson();
     out.Header << "Content-Type: text/json; charset=utf-8";
-   SOCKET->sendTextMessage(out.assembleMessage());
+  //Now send the message back through the socket
+  if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
+  else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }
 }

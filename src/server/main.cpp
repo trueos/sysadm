@@ -18,8 +18,10 @@
 #endif
 
 #define DEBUG 1
+#define WSPORTNUMBER 12142 	// WebSocket server default port
+#define PORTNUMBER 12142		// TCP server default port
 
-QFile logfile("/var/log/sysadm-server.log");
+QFile logfile;
 void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg){
   QString txt;
   switch(type){
@@ -53,9 +55,21 @@ int main( int argc, char ** argv )
       qDebug() << "sysadm-server must be started as root!";
       return 1;
     }
-      //Setup the log file
-    if(DEBUG){
-      qDebug() << "Log File:" << logfile.fileName();
+    //Evaluate input arguments
+    bool websocket = false;
+    quint16 port = 0;
+    for(int i=1; i<argc; i++){
+      if( QString(argv[i])=="-ws" ){ websocket = true; }
+      else if( QString(argv[i])=="-p" && (i+1<argc) ){ i++; port = QString(argv[i]).toUInt(); }
+    }
+    if(port==0){
+      if(websocket){ port = WSPORTNUMBER; }
+      else{ port = PORTNUMBER; }
+    }
+    //Setup the log file
+    if(!websocket){ logfile.setFileName("/var/log/sysadm-server-tcp.log"); }
+    else{ logfile.setFileName("/var/log/sysadm-server-ws.log"); }
+    if(DEBUG){ qDebug() << "Log File:" << logfile.fileName(); }
       if(QFile::exists(logfile.fileName()+".old")){ QFile::remove(logfile.fileName()+".old"); }
       if(logfile.exists()){ QFile::rename(logfile.fileName(), logfile.fileName()+".old"); }
       //Make sure the parent directory exists
@@ -65,17 +79,20 @@ int main( int argc, char ** argv )
       }
       logfile.open(QIODevice::WriteOnly | QIODevice::Append);
       qInstallMessageHandler(MessageOutput);
-    }
       
     //Create and start the daemon
-    qDebug() << "Starting the PC-BSD sysadm websocket daemon....";
+    qDebug() << "Starting the PC-BSD sysadm server...." << (websocket ? "(WebSocket)" : "(TCP)");
     WebServer *w = new WebServer(); 
-    if( w->startServer() ){
+    if( w->startServer(port, websocket) ){
       //Now start the event loop
       int ret = a.exec();
+      qDebug() << "Server Stopped:" << QDateTime::currentDateTime().toString(Qt::ISODate);
       logfile.close();
       return ret;
     }else{
+      qDebug() << "[FATAL] Server could not be started:" << QDateTime::currentDateTime().toString(Qt::ISODate);
+      qDebug() << " - Tried port:" << port;
+      logfile.close();
       return 1;
     }
 }
