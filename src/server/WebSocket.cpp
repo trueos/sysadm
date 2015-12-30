@@ -79,6 +79,7 @@ void WebSocket::EvaluateREST(QString msg){
   //Now check for the REST-specific verbs/actions
   if(IN.VERB == "OPTIONS" || IN.VERB == "HEAD"){
     RestOutputStruct out;	  
+      out.in_struct = IN;
       out.CODE = RestOutputStruct::OK;
       if(IN.VERB=="HEAD"){
 	
@@ -88,21 +89,26 @@ void WebSocket::EvaluateREST(QString msg){
       }
       out.Header << "Accept: text/json";
       out.Header << "Content-Type: text/json; charset=utf-8";
-    SOCKET->sendTextMessage(out.assembleMessage());
-  }else{ 
+    if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
+    else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }
+  }else{
     EvaluateRequest(IN);
   }
 }
 
 void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
   RestOutputStruct out;
-  if(REQ.VERB != "GET"){
+    out.in_struct = REQ;
+  if(!REQ.VERB.isEmpty() && REQ.VERB != "GET"){
     //Non-supported request (at the moment) - return an error message
     out.CODE = RestOutputStruct::BADREQUEST;
+  }else if(out.in_struct.name.isEmpty() || out.in_struct.namesp.isEmpty() ){
+    //Invalid JSON structure validity
+    //Note: id and args are optional at this stage - let the subsystems handle those inputs
+    out.CODE = RestOutputStruct::BADREQUEST;
   }else{
-    //GET request
     //Now check the body of the message and do what it needs
-    QJsonDocument doc = QJsonDocument::fromJson(REQ.Body.toUtf8());
+    /*QJsonDocument doc = QJsonDocument::fromJson(REQ.Body.toUtf8());
     if(doc.isNull()){ qWarning() << "Empty JSON Message Body!!" << REQ.Body.toUtf8(); }
     //Define the output structures
     QJsonObject ret; //return message
@@ -115,81 +121,85 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    && doc.object().contains("id") \
 	    && doc.object().contains("args");
       //Can add some fallbacks for missing fields here - but not implemented yet
-	    
+      */
       //parse the message and do something
-      if(good && (JsonValueToString(doc.object().value("namespace"))=="rpc") ){
+      //if(good && (JsonValueToString(doc.object().value("namespace"))=="rpc") ){
+      if(out.in_struct.namesp.toLower() == "rpc"){
 	//Now fetch the outputs from the appropriate subsection
 	//Note: Each subsection needs to set the "name", "namespace", and "args" output objects
-	QString name = JsonValueToString(doc.object().value("name")).toLower();
-	QJsonValue args = doc.object().value("args");
-	if(name.startsWith("auth")){
+	//QString name = JsonValueToString(doc.object().value("name")).toLower();
+	//QJsonValue args = doc.object().value("args");
+	if(out.in_struct.name.startsWith("auth")){
 	  //Now perform authentication based on type of auth given
 	  //Note: This sets/changes the current SockAuthToken
 	  AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
 	  if(DEBUG){ qDebug() << "Authenticate Peer:" << SOCKET->peerAddress().toString(); }
 	  bool localhost = (SOCKET->peerAddress() == QHostAddress::LocalHost) || (SOCKET->peerAddress() == QHostAddress::LocalHostIPv6);
 	  //Now do the auth
-	  if(name=="auth" && args.isObject() ){
+	  if(out.in_struct.name=="auth" && out.in_struct.args.isObject() ){
 	    //username/password authentication
 	    QString user, pass;
-	    if(args.toObject().contains("username")){ user = JsonValueToString(args.toObject().value("username"));  }
-	    if(args.toObject().contains("password")){ pass = JsonValueToString(args.toObject().value("password"));  }
+	    if(out.in_struct.args.toObject().contains("username")){ user = JsonValueToString(out.in_struct.args.toObject().value("username"));  }
+	    if(out.in_struct.args.toObject().contains("password")){ pass = JsonValueToString(out.in_struct.args.toObject().value("password"));  }
 	    SockAuthToken = AUTHSYSTEM->LoginUP(localhost, user, pass);
-	  }else if(name == "auth_token" && args.isObject()){
-	    SockAuthToken = JsonValueToString(args.toObject().value("token"));
-	  }else if(name == "auth_clear"){
+	  }else if(out.in_struct.name == "auth_token" && out.in_struct.args.isObject()){
+	    SockAuthToken = JsonValueToString(out.in_struct.args.toObject().value("token"));
+	  }else if(out.in_struct.name == "auth_clear"){
 	    return; //don't send a return message after clearing an auth (already done)
 	  }
 	  
 	  //Now check the auth and respond appropriately
 	  if(AUTHSYSTEM->checkAuth(SockAuthToken)){
 	    //Good Authentication - return the new token 
-	    ret.insert("namespace", QJsonValue("rpc"));
-	    ret.insert("name", QJsonValue("response"));
-	    ret.insert("id", doc.object().value("id")); //use the same ID for the return message
+	    //ret.insert("namespace", QJsonValue("rpc"));
+	    //ret.insert("name", QJsonValue("response"));
+	    //ret.insert("id", doc.object().value("id")); //use the same ID for the return message
 	    QJsonArray array;
 	      array.append(SockAuthToken);
 	      array.append(AUTHSYSTEM->checkAuthTimeoutSecs(SockAuthToken));
-	    ret.insert("args", array);
+	    out.out_args = array;
 	  }else{
 	    SockAuthToken.clear(); //invalid token
 	    //Bad Authentication - return error
-	    SetOutputError(&ret, JsonValueToString(doc.object().value("id")), 401, "Unauthorized");
+	    out.CODE = RestOutputStruct::UNAUTHORIZED;
+	    //SetOutputError(&ret, JsonValueToString(out.in_struct.id), 401, "Unauthorized");
 	  }
 		
 	}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	  //Now provide access to the various subsystems
 	  //Pre-set any output fields
           QJsonObject outargs;	
-	    ret.insert("namespace", QJsonValue("rpc"));
-	    ret.insert("name", QJsonValue("response"));
-	    ret.insert("id", doc.object().value("id")); //use the same ID for the return message
-	  EvaluateBackendRequest(name, doc.object().value("args"), &outargs);
-            ret.insert("args",outargs);	  
+	    //ret.insert("namespace", QJsonValue("rpc"));
+	    //ret.insert("name", QJsonValue("response"));
+	    //ret.insert("id", doc.object().value("id")); //use the same ID for the return message
+	  out.CODE = EvaluateBackendRequest(out.in_struct.name, out.in_struct.args, &outargs);
+            out.out_args = outargs; //ret.insert("args",outargs);	  
         }else{
+	  out.CODE = RestOutputStruct::UNAUTHORIZED;
 	  //Bad/No authentication
-	  SetOutputError(&ret, JsonValueToString(doc.object().value("id")), 401, "Unauthorized");
+	  //SetOutputError(&ret, JsonValueToString(doc.object().value("id")), 401, "Unauthorized");
 	}
-	      
-      }else if(good && (JsonValueToString(doc.object().value("namespace"))=="events") ){
-        if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
+	    	
+      //}else if(good && (JsonValueToString(doc.object().value("namespace"))=="events") ){
+      }else if(out.in_struct.namesp.toLower() == "events"){
+          if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	    //Pre-set any output fields
             QJsonObject outargs;	
-	      ret.insert("namespace", QJsonValue("events"));
-	      ret.insert("name", QJsonValue("response"));
-	      ret.insert("id", doc.object().value("id")); //use the same ID for the return message
+	      //ret.insert("namespace", QJsonValue("events"));
+	      //ret.insert("name", QJsonValue("response"));
+	      //ret.insert("id", doc.object().value("id")); //use the same ID for the return message
 	    //Assemble the list of input events
 	    QStringList evlist;
-	    if(doc.object().value("args").isObject()){ evlist << JsonValueToString(doc.object().value("args")); }
-	    else if(doc.object().value("args").isArray()){ evlist = JsonArrayToStringList(doc.object().value("args").toArray()); }
+	    if(out.in_struct.args.isObject()){ evlist << JsonValueToString(out.in_struct.args); }
+	    else if(out.in_struct.args.isArray()){ evlist = JsonArrayToStringList(out.in_struct.args.toArray()); }
 	    //Now subscribe/unsubscribe to these events
-	    if(JsonValueToString(doc.object().value("name"))=="subscribe"){
+	    if(out.in_struct.name=="subscribe"){
 	      if(evlist.contains("dispatcher")){ 
 	        SendAppCafeEvents = true; 
 	        outargs.insert("subscribe",QJsonValue("dispatcher"));  
 		QTimer::singleShot(100, this, SLOT(AppCafeStatusUpdate()) );
 	      }
-	    }else if(JsonValueToString(doc.object().value("name"))=="unsubscribe"){
+	    }else if(out.in_struct.name=="unsubscribe"){
 	      if(evlist.contains("dispatcher")){ 
 		SendAppCafeEvents = false; 
 		outargs.insert("unsubscribe",QJsonValue("dispatcher"));
@@ -197,26 +207,26 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    }else{
 	      outargs.insert("unknown",QJsonValue("unknown"));
 	    }
-            ret.insert("args",outargs);	  
+            //ret.insert("args",outargs);
+	    out.out_args = outargs;
           }else{
 	    //Bad/No authentication
-	    SetOutputError(&ret, JsonValueToString(doc.object().value("id")), 401, "Unauthorized");
+	    out.CODE = RestOutputStruct::UNAUTHORIZED;
+	    //SetOutputError(&ret, JsonValueToString(doc.object().value("id")), 401, "Unauthorized");
 	  }
-	}else{
-        //Error in inputs - assemble the return error message
-	QString id = "error";
+        }else{
+	  //Error in inputs - assemble the return error message
+	  out.CODE = RestOutputStruct::BADREQUEST;
+	/*QString id = "error";
 	if(doc.object().contains("id")){ id = JsonValueToString(doc.object().value("id")); } //use the same ID
-	SetOutputError(&ret, id, 400, "Bad Request");
-      }
-    }else{
-      //Unknown type of JSON input - nothing to do
-    }
+	SetOutputError(&ret, id, 400, "Bad Request");*/
+        }
     //Assemble the outputs for this "GET" request
     out.CODE = RestOutputStruct::OK;
       //Assemble the output JSON document/text
-      QJsonDocument retdoc; 
-      retdoc.setObject(ret);
-    out.Body = retdoc.toJson();
+      //QJsonDocument retdoc; 
+      //retdoc.setObject(ret);
+    //out.Body = retdoc.toJson();
     out.Header << "Content-Type: text/json; charset=utf-8";
   }
   //Return any information
@@ -380,21 +390,25 @@ void WebSocket::AppCafeStatusUpdate(QString msg){
   //qDebug() << "Socket Status Update:" << msg;
   if(!SendAppCafeEvents){ return; } //don't report events on this socket
   RestOutputStruct out;
+    out.CODE = RestOutputStruct::OK;
+    out.in_struct.name = "event";
+    out.in_struct.namesp = "events";
   //Define the output structures
-  QJsonObject ret; //return message
+  //QJsonObject ret; //return message
   //Pre-set any output fields
    QJsonObject outargs;	
-   ret.insert("namespace", QJsonValue("events"));
-   ret.insert("name", QJsonValue("event"));
-   ret.insert("id", QJsonValue(""));
+   //ret.insert("namespace", QJsonValue("events"));
+   //ret.insert("name", QJsonValue("event"));
+   //ret.insert("id", QJsonValue(""));
      outargs.insert("name", "dispatcher");
      outargs.insert("args",QJsonValue(msg));
-   ret.insert("args",outargs);	
-   out.CODE = RestOutputStruct::OK;
+  out.out_args = outargs;
+   //ret.insert("args",outargs);	
+
       //Assemble the output JSON document/text
-      QJsonDocument retdoc; 
-      retdoc.setObject(ret);
-    out.Body = retdoc.toJson();
+      //QJsonDocument retdoc; 
+      //retdoc.setObject(ret);
+    //out.Body = retdoc.toJson();
     out.Header << "Content-Type: text/json; charset=utf-8";
   //Now send the message back through the socket
   if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
