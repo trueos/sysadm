@@ -1,32 +1,33 @@
 #!/bin/sh
 # $FreeBSD$
 
-# PROVIDE: sysadm
+# PROVIDE: sysadm-restserver
 # REQUIRE: LOGIN cleanvar
 # KEYWORD: shutdown
 
 #
 # Add the following lines to /etc/rc.conf to enable sysadm:
-# sysadm_enable (bool):		Set to "NO" by default.
+# sysadmr_restserver_enable (bool):		Set to "NO" by default.
 #				Set it to "YES" to enable sysadm
 
 . /etc/rc.subr
 
-name="sysadm"
-rcvar=sysadm_enable
+name="sysadm_restserver"
+rcvar=sysadm_restserver_enable
 
 command="/usr/local/bin/sysadm-server"
 start_cmd="sysadm_start"
 stop_cmd="sysadm_stop"
+flags=""
 
-[ -z "$sysadm_enable" ]		&& sysadm_enable="NO"
+[ -z "$sysadm_restserver_enable" ] && sysadm_restserver_enable="NO"
 
 load_rc_config $name
 
 sysadm_stop()
 {
-  if [ -e "/var/run/sysadm.pid" ] ; then
-    pkill -9 -F /var/run/sysadm.pid
+  if [ -e "/var/run/sysadm-rest.pid" ] ; then
+    pkill -9 -F /var/run/sysadm-rest.pid
   fi
 }
 
@@ -34,8 +35,8 @@ sysadm_start()
 {
   export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
   sysadm_stop
-  echo "Starting sysadm..."
-  daemon -p /var/run/sysadm.pid $command $flags >/dev/null 2>/dev/null
+  echo "Starting sysadm (REST)..."
+  daemon -p /var/run/sysadm-rest.pid $command $flags >/dev/null 2>/dev/null
 }
 
 run_rc_command "$1"
