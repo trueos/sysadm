@@ -75,6 +75,11 @@ void WebSocket::EvaluateREST(QString msg){
     qDebug() << "  VERB:" << IN.VERB << "URI:" << IN.URI;
     qDebug() << "  HEADERS:" << IN.Header;
     qDebug() << "  BODY:" << IN.Body;
+    qDebug() << "JSON Values:";
+    qDebug() << " - Name:" << IN.name;
+    qDebug() << " - Namespace:" << IN.namesp;
+    qDebug() << " - ID:" << IN.id;
+    qDebug() << " - Has Args:" << IN.args.isNull();
   }
   //Now check for the REST-specific verbs/actions
   if(IN.VERB == "OPTIONS" || IN.VERB == "HEAD"){

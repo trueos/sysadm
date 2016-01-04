@@ -38,6 +38,7 @@ public:
 	  HTTPVERSION = CurHttpVersion; //default value
 	  if(message.isEmpty()){ return; }
 	  //Pull out any REST headers
+	  Body = message;
 	  if(!message.startsWith("{")){ 
 	    Header = message.section("\n{",0,0).split("\n");
 	  }
@@ -56,7 +57,7 @@ public:
 	      //Valid JSON found
 	      if(doc.object().contains("namespace") ){ namesp = doc.object().value("namespace").toString(); }
 	      if(doc.object().contains("name") ){ name = doc.object().value("name").toString(); }
-	      if(doc.object().contains("id") ){ namesp = doc.object().value("id").toString(); }
+	      if(doc.object().contains("id") ){ id = doc.object().value("id").toString(); }
 	      if(doc.object().contains("args") ){ args = doc.object().value("args"); }
 	      else{
 	        //no args structure - treat the entire body as the arguments struct
