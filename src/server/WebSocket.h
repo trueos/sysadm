@@ -45,7 +45,6 @@ private:
 	//Simplification functions
 	QString JsonValueToString(QJsonValue);
 	QStringList JsonArrayToStringList(QJsonArray);
-	void SetOutputError(QJsonObject *ret, QString id, int err, QString msg);
 
 	//Backend request/reply functions (contained in WebBackend.cpp)
 	// -- Main subsystem parser

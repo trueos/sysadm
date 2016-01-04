@@ -113,27 +113,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     out.CODE = RestOutputStruct::BADREQUEST;
   }else{
     //Now check the body of the message and do what it needs
-    /*QJsonDocument doc = QJsonDocument::fromJson(REQ.Body.toUtf8());
-    if(doc.isNull()){ qWarning() << "Empty JSON Message Body!!" << REQ.Body.toUtf8(); }
-    //Define the output structures
-    QJsonObject ret; //return message
-
-    //Objects contain other key/value pairs - this is 99% of cases
-    if(doc.isObject()){
-      //First check/set all the various required fields (both in and out)
-      bool good = doc.object().contains("namespace") \
-	    && doc.object().contains("name") \
-	    && doc.object().contains("id") \
-	    && doc.object().contains("args");
-      //Can add some fallbacks for missing fields here - but not implemented yet
-      */
-      //parse the message and do something
-      //if(good && (JsonValueToString(doc.object().value("namespace"))=="rpc") ){
       if(out.in_struct.namesp.toLower() == "rpc"){
-	//Now fetch the outputs from the appropriate subsection
-	//Note: Each subsection needs to set the "name", "namespace", and "args" output objects
-	//QString name = JsonValueToString(doc.object().value("name")).toLower();
-	//QJsonValue args = doc.object().value("args");
 	if(out.in_struct.name.startsWith("auth")){
 	  //Now perform authentication based on type of auth given
 	  //Note: This sets/changes the current SockAuthToken
@@ -156,9 +136,6 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	  //Now check the auth and respond appropriately
 	  if(AUTHSYSTEM->checkAuth(SockAuthToken)){
 	    //Good Authentication - return the new token 
-	    //ret.insert("namespace", QJsonValue("rpc"));
-	    //ret.insert("name", QJsonValue("response"));
-	    //ret.insert("id", doc.object().value("id")); //use the same ID for the return message
 	    QJsonArray array;
 	      array.append(SockAuthToken);
 	      array.append(AUTHSYSTEM->checkAuthTimeoutSecs(SockAuthToken));
@@ -168,32 +145,23 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    SockAuthToken.clear(); //invalid token
 	    //Bad Authentication - return error
 	    out.CODE = RestOutputStruct::UNAUTHORIZED;
-	    //SetOutputError(&ret, JsonValueToString(out.in_struct.id), 401, "Unauthorized");
 	  }
 		
 	}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	  //Now provide access to the various subsystems
 	  //Pre-set any output fields
           QJsonObject outargs;	
-	    //ret.insert("namespace", QJsonValue("rpc"));
-	    //ret.insert("name", QJsonValue("response"));
-	    //ret.insert("id", doc.object().value("id")); //use the same ID for the return message
-	  out.CODE = EvaluateBackendRequest(out.in_struct.namesp, out.in_struct.name, out.in_struct.args, &outargs);
-            out.out_args = outargs; //ret.insert("args",outargs);	  
+	    out.CODE = EvaluateBackendRequest(out.in_struct.namesp, out.in_struct.name, out.in_struct.args, &outargs);
+            out.out_args = outargs;	  
         }else{
-	  out.CODE = RestOutputStruct::UNAUTHORIZED;
 	  //Bad/No authentication
-	  //SetOutputError(&ret, JsonValueToString(doc.object().value("id")), 401, "Unauthorized");
+	  out.CODE = RestOutputStruct::UNAUTHORIZED;
 	}
 	    	
-      //}else if(good && (JsonValueToString(doc.object().value("namespace"))=="events") ){
       }else if(out.in_struct.namesp.toLower() == "events"){
           if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	    //Pre-set any output fields
             QJsonObject outargs;	
-	      //ret.insert("namespace", QJsonValue("events"));
-	      //ret.insert("name", QJsonValue("response"));
-	      //ret.insert("id", doc.object().value("id")); //use the same ID for the return message
 	    //Assemble the list of input events
 	    QStringList evlist;
 	    if(out.in_struct.args.isObject()){ evlist << JsonValueToString(out.in_struct.args); }
@@ -213,7 +181,6 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    }else{
 	      outargs.insert("unknown",QJsonValue("unknown"));
 	    }
-            //ret.insert("args",outargs);
 	    out.out_args = outargs;
           }else{
 	    //Bad/No authentication
@@ -225,7 +192,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	  //Pre-set any output fields
           QJsonObject outargs;	
 	    out.CODE = EvaluateBackendRequest(out.in_struct.namesp, out.in_struct.name, out.in_struct.args, &outargs);
-            out.out_args = outargs; //ret.insert("args",outargs);	
+            out.out_args = outargs;	
 	}else{
 	  //Error in inputs - assemble the return error message
 	  out.CODE = RestOutputStruct::BADREQUEST;
@@ -236,62 +203,9 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     }
   }
   //Return any information
-   if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
+  if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
   else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }
 }
-
-// === SYSCACHE REQUEST INTERACTION ===
-/*void WebSocket::EvaluateBackendRequest(QString name, const QJsonValue args, QJsonObject *out){
-  QJsonObject obj; //output object
-  if(args.isObject()){
-    //For the moment: all arguments are full syscache DB calls - no special ones
-    QStringList reqs = args.toObject().keys();
-    if(!reqs.isEmpty()){
-      if(DEBUG){ qDebug() << "Parsing Inputs:" << reqs; }
-      for(int r=0; r<reqs.length(); r++){
-        QString req =  JsonValueToString(args.toObject().value(reqs[r]));
-        if(DEBUG){ qDebug() << "  ["+reqs[r]+"]="+req; }
-        QStringList values;
-	if(name.toLower()=="syscache"){values = SysCacheClient::parseInputs( QStringList() << req ); }
-	else if(name.toLower()=="dispatcher"){values = DispatcherClient::parseInputs( QStringList() << req, AUTHSYSTEM); }
-        values.removeAll("");
-        //Quick check if a list of outputs was returned
-        if(values.length()==1 && name.toLower()=="syscache"){
-          values = values[0].split(SCLISTDELIM); //split up the return list (if necessary)
-          values.removeAll("");
-        }
-        if(DEBUG){ qDebug() << " - Returns:" << values; }
-        if(values.length()<2){ out->insert(req, QJsonValue(values.join("")) ); }
-        else{
-          //This is an array of outputs
-          QJsonArray arr;
-          for(int i=0; i<values.length(); i++){ arr.append(values[i]); }
-          out->insert(req,arr);
-        }
-      }
-    } //end of special "request" objects
-  }else if(args.isArray()){
-    QStringList inputs = JsonArrayToStringList(args.toArray());
-    if(DEBUG){ qDebug() << "Parsing Array inputs:" << inputs; }
-    QStringList values;
-      if(name.toLower()=="syscache"){values = SysCacheClient::parseInputs( inputs ); }
-      else if(name.toLower()=="dispatcher"){values = DispatcherClient::parseInputs( inputs , AUTHSYSTEM); }
-    if(DEBUG){ qDebug() << " - Returns:" << values; }
-    for(int i=0; i<values.length(); i++){
-      if(name.toLower()=="syscache" && values[i].contains(SCLISTDELIM)){
-	  //This is an array of values from syscache
-	  QStringList vals = values[i].split(SCLISTDELIM);
-	  vals.removeAll("");
-	  QJsonArray arr;
-	    for(int j=0; j<vals.length(); j++){ arr.append(vals[j]); }
-	    out->insert(inputs[i],arr);
-      }else{
-          out->insert(inputs[i],values[i]);
-      }
-    }
-  } //end array of inputs
-
-}*/
 
 // === GENERAL PURPOSE UTILITY FUNCTIONS ===
 QString WebSocket::JsonValueToString(QJsonValue val){
@@ -315,21 +229,11 @@ QString WebSocket::JsonValueToString(QJsonValue val){
 QStringList WebSocket::JsonArrayToStringList(QJsonArray array){
   //Note: This assumes that the array is only values, not additional objects
   QStringList out;
-  qDebug() << "Array to List:" << array.count();
+  if(DEBUG){ qDebug() << "Array to List:" << array.count(); }
   for(int i=0; i<array.count(); i++){
     out << JsonValueToString(array.at(i));
   }
   return out;  
-}
-
-void WebSocket::SetOutputError(QJsonObject *ret, QString id, int err, QString msg){
-  ret->insert("namespace", QJsonValue("rpc"));
-  ret->insert("name", QJsonValue("error"));
-  ret->insert("id",QJsonValue(id));
-  QJsonObject obj;
-  	obj.insert("code", err);
-	obj.insert("message", QJsonValue(msg));
-  ret->insert("args",obj);	
 }
 
 // =====================
@@ -367,7 +271,7 @@ void WebSocket::EvaluateMessage(const QByteArray &msg){
   if(idletimer->isActive()){ idletimer->stop(); }
   EvaluateREST( QString(msg) );
   idletimer->start(); 
-  qDebug() << "Done with Message";
+  qDebug() << " - Done with Binary Message";
 }
 
 void WebSocket::EvaluateMessage(const QString &msg){ 
@@ -375,7 +279,7 @@ void WebSocket::EvaluateMessage(const QString &msg){
   if(idletimer->isActive()){ idletimer->stop(); }
   EvaluateREST(msg);
   idletimer->start(); 
-  qDebug() << "Done with Message";
+  qDebug() << " - Done with Text Message";
 }
 
 void WebSocket::EvaluateTcpMessage(){
@@ -384,7 +288,7 @@ void WebSocket::EvaluateTcpMessage(){
   if(idletimer->isActive()){ idletimer->stop(); }
   EvaluateREST( QString(TSOCKET->readAll()) );
   idletimer->start(); 
-  qDebug() << "Done with Message";	
+  qDebug() << " - Done with TCP Message";	
 }
 
 // ======================
@@ -399,23 +303,14 @@ void WebSocket::AppCafeStatusUpdate(QString msg){
     out.CODE = RestOutputStruct::OK;
     out.in_struct.name = "event";
     out.in_struct.namesp = "events";
-  //Define the output structures
-  //QJsonObject ret; //return message
   //Pre-set any output fields
    QJsonObject outargs;	
-   //ret.insert("namespace", QJsonValue("events"));
-   //ret.insert("name", QJsonValue("event"));
-   //ret.insert("id", QJsonValue(""));
      outargs.insert("name", "dispatcher");
      outargs.insert("args",QJsonValue(msg));
-  out.out_args = outargs;
-   //ret.insert("args",outargs);	
+  out.out_args = outargs;	
 
-      //Assemble the output JSON document/text
-      //QJsonDocument retdoc; 
-      //retdoc.setObject(ret);
-    //out.Body = retdoc.toJson();
-    out.Header << "Content-Type: text/json; charset=utf-8";
+  //Assemble the output JSON document/text
+    out.Header << "Content-Type: text/json; charset=utf-8"; //REST header info
   //Now send the message back through the socket
   if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
   else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }
