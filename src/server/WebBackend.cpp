@@ -22,17 +22,21 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(QString namesp, QSt
 	"args" - JSON input arguments structure
 	"out" - JSON output arguments structure
   */
+  namesp = namesp.toLower(); name = name.toLower();
   //Go through and forward this request to the appropriate sub-system
-  if(namesp == "rpc" && name.toLower()=="syscache"){
+  if(namesp=="rpc" && name=="syscache"){
     return EvaluateSyscacheRequest(args, out);
-  }else if(namesp == "rpc" && name.toLower()=="dispatcher"){
+  }else if(namesp=="rpc" && name=="dispatcher"){
     return EvaluateSyscacheRequest(args, out);
+  }else if(namesp=="sysadm" && name=="network"){
+    return EvaluateSysadmNetworkRequest(args, out);
   }else{
     return RestOutputStruct::BADREQUEST; 
   }
 
 }
 
+//==== SYSCACHE ====
 RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out){
   //syscache only needs a list of sub-commands at the moment (might change later)
   QStringList in_req;
@@ -65,6 +69,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue i
   return RestOutputStruct::OK;
 }
 
+//==== DISPATCHER ====
 RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue in_args, QJsonObject *out){
   //dispatcher only needs a list of sub-commands at the moment (might change later)
   QStringList in_req;
@@ -86,3 +91,36 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue
   return RestOutputStruct::OK;
 }
 
+//==== SYSADM -- Network ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmNetworkRequest(const QJsonValue in_args, QJsonObject *out){
+  if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    if(keys.contains("action")){
+      QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="list-devices"){
+        QStringList devs = sysadm::NetDevice::listNetDevices();
+	for(int i=0; i<devs.length(); i++){
+	  sysadm::NetDevice D(devs[i]);
+	  QJsonObject obj;
+	    //assemble the information about this device into an output object
+	    obj.insert("ipv4", D.ipAsString());
+	    obj.insert("ipv6", D.ipv6AsString());
+	    obj.insert("netmask", D.netmaskAsString());
+	    obj.insert("description", D.desc());
+	    obj.insert("MAC", D.macAsString());
+	    obj.insert("status", D.mediaStatusAsString());
+	    obj.insert("is_active", D.isUp() ? "true" : "false" );
+	    obj.insert("is_dhcp", D.usesDHCP() ? "true" : "false" );
+	    obj.insert("is_wireless", D.isWireless() ? "true" : "false" );
+	  //Add this device info to the main output structure
+	  out->insert(devs[i], obj);
+	}
+	
+      }
+    }
+    
+  }else if(in_args.isArray()){
+	  
+  }
+  return RestOutputStruct::OK;
+}

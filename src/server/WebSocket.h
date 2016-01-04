@@ -52,7 +52,9 @@ private:
 	// -- Individual subsystems
 	RestOutputStruct::ExitCode EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out);
 	RestOutputStruct::ExitCode EvaluateDispatcherRequest(const QJsonValue in_args, QJsonObject *out);
-
+	// -- sysadm library/subsystems
+	RestOutputStruct::ExitCode EvaluateSysadmNetworkRequest(const QJsonValue in_args, QJsonObject *out);
+	
 private slots:
 	void checkIdle(); //see if the currently-connected client is idle
 	void SocketClosing();
