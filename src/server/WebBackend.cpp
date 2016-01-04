@@ -95,9 +95,11 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue
 RestOutputStruct::ExitCode WebSocket::EvaluateSysadmNetworkRequest(const QJsonValue in_args, QJsonObject *out){
   if(in_args.isObject()){
     QStringList keys = in_args.toObject().keys();
+    bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
       if(act=="list-devices"){
+	ok = true;
         QStringList devs = sysadm::NetDevice::listNetDevices();
 	for(int i=0; i<devs.length(); i++){
 	  sysadm::NetDevice D(devs[i]);
@@ -115,12 +117,16 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmNetworkRequest(const QJsonVa
 	  //Add this device info to the main output structure
 	  out->insert(devs[i], obj);
 	}
-	
       }
-    }
+
+    } //end of "action" key usage
     
-  }else if(in_args.isArray()){
-	  
+    //If nothing done - return the proper code
+    if(!ok){
+      return RestOutputStruct::BADREQUEST;
+    }
+  }else{  // if(in_args.isArray()){
+    return RestOutputStruct::BADREQUEST;
   }
   return RestOutputStruct::OK;
 }
