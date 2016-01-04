@@ -5,7 +5,7 @@
 // =================================
 #include "WebSocket.h"
 
-#define DEBUG 0
+#define DEBUG 1
 #define IDLETIMEOUTMINS 30
 
 WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
@@ -79,7 +79,7 @@ void WebSocket::EvaluateREST(QString msg){
     qDebug() << " - Name:" << IN.name;
     qDebug() << " - Namespace:" << IN.namesp;
     qDebug() << " - ID:" << IN.id;
-    qDebug() << " - Has Args:" << IN.args.isNull();
+    qDebug() << " - Has Args:" << !IN.args.isNull();
   }
   //Now check for the REST-specific verbs/actions
   if(IN.VERB == "OPTIONS" || IN.VERB == "HEAD"){
@@ -163,6 +163,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	      array.append(SockAuthToken);
 	      array.append(AUTHSYSTEM->checkAuthTimeoutSecs(SockAuthToken));
 	    out.out_args = array;
+	    out.CODE = RestOutputStruct::OK;
 	  }else{
 	    SockAuthToken.clear(); //invalid token
 	    //Bad Authentication - return error
@@ -177,7 +178,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    //ret.insert("namespace", QJsonValue("rpc"));
 	    //ret.insert("name", QJsonValue("response"));
 	    //ret.insert("id", doc.object().value("id")); //use the same ID for the return message
-	  out.CODE = EvaluateBackendRequest(out.in_struct.name, out.in_struct.args, &outargs);
+	  out.CODE = EvaluateBackendRequest(out.in_struct.namesp, out.in_struct.name, out.in_struct.args, &outargs);
             out.out_args = outargs; //ret.insert("args",outargs);	  
         }else{
 	  out.CODE = RestOutputStruct::UNAUTHORIZED;
@@ -217,22 +218,22 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
           }else{
 	    //Bad/No authentication
 	    out.CODE = RestOutputStruct::UNAUTHORIZED;
-	    //SetOutputError(&ret, JsonValueToString(doc.object().value("id")), 401, "Unauthorized");
 	  }
-        }else{
+	//Other namespace - check whether auth has already been established before continuing
+        }else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
+	  //Now provide access to the various subsystems
+	  //Pre-set any output fields
+          QJsonObject outargs;	
+	    out.CODE = EvaluateBackendRequest(out.in_struct.namesp, out.in_struct.name, out.in_struct.args, &outargs);
+            out.out_args = outargs; //ret.insert("args",outargs);	
+	}else{
 	  //Error in inputs - assemble the return error message
 	  out.CODE = RestOutputStruct::BADREQUEST;
-	/*QString id = "error";
-	if(doc.object().contains("id")){ id = JsonValueToString(doc.object().value("id")); } //use the same ID
-	SetOutputError(&ret, id, 400, "Bad Request");*/
-        }
-    //Assemble the outputs for this "GET" request
-    out.CODE = RestOutputStruct::OK;
-      //Assemble the output JSON document/text
-      //QJsonDocument retdoc; 
-      //retdoc.setObject(ret);
-    //out.Body = retdoc.toJson();
-    out.Header << "Content-Type: text/json; charset=utf-8";
+	}
+    //If this is a REST input - go ahead and format the output header
+    if(out.CODE == RestOutputStruct::OK){
+      out.Header << "Content-Type: text/json; charset=utf-8";
+    }
   }
   //Return any information
    if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }

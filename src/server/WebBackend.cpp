@@ -15,11 +15,17 @@
 #define DEBUG 0
 #define SCLISTDELIM QString("::::") //SysCache List Delimiter
 
-RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(QString name, const QJsonValue args, QJsonObject *out){
+RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(QString namesp, QString name, const QJsonValue args, QJsonObject *out){
+  /*Inputs: 
+	"namesp" - namespace for the request
+	"name" - name of the request
+	"args" - JSON input arguments structure
+	"out" - JSON output arguments structure
+  */
   //Go through and forward this request to the appropriate sub-system
-  if(name.toLower()=="syscache"){
+  if(namesp == "rpc" && name.toLower()=="syscache"){
     return EvaluateSyscacheRequest(args, out);
-  }else if(name.toLower()=="dispatcher"){
+  }else if(namesp == "rpc" && name.toLower()=="dispatcher"){
     return EvaluateSyscacheRequest(args, out);
   }else{
     return RestOutputStruct::BADREQUEST; 
