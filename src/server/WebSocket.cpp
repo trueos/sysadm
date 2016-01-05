@@ -36,7 +36,7 @@ WebSocket::WebSocket(QTcpSocket *sock, QString ID, AuthorizationManager *auth){
     idletimer->setInterval(IDLETIMEOUTMINS*60000); //connection timout for idle sockets
     idletimer->setSingleShot(true);
   connect(idletimer, SIGNAL(timeout()), this, SLOT(checkIdle()) );
-  connect(TSOCKET, SIGNAL(readyRead()), this, SLOT(EvaluateTCPMessage()) );
+  connect(TSOCKET, SIGNAL(readyRead()), this, SLOT(EvaluateTcpMessage()) );
   connect(TSOCKET, SIGNAL(aboutToClose()), this, SLOT(SocketClosing()) );
   idletimer->start();
 }
