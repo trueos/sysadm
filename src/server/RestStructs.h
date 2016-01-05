@@ -104,12 +104,12 @@ public:
 	  if( !in_struct.VERB.isEmpty() ){
 	    //REST output syntax
 	    QStringList headers;
-	    QString firstline = in_struct.HTTPVERSION;
-	    if(firstline.isEmpty()){ firstline = CurHttpVersion; }//default value
+	    QString firstline = in_struct.HTTPVERSION.simplified();
+	    if(firstline.isEmpty()){ firstline = CurHttpVersion.simplified(); }//default value
 	    QString Body;
 	    if(!out_args.isNull()){ 
 	      QJsonObject obj; obj.insert("args", out_args);
-	      Body = QJsonDocument(obj).toJson(QJsonDocument::Compact); 
+	      Body = QJsonDocument(obj).toJson();
 	    }
 	    switch(CODE){
 	      case PROCESSING:
@@ -136,13 +136,17 @@ public:
 	        firstline.append(" 404 Not Found"); break;
 	    }
 	    headers << firstline;
-	    headers << "Date: "+QDateTime::currentDateTime().toString(Qt::ISODate);
-	    if(!Header.isEmpty()){ headers << Header; }
+	    headers << "Server: SysAdm/1.0";
+	    headers << "Date: "+QDateTime::currentDateTime().toString(Qt::ISODate).simplified();
+	    if(!Header.isEmpty()) {
+	      for (int i = 0; i < Header.size(); ++i)
+                headers << Header.at(i).simplified();
+	    }
 	    //Now add the body of the return
-	    qDebug() << "Return JSON:" << Body;
 	    if(!Body.isEmpty()){ headers << "Content-Length: "+QString::number(Body.toUtf8().size()); } //number of bytes for the body
+	    headers << "";
 	    headers << Body;
-	    return headers.join("\n");
+	    return headers.join("\r\n");
 	    
 	  }else{
 	    //JSON output (load all the input fields for the moment)

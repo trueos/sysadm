@@ -19,5 +19,8 @@ echo ""
 . ./utils/resty -W "http://127.0.0.1:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${fuser}:${fpass}
 
 # Check the reply of this REST query
-POST /sysadm/lifepreserver '{ "action":"listcron" }' -v
-
+PUT /sysadm/lifepreserver '{ "action":"listcron" }' -v 2>/tmp/.rstErr
+if [ $? -ne 0 ] ; then
+  echo "Failed.. Error output:"
+  cat /tmp/.rstErr
+fi
