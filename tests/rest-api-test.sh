@@ -19,5 +19,5 @@ echo ""
 . ./utils/resty -W "http://127.0.0.1:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${fuser}:${fpass}
 
 # Check the reply of this REST query
-GET /sysadm/lifepreserver '{ "action":"list-cron" }' -v
+POST /sysadm/lifepreserver '{ "action":"list-cron" }' -v
 
