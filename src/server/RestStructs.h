@@ -48,7 +48,15 @@ public:
 	    URI = line.section(" ",1,1);
 	    HTTPVERSION = line.section(" ",2,2);
 	    Body = message.remove(Header.join("\n")+"\n"); //chop the headers off the front
-	    //if(Header.filter(
+	    if(!Header.filter("Authorization:").isEmpty()){
+	      line = Header.filter("Authorization:").takeFirst().section("Authorization: ",1,50).simplified();
+	      if(line.section(" ",0,0).toLower()=="basic"){
+	        //Convert the base64-encoded string to the plain "user:pass" string
+		QByteArray ba;
+		ba.append(line.section(" ",1,1));
+		auth = QByteArray::fromBase64(ba);
+	      }
+	    }
 	  }
 	  //Now Parse out the Body into the JSON fields and/or arguments structure
 	  Body = Body.simplified(); //remove any extra whitespace on the beginning/end

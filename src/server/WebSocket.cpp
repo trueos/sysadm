@@ -84,6 +84,7 @@ void WebSocket::EvaluateREST(QString msg){
     qDebug() << "  VERB:" << IN.VERB << "URI:" << IN.URI;
     qDebug() << "  HEADERS:" << IN.Header;
     qDebug() << "  BODY:" << IN.Body;
+    qDebug() << " Auth:" << IN.auth;
     qDebug() << "JSON Values:";
     qDebug() << " - Name:" << IN.name;
     qDebug() << " - Namespace:" << IN.namesp;
@@ -122,6 +123,12 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     //Note: id and args are optional at this stage - let the subsystems handle those inputs
     out.CODE = RestOutputStruct::BADREQUEST;
   }else{
+    //First check for a REST authorization (not stand-alone request)
+    if(!out.in_struct.auth.isEmpty()){
+      AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
+      SockAuthToken = AUTHSYSTEM->LoginUP(false, out.in_struct.auth.section(":",0,0), out.in_struct.auth.section(":",1,1));
+    }
+	  
     //Now check the body of the message and do what it needs
       if(out.in_struct.namesp.toLower() == "rpc"){
 	if(out.in_struct.name.startsWith("auth")){
@@ -197,12 +204,12 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    out.CODE = RestOutputStruct::UNAUTHORIZED;
 	  }
 	//Other namespace - check whether auth has already been established before continuing
-        }else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
+	}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	  //Now provide access to the various subsystems
 	  //Pre-set any output fields
           QJsonObject outargs;	
 	    out.CODE = EvaluateBackendRequest(out.in_struct.namesp, out.in_struct.name, out.in_struct.args, &outargs);
-            out.out_args = outargs;	
+            out.out_args = outargs;
 	}else{
 	  //Error in inputs - assemble the return error message
 	  out.CODE = RestOutputStruct::UNAUTHORIZED;
