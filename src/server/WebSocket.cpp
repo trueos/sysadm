@@ -65,6 +65,15 @@ void WebSocket::setLastDispatch(QString msg){
 //=======================
 //             PRIVATE
 //=======================
+void WebSocket::sendReply(QString msg){
+ if(SOCKET!=0){ SOCKET->sendTextMessage(msg); } //Websocket connection
+ else if(TSOCKET!=0){ 
+    //TCP Socket connection
+    TSOCKET->write(msg.toUtf8().data()); 
+    TSOCKET->close(); //TCP/REST connections are 1 connection per message.
+ }
+}
+
 void WebSocket::EvaluateREST(QString msg){
   //Parse the message into it's elements and proceed to the main data evaluation
   RestInputStruct IN(msg);
@@ -94,8 +103,9 @@ void WebSocket::EvaluateREST(QString msg){
       }
       out.Header << "Accept: text/json";
       out.Header << "Content-Type: text/json; charset=utf-8";
-    if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
-    else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }
+    this->sendReply(out.assembleMessage());
+/*    if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
+    else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }*/
   }else{
     EvaluateRequest(IN);
   }
@@ -203,8 +213,9 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     }
   }
   //Return any information
-  if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
-  else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }
+  this->sendReply(out.assembleMessage());
+  /*if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
+  else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }*/
 }
 
 // === GENERAL PURPOSE UTILITY FUNCTIONS ===
@@ -312,6 +323,7 @@ void WebSocket::AppCafeStatusUpdate(QString msg){
   //Assemble the output JSON document/text
     out.Header << "Content-Type: text/json; charset=utf-8"; //REST header info
   //Now send the message back through the socket
-  if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
-  else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }
+  this->sendReply(out.assembleMessage());
+/*  if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
+  else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }*/
 }

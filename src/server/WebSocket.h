@@ -38,6 +38,8 @@ private:
 	AuthorizationManager *AUTHSYSTEM;
 	bool SendAppCafeEvents;
 
+	void sendReply(QString msg);
+
 	//Main connection comminucations procedure
 	void EvaluateREST(QString); //Text -> Rest/JSON struct
 	void EvaluateRequest(const RestInputStruct&); // Parse Rest/JSON (does auth/events)
