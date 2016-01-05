@@ -28,7 +28,7 @@ public:
 	//REST Variables
 	QString VERB, URI, HTTPVERSION;
 	//JSON input variables
-	QString name, namesp, id;
+	QString name, namesp, id, auth;
 	QJsonValue args;
 	//Raw Text
 	QStringList Header; //REST Headers
@@ -48,6 +48,7 @@ public:
 	    URI = line.section(" ",1,1);
 	    HTTPVERSION = line.section(" ",2,2);
 	    Body = message.remove(Header.join("\n")+"\n"); //chop the headers off the front
+	    //if(Header.filter(
 	  }
 	  //Now Parse out the Body into the JSON fields and/or arguments structure
 	  Body = Body.simplified(); //remove any extra whitespace on the beginning/end

@@ -205,7 +205,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
             out.out_args = outargs;	
 	}else{
 	  //Error in inputs - assemble the return error message
-	  out.CODE = RestOutputStruct::BADREQUEST;
+	  out.CODE = RestOutputStruct::UNAUTHORIZED;
 	}
     //If this is a REST input - go ahead and format the output header
     if(out.CODE == RestOutputStruct::OK){
