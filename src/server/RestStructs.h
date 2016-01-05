@@ -39,15 +39,17 @@ public:
 	  if(message.isEmpty()){ return; }
 	  //Pull out any REST headers
 	  Body = message;
+	  qDebug() << "Raw Message:" << message;
 	  if(!message.startsWith("{")){ 
-	    Header = message.section("\n{",0,0).split("\n");
+	    Header = message.section("{",0,0).split("\n");
+	    Body = "{"+message.section("{",1, 1000000);
 	  }
 	  if(!Header.isEmpty()){
 	    QString line = Header.takeFirst(); //The first line is special (not a generic header)
 	    VERB = line.section(" ",0,0);
 	    URI = line.section(" ",1,1);
 	    HTTPVERSION = line.section(" ",2,2);
-	    Body = message.remove(Header.join("\n")+"\n"); //chop the headers off the front
+	    //Body = message.remove(Header.join("\n")+"\n"); //chop the headers off the front
 	    if(!Header.filter("Authorization:").isEmpty()){
 	      line = Header.filter("Authorization:").takeFirst().section("Authorization: ",1,50).simplified();
 	      if(line.section(" ",0,0).toLower()=="basic"){
