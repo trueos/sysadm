@@ -70,7 +70,7 @@ void WebSocket::sendReply(QString msg){
  else if(TSOCKET!=0){ 
     //TCP Socket connection
     TSOCKET->write(msg.toUtf8().data()); 
-    TSOCKET->close(); //TCP/REST connections are 1 connection per message.
+    TSOCKET->disconnectFromHost(); //TCP/REST connections are 1 connection per message.
  }
 }
 
