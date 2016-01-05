@@ -117,7 +117,7 @@ void WebSocket::EvaluateREST(QString msg){
 void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
   RestOutputStruct out;
     out.in_struct = REQ;
-  if(!REQ.VERB.isEmpty() && REQ.VERB != "GET" && REQ.VERB!="POST"){
+  if(!REQ.VERB.isEmpty() && REQ.VERB != "GET" && REQ.VERB!="POST" && REQ.VERB!="PUT"){
     //Non-supported request (at the moment) - return an error message
     out.CODE = RestOutputStruct::BADREQUEST;
   }else if(out.in_struct.name.isEmpty() || out.in_struct.namesp.isEmpty() ){

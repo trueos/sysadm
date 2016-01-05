@@ -139,7 +139,8 @@ public:
 	    headers << "Date: "+QDateTime::currentDateTime().toString(Qt::ISODate);
 	    if(!Header.isEmpty()){ headers << Header; }
 	    //Now add the body of the return
-	    if(!Body.isEmpty()){ headers << "Content-Length: "+QString::number(Body.length()); }
+	    qDebug() << "Return JSON:" << Body;
+	    if(!Body.isEmpty()){ headers << "Content-Length: "+QString::number(Body.toUtf8().size()); } //number of bytes for the body
 	    headers << Body;
 	    return headers.join("\n");
 	    
