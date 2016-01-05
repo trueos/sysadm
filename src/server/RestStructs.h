@@ -69,7 +69,7 @@ public:
 	  if(!URI.isEmpty()){
 	    //TO-DO
 	    name = URI.section("/",-1); //last entry
-	    namesp = URI.section("/",0,-2); //URI excluding name
+	    namesp = URI.section("/",1,1); //URI excluding name
 	  }
 	}
 	~RestInputStruct(){}
