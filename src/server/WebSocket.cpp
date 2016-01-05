@@ -84,7 +84,7 @@ void WebSocket::EvaluateREST(QString msg){
     qDebug() << "  VERB:" << IN.VERB << "URI:" << IN.URI;
     qDebug() << "  HEADERS:" << IN.Header;
     qDebug() << "  BODY:" << IN.Body;
-    qDebug() << " Auth:" << IN.auth;
+    //qDebug() << " Auth:" << IN.auth;
     qDebug() << "JSON Values:";
     qDebug() << " - Name:" << IN.name;
     qDebug() << " - Namespace:" << IN.namesp;
