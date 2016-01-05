@@ -5,6 +5,8 @@
 // =================================
 #include "WebSocket.h"
 
+#include <unistd.h>
+
 #define DEBUG 1
 #define IDLETIMEOUTMINS 30
 
@@ -304,7 +306,12 @@ void WebSocket::EvaluateTcpMessage(){
   //Need to read the data from the Tcp socket and turn it into a string
   qDebug() << "New TCP Message:";
   if(idletimer->isActive()){ idletimer->stop(); }
-  EvaluateREST( QString(TSOCKET->readAll()) );
+  QString msg = QString(TSOCKET->readAll());
+  for(int i=0; i<5 && !msg.endsWith("}"); i++){
+    usleep(10000); //10ms
+    msg.append( QString(TSOCKET->readAll()) );
+  }
+  EvaluateREST(msg );
   idletimer->start(); 
   qDebug() << " - Done with TCP Message";	
 }
