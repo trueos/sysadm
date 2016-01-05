@@ -7,6 +7,7 @@
 #ifndef __PCBSD_LIB_UTILS_LIFEPRESERVER_H
 #define __PCBSD_LIB_UTILS_LIFEPRESERVER_H
 
+#include <QJsonObject>
 #include "sysadm-global.h"
 
 namespace sysadm{
@@ -14,7 +15,7 @@ namespace sysadm{
 class LifePreserver{
 public:
 	// List schedule snapshots
-	static QList<QStringList> listCron(); 
+	static QJsonObject listCron(); 
 };
 	
 } //end of pcbsd namespace

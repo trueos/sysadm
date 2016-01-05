@@ -8,6 +8,7 @@
 //sysadm library interface classes
 #include "sysadm-general.h"
 #include "sysadm-network.h"
+#include "sysadm-lifepreserver.h"
 
 #include "syscache-client.h"
 #include "dispatcher-client.h"
@@ -30,6 +31,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(QString namesp, QSt
     return EvaluateSyscacheRequest(args, out);
   }else if(namesp=="sysadm" && name=="network"){
     return EvaluateSysadmNetworkRequest(args, out);
+  }else if(namesp=="sysadm" && name=="lifepreserver"){
+    return EvaluateSysadmLifePreserverRequest(args, out);
   }else{
     return RestOutputStruct::BADREQUEST; 
   }
@@ -117,6 +120,30 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmNetworkRequest(const QJsonVa
 	  //Add this device info to the main output structure
 	  out->insert(devs[i], obj);
 	}
+      }
+
+    } //end of "action" key usage
+    
+    //If nothing done - return the proper code
+    if(!ok){
+      return RestOutputStruct::BADREQUEST;
+    }
+  }else{  // if(in_args.isArray()){
+    return RestOutputStruct::BADREQUEST;
+  }
+  return RestOutputStruct::OK;
+}
+
+//==== SYSADM -- LifePreserver ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const QJsonValue in_args, QJsonObject *out){
+  if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    bool ok = false;
+    if(keys.contains("action")){
+      QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="listcron"){
+	ok = true;
+        out->insert("listcron", sysadm::LifePreserver::listCron());
       }
 
     } //end of "action" key usage

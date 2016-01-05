@@ -13,7 +13,9 @@
 using namespace sysadm;
 
 // Build list of scheduled cron snapshot jobs
-QList<QStringList> LifePreserver::listCron() {
+QJsonObject LifePreserver::listCron() {
+   QJsonObject retObject;
+
    QStringList output = General::RunCommand("lpreserver listcron").split("\n");
    QList<QStringList> snaps;
    QStringList snapitems;
@@ -33,14 +35,17 @@ QList<QStringList> LifePreserver::listCron() {
       if ( output.at(i).isEmpty() || output.at(i).indexOf("-----------------") != -1 )
 	  break;
 
-      // Save this cron job
+      // Breakdown this cron job
       snapitems.clear();
       snapitems << output.at(i).section("-", 0, 0).simplified();
       snapitems << output.at(i).section("-", 1, 1).simplified();
       snapitems << output.at(i).section("-", 2, 2).simplified().replace("total: ", "");
 
-      snaps << snapitems;
+      QJsonObject values;
+      values.insert("schedule", snapitems.at(1));
+      values.insert("keep", snapitems.at(2));
+      retObject.insert(snapitems.at(0), values);
    }
 
-   return snaps;
+   return retObject;
 }

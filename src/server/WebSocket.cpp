@@ -5,7 +5,7 @@
 // =================================
 #include "WebSocket.h"
 
-#define DEBUG 0
+#define DEBUG 1
 #define IDLETIMEOUTMINS 30
 
 WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
