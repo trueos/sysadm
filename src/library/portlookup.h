@@ -15,6 +15,7 @@ class PortLookUp
 {
     struct PortInfo{
         int Port;
+        QString PortType;
         QString Keyword;
         QString Description;
         bool Recommended;

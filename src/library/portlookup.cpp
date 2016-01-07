@@ -22,6 +22,12 @@ PortLookUp::PortInfo PortLookUp::LookUpPort(int portNumber, QString portType)
     //the port number is valid so set it
     returnValue.Port = portNumber;
 
+    //make sure that the portType is cased in lower to match the service file and
+    //then store it in the returnValue, since there isn't a huge point in checking
+    //the validitiy of the type since /etc/services lists more than udp/tcp
+    portType = portType.toLower();
+    returnValue.PortType =  portType;
+
     //Check to see if it's a recommended port
     returnValue.Recommended = false;
     for(int i = 0; i < recommendedPortsSize; i++)
@@ -35,7 +41,7 @@ PortLookUp::PortInfo PortLookUp::LookUpPort(int portNumber, QString portType)
    //Check to see if the port number is listed. The format in the file
    // is portname/portType. ex.: 22/tcp
 
-   QStringList port = portStrings->filter(QRegExp("/\\b("+QString::number(portNumber)+"\\/"+portType.toLower()+")/g"));
+   QStringList port = portStrings->filter(QRegExp("/\\b("+QString::number(portNumber)+"\\/"+portType+")/g"));
 
    if(port.size() > 0)
    {
