@@ -326,13 +326,13 @@ void WebSocket::AppCafeStatusUpdate(QString msg){
   if(!SendAppCafeEvents){ return; } //don't report events on this socket
   RestOutputStruct out;
     out.CODE = RestOutputStruct::OK;
-    out.in_struct.name = "event";
+    out.in_struct.name = "dispatcher";
     out.in_struct.namesp = "events";
   //Pre-set any output fields
-   QJsonObject outargs;	
-     outargs.insert("name", "dispatcher");
-     outargs.insert("args",QJsonValue(msg));
-  out.out_args = outargs;	
+   //QJsonObject outargs;	
+     //outargs.insert("name", "dispatcher");
+    // outargs.insert("args",QJsonValue(msg));
+  out.out_args = QJsonValue(msg);//outargs;	
 
   //Assemble the output JSON document/text
     out.Header << "Content-Type: text/json; charset=utf-8"; //REST header info
