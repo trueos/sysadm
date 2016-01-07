@@ -24,6 +24,17 @@ flags="-ws"
 
 load_rc_config $name
 
+ssl_keygen()
+{
+  if [ ! -d "/usr/local/etc/sysadm" ] ; then
+    mkdir -p /usr/local/etc/sysadm
+  fi
+  openssl req -x509 -nodes -newkey rsa:2048 \
+	-keyout /usr/local/etc/sysadm/wsserver.key \
+	-out /usr/local/etc/sysadm/wsserver.crt -days 1024 \
+	-subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
+}
+
 sysadm_stop()
 {
   if [ -e "/var/run/sysadm-websocket.pid" ] ; then
@@ -35,6 +46,7 @@ sysadm_start()
 {
   export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
   sysadm_stop
+  ssl_keygen
   echo "Starting sysadm (WebSocket)..."
   daemon -p /var/run/sysadm-websocket.pid $command $flags >/dev/null 2>/dev/null
 }
