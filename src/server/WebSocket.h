@@ -7,7 +7,7 @@
 #define _PCBSD_REST_WEB_SOCKET_H
 
 #include <QWebSocket>
-#include <QTcpSocket>
+#include <QSslSocket>
 #include <QList>
 #include <QObject>
 #include <QJsonDocument>
@@ -24,7 +24,7 @@ class WebSocket : public QObject{
 	Q_OBJECT
 public:
 	WebSocket(QWebSocket*, QString ID, AuthorizationManager *auth);
-	WebSocket(QTcpSocket*, QString ID, AuthorizationManager *auth);
+	WebSocket(QSslSocket*, QString ID, AuthorizationManager *auth);
 	~WebSocket();
 
 	QString ID();
@@ -33,7 +33,7 @@ public:
 private:
 	QTimer *idletimer;
 	QWebSocket *SOCKET;
-	QTcpSocket *TSOCKET;
+	QSslSocket *TSOCKET;
 	QString SockID, SockAuthToken, lastDispatchEvent;
 	AuthorizationManager *AUTHSYSTEM;
 	bool SendAppCafeEvents;

@@ -27,7 +27,7 @@ WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
   idletimer->start();
 }
 
-WebSocket::WebSocket(QTcpSocket *sock, QString ID, AuthorizationManager *auth){
+WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
   SockID = ID;
   SockAuthToken.clear(); //nothing set initially
   TSOCKET = sock;

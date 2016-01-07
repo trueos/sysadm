@@ -9,7 +9,7 @@
 #include <QWebSocketServer>
 #include <QTcpServer>
 #include <QWebSocket>
-#include <QTcpSocket>
+#include <QSslSocket>
 #include <QWebSocketCorsAuthenticator>
 #include <QFileSystemWatcher>
 #include <QSslError>

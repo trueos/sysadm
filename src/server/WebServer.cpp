@@ -68,7 +68,11 @@ void WebServer::stopServer(){
 //     PRIVATE
 //===================
 bool WebServer::setupWebSocket(quint16 port){
-  WSServer = new QWebSocketServer("sysadm-server", QWebSocketServer::NonSecureMode, this);
+  WSServer = new QWebSocketServer("sysadm-server", QWebSocketServer::SecureMode, this);
+  QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+	//config.setLocalCertificate( QSslCertificate() );
+	//config.setPrivateKey( QSslKey() );
+  WSServer->setSslConfiguration(config);
   //Setup Connections
   connect(WSServer, SIGNAL(newConnection()), this, SLOT(NewSocketConnection()) );
   connect(WSServer, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(NewConnectError(QAbstractSocket::SocketError)) );
@@ -119,7 +123,7 @@ void WebServer::NewSocketConnection(){
   if(WSServer!=0){
     if(WSServer->hasPendingConnections()){ sock = new WebSocket( WSServer->nextPendingConnection(), generateID(), AUTH); }
   }else if(TCPServer!=0){
-    if(TCPServer->hasPendingConnections()){ sock = new WebSocket( TCPServer->nextPendingConnection(), generateID(), AUTH); }
+    if(TCPServer->hasPendingConnections()){ sock = new WebSocket( static_cast<QSslSocket*>(TCPServer->nextPendingConnection()), generateID(), AUTH); }
   }
   if(sock==0){ return; } //no new connection
   qDebug() << "New Socket Connection";	
