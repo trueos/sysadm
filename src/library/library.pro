@@ -13,13 +13,14 @@ VERSION		= 1.0.0
 HEADERS	+= sysadm-global.h \
 		sysadm-general.h \
 		sysadm-lifepreserver.h \
-		sysadm-network.h
-		
+                sysadm-network.h \
+                portlookup.h
 
 SOURCES	+= sysadm-general.cpp \
 		sysadm-lifepreserver.cpp \
 		sysadm-network.cpp \
-		NetDevice.cpp
+                NetDevice.cpp \
+                portlookup.cpp
 
 include.path=/usr/local/include/
 include.files=sysadm-*.h

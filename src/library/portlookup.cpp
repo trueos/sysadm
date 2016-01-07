@@ -1,5 +1,6 @@
 #include "portlookup.h"
 #include <QtCore>
+#include <string>
 using namespace sysadm;
 PortLookUp::PortInfo PortLookUp::LookUpPort(int portNumber)
 {
@@ -12,62 +13,80 @@ PortLookUp::PortInfo PortLookUp::LookUpPort(int portNumber)
         return returnValue;
     }
 
+    //Check to see if things have been initialized
+    if(portStrings == NULL)
+        readServicesFile();
+
+
     PortInfo returnValue;
     //the port number is valid so set it
     returnValue.Port = portNumber;
-    
-    for(int i = 0; i < recommendedPortListSize; i++)
+
+    //Check to see if it's a recommended port
+    returnValue.Recommended = false;
+    for(int i = 0; i < recommendedPortsSize; i++)
     {
-    if (portNumber == recommendedPorts[i])
-	{
-	    returnValue.Recommended = true;
-	}
+        if (portNumber == recommendedPorts[i])
+        {
+            returnValue.Recommended = true;
+        }
     }
+
+   //Check to see if the port number is listed. The format in the file
+   // is portname/portType. ex.: 22/tcp
+
+   QStringList port = portStrings->filter(QRegExp("/\\b("+QString::number(portNumber)+"\\/)/g"));
+
+   if(port.size() > 0)
+   {
+       //grab the first one since any duplicates are just other port
+       //types for the same port, usually associated with the same
+       //application and we're not tracking that
+       QString line = port.at(0);
+
+       //Split across spaces since it's whitespace delimited
+       QStringList lineList = line.split(' ');
+
+       //the keyword associated with the port is the first element in a line
+       returnValue.Keyword = lineList.at(0);
+
+       //if the size of the list is less than 3 then there is no description
+       if(lineList.size() > 2)
+       {
+           QString description = lineList.at(2);
+           //String the description back together from the end of the list
+           for(int i = 3; i < lineList.size(); i++)
+           {
+               description += " " + lineList.at(i);
+           }
+           returnValue.Description = description;
+       }
+   }
     
-    
+   return returnValue;
+
+}
+
+void PortLookUp::readServicesFile()
+{
+    portStrings = new QStringList();
+
     // /etc/services contains a file that lists the various port numbers
     // and their descriptions
     QFile* services = new QFile("/etc/services");
     services->open(QFile::ReadOnly);
     while(!services->atEnd())
     {
-           QString line = services->readLine();
+        QString line = services->readLine();
+        //jump down past the comments
+        if(line[0] == '#')
+            continue;
 
-           //jump down past the comments
-           if(line[0] == '#')
-               continue;
+        //remove all of the extraneous whitespace in the line
+        line = line.simplified();
 
-	   //remove all of the extraneous whitespace in the line
-           line = line.simplified();
-	   //Split across spaces since it's now whitespace delimited
-           QStringList lineList = line.split(' ');
-	   
-	   //Ports are stored in the file as number/type so take the left hand side
-           int port = lineList.at(1).split('/').at(0).toInt();
-
-	   //obviously if it's not the port we want, go to the next line
-           if (port != portNumber)
-               continue;
-           
-	   //the keyword associated with the port is the first element in a line
-           returnValue.Keyword = lineList.at(0);
-
-	   //if the size of the list is less than 3 then there is no description
-           if(lineList.size() > 2)
-           {
-               QString description = lineList.at(2);
-	       //String the description back together from the end of the list
-               for(int i = 3; i < lineList.size(); i++)
-               {
-                   description += " " + lineList.at(i);
-               }
-               returnValue.Description = description;
-           }
+        portStrings->append(line);
     }
     services->close();
-    
-    
-    return returnValue;
-
 }
  

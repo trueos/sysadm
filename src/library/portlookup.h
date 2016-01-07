@@ -6,32 +6,35 @@
 
 #ifndef PORTLOOKUP_H
 #define PORTLOOKUP_H
-#include <QString>
+#include <QtCore>
 namespace sysadm
 {
-namespace PortLookUp
+const static int recommendedPorts[] = {22, 80};
+const static int recommendedPortsSize = 2;
+class PortLookUp
 {
-    static int recommendedPorts[] = {5,22};
-    const int recommendedPortListSize = 2;
-    
     struct PortInfo{
         int Port;
         QString Keyword;
         QString Description;
         bool Recommended;
     };
-
+public:
     /**
      * @description Returns a structure containing information about the port
      * including its port type, keyword, description, and whether it's a
      * recommended port
      *
-     * @parameter portNumber a port number between 1 and 2^16
+     * @parameter portNumber a port number between 0 and 2^16 - 1
      *
      * @ErrorConditions Port Number is set to -1 and a description of the error is stored in the description variable
      */
-    static PortInfo LookUpPort(int portNumber);
-}
+    PortInfo LookUpPort(int portNumber);
+
+private:
+    void readServicesFile();
+    QStringList* portStrings;
+};
 }
 #endif // PORTLOOKUP_H
  
