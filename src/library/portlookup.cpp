@@ -1,6 +1,6 @@
 #include "portlookup.h"
 #include <QtCore>
-#include <string>
+
 using namespace sysadm;
 PortLookUp::PortInfo PortLookUp::LookUpPort(int portNumber)
 {
@@ -67,6 +67,16 @@ PortLookUp::PortInfo PortLookUp::LookUpPort(int portNumber)
 
 }
 
+PortLookUp::PortLookUp()
+{
+    readServiceFile();
+}
+
+PortLookUp::~PortLookUp()
+{
+    delete portStrings;
+}
+
 void PortLookUp::readServicesFile()
 {
     portStrings = new QStringList();
@@ -88,5 +98,6 @@ void PortLookUp::readServicesFile()
         portStrings->append(line);
     }
     services->close();
+    delete services;
 }
  

@@ -30,6 +30,7 @@ public:
      * @ErrorConditions Port Number is set to -1 and a description of the error is stored in the description variable
      */
     PortInfo LookUpPort(int portNumber);
+    ~PortLookUp();
 
 private:
     void readServicesFile();
