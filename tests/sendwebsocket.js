@@ -27,6 +27,11 @@ function onClose(evt)
 {
 }
 
+function onError(evt)
+{
+  console.log(evt);
+}
+
 function onMessage(evt)
 {
   var jsonobj = JSON.parse(evt.data);
