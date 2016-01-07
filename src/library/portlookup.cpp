@@ -2,7 +2,7 @@
 #include <QtCore>
 
 using namespace sysadm;
-PortLookUp::PortInfo PortLookUp::LookUpPort(int portNumber)
+PortLookUp::PortInfo PortLookUp::LookUpPort(int portNumber, QString portType)
 {
     //Make sure that the port is valid
     if (portNumber < 0 || portNumber > 65535)
@@ -35,13 +35,12 @@ PortLookUp::PortInfo PortLookUp::LookUpPort(int portNumber)
    //Check to see if the port number is listed. The format in the file
    // is portname/portType. ex.: 22/tcp
 
-   QStringList port = portStrings->filter(QRegExp("/\\b("+QString::number(portNumber)+"\\/)/g"));
+   QStringList port = portStrings->filter(QRegExp("/\\b("+QString::number(portNumber)+"\\/"+portType.toLower()+")/g"));
 
    if(port.size() > 0)
    {
-       //grab the first one since any duplicates are just other port
-       //types for the same port, usually associated with the same
-       //application and we're not tracking that
+       //grab the first one, there may be duplicates due to colliding ports in the /etc/services file
+       //but those are listed after the declaration for what the port officially should be used for
        QString line = port.at(0);
 
        //Split across spaces since it's whitespace delimited
@@ -69,7 +68,7 @@ PortLookUp::PortInfo PortLookUp::LookUpPort(int portNumber)
 
 PortLookUp::PortLookUp()
 {
-    readServiceFile();
+    readServicesFile();
 }
 
 PortLookUp::~PortLookUp()
