@@ -11,6 +11,12 @@ if [ $? -ne 0 ] ; then
   exit 1
 fi
 
+pkg info p5-JSON >/dev/null 2>/dev/null
+if [ $? -ne 0 ] ; then
+  echo "Please install p5-JSON first"
+  exit 1
+fi
+
 if [ ! -d "${HOME}/.npm/ws" ] ; then
   npm install ws
   if [ $? -ne 0 ] ; then
@@ -58,6 +64,12 @@ echo ""
 
 # Check the reply of this REST query
 echo ""
+echo "REST Request:"
+echo "-------------------------------"
+echo "PUT /${namesp}/${name}"
+echo "${payload}" | perl -0007 -MJSON -ne'print to_json(from_json($_, {allow_nonref=>1}),{pretty=>1})."\n"'
+
+echo ""
 echo "REST Response:"
 echo "-------------------------------"
 PUT /${namesp}/${name} "${payload}" -v 2>/tmp/.rstErr
@@ -68,6 +80,11 @@ fi
 
 
 # Now check the response via WebSockets
+echo ""
+echo "WebSocket Request:"
+echo "-------------------------------"
+echo "{ \"namespace\":\"${namesp}\", \"name\":\"${name}\", \"id\":\"fooid\", \"args\":${payload} }" | perl -0007 -MJSON -ne'print to_json(from_json($_, {allow_nonref=>1}),{pretty=>1})."\n"'
+
 echo ""
 echo "WebSocket Response:"
 echo "-------------------------------"
