@@ -88,6 +88,8 @@ fi
 
 
 # Now check the response via WebSockets
+export NODE_TLS_REJECT_UNAUTHORIZED=0
+
 echo ""
 echo "WebSocket Request:"
 echo "-------------------------------"
