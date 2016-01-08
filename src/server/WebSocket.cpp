@@ -40,6 +40,12 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
   connect(idletimer, SIGNAL(timeout()), this, SLOT(checkIdle()) );
   connect(TSOCKET, SIGNAL(readyRead()), this, SLOT(EvaluateTcpMessage()) );
   connect(TSOCKET, SIGNAL(aboutToClose()), this, SLOT(SocketClosing()) );
+  connect(TSOCKET, SIGNAL(encrypted()), this, SLOT(nowEncrypted()) );
+  connect(TSOCKET, SIGNAL(peerVerifyError(const QSslError &)), this, SLOT(peerError(const QSslError &)) );
+  connect(TSOCKET, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(SslError(const QList<QSslError> &)) );
+  qDebug() << " - Starting Server Encryption Handshake";
+   TSOCKET->startServerEncryption();
+  //qDebug() << " - Socket Encrypted:" << TSOCKET->isEncrypted();
   idletimer->start();
 }
 
@@ -68,6 +74,7 @@ void WebSocket::setLastDispatch(QString msg){
 //             PRIVATE
 //=======================
 void WebSocket::sendReply(QString msg){
+  qDebug() << "Sending Socket Reply";
  if(SOCKET!=0){ SOCKET->sendTextMessage(msg); } //Websocket connection
  else if(TSOCKET!=0){ 
     //TCP Socket connection
@@ -223,8 +230,6 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
   }
   //Return any information
   this->sendReply(out.assembleMessage());
-  /*if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
-  else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }*/
 }
 
 // === GENERAL PURPOSE UTILITY FUNCTIONS ===
@@ -314,6 +319,20 @@ void WebSocket::EvaluateTcpMessage(){
   EvaluateREST(msg );
   idletimer->start(); 
   qDebug() << " - Done with TCP Message";	
+}
+
+//SSL signal handling
+void WebSocket::nowEncrypted(){
+  //the socket/connection is now encrypted
+  qDebug() << "Socket now connected";
+}
+
+void WebSocket::peerError(const QSslError&){ //peerVerifyError() signal
+  qDebug() << "Peer Error:";
+}
+
+void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
+  qDebug() << "SSL Errors:" << err.length();
 }
 
 // ======================

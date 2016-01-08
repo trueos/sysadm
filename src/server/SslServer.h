@@ -38,17 +38,17 @@ protected:
 	  qDebug() << "New Ssl Connection:";
 	  //setup any supported encruption types here
 	  serverSocket->setSslConfiguration(QSslConfiguration::defaultConfiguration());
-	  serverSocket->setProtocol(QSsl::SslV3); //no TLS support (all sorts of issues with that)
-	  //serverSocket->setPrivateKey();
-	  //serverSocket->setLocalCertificate();
-	  qDebug() << " - Supported Protocols:" << serverSocket->sslConfiguration().protocol();
+	  serverSocket->setProtocol(QSsl::TlsV1_2);
+	  serverSocket->setPrivateKey("/usr/local/etc/sysadm/restserver.key");
+	  serverSocket->setLocalCertificate("/usr/local/etc/sysadm/restserver.crt");
+	  //qDebug() << " - Supported Protocols:" << serverSocket->sslConfiguration().protocol();
 
 	  if (serverSocket->setSocketDescriptor(socketDescriptor)) {
 	    pendingConnections.enqueue(serverSocket);
 	    //connect(serverSocket, SIGNAL(encrypted()), this, SLOT(ready()));
-	    qDebug() << " - Starting Server Encryption Handshake";
-            serverSocket->startServerEncryption();
-	  } else {
+	    //qDebug() << " - Starting Server Encryption Handshake";
+            //serverSocket->startServerEncryption();
+	  }else{
             delete serverSocket;
 	  }		
 	}

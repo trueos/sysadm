@@ -8,6 +8,7 @@
 
 #include <QWebSocket>
 #include <QSslSocket>
+#include <QSslError>
 #include <QList>
 #include <QObject>
 #include <QJsonDocument>
@@ -68,6 +69,11 @@ private slots:
 	void EvaluateMessage(const QString&);
 	void EvaluateTcpMessage();
 
+	//SSL signal handling
+	void nowEncrypted(); //the socket/connection is now encrypted
+	void peerError(const QSslError&); //peerVerifyError() signal
+	void SslError(const QList<QSslError>&); //sslErrors() signal
+	
 public slots:
 	void AppCafeStatusUpdate(QString msg = "");
 
