@@ -16,6 +16,7 @@ class LifePreserver{
 public:
 	// List schedule snapshots
 	static QJsonObject listCron(); 
+	static QJsonObject listSnap(QJsonObject jsin);
 };
 	
 } //end of pcbsd namespace
