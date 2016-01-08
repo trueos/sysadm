@@ -1,5 +1,5 @@
 var WebSocket = require('ws');
-var wsserver = "ws://127.0.0.1:12150";
+var wsserver = "wss://127.0.0.1:12150";
 var wstoken = "foome";
 var stdargs = "";
 var ignorefirst = "true";

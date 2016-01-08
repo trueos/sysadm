@@ -60,7 +60,7 @@ fi
 echo ""
 
 # Source our resty functions
-. ./utils/resty -W "http://127.0.0.1:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${fuser}:${fpass}
+. ./utils/resty -W "https://127.0.0.1:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${fuser}:${fpass}
 
 # Check the reply of this REST query
 echo ""
