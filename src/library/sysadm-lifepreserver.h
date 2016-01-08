@@ -17,6 +17,7 @@ public:
 	// List schedule snapshots
 	static QJsonObject listCron(); 
 	static QJsonObject listSnap(QJsonObject jsin);
+	static QJsonObject settings();
 };
 	
 } //end of pcbsd namespace

@@ -105,3 +105,51 @@ QJsonObject LifePreserver::listSnap(QJsonObject jsin) {
 
   return retObject;
 }
+
+// Return a list of settings for life-preserver
+QJsonObject LifePreserver::settings() {
+   QJsonObject retObject;
+
+   QStringList output = General::RunCommand("lpreserver get").split("\n");
+   QStringList setitems;
+   QString tmpkey;
+   QRegExp sep("\\s+");
+
+   // Parse the output
+   bool inSection = false;
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("-----------------") != -1 ) {
+         inSection = true;
+         continue;
+      }
+
+      if (!inSection)
+         continue;
+
+      if ( output.at(i).isEmpty() || output.at(i).indexOf("-----------------") != -1 )
+	  break;
+
+      // Breakdown the setting we got
+      tmpkey = "";
+      setitems.clear();
+      setitems << output.at(i).section(":", 0, 0).simplified();
+      setitems << output.at(i).section(":", 1, 1).simplified();
+      if ( setitems.at(0) == "Recursive mode" )
+	tmpkey = "recursive";
+      if ( setitems.at(0) == "E-mail notifications" )
+	tmpkey = "email";
+      if ( setitems.at(0) == "E-mail addresses" )
+	tmpkey = "emailaddress";
+      if ( setitems.at(0) == "Disk space warn at" )
+	tmpkey = "diskwarn";
+
+      // Unknown key we dont support?
+      if ( tmpkey.isEmpty() )
+        continue;
+
+      retObject.insert(tmpkey, setitems.at(1));
+  }
+
+  return retObject;
+}

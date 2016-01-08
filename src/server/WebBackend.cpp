@@ -149,6 +149,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
 	ok = true;
         out->insert("listsnap", sysadm::LifePreserver::listSnap(in_args.toObject()));
       }
+      if(act=="settings"){
+	ok = true;
+        out->insert("settings", sysadm::LifePreserver::settings());
+      }
 
     } //end of "action" key usage
     
