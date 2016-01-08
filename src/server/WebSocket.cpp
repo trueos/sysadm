@@ -324,15 +324,15 @@ void WebSocket::EvaluateTcpMessage(){
 //SSL signal handling
 void WebSocket::nowEncrypted(){
   //the socket/connection is now encrypted
-  qDebug() << "Socket now connected";
+  qDebug() << " - Socket now encrypted";
 }
 
 void WebSocket::peerError(const QSslError&){ //peerVerifyError() signal
-  qDebug() << "Peer Error:";
+  qDebug() << "Socket Peer Error:";
 }
 
 void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
-  qDebug() << "SSL Errors:" << err.length();
+  qDebug() << "Socket SSL Errors:" << err.length();
 }
 
 // ======================

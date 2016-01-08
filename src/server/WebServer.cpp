@@ -10,6 +10,8 @@
 #include <QFile>
 #include <QTextStream>
 #include <QProcess>
+#include <QSslKey>
+#include <QSslCertificate>
 
 #define DEBUG 0
 
@@ -38,6 +40,11 @@ WebServer::~WebServer(){
 }
 
 bool WebServer::startServer(quint16 port, bool websocket){
+  if(!QSslSocket::supportsSsl()){ qDebug() << "No SSL Support on this system!!!"; return false; }
+  else{
+    qDebug() << "Using SSL Library:";
+    qDebug() << " - Version:" << QSslSocket::sslLibraryVersionString();
+  }
   bool ok = false;
   if(websocket){ ok	= setupWebSocket(port); }
   else{ ok = setupTcp(port); }
@@ -69,9 +76,26 @@ void WebServer::stopServer(){
 //===================
 bool WebServer::setupWebSocket(quint16 port){
   WSServer = new QWebSocketServer("sysadm-server", QWebSocketServer::SecureMode, this);
+  //SSL Configuration
   QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-	//config.setLocalCertificate( QSslCertificate() );
-	//config.setPrivateKey( QSslKey() );
+	QFile CF("/usr/local/etc/wsserver.crt"); 
+	  if(CF.open(QIODevice::ReadOnly) ){
+	    QSslCertificate CERT(&CF,QSsl::Pem);
+	    config.setLocalCertificate( CERT );
+	    CF.close();   
+	  }else{
+	    qWarning() << "Could not read WS certificate file:" << CF.fileName();
+	  }
+	QFile KF("/usr/local/etc/wsserver.key");
+	  if(KF.open(QIODevice::ReadOnly) ){
+	    QSslKey KEY(&KF, QSsl::Rsa, QSsl::Pem);
+	    config.setPrivateKey( KEY );
+	    KF.close();	
+	  }else{
+	    qWarning() << "Could not read WS key file:" << KF.fileName();
+	  }
+	config.setPeerVerifyMode(QSslSocket::VerifyNone);
+	config.setProtocol(QSsl::TlsV1_2);
   WSServer->setSslConfiguration(config);
   //Setup Connections
   connect(WSServer, SIGNAL(newConnection()), this, SLOT(NewSocketConnection()) );
@@ -87,11 +111,6 @@ bool WebServer::setupWebSocket(quint16 port){
 }
 
 bool WebServer::setupTcp(quint16 port){
-  if(!QSslSocket::supportsSsl()){ qDebug() << "No SSL Support on this system!!!"; return false; }
-  else{
-    qDebug() << "Using SSL Library:";
-    qDebug() << " - Version:" << QSslSocket::sslLibraryVersionString();
-  }
   TCPServer = new SslServer(this);
   //Setup Connections
   connect(TCPServer, SIGNAL(newConnection()), this, SLOT(NewSocketConnection()) );
