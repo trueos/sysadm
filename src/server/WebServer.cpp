@@ -87,7 +87,12 @@ bool WebServer::setupWebSocket(quint16 port){
 }
 
 bool WebServer::setupTcp(quint16 port){
-  TCPServer = new QTcpServer(this);
+  if(!QSslSocket::supportsSsl()){ qDebug() << "No SSL Support on this system!!!"; return false; }
+  else{
+    qDebug() << "Using SSL Library:";
+    qDebug() << " - Version:" << QSslSocket::sslLibraryVersionString();
+  }
+  TCPServer = new SslServer(this);
   //Setup Connections
   connect(TCPServer, SIGNAL(newConnection()), this, SLOT(NewSocketConnection()) );
   connect(TCPServer, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(NewConnectError(QAbstractSocket::SocketError)) );
@@ -123,7 +128,7 @@ void WebServer::NewSocketConnection(){
   if(WSServer!=0){
     if(WSServer->hasPendingConnections()){ sock = new WebSocket( WSServer->nextPendingConnection(), generateID(), AUTH); }
   }else if(TCPServer!=0){
-    if(TCPServer->hasPendingConnections()){ sock = new WebSocket( static_cast<QSslSocket*>(TCPServer->nextPendingConnection()), generateID(), AUTH); }
+    if(TCPServer->hasPendingConnections()){ sock = new WebSocket( TCPServer->nextPendingConnection(), generateID(), AUTH); }
   }
   if(sock==0){ return; } //no new connection
   qDebug() << "New Socket Connection";	

@@ -21,7 +21,7 @@
 
 #include "WebSocket.h"
 #include "AuthorizationManager.h"
-
+#include "SslServer.h"
 class WebServer : public QObject{
 	Q_OBJECT
 public:
@@ -35,7 +35,7 @@ public slots:
 
 private:
 	QWebSocketServer *WSServer;
-	QTcpServer *TCPServer;
+	SslServer *TCPServer;
 	QList<WebSocket*> OpenSockets;
 	AuthorizationManager *AUTH;
 	QFileSystemWatcher *watcher;

@@ -9,7 +9,8 @@ HEADERS	+= WebServer.h \
 		syscache-client.h \
 		dispatcher-client.h \
 		RestStructs.h \
-		AuthorizationManager.h
+		AuthorizationManager.h \ 
+		SslServer.h
 		
 SOURCES	+= main.cpp \
 		WebServer.cpp \
