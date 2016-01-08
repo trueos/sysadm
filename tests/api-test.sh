@@ -72,7 +72,7 @@ echo "${payload}" | perl -0007 -MJSON -ne'print to_json(from_json($_, {allow_non
 echo ""
 echo "REST Response:"
 echo "-------------------------------"
-PUT /${namesp}/${name} "${payload}" -v 2>/tmp/.rstErr
+PUT /${namesp}/${name} "${payload}" -v -k 2>/tmp/.rstErr
 if [ $? -ne 0 ] ; then
   echo "Failed.. Error output:"
   cat /tmp/.rstErr
