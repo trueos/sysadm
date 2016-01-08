@@ -25,6 +25,14 @@ if [ ! -d "${HOME}/.npm/ws" ] ; then
   fi
 fi
 
+if [ ! -d "${HOME}/.npm/wss" ] ; then
+  npm install wss
+  if [ $? -ne 0 ] ; then
+    echo "Failed installing wss node module"
+    exit 1
+  fi
+fi
+
 echo "Enter your username:"
 echo -e ">\c"
 read fuser
