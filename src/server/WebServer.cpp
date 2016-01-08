@@ -78,7 +78,7 @@ bool WebServer::setupWebSocket(quint16 port){
   WSServer = new QWebSocketServer("sysadm-server", QWebSocketServer::SecureMode, this);
   //SSL Configuration
   QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-	QFile CF("/usr/local/etc/wsserver.crt"); 
+	QFile CF( QStringLiteral("/usr/local/etc/sysadm/wsserver.crt") ); 
 	  if(CF.open(QIODevice::ReadOnly) ){
 	    QSslCertificate CERT(&CF,QSsl::Pem);
 	    config.setLocalCertificate( CERT );
@@ -86,7 +86,7 @@ bool WebServer::setupWebSocket(quint16 port){
 	  }else{
 	    qWarning() << "Could not read WS certificate file:" << CF.fileName();
 	  }
-	QFile KF("/usr/local/etc/wsserver.key");
+	QFile KF( QStringLiteral("/usr/local/etc/sysadm/wsserver.key"));
 	  if(KF.open(QIODevice::ReadOnly) ){
 	    QSslKey KEY(&KF, QSsl::Rsa, QSsl::Pem);
 	    config.setPrivateKey( KEY );
