@@ -106,6 +106,50 @@ QJsonObject LifePreserver::listSnap(QJsonObject jsin) {
   return retObject;
 }
 
+// Schedule a new snapshot routine
+QJsonObject LifePreserver::scheduleSnapshot(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString pool, frequency, keep;
+
+   QStringList keys = jsin.keys();
+   bool ok = false;
+   if(! keys.contains("pool") || ! keys.contains("frequency") || ! keys.contains("keep")){
+     retObject.insert("error", "Requires pool, frequency and keep keys");
+     return retObject;
+   }
+
+   // Check which pool we are looking at
+   pool = jsin.value("pool").toString();
+   frequency = jsin.value("frequency").toString();
+   keep = jsin.value("keep").toString();
+
+   // Make sure we have the pool / frequency / keep key(s)
+   if ( pool.isEmpty() || frequency.isEmpty() || keep.isEmpty() ) {
+     retObject.insert("error", "Empty pool, frequency and keep keys ");
+     return retObject;
+   }
+
+   QStringList output = General::RunCommand("lpreserver cronsnap " + pool + " start " + frequency + " " + keep ).split("\n");
+
+   // Check for any errors
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("ERROR:") != -1 ) {
+       retObject.insert("error", output.at(i));
+       return retObject;
+      } 
+   }
+
+   // Got to the end, return the good json
+   QJsonObject values;
+   values.insert("pool", pool);
+   values.insert("frequency", frequency);
+   values.insert("keep", keep);
+
+   return values;
+}
+
+
 // Return a list of settings for life-preserver
 QJsonObject LifePreserver::settings() {
    QJsonObject retObject;
