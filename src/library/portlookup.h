@@ -9,17 +9,19 @@
 #include <QtCore>
 namespace sysadm
 {
+struct PortInfo{
+    int Port;
+    QString PortType;
+    QString Keyword;
+    QString Description;
+    bool Recommended;
+};
+
 const static int recommendedPorts[] = {22, 80};
 const static int recommendedPortsSize = 2;
 class PortLookUp
 {
-    struct PortInfo{
-        int Port;
-        QString PortType;
-        QString Keyword;
-        QString Description;
-        bool Recommended;
-    };
+
 public:
     /**
      * @description Returns a structure containing information about the port
