@@ -70,9 +70,63 @@ PortInfo Firewall::LookUpPort(int portNumber, QString portType)
 
 }
 
-Firewall::Firewall()
+void Firewall::OpenPort(int port, QString type)
 {
+    openports << QString::number(port)+"::::"+type;
+    SaveOpenPorts();
+}
+
+void Firewall::ClosePort(int port, QString type)
+{
+    openports.removeAll( QString::number(port)+"::::"+type);
+    SaveOpenPorts();
+}
+
+QVector<PortInfo> Firewall::OpenPorts()
+{
+    QVector<PortInfo> returnValue = QVector<PortInfo>(openports.length());
+
+    for(int i=0; i<openports.length(); i++){
+      returnValue.append( LookUpPort(openports[i].section("::::",0,0).toInt(),openports[i].section("::::",1,1)));
+    }
+    return returnValue;
+
+}
+
+bool Firewall::IsRunning()
+{
+    QProcess proc;
+    proc.start("sysctl net.inet.ip.fw.enable");
+    if(proc.waitForFinished() || proc.canReadLine())
+    {
+        if (proc.canReadLine())
+        {
+            QString line = proc.readLine();
+            if(line.section(":",1,1).simplified().toInt() ==1) { return true; }
+        }
+    }
+    return false;
+}
+
+void Firewall::Start()
+{
+    system("/etc/rc.d/ipfw start");
+}
+
+void Firewall::Stop()
+{
+    system("/etc/rc.d/ipfw stop");
+}
+
+void Firewall::Restart()
+{
+    system("/etc/rc.d/ipfw restart");
+}
+
+Firewall::Firewall()
+{    
     readServicesFile();
+    LoadOpenPorts();
 }
 
 Firewall::~Firewall()
@@ -102,5 +156,43 @@ void Firewall::readServicesFile()
     }
     services->close();
     delete services;
+}
+
+void Firewall::LoadOpenPorts()
+{
+  openports.clear();
+  QFile file("/etc/ipfw.openports");
+  if( file.open(QIODevice::ReadOnly) ){
+    QTextStream in(&file);
+    while( !in.atEnd() ){
+      QString line = in.readLine();
+      if(line.startsWith("#") || line.simplified().isEmpty()){ continue; }
+      //File format: "<type> <port>" (nice and simple)
+      openports << line.section(" ",1,1)+"::::"+line.section(" ",0,0);
+    }
+    file.close();
+  }
+  openports.sort(); //order them in ascending port order
+}
+
+void Firewall::SaveOpenPorts()
+{
+    //Convert to file format
+      openports.sort(); //make sure they are still sorted by port
+      QStringList fileout;
+      for(int i=0; i<openports.length(); i++){
+        fileout << openports[i].section("::::",1,1)+" "+openports[i].section("::::",0,0);
+      }
+      //Always make sure that the file always ends with a newline
+      if(!fileout.isEmpty()){ fileout << ""; }
+      //Save to file
+      QFile file("/etc/ipfw.openports");
+      if( file.open(QIODevice::WriteOnly | QIODevice::Truncate) ){
+        QTextStream out(&file);
+        out << fileout.join("\n");
+        file.close();
+      }
+      //Re-load/start rules (just in case - it is a smart script)
+      if(IsRunning()){ system("sh /usr/local/share/pcbsd/scripts/reset-firewall"); }
 }
  
