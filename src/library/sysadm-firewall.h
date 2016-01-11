@@ -19,7 +19,7 @@ struct PortInfo{
 
 const static int recommendedPorts[] = {22, 80};
 const static int recommendedPortsSize = 2;
-class PortLookUp
+class Firewall
 {
 
 public:
@@ -33,8 +33,8 @@ public:
      * @ErrorConditions Port Number is set to -1 and a description of the error is stored in the description variable
      */
     PortInfo LookUpPort(int portNumber, QString portType);
-    PortLookUp();
-    ~PortLookUp();
+    Firewall();
+    ~Firewall();
 
 private:
     void readServicesFile();

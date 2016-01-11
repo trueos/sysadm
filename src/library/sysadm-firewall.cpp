@@ -1,7 +1,7 @@
-#include "portlookup.h"
+#include "sysadm-firewall.h"
 #include <QtCore>
 using namespace sysadm;
-PortInfo PortLookUp::LookUpPort(int portNumber, QString portType)
+PortInfo Firewall::LookUpPort(int portNumber, QString portType)
 {
     //Make sure that the port is valid
     if (portNumber < 0 || portNumber > 65535)
@@ -70,17 +70,17 @@ PortInfo PortLookUp::LookUpPort(int portNumber, QString portType)
 
 }
 
-PortLookUp::PortLookUp()
+Firewall::Firewall()
 {
     readServicesFile();
 }
 
-PortLookUp::~PortLookUp()
+Firewall::~Firewall()
 {
     delete portStrings;
 }
 
-void PortLookUp::readServicesFile()
+void Firewall::readServicesFile()
 {
     portStrings = new QStringList();
 
