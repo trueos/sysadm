@@ -129,6 +129,15 @@ void Firewall::Restart()
     system("/etc/rc.d/ipfw restart");
 }
 
+void Firewall::RestoreDefaults()
+{
+    //move the files out of the way
+    system("mv /etc/ipfw.rules /etc/ipfw.rules.previous");
+    system("mv /etc/ipfw.openports /etc/ipfw.openports.previous");
+    //refresh/restart the rules files
+    system("sh /usr/local/share/pcbsd/scripts/reset-firewall");
+}
+
 Firewall::Firewall()
 {    
     readServicesFile();

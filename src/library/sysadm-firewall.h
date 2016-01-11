@@ -55,7 +55,6 @@ public:
      * @return a QVector of the open ports
      */
     QVector<PortInfo> OpenPorts();
-
     ///#endsection
 
     ///#section: firewall commands
@@ -76,6 +75,11 @@ public:
      * @brief Restarts the firewall
      */
     void Restart();
+
+    /**
+     * @brief Restores the Default Configuration
+     */
+    void RestoreDefaults();
     ///#endsection
 
     ///#section: ctors dtors
