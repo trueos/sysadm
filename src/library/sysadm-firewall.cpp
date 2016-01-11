@@ -1,3 +1,9 @@
+//===========================================
+//  PC-BSD source code
+//  Copyright (c) 2015, PC-BSD Software/iXsystems
+//  Available under the 3-clause BSD license
+//  See the LICENSE file for full details
+
 #include "sysadm-firewall.h"
 #include <QtCore>
 using namespace sysadm;
