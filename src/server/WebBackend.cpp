@@ -165,6 +165,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
 	ok = true;
         out->insert("revertsnap", sysadm::LifePreserver::revertSnapshot(in_args.toObject()));
       }
+      if(act=="savesettings"){
+	ok = true;
+        out->insert("savesettings", sysadm::LifePreserver::saveSettings(in_args.toObject()));
+      }
       if(act=="settings"){
 	ok = true;
         out->insert("settings", sysadm::LifePreserver::settings());

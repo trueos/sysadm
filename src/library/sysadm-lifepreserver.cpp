@@ -83,7 +83,6 @@ QJsonObject LifePreserver::listSnap(QJsonObject jsin) {
    QString pool;
 
    QStringList keys = jsin.keys();
-   bool ok = false;
    if(! keys.contains("pool")){
      retObject.insert("error", "Missing pool key");
      return retObject;
@@ -137,7 +136,6 @@ QJsonObject LifePreserver::removeSnapshot(QJsonObject jsin) {
    QString dataset, snap;
 
    QStringList keys = jsin.keys();
-   bool ok = false;
    if(! keys.contains("dataset") || ! keys.contains("snap")){
      retObject.insert("error", "Requires dataset and snap keys");
      return retObject;
@@ -179,7 +177,6 @@ QJsonObject LifePreserver::revertSnapshot(QJsonObject jsin) {
    QString dataset, snap;
 
    QStringList keys = jsin.keys();
-   bool ok = false;
    if(! keys.contains("dataset") || ! keys.contains("snap")){
      retObject.insert("error", "Requires dataset and snap keys");
      return retObject;
@@ -215,13 +212,87 @@ QJsonObject LifePreserver::revertSnapshot(QJsonObject jsin) {
    return values;
 }
 
+// Save system-wide settings
+QJsonObject LifePreserver::saveSettings(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString warn, email, emailopts, recursive;
+
+   QStringList keys = jsin.keys();
+   if(! keys.contains("duwarn") && ! keys.contains("email") && ! keys.contains("emailopts") && !keys.contains("recursive")){
+     retObject.insert("error", "Requires duwarn, email, emailopts or recursive to be set!");
+     return retObject;
+   }
+
+   QJsonObject values;
+   QStringList output;
+
+   // Get the settings
+   if ( keys.contains("duwarn") ) {
+     warn = jsin.value("duwarn").toString();
+     output = General::RunCommand("lpreserver set duwarn " + warn).split("\n");
+     // Check for any errors
+     for ( int i = 0; i < output.size(); i++)
+     {
+        if ( output.at(i).indexOf("ERROR:") != -1 ) {
+         retObject.insert("error", output.at(i));
+         return retObject;
+        }
+     }
+     values.insert("duwarn", warn);
+   }
+   if ( keys.contains("email") ) {
+     email = jsin.value("email").toString();
+     output = General::RunCommand("lpreserver set email " + email).split("\n");
+     // Check for any errors
+     for ( int i = 0; i < output.size(); i++)
+     {
+        if ( output.at(i).indexOf("ERROR:") != -1 ) {
+         retObject.insert("error", output.at(i));
+         return retObject;
+        }
+     }
+     values.insert("email", email);
+   }
+   if ( keys.contains("emailopts") ) {
+     emailopts = jsin.value("emailopts").toString();
+     output = General::RunCommand("lpreserver set emailopts " + emailopts.toUpper()).split("\n");
+     // Check for any errors
+     for ( int i = 0; i < output.size(); i++)
+     {
+        if ( output.at(i).indexOf("ERROR:") != -1 ) {
+         retObject.insert("error", output.at(i));
+         return retObject;
+        }
+     }
+     values.insert("emailopts", emailopts);
+   }
+   if ( keys.contains("recursive") ) {
+     recursive = jsin.value("recursive").toString();
+     QString recset = "ON";
+     if ( recursive.toUpper() == "FALSE" )
+       recset = "OFF";
+     output = General::RunCommand("lpreserver set recursive " + recset).split("\n");
+     // Check for any errors
+     for ( int i = 0; i < output.size(); i++)
+     {
+        if ( output.at(i).indexOf("ERROR:") != -1 ) {
+         retObject.insert("error", output.at(i));
+         return retObject;
+        }
+     }
+     values.insert("recursive", recursive);
+   }
+
+   return values;
+}
+
+
 // Schedule a new scrub routine
 QJsonObject LifePreserver::scheduleScrub(QJsonObject jsin) {
    QJsonObject retObject;
    QString pool, frequency;
 
    QStringList keys = jsin.keys();
-   bool ok = false;
    if(! keys.contains("pool") || ! keys.contains("frequency")){
      retObject.insert("error", "Requires pool and frequency keys");
      return retObject;
@@ -267,7 +338,6 @@ QJsonObject LifePreserver::scheduleSnapshot(QJsonObject jsin) {
    QString pool, frequency, keep;
 
    QStringList keys = jsin.keys();
-   bool ok = false;
    if(! keys.contains("pool") || ! keys.contains("frequency") || ! keys.contains("keep")){
      retObject.insert("error", "Requires pool, frequency and keep keys");
      return retObject;
