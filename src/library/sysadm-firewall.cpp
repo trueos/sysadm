@@ -10,10 +10,10 @@
 #include <tuple>
 
 using namespace sysadm;
-PortInfo Firewall::LookUpPort(int portNumber, QString portType)
+PortInfo Firewall::LookUpPort(int port, QString type)
 {
     //Make sure that the port is valid
-    if (portNumber < 0 || portNumber > 65535)
+    if (port < 0 || port > 65535)
     {
         PortInfo returnValue;
         returnValue.Port = -1;
@@ -28,19 +28,19 @@ PortInfo Firewall::LookUpPort(int portNumber, QString portType)
 
     PortInfo returnValue;
     //the port number is valid so set it
-    returnValue.Port = portNumber;
+    returnValue.Port = port;
 
     //make sure that the portType is cased in lower to match the service file and
     //then store it in the returnValue, since there isn't a huge point in checking
     //the validitiy of the type since /etc/services lists more than udp/tcp
-    portType = portType.toLower();
-    returnValue.PortType =  portType;
+    type = type.toLower();
+    returnValue.Type =  type;
 
     //Check to see if it's a recommended port
     returnValue.Recommended = false;
     for(int i = 0; i < recommendedPortsSize; i++)
     {
-        if (portNumber == recommendedPorts[i])
+        if (port == recommendedPorts[i])
         {
             returnValue.Recommended = true;
         }
@@ -49,12 +49,12 @@ PortInfo Firewall::LookUpPort(int portNumber, QString portType)
    //Check to see if the port number is listed. The format in the file
    // is portname/portType. ex.: 22/tcp
 
-   QStringList port = portStrings->filter(QString::number(portNumber) + "/" + portType);
-   if(port.size() > 0)
+   QStringList portList = portStrings->filter(QString::number(port) + "/" + type);
+   if(portList.size() > 0)
    {
        //grab the first one, there may be duplicates due to colliding ports in the /etc/services file
        //but those are listed after the declaration for what the port officially should be used for
-       QString line = port.at(0);
+       QString line = portList.at(0);
 
        //Split across spaces since it's whitespace delimited
        QStringList lineList = line.split(' ');
@@ -196,7 +196,7 @@ void Firewall::SaveOpenPorts()
       QStringList fileout;
       for(int i=0; i<openports.length(); i++){
         fileout.append("#" + openports[i].Keyword + ": " + openports[i].Description + "\n" +
-                   openports[i].PortType +" "+QString::number(openports[i].Port));
+                   openports[i].Type +" "+QString::number(openports[i].Port));
       }
       //Always make sure that the file always ends with a newline
       if(!fileout.isEmpty()){ fileout << ""; }

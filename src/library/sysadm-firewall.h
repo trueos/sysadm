@@ -11,18 +11,18 @@ namespace sysadm
 {
 struct PortInfo{
     int Port;
-    QString PortType;
+    QString Type;
     QString Keyword;
     QString Description;
     bool Recommended;
     friend bool operator<(const PortInfo lhs, const PortInfo rhs){
-        return std::tie(lhs.Port,lhs.PortType) < std::tie(rhs.Port,rhs.PortType);
+        return std::tie(lhs.Port,lhs.Type) < std::tie(rhs.Port,rhs.Type);
     }
     friend bool operator>(const PortInfo lhs, const PortInfo rhs)
     {   return rhs < lhs;}
     friend bool operator==(const PortInfo lhs, const PortInfo rhs)
     {
-        return lhs.Port == rhs.Port && lhs.PortType == rhs.PortType;
+        return lhs.Port == rhs.Port && lhs.Type == rhs.Type;
     }
     friend bool operator !=(const PortInfo lhs, const PortInfo rhs)
     {   return !(lhs == rhs);}
@@ -40,25 +40,25 @@ public:
      * including its port type, keyword, description, and whether it's a
      * recommended port
      *
-     * @param portNumber a port number between 0 and 2^16 - 1
-     * @param portType specify whether the port is tdp, udp, etc
+     * @param number a port number between 0 and 2^16 - 1
+     * @param type specify whether the port is tdp, udp, etc
      *
      * @ErrorConditions Port Number is set to -1 and a description of the error is stored in the description variable
      */
-    PortInfo LookUpPort(int portNumber, QString portType);
+    PortInfo LookUpPort(int number, QString type);
     /**
      * @brief Opens a port
-     * @param portNumber a port number between 0 and 2^16 -1
-     * @param portType specify whether the port is tdp, udp, etc
+     * @param number a port number between 0 and 2^16 -1
+     * @param type specify whether the port is tdp, udp, etc
      */
-    void OpenPort(int portNumber, QString portType);
+    void OpenPort(int number, QString type);
 
     /**
      * @brief ClosePort closes a port
-     * @param portNumber a port number between 0 and 2^16 -1
-     * @param portType specify whether the port is tdp, udp, etc
+     * @param number a port number between 0 and 2^16 -1
+     * @param type specify whether the port is tdp, udp, etc
      */
-    void ClosePort(int portNumber, QString portType);
+    void ClosePort(int number, QString type);
 
     /**
      * @brief finds a list of ports that are open gets the info about them
