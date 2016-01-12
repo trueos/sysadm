@@ -20,7 +20,7 @@ Every lifepreserver class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listcron", "listsnap", "cronsnap", "cronscrub", and "settings"                            |
+| action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", and "settings"              |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -84,86 +84,6 @@ the time that snapshots are taken. If scrubs have been configured on that ZFS po
         "keep": "3",
         "schedule": "daily@18"
         "scrub": "daily@22"
-      }
-    }
-  },
-  "id": "fooid",
-  "name": "response",
-  "namespace": "sysadm"
- }
-
-.. _List Snapshots:
-
-List Snapshots
-==============
-
-The "listsnap" action retrieves the list of saved snapshots.
-
-**REST Request**
-
-.. code-block:: json
-
- PUT /sysadm/lifepreserver
- {
-   "pool" : "tank1",
-   "action" : "listsnap"
- }
-
-**REST Response**
-
-.. code-block:: json
-
- {
-    "args": {
-        "listsnap": {
-            "tank1@auto-2016-01-04-18-00-00": {
-                "comment": "Automated Snapshot"
-            },
-            "tank1@auto-2016-01-05-18-00-00": {
-                "comment": "Automated Snapshot"
-            },
-            "tank1@auto-2016-01-06-18-00-00": {
-                "comment": "Automated Snapshot"
-            },
-            "tank1@auto-2016-01-07-18-00-00": {
-                "comment": "Automated Snapshot"
-            }
-        }
-    }
- }
-
-**WebSocket Request**
-
-.. code-block:: json
-
- {
-   "name" : "lifepreserver",
-   "args" : {
-      "pool" : "tank1",
-      "action" : "listsnap"
-   },
-   "namespace" : "sysadm",
-   "id" : "fooid"
- }
-
-**WebSocket Response**
-
-.. code-block:: json
-
- {
-  "args": {
-    "listsnap": {
-      "tank1@auto-2016-01-04-18-00-00": {
-        "comment": "Automated Snapshot"
-      },
-      "tank1@auto-2016-01-05-18-00-00": {
-        "comment": "Automated Snapshot"
-      },
-      "tank1@auto-2016-01-06-18-00-00": {
-        "comment": "Automated Snapshot"
-      },
-      "tank1@auto-2016-01-07-18-00-00": {
-        "comment": "Automated Snapshot"
       }
     }
   },
@@ -321,6 +241,151 @@ The "cronscrub" action is used to schedule a ZFS scrub. This action supports the
     "cronscrub": {
       "frequency": "daily@22",
       "pool": "tank"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+.. _List Snapshots:
+
+List Snapshots
+==============
+
+The "listsnap" action retrieves the list of saved snapshots.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "pool" : "tank1",
+   "action" : "listsnap"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "listsnap": {
+            "tank1@auto-2016-01-04-18-00-00": {
+                "comment": "Automated Snapshot"
+            },
+            "tank1@auto-2016-01-05-18-00-00": {
+                "comment": "Automated Snapshot"
+            },
+            "tank1@auto-2016-01-06-18-00-00": {
+                "comment": "Automated Snapshot"
+            },
+            "tank1@auto-2016-01-07-18-00-00": {
+                "comment": "Automated Snapshot"
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "lifepreserver",
+   "args" : {
+      "pool" : "tank1",
+      "action" : "listsnap"
+   },
+   "namespace" : "sysadm",
+   "id" : "fooid"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "listsnap": {
+      "tank1@auto-2016-01-04-18-00-00": {
+        "comment": "Automated Snapshot"
+      },
+      "tank1@auto-2016-01-05-18-00-00": {
+        "comment": "Automated Snapshot"
+      },
+      "tank1@auto-2016-01-06-18-00-00": {
+        "comment": "Automated Snapshot"
+      },
+      "tank1@auto-2016-01-07-18-00-00": {
+        "comment": "Automated Snapshot"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+.. _Revert a Snapshot:
+
+Revert a Snapshot
+=================
+
+The "revertsnap" action is used to rollback the contents of the specified dataset to the point in time that the specified snapshot was taken.
+
+.. warning:: performing this operation will revert the contents of the dataset back in time, meaning that all changes to the dataset's files that occurred since the snapshot was taken will
+   be lost.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "snap" : "auto-2016-01-09-18-00-00",
+   "dataset" : "tank1/usr/jails",
+   "action" : "revertsnap"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "revertsnap": {
+            "dataset": "tank1/usr/jails",
+            "snap": "auto-2016-01-09-18-00-00"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "dataset" : "tank1/usr/jails",
+      "action" : "revertsnap",
+      "snap" : "auto-2016-01-09-18-00-00"
+   },
+   "namespace" : "sysadm",
+   "name" : "lifepreserver",
+   "id" : "fooid"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "revertsnap": {
+      "dataset": "tank1/usr/jails",
+      "snap": "auto-2016-01-09-18-00-00"
     }
   },
   "id": "fooid",
