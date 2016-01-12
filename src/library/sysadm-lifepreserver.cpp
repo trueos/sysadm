@@ -106,6 +106,52 @@ QJsonObject LifePreserver::listSnap(QJsonObject jsin) {
   return retObject;
 }
 
+// Schedule a new scrub routine
+QJsonObject LifePreserver::scheduleScrub(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString pool, frequency;
+
+   QStringList keys = jsin.keys();
+   bool ok = false;
+   if(! keys.contains("pool") || ! keys.contains("frequency")){
+     retObject.insert("error", "Requires pool and frequency keys");
+     return retObject;
+   }
+
+   // Check which pool we are looking at
+   pool = jsin.value("pool").toString();
+   frequency = jsin.value("frequency").toString();
+
+   // Make sure we have the pool / frequency / keep key(s)
+   if ( pool.isEmpty() || frequency.isEmpty() ) {
+     retObject.insert("error", "Empty pool or frequency keys ");
+     return retObject;
+   }
+
+   QStringList output;
+   if ( frequency == "none" )
+     output = General::RunCommand("lpreserver cronscrub " + pool + " stop " + frequency).split("\n");
+   else
+     output = General::RunCommand("lpreserver cronscrub " + pool + " start " + frequency).split("\n");
+
+   // Check for any errors
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("ERROR:") != -1 ) {
+       retObject.insert("error", output.at(i));
+       return retObject;
+      } 
+   }
+
+   // Got to the end, return the good json
+   QJsonObject values;
+   values.insert("pool", pool);
+   values.insert("frequency", frequency);
+
+   return values;
+}
+
+
 // Schedule a new snapshot routine
 QJsonObject LifePreserver::scheduleSnapshot(QJsonObject jsin) {
    QJsonObject retObject;
@@ -129,7 +175,11 @@ QJsonObject LifePreserver::scheduleSnapshot(QJsonObject jsin) {
      return retObject;
    }
 
-   QStringList output = General::RunCommand("lpreserver cronsnap " + pool + " start " + frequency + " " + keep ).split("\n");
+   QStringList output;
+   if ( frequency == "none" )
+     output = General::RunCommand("lpreserver cronsnap " + pool + " stop " ).split("\n");
+   else
+     output = General::RunCommand("lpreserver cronsnap " + pool + " start " + frequency + " " + keep ).split("\n");
 
    // Check for any errors
    for ( int i = 0; i < output.size(); i++)

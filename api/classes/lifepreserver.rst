@@ -178,6 +178,10 @@ Create a Schedule
 The "cronsnap" action is used to create snapshot schedules for Life Preserver. When creating a schedule, specify the ZFS pool to snapshot, how many snapshots to keep, and at what time the
 snapshots should occur.
 
+Frequency: none, daily@XX, hourly, 30min, 10min, 5min (Specifying 'none' disables)
+Keep: <number>
+
+
 **REST Request**
 
 .. code-block:: json
