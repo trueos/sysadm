@@ -20,33 +20,58 @@ QJsonObject LifePreserver::listCron() {
 
    QStringList output = General::RunCommand("lpreserver listcron").split("\n");
    QList<QStringList> snaps;
-   QStringList snapitems;
    
    // Parse the output
-   bool inSection = false;
+   bool inSnapSection = false;
+   bool inScrubSection = false;
    for ( int i = 0; i < output.size(); i++)
    {
       if ( output.at(i).indexOf("-----------------") != -1 ) {
-         inSection = true;
+         inSnapSection = true;
          continue;
       }
 
-      if (!inSection)
+      if (!inSnapSection)
          continue;
 
+      if ( output.at(i).indexOf("Pools scheduled for scrub") != -1 ) {
+         inScrubSection = true;
+	 continue;
+      }
+
       if ( output.at(i).isEmpty() || output.at(i).indexOf("-----------------") != -1 )
-	  break;
+	  continue;
 
-      // Breakdown this cron job
-      snapitems.clear();
-      snapitems << output.at(i).section("-", 0, 0).simplified();
-      snapitems << output.at(i).section("-", 1, 1).simplified();
-      snapitems << output.at(i).section("-", 2, 2).simplified().replace("total: ", "");
+      if ( inSnapSection && ! inScrubSection ) {
+        // Breakdown this cron job
+        QString pool = output.at(i).section("-", 0, 0).simplified();
+        QString freq = output.at(i).section("-", 1, 1).simplified();
+        QString keep = output.at(i).section("-", 2, 2).simplified().replace("total: ", "");
 
-      QJsonObject values;
-      values.insert("schedule", snapitems.at(1));
-      values.insert("keep", snapitems.at(2));
-      retObject.insert(snapitems.at(0), values);
+        QJsonObject values;
+        values.insert("schedule", freq);
+        values.insert("keep", keep);
+        retObject.insert(pool, values);
+      } else if (inSnapSection && inScrubSection ) {
+        // Add a cron scrub
+        QString pool = output.at(i).section("-", 0, 0).simplified();
+        QString freq = output.at(i).section("-", 1, 1).simplified().replace(" ", "");
+	qDebug() << "Found scrub:" << pool << freq;
+
+        QJsonObject values;
+        QStringList keys = retObject.keys();
+        if( keys.contains(pool)){
+          // We have an existing pool object, add it
+          values = retObject[pool].toObject();
+          retObject.remove(pool);
+          values.insert("scrub", freq);
+          retObject.insert(pool, values);
+	} else {
+          // Add a new pool object with the scrub
+          values.insert("scrub", freq);
+          retObject.insert(pool, values);
+	}
+      }
    }
 
    return retObject;
