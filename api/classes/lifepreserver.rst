@@ -14,13 +14,13 @@ Every lifepreserver class request contains the following parameters:
 | id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | sysadm        |                                                                                                                      |
+| name                            | lifepreserver |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | lifepreserver |                                                                                                                      |
+| namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listcron", "listsnap", "cronsnap", and "settings"                                         |
+| action                          |               | supported actions include "listcron", "listsnap", "cronsnap", "cronscrub", and "settings"                            |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -31,8 +31,8 @@ The rest of this section provides examples of the available *actions* for each t
 List Schedules
 ==============
 
-The "listcron" action retrieves the information for each Life Preserver scheduled snapshot task. For each schedule, it lists the name of the ZFS pool, the number of snapshots to keep, and
-the time that the snapshot is taken.
+The "listcron" action retrieves the information for each Life Preserver scheduled task. If snapshots have been configured for a ZFS pool, it lists the number of snapshots to keep and
+the time that snapshots are taken. If scrubs have been configured on that ZFS pool, it also lists the time that ZFS scrubs occur.
 
 **REST Request**
 
@@ -54,6 +54,7 @@ the time that the snapshot is taken.
             "tank1": {
                 "keep": "3",
                 "schedule": "daily@18"
+                "scrub": "daily@22"
             }
         }
     }
@@ -82,6 +83,7 @@ the time that the snapshot is taken.
       "tank1": {
         "keep": "3",
         "schedule": "daily@18"
+        "scrub": "daily@22"
       }
     }
   },
@@ -170,10 +172,10 @@ The "listsnap" action retrieves the list of saved snapshots.
   "namespace": "sysadm"
  }
 
-.. _Create a Schedule:
+.. _Create a Snapshot Schedule:
 
-Create a Schedule
-=================
+Create a Snapshot Schedule
+==========================
 
 The "cronsnap" action is used to create snapshot schedules for Life Preserver. This action supports the following parameters:
 
@@ -187,7 +189,7 @@ The "cronsnap" action is used to create snapshot schedules for Life Preserver. T
 | keep                            | specify the number of snapshots to keep                                                                              |
 |                                 |                                                                                                                      |
 +---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| frequency                       | specify when to take the snapshots; possible values are "none", "daily@XX" (where XX is the number of the hour),     |
+| frequency                       | specify when to take the snapshots; possible values are "daily@XX" (where XX is the number of the hour),             |
 |                                 | "hourly", "30min", "10min", "5min" or "none" (disables snapshots)                                                    |
 |                                 |                                                                                                                      |
 +---------------------------------+----------------------------------------------------------------------------------------------------------------------+
@@ -252,6 +254,80 @@ The "cronsnap" action is used to create snapshot schedules for Life Preserver. T
   "namespace": "sysadm"
  }
  
+.. _Create a Scrub Schedule:
+
+Create a Scrub Schedule
+==========================
+
+The "cronscrub" action is used to schedule a ZFS scrub. This action supports the following parameters:
+
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Description**                                                                                                      |
+|                                 |                                                                                                                      |
++=================================+======================================================================================================================+
+| pool                            | name of ZFS pool to scrub                                                                                            |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| frequency                       | specify when to perform the scrub; possible values are "daily@XX", "weekly@YY@XX", and monthly@ZZ@XX, where "XX" is  |
+|                                 | the hour, "YY" is the day of week, "ZZ" is the day of month, and "none" disables scrubs                              |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "action" : "cronscrub",
+   "pool" : "tank",
+   "frequency" : "daily@22"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "cronscrub": {
+            "frequency": "daily@22",
+            "pool": "tank"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "cronscrub",
+      "pool" : "tank",
+      "frequency" : "daily@22"
+   },
+   "namespace" : "sysadm",
+   "name" : "lifepreserver",
+   "id" : "fooid"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "cronscrub": {
+      "frequency": "daily@22",
+      "pool": "tank"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
 .. _View Settings:
 
 View Settings
