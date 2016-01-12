@@ -31,8 +31,8 @@ The rest of this section provides examples of the available *actions* for each t
 List Schedules
 ==============
 
-The "listcron" action retrieves the information for each Life Preserver scheduled snapshot task. For each schedule, it lists the name of the ZFS pool, the number of snapshots to keep, and
-the time that the snapshot is taken.
+The "listcron" action retrieves the information for each Life Preserver scheduled task. If snapshots have been configured for a ZFS pool, it lists the number of snapshots to keep and
+the time that snapshots are taken. If scrubs have been configured on that ZFS pool, it also lists the time that ZFS scrubs occur.
 
 **REST Request**
 
@@ -54,6 +54,7 @@ the time that the snapshot is taken.
             "tank1": {
                 "keep": "3",
                 "schedule": "daily@18"
+                "scrub": "daily@22"
             }
         }
     }
@@ -82,6 +83,7 @@ the time that the snapshot is taken.
       "tank1": {
         "keep": "3",
         "schedule": "daily@18"
+        "scrub": "daily@22"
       }
     }
   },
