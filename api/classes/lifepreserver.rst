@@ -175,11 +175,22 @@ The "listsnap" action retrieves the list of saved snapshots.
 Create a Schedule
 =================
 
-The "cronsnap" action is used to create snapshot schedules for Life Preserver. When creating a schedule, specify the ZFS pool to snapshot, how many snapshots to keep, and at what time the
-snapshots should occur.
+The "cronsnap" action is used to create snapshot schedules for Life Preserver. This action supports the following parameters:
 
-Frequency: none, daily@XX, hourly, 30min, 10min, 5min (Specifying 'none' disables)
-Keep: <number>
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Description**                                                                                                      |
+|                                 |                                                                                                                      |
++=================================+======================================================================================================================+
+| pool                            | name of ZFS pool to snapshot                                                                                         |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| keep                            | specify the number of snapshots to keep                                                                              |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| frequency                       | specify when to take the snapshots; possible values are "none", "daily@XX" (where XX is the number of the hour),     |
+|                                 | "hourly", "30min", "10min", "5min" or "none" (disables snapshots)                                                    |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
 
 
 **REST Request**
