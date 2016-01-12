@@ -141,6 +141,14 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="cronscrub"){
+	ok = true;
+        out->insert("cronscrub", sysadm::LifePreserver::scheduleScrub(in_args.toObject()));
+      }
+      if(act=="cronsnap"){
+	ok = true;
+        out->insert("cronsnap", sysadm::LifePreserver::scheduleSnapshot(in_args.toObject()));
+      }
       if(act=="listcron"){
 	ok = true;
         out->insert("listcron", sysadm::LifePreserver::listCron());
@@ -149,13 +157,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
 	ok = true;
         out->insert("listsnap", sysadm::LifePreserver::listSnap(in_args.toObject()));
       }
-      if(act=="cronscrub"){
+      if(act=="revertsnap"){
 	ok = true;
-        out->insert("cronscrub", sysadm::LifePreserver::scheduleScrub(in_args.toObject()));
-      }
-      if(act=="cronsnap"){
-	ok = true;
-        out->insert("cronsnap", sysadm::LifePreserver::scheduleSnapshot(in_args.toObject()));
+        out->insert("revertsnap", sysadm::LifePreserver::revertSnapshot(in_args.toObject()));
       }
       if(act=="settings"){
 	ok = true;
