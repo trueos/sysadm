@@ -37,9 +37,9 @@ PortInfo Firewall::LookUpPort(int port, QString type)
 
     //Check to see if it's a recommended port
     returnValue.Recommended = false;
-    for(int i = 0; i < recommendedPortsSize; i++)
+    for(int recommendedPort : recommendedPorts)
     {
-        if (port == recommendedPorts[i])
+        if (port == recommendedPort)
         {
             returnValue.Recommended = true;
         }
@@ -151,6 +151,8 @@ void Firewall::RestoreDefaults()
     system("mv /etc/ipfw.openports /etc/ipfw.openports.previous");
     //refresh/restart the rules files
     system("sh /usr/local/share/pcbsd/scripts/reset-firewall");
+
+    LoadOpenPorts();
 }
 
 Firewall::Firewall()
@@ -211,9 +213,9 @@ void Firewall::SaveOpenPorts()
     //Convert to file format
       std::sort(openports.begin(), openports.end()); //make sure they are still sorted by port
       QStringList fileout;
-      for(int i=0; i<openports.length(); i++){
-        fileout.append("#" + openports[i].Keyword + ": " + openports[i].Description + "\n" +
-                   openports[i].Type +" "+QString::number(openports[i].Port));
+      for(PortInfo port : openports){
+        fileout.append("#" + port.Keyword + ": " + port.Description + "\n" +
+                   port.Type +" "+QString::number(port.Port));
       }
       //Always make sure that the file always ends with a newline
       if(!fileout.isEmpty()){ fileout << ""; }

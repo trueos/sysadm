@@ -29,8 +29,7 @@ struct PortInfo{
     {   return !(lhs == rhs);}
 };
 
-const static int recommendedPorts[] = {22, 80};
-const static int recommendedPortsSize = 2;
+const static QVector<int> recommendedPorts = {22, 80};
 class Firewall
 {
 
