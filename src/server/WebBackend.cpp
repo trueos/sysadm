@@ -157,6 +157,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
 	ok = true;
         out->insert("listsnap", sysadm::LifePreserver::listSnap(in_args.toObject()));
       }
+      if(act=="removesnap"){
+	ok = true;
+        out->insert("removesnap", sysadm::LifePreserver::removeSnapshot(in_args.toObject()));
+      }
       if(act=="revertsnap"){
 	ok = true;
         out->insert("revertsnap", sysadm::LifePreserver::revertSnapshot(in_args.toObject()));
