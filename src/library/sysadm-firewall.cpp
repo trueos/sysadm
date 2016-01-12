@@ -6,6 +6,9 @@
 
 #include "sysadm-firewall.h"
 #include <QtCore>
+#include <algorithm>
+#include <tuple>
+
 using namespace sysadm;
 PortInfo Firewall::LookUpPort(int portNumber, QString portType)
 {
@@ -78,24 +81,19 @@ PortInfo Firewall::LookUpPort(int portNumber, QString portType)
 
 void Firewall::OpenPort(int port, QString type)
 {
-    openports << QString::number(port)+"::::"+type;
+    openports.append(LookUpPort(port,type));
     SaveOpenPorts();
 }
 
 void Firewall::ClosePort(int port, QString type)
 {
-    openports.removeAll( QString::number(port)+"::::"+type);
+    openports.removeAll(LookUpPort(port,type));
     SaveOpenPorts();
 }
 
 QVector<PortInfo> Firewall::OpenPorts()
 {
-    QVector<PortInfo> returnValue = QVector<PortInfo>(openports.length());
-
-    for(int i=0; i<openports.length(); i++){
-      returnValue.append( LookUpPort(openports[i].section("::::",0,0).toInt(),openports[i].section("::::",1,1)));
-    }
-    return returnValue;
+    return openports;
 
 }
 
@@ -161,7 +159,7 @@ void Firewall::readServicesFile()
     {
         QString line = services->readLine();
         //jump down past the comments
-        if(line[0] == '#')
+        if(line[0] == '#' || line.simplified().isEmpty())
             continue;
 
         //remove all of the extraneous whitespace in the line
@@ -183,20 +181,22 @@ void Firewall::LoadOpenPorts()
       QString line = in.readLine();
       if(line.startsWith("#") || line.simplified().isEmpty()){ continue; }
       //File format: "<type> <port>" (nice and simple)
-      openports << line.section(" ",1,1)+"::::"+line.section(" ",0,0);
+      openports.append(LookUpPort(line.section(" ",1,1).toInt(),line.section(" ",0,0)));
     }
     file.close();
   }
-  openports.sort(); //order them in ascending port order
+  //order them in ascending order by port then port type
+  std::sort(openports.begin(),openports.end());
 }
 
 void Firewall::SaveOpenPorts()
 {
     //Convert to file format
-      openports.sort(); //make sure they are still sorted by port
+      std::sort(openports.begin(), openports.end()); //make sure they are still sorted by port
       QStringList fileout;
       for(int i=0; i<openports.length(); i++){
-        fileout << openports[i].section("::::",1,1)+" "+openports[i].section("::::",0,0);
+        fileout.append("#" + openports[i].Keyword + ": " + openports[i].Description + "\n" +
+                   openports[i].PortType +" "+QString::number(openports[i].Port));
       }
       //Always make sure that the file always ends with a newline
       if(!fileout.isEmpty()){ fileout << ""; }

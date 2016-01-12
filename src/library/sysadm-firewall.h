@@ -15,6 +15,17 @@ struct PortInfo{
     QString Keyword;
     QString Description;
     bool Recommended;
+    friend bool operator<(const PortInfo lhs, const PortInfo rhs){
+        return std::tie(lhs.Port,lhs.PortType) < std::tie(rhs.Port,rhs.PortType);
+    }
+    friend bool operator>(const PortInfo lhs, const PortInfo rhs)
+    {   return rhs < lhs;}
+    friend bool operator==(const PortInfo lhs, const PortInfo rhs)
+    {
+        return lhs.Port == rhs.Port && lhs.PortType == rhs.PortType;
+    }
+    friend bool operator !=(const PortInfo lhs, const PortInfo rhs)
+    {   return !(lhs == rhs);}
 };
 
 const static int recommendedPorts[] = {22, 80};
@@ -91,7 +102,7 @@ private:
     void readServicesFile();
     QStringList* portStrings;
 
-    QStringList openports;
+    QVector<PortInfo> openports;
 
     void LoadOpenPorts();
     void SaveOpenPorts();
