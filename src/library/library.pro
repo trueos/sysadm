@@ -1,4 +1,4 @@
-
+CONFIG   += c++11
 QT       += core network
 
 TARGET=sysadm
