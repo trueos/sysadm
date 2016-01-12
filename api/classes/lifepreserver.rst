@@ -20,7 +20,8 @@ Every lifepreserver class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", and "settings"              |
+| action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", "removesnap" and            |
+|                                 |               | "settings"                                                                                                           |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -393,6 +394,69 @@ The "revertsnap" action is used to rollback the contents of the specified datase
   "namespace": "sysadm"
  }
 
+.. _Remove a Snapshot:
+
+Remove a Snapshot
+=================
+
+The "removesnap" action is used to remove a ZFS snapshot from the specified dataset or pool.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "dataset" : "tank1/usr/jails",
+   "snap" : "auto-2016-01-09-18-00-00",
+   "action" : "removesnap"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "removesnap": {
+            "dataset": "tank1/usr/jails",
+            "snap": "auto-2016-01-09-18-00-00"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "snap" : "auto-2016-01-09-18-00-00",
+      "action" : "removesnap",
+      "dataset" : "tank1/usr/jails"
+   },
+   "name" : "lifepreserver",
+   "namespace" : "sysadm",
+   "id" : "fooid"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+     "removesnap": {
+        "dataset": "tank1/usr/jails",
+        "snap": "auto-2016-01-09-18-00-00"
+     }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+ 
 .. _View Settings:
 
 View Settings
