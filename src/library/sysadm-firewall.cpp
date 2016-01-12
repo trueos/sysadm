@@ -7,7 +7,6 @@
 #include "sysadm-firewall.h"
 #include <QtCore>
 #include <algorithm>
-#include <tuple>
 
 using namespace sysadm;
 PortInfo Firewall::LookUpPort(int port, QString type)

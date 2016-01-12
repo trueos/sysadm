@@ -7,6 +7,7 @@
 #ifndef PORTLOOKUP_H
 #define PORTLOOKUP_H
 #include <QtCore>
+#include <tuple>
 namespace sysadm
 {
 struct PortInfo{
