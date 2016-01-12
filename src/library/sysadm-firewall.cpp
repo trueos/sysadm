@@ -84,9 +84,27 @@ void Firewall::OpenPort(int port, QString type)
     SaveOpenPorts();
 }
 
+void Firewall::OpenPort(QVector<PortInfo> ports)
+{
+    for(PortInfo port : ports)
+    {
+        openports.append(port);
+    }
+    SaveOpenPorts();
+}
+
 void Firewall::ClosePort(int port, QString type)
 {
     openports.removeAll(LookUpPort(port,type));
+    SaveOpenPorts();
+}
+
+void Firewall::ClosePort(QVector<PortInfo> ports)
+{
+    for(PortInfo port : ports)
+    {
+        openports.removeAll(port);
+    }
     SaveOpenPorts();
 }
 

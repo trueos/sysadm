@@ -55,11 +55,23 @@ public:
     void OpenPort(int number, QString type);
 
     /**
+     * @brief Opens a set of ports
+     * @param ports a vector of ports to open
+     */
+    void OpenPort(QVector<PortInfo> ports);
+
+    /**
      * @brief ClosePort closes a port
      * @param number a port number between 0 and 2^16 -1
      * @param type specify whether the port is tdp, udp, etc
      */
     void ClosePort(int number, QString type);
+
+    /**
+     * @brief ClosePort closes a set of ports
+     * @param ports a vector of ports to close
+     */
+    void ClosePort(QVector<PortInfo> ports);
 
     /**
      * @brief finds a list of ports that are open gets the info about them
