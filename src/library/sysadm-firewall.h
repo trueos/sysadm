@@ -98,7 +98,14 @@ public:
      * @brief Restarts the firewall
      */
     void Restart();
-
+    /**
+     * @brief Enables the firewall in rc.conf, Start() will automatically enable the firewall
+     */
+    void Enable();
+    /**
+     * @brief Disables the firewall in rc.conf use after Stop() to completely disable
+     */
+    void Disable();
     /**
      * @brief Restores the Default Configuration
      */

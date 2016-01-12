@@ -5,6 +5,7 @@
 //  See the LICENSE file for full details
 
 #include "sysadm-firewall.h"
+#include "sysadm-general.h"
 #include <QtCore>
 #include <algorithm>
 
@@ -116,41 +117,86 @@ QVector<PortInfo> Firewall::OpenPorts()
 
 bool Firewall::IsRunning()
 {
-    QProcess proc;
-    proc.start("sysctl net.inet.ip.fw.enable");
-    if(proc.waitForFinished() || proc.canReadLine())
-    {
-        if (proc.canReadLine())
-        {
-            QString line = proc.readLine();
-            if(line.section(":",1,1).simplified().toInt() ==1) { return true; }
-        }
-    }
-    return false;
+    return General::sysctlAsInt("net.inet.ip.fw.enable") == 1;
 }
 
 void Firewall::Start()
 {
-    system("/etc/rc.d/ipfw start");
+    Enable();
+
+    QStringList args;
+    args << "start";
+    General::RunCommand("/etc/rc.d/ipfw",args);
 }
 
 void Firewall::Stop()
 {
-    system("/etc/rc.d/ipfw stop");
+    Enable();
+    QStringList args;
+    args << "stop";
+    General::RunCommand("/etc/rc.d/ipfw",args);
 }
 
 void Firewall::Restart()
 {
-    system("/etc/rc.d/ipfw restart");
+    Enable();
+
+    QStringList args;
+    args << "restart";
+    General::RunCommand("/etc/rc.d/ipfw",args);
+}
+
+void Firewall::Enable()
+{
+    //check if rc.conf has firewall_enable="YES"
+    QStringList rcConf = General::readTextFile("/etc/rc.conf");
+    if (rcConf.filter("firewall_enabled=\"YES\"").size() == 0)
+    {
+        rcConf.removeAll("firewall_enable=\"NO\"");
+        rcConf.append("firewall_enabled=\"YES\"");
+        General::writeTextFile("/etc/rc.conf",rcConf);
+    }
+}
+
+void Firewall::Disable()
+{
+    //check if rc.conf has firewall_enable="NO"
+    QStringList rcConf = General::readTextFile("/etc/rc.conf");
+    if (rcConf.filter("firewall_enabled=\"NO\"").size() == 0)
+    {
+        rcConf.removeAll("firewall_enable=\"YES\"");
+        rcConf.append("firewall_enabled=\"NO\"");
+        General::writeTextFile("/etc/rc.conf",rcConf);
+    }
 }
 
 void Firewall::RestoreDefaults()
 {
+    const QString ipfwrules = "/etc/ipfw.rules";
+    const QString ipfwrulesprevious = ipfwrules + ".previous";
+
+    const QString ipfwopenports = "/etc/ipfw.openports";
+    const QString ipfwopenportsprevious = ipfwopenports + ".previous";
+
+    //QFile has a rename command that acts like move, however it won't
+    //clobber a file if it already exists, so we have to check if there
+    //already is a .previous and if so delete it before moving the file
+    //to .previous
+
     //move the files out of the way
-    system("mv /etc/ipfw.rules /etc/ipfw.rules.previous");
-    system("mv /etc/ipfw.openports /etc/ipfw.openports.previous");
+    if(QFile::exists(ipfwrulesprevious))
+        QFile::remove(ipfwrulesprevious);
+    QFile::rename(ipfwrules,ipfwrulesprevious);
+
+    if(QFile::exists(ipfwopenportsprevious))
+        QFile::remove(ipfwopenportsprevious);
+    QFile::rename(ipfwopenports,ipfwopenportsprevious);
+
+
     //refresh/restart the rules files
-    system("sh /usr/local/share/pcbsd/scripts/reset-firewall");
+    QStringList args;
+    args << "/usr/local/share/pcbsd/scripts/reset-firewall";
+    General::RunCommand("sh",args);
 
     LoadOpenPorts();
 }
@@ -227,6 +273,11 @@ void Firewall::SaveOpenPorts()
         file.close();
       }
       //Re-load/start rules (just in case - it is a smart script)
-      if(IsRunning()){ system("sh /usr/local/share/pcbsd/scripts/reset-firewall"); }
+      if(IsRunning())
+      {
+          QStringList args;
+          args << "/usr/local/share/pcbsd/scripts/reset-firewall";
+          General::RunCommand("sh",args);
+      }
 }
  
