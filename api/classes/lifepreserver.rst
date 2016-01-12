@@ -20,8 +20,8 @@ Every lifepreserver class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", "removesnap" and            |
-|                                 |               | "settings"                                                                                                           |
+| action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", "removesnap",               |
+|                                 |               | "settings", and "savesettings"                                                                                       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -515,6 +515,94 @@ Run :command:`lpreserver help set` for more information about each available set
       "email": "WARN",
       "emailaddress": "me@mycompany.com",
       "recursive": "ON"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+.. _Save Settings:
+
+Save Settings
+=============
+
+The "savesettings" action can be used to modify the system-wide settings of the Life Preserver utility. This action supports the following parameters:
+
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Description**                                                                                                      |
+|                                 |                                                                                                                      |
++=================================+======================================================================================================================+
+| duwarn                          | disk percentage (from 0-99) at which to warn of low disk space                                                       |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| email                           | email address to send notifications to                                                                               |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| emailopts                       | conditions which trigger an email notification; possible values are "ALL" (every snapshot, warning and error),       |
+|                                 | "WARN" (warnings and errors--this is the default condition), or "ERROR" (errors only)                                |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| recursive                       | whether or not to include all child datasets in the snapshot; possible values are "true" or "false"                  |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "emailopts" : "ALL",
+   "duwarn" : "70",
+   "recursive" : "true",
+   "action" : "savesettings",
+   "email" : "kris@example.org"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "savesettings": {
+            "duwarn": "70",
+            "email": "kris@example.org",
+            "emailopts": "ALL",
+            "recursive": "true"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "emailopts" : "ALL",
+      "action" : "savesettings",
+      "duwarn" : "70",
+      "recursive" : "true",
+      "email" : "kris@example.org"
+   },
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "name" : "lifepreserver"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "savesettings": {
+      "duwarn": "70",
+      "email": "kris@example.org",
+      "emailopts": "ALL",
+      "recursive": "true"
     }
   },
   "id": "fooid",
