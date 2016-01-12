@@ -14,7 +14,7 @@ namespace sysadm{
 
 class LifePreserver{
 public:
-	// List schedule snapshots
+	static QJsonObject addReplication(QJsonObject jsin);
 	static QJsonObject listCron(); 
 	static QJsonObject listSnap(QJsonObject jsin);
 	static QJsonObject removeSnapshot(QJsonObject jsin);

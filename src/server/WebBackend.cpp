@@ -141,6 +141,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="addreplication"){
+	ok = true;
+        out->insert("addreplication", sysadm::LifePreserver::addReplication(in_args.toObject()));
+      }
       if(act=="cronscrub"){
 	ok = true;
         out->insert("cronscrub", sysadm::LifePreserver::scheduleScrub(in_args.toObject()));

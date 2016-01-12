@@ -14,6 +14,75 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Add a new replication target
+QJsonObject LifePreserver::addReplication(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString host, user, port, password, ldataset, rdataset, frequency;
+
+   QStringList keys = jsin.keys();
+   if (! keys.contains("host")
+     || ! keys.contains("user")
+     || ! keys.contains("port")
+     || ! keys.contains("password")
+     || ! keys.contains("dataset")
+     || ! keys.contains("remotedataset")
+     || ! keys.contains("frequency") ) {
+     retObject.insert("error", "Missing required keys");
+     return retObject;
+   }
+
+   // Get the key values
+   host = jsin.value("host").toString();
+   user = jsin.value("user").toString();
+   port = jsin.value("port").toString();
+   password = jsin.value("password").toString();
+   ldataset = jsin.value("dataset").toString();
+   rdataset = jsin.value("remotedataset").toString();
+   frequency = jsin.value("frequency").toString();
+
+   // Make sure we have the dataset / snap key(s)
+   if ( host.isEmpty()
+     || user.isEmpty()
+     || port.isEmpty()
+     || password.isEmpty()
+     || ldataset.isEmpty()
+     || rdataset.isEmpty()
+     || frequency.isEmpty() ) {
+     retObject.insert("error", "Empty dataset or snap keys ");
+     return retObject;
+   }
+
+   // Run the command with the SSHPASS env variable set
+   QStringList output;
+   output = General::RunCommand("lpreserver", QStringList() << "replicate" << "add"
+	<< host
+	<< user
+	<< port
+	<< ldataset
+	<< rdataset
+	<< frequency, "", QStringList() << "SSHPASS=" + password ).split("\n");
+
+   // Check for any errors
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("ERROR:") != -1 ) {
+       retObject.insert("error", output.at(i));
+       return retObject;
+      }
+   }
+
+   // Got to the end, return the good json
+   QJsonObject values;
+   values.insert("host", host);
+   values.insert("user", user);
+   values.insert("port", port);
+   values.insert("ldataset", ldataset);
+   values.insert("rdataset", rdataset);
+   values.insert("frequency", frequency);
+
+   return values;
+}
+
 // Build list of scheduled cron snapshot jobs
 QJsonObject LifePreserver::listCron() {
    QJsonObject retObject;
