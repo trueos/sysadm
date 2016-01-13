@@ -5,10 +5,12 @@
 //  See the LICENSE file for full details
 //===========================================
 #include "sysadm-usermanager.h"
+#include "sysadm-general.h"
 using namespace sysadm;
 
 UserManager::UserManager(QString chroot)
 {
+    this->chroot = chroot;
     loadUsers();
     loadGroups();
     loadShells();
@@ -16,6 +18,13 @@ UserManager::UserManager(QString chroot)
 
 void UserManager::NewUser(QString fullName, QString userName, QString password, QString home, QString shell, int gid, int uid)
 {
+    User user;
+    user.UserName = userName;
+    user.FullName = fullName;
+    user.HomeFolder = home;
+    user.Shell = shell;
+    user.ID = uid;
+
     if (home == "/usr/home/")
         home += userName;
     //Add User
@@ -23,70 +32,103 @@ void UserManager::NewUser(QString fullName, QString userName, QString password, 
     // Create the new home-directory
     if ( chroot.isEmpty() )
     {
-        system("/usr/local/share/pcbsd/scripts/mkzfsdir.sh " + home.toLatin1() );
-        system("pw groupadd " + userName.toLatin1() );
+        //create the home directory and a zfs dataset for it
+        QStringList args;
+        args.append(home);
+        General::RunCommand("/usr/local/share/pcbsd/scripts/mkzfsdir.sh",args);
+
+        //create the group associated with the user
+        args.clear();
+        args.append(userName);
+        General::RunCommand("pw groupadd",args);
     } else {
-        system("mkdir -p " + chroot.toLatin1() + "/" + home.toLatin1() + " 2>/dev/null" );
-        system("chroot " + chroot.toLatin1() + " ln -s /usr/home /home 2>/dev/null" );
-        system("chroot " + chroot.toLatin1() + " pw groupadd " + userName.toLatin1() );
+        //make the home directory
+        QStringList args;
+        args.append("-p"); // create intermediate directories as needed
+        args.append(chroot); //chroot location
+        args.append(home); //directory to create, in this case home
+        args.append("2>/dev/null"); //send stderr to /dev/null
+        General::RunCommand("mkdir",args);
+
+        //link /usr/home to /home
+        args.clear();
+        args.append(chroot); //location the chroot is in
+        args.append("ln"); //link
+        args.append("-s"); //symbolic link
+        args.append("/usr/home"); //folder to link from
+        args.append("/home"); //The link to create
+        args.append("2>/dev/null"); //send stderr to /dev/null
+        General::RunCommand("chroot",args);
+
+        //create the group associated with the user
+        args.clear();
+        args.append(chroot); //location the chroot is in
+        args.append("pw groupadd"); //create a group
+        args.append(userName); //name of the group to create
+        General::RunCommand("chroot",args);
     }
 
     QStringList args;
-    if ( ! chroot.isEmpty() )
-        args << chroot << "pw";
-    args << "useradd";
-    args << userName;
-    args << "-c";
-    args << fullName;
-    args << "-m";
-    args << "-d";
-    args << home;
-    args << "-s";
-    args << shell;
-    if (gid != -1)
+    if ( ! chroot.isEmpty() ) //if chroot is not empty the command starts with chroot instead of pw
+        args << chroot << "pw"; //and thus we have to add it as an argument
+    args << "useradd"; //create a user
+    args << userName; //with this userName
+    args << "-c"; //sets the comment field
+    args << fullName; //with the full name of the user
+    args << "-m"; //create the user's home directory
+    args << "-d"; //set the path of the user's home directory
+    args << home; //to here
+    args << "-s"; //set the user's shell
+    args << shell; //to this
+    if (gid != -1) //if a group id was specified
     {
-        args << "-g";
-        args << QString::number(gid);
-    } else {
-        args << "-g";
-        args << userName;
+        args << "-g"; //set the user's group to
+        args << QString::number(gid); // this
+    } else { //if a group id wasn't set
+        args << "-g"; //set the group
+        args << userName; //to a group with the same name as the user
     }
-    args << "-G";
-    args << "operator";
-    if( uid != -1)
+    args << "-G"; //additionally add the user to
+    args << "operator"; //the operator's group
+    if( uid != -1) //if the user set a UID
     {
-        args << "-u";
-        args << QString::number( uid );
+        args << "-u"; //set the UID
+        args << QString::number( uid ); //to this
     }
-    if ( ! chroot.isEmpty() )
-        QProcess::execute("chroot", args);
-    else
-        QProcess::execute("pw", args);
+    if ( ! chroot.isEmpty() ) //if we're operating with a chroot call
+        General::RunCommand("chroot", args);
+    else //otherwise
+        General::RunCommand("pw", args);
 
-    QTemporaryFile nfile("/tmp/.XXXXXXXX");
-    if ( nfile.open() )
-    {
-        QTextStream stream( &nfile );
-        stream << password;
-        nfile.close();
-    }
-    if ( ! chroot.isEmpty() )
-        system("cat " + nfile.fileName().toLatin1() + " | chroot " + chroot.toLatin1() + " pw usermod " + userName.toLatin1() + " -h 0 ");
-    else
-        system("cat " + nfile.fileName().toLatin1() + " | pw usermod " + userName.toLatin1() + " -h 0 ");
-    nfile.remove();
+    ChangeUserPassword(user,password);
 
-    if ( chroot.isEmpty() ) {
+    //enable flash for the user
+    if ( chroot.isEmpty() ) { //if we're not in a chroot
         qDebug() << "Enabling Flash Plugin for " << userName;
-        QString flashCmd = "su " + userName + " -c \"flashpluginctl on\"";
-        system(flashCmd.toLatin1());
+        args.clear();
+        args.append(userName); //run command as this user
+        args.append("-c"); //with the command
+        args.append("\"flashpluginctl on\""); //turn on flashpluginctl
+        General::RunCommand("su",args);
     }
 
     // Set permissions
-    if ( chroot.isEmpty() )
-        system("chown -R " + userName.toLatin1() +":" + userName.toLatin1() + " "  + home.toLatin1() );
-    else
-        system("chroot " + chroot.toLatin1() + " chown -R " + userName.toLatin1() +":" + userName.toLatin1() + " "  + home.toLatin1() );
+    if ( chroot.isEmpty() ) //if we're not in a chroot
+    {
+        //give the user ownership of their home directory
+        args.append("-R"); //Recursive, change the ownership of both folders and files
+        args.append(userName+":"+userName); //to the user
+        args.append(home); //their home directory
+        General::RunCommand("chown",args);
+    } else { //if we are in a chroot
+        //give the user ownership of their home directory
+        args.append(chroot); //the chroot location
+        args.append("chown"); //change ownership of
+        args.append("-R"); //Recursive, change the ownership of both folders and files
+        args.append(userName + ":" + userName); //to the user
+        args.append(home); //their home directory
+        General::RunCommand("chroot",args);
+    }
 
     //reloads the groups and users so that the internal model is consistent
     loadUsers();
@@ -148,21 +190,43 @@ const User UserManager::GetUser(QString userName)
 
 void UserManager::ChangeUserPassword(User user, QString newPassword)
 {
-    qDebug() << "Changing password: " << user.UserName;
 
-    // Set the new PW
-    QTemporaryFile rfile("/tmp/.XXXXXXXX");
-    if ( rfile.open() ) {
-    QTextStream stream( &rfile );
-    stream << newPassword;
-    rfile.close();
+    //Create a temporary file to store the password in
+    QTemporaryFile nfile("/tmp/.XXXXXXXX");
+    if ( nfile.open() )
+    {
+        QTextStream stream( &nfile );
+        stream << newPassword;
+        nfile.close();
     }
-    if ( ! chroot.isEmpty() )
-        system("cat " + rfile.fileName().toLatin1() + " | chroot " + chroot.toLatin1() + " pw usermod " + user.UserName.toLatin1() + " -h 0 ");
-    else
-        system("cat " + rfile.fileName().toLatin1() + " | pw usermod " + user.UserName.toLatin1() + " -h 0 ");
 
-    rfile.remove();
+    if ( ! chroot.isEmpty() ) //if we're in a chroot
+    {
+        //set the user password
+        QStringList args;
+        args.append(nfile.fileName()); //the temp file holding the password
+        args.append("|"); //which we're going to pipe to the stdin of
+        args.append("chroot"); //a chroot
+        args.append(chroot); //located here
+        args.append("pw usermod"); //where we're going to modify a user
+        args.append(user.UserName);//this user
+        args.append("-h"); //set the user's password
+        args.append("0"); //using stdin
+        General::RunCommand("cat",args);
+    }
+    else
+    {
+        QStringList args;
+        args.append(nfile.fileName()); //the temp file holding the password
+        args.append("|"); //which we're going to pipe to the stdin of
+        args.append("pw usermod"); //and we're going to modify the user account of
+        args.append(user.UserName); //this user
+        args.append("-h"); //and we're going to set their password
+        args.append("0"); //using stdin
+        General::RunCommand("cat",args);
+    }
+    //remove the temp file holding the password
+    nfile.remove();
 
 }
 
