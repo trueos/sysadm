@@ -8,6 +8,7 @@
 
 #include <QHash>
 #include <QString>
+#include <QStringList>
 #include <QDateTime>
 
 class AuthorizationManager{
@@ -18,6 +19,8 @@ public:
 	// == Token Interaction functions ==
 	void clearAuth(QString token); //clear an authorization token
 	bool checkAuth(QString token); //see if the given token is valid
+	bool hasFullAccess(QString token); //see if the token is associated with a full-access account
+
 	int checkAuthTimeoutSecs(QString token); //Return the number of seconds that a token is valid for
 
 	// == Token Generation functions
@@ -26,9 +29,16 @@ public:
 
 private:
 	QHash<QString, QDateTime> HASH;
-	QString generateNewToken();
+	QString generateNewToken(bool isOperator);
 	QStringList getUserGroups(QString user);
 
+	//token->hashID filter simplification
+	QString hashID(QString token){
+	  QStringList tmp = QStringList(HASH.keys()).filter(token+"::::");
+	  if(tmp.isEmpty()){ return ""; }
+	  else{ return tmp.first(); }
+	}
+	
 	//PAM login/check files
 	bool pam_checkPW(QString user, QString pass);
 	void pam_logFailure(int ret);

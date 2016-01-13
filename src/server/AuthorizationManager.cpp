@@ -35,16 +35,30 @@ AuthorizationManager::~AuthorizationManager(){
 // == Token Interaction functions ==
 void AuthorizationManager::clearAuth(QString token){
   //clear an authorization token
-  if(HASH.contains(token)){ HASH.remove(token); }
+  QString id = hashID(token);
+  if(!id.isEmpty()){ HASH.remove(id); }
 }
 
 bool AuthorizationManager::checkAuth(QString token){
 	//see if the given token is valid
   bool ok = false;
-  if(HASH.contains(token)){
+  QString id = hashID(token);
+  if(!id.isEmpty()){
     //Also verify that the token has not timed out
-    ok = (HASH[token] > QDateTime::currentDateTime());
-    if(ok){ HASH.insert(token, QDateTime::currentDateTime().addSecs(TIMEOUTSECS)); } //valid - bump the timestamp
+    ok = (HASH[id] > QDateTime::currentDateTime());
+    if(ok){ HASH.insert(id, QDateTime::currentDateTime().addSecs(TIMEOUTSECS)); } //valid - bump the timestamp
+  }
+  return ok;
+}
+
+bool AuthorizationManager::hasFullAccess(QString token){
+  bool ok = false;
+  QString id = hashID(token);
+  if(!id.isEmpty()){
+    //Also verify that the token has not timed out
+    if( HASH[id] > QDateTime::currentDateTime() ){  
+      ok = id.section("::::",1,1)=="operator";
+    }
   }
   return ok;
 }
@@ -61,16 +75,25 @@ QString AuthorizationManager::LoginUP(bool localhost, QString user, QString pass
 	//Login w/ username & password
   bool ok = false;
   //First check that the user is valid on the system and part of the operator group
-  if(user!="root"){
-    if(!getUserGroups(user).contains("operator")){ return ""; } //invalid user - needs to be part of operator group
-  }
+  bool isOperator = false;
+  if(user!="root" && user!="toor"){
+    QStringList groups = getUserGroups(user);
+    if(groups.contains("wheel")){ isOperator = true; } //full-access user
+    else if(!groups.contains("operator")){
+      return ""; //user not allowed access if not in either of the wheel/operator groups
+    }
+  }else{ isOperator = true; }
   //qDebug() << "Check username/password" << user << pass;
   //Need to run the full username/password through PAM
-  ok = pam_checkPW(user,pass);
+  if(!localhost || user=="root" || user=="toor"){
+    ok = pam_checkPW(user,pass);
+  }else{
+    ok = true; //allow local access for users without password
+  }
   
   qDebug() << "User Login Attempt:" << user << " Success:" << ok << " Local Login:" << localhost;
   if(!ok){ return ""; } //invalid login
-  else{ return generateNewToken(); } //valid login - generate a new token for it
+  else{ return generateNewToken(isOperator); } //valid login - generate a new token for it
 }
 
 QString AuthorizationManager::LoginService(bool localhost, QString service){
@@ -81,23 +104,25 @@ QString AuthorizationManager::LoginService(bool localhost, QString service){
   // -- TO-DO
   
   //Now generate a new token and send it back
-  return generateNewToken();
+  return generateNewToken(false); //services are never given operator privileges
 }
 
 // =========================
 //               PRIVATE
 // =========================
-QString AuthorizationManager::generateNewToken(){
+QString AuthorizationManager::generateNewToken(bool isOp){
   QString tok;
   for(int i=0; i<TOKENLENGTH; i++){
     tok.append( AUTHCHARS.at( qrand() % AUTHCHARS.length() ) );
   }
-  if(HASH.contains(tok)){ 
+  
+  if( !hashID(tok).isEmpty() ){ 
     //Just in case the randomizer came up with something identical - re-run it
-    tok = generateNewToken();
+    tok = generateNewToken(isOp);
   }else{ 
     //unique token created - add it to the hash with the current time (+timeout)
-    HASH.insert(tok, QDateTime::currentDateTime().addSecs(TIMEOUTSECS) );
+    QString id = tok + "::::"+(isOp ? "operator" : "user"); //append operator status to auth key
+    HASH.insert(id, QDateTime::currentDateTime().addSecs(TIMEOUTSECS) );
   }
   return tok;
 }
@@ -115,7 +140,8 @@ QStringList AuthorizationManager::getUserGroups(QString user){
     if(proc.state() != QProcess::Running){ break; } //somehow missed the finished signal
     QCoreApplication::processEvents();
   }
-  QStringList out = QString(proc.readAllStandardOutput()).split(" ");
+  QStringList out = QString(proc.readAllStandardOutput()).remove("\n").split(" ");
+  //qDebug() << "Found Groups for user:" << user << out;
   return out;	
 }
 
