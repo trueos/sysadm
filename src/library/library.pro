@@ -14,17 +14,19 @@ HEADERS	+= sysadm-global.h \
 		sysadm-general.h \
 		sysadm-lifepreserver.h \
                 sysadm-network.h \
-    sysadm-firewall.h
+    sysadm-firewall.h \
+    sysadm-usermanager.h
 
 SOURCES	+= sysadm-general.cpp \
 		sysadm-lifepreserver.cpp \
 		sysadm-network.cpp \
                 NetDevice.cpp \
-    sysadm-firewall.cpp
+    sysadm-firewall.cpp \
+    sysadm-usermanager.cpp
 
 include.path=/usr/local/include/
 include.files=sysadm-*.h
 
-INSTALLS += target include 
+INSTALLS += target include
 
 QMAKE_LIBDIR = /usr/local/lib/qt5 /usr/local/lib
