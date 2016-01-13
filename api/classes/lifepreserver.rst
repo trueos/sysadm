@@ -21,7 +21,7 @@ Every lifepreserver class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", "removesnap",               |
-|                                 |               | "settings", and "savesettings"                                                                                       |
+|                                 |               | "addreplication", "settings", and "savesettings"                                                                     |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -450,6 +450,114 @@ The "removesnap" action is used to remove a ZFS snapshot from the specified data
         "dataset": "tank1/usr/jails",
         "snap": "auto-2016-01-09-18-00-00"
      }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+.. _Add Replication:
+
+Add Replication
+===============
+
+The "addreplication" action is used to create a replication task in Life Preserver. This action supports the following parameters:
+
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Description**                                                                                                      |
+|                                 |                                                                                                                      |
++=================================+======================================================================================================================+
+| host                            | remote hostname or IP address                                                                                        |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| port                            | SSH port number on remote system                                                                                     |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| user                            | user must exist on remote system                                                                                     |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| password                        | the password for *user* on remote system                                                                             |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| dataset                         | name of local dataset to replicate                                                                                   |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| remotedataset                   | path to dataset on remote system                                                                                     |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| frequency                       | when to replicate; supported times are "XX" (hour), "sync" (as snapshot is created, not recommended for frequent     |
+|                                 | snapshots), "hour" (hourly), "30min" (every 30 minutes), "10min" (every 10 minutes), or "manual" (only when          |
+|                                 | requested by user)                                                                                                   |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "action" : "addreplication",
+   "password" : "mypass",
+   "dataset" : "tank1",
+   "remotedataset" : "tank/backups",
+   "user" : "backupuser",
+   "frequency" : "22",
+   "port" : "22",
+   "host" : "192.168.0.10"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "addreplication": {
+            "frequency": "22",
+            "host": "192.168.0.10",
+            "ldataset": "tank1",
+            "port": "22",
+            "rdataset": "tank/backups",
+            "user": "backupuser"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "name" : "lifepreserver",
+   "args" : {
+      "action" : "addreplication",
+      "user" : "backupuser",
+      "dataset" : "tank1",
+      "frequency" : "22",
+      "port" : "22",
+      "password" : "mypass",
+      "host" : "192.168.0.10",
+      "remotedataset" : "tank/backups"
+   },
+   "id" : "fooid"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "addreplication": {
+      "frequency": "22",
+      "host": "192.168.0.10",
+      "ldataset": "tank1",
+      "port": "22",
+      "rdataset": "tank/backups",
+      "user": "backupuser"
+    }
   },
   "id": "fooid",
   "name": "response",
