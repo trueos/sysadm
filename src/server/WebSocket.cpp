@@ -145,7 +145,9 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	  //Note: This sets/changes the current SockAuthToken
 	  AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
 	  if(DEBUG){ qDebug() << "Authenticate Peer:" << SOCKET->peerAddress().toString(); }
-	  bool localhost = (SOCKET->peerAddress() == QHostAddress::LocalHost) || (SOCKET->peerAddress() == QHostAddress::LocalHostIPv6);
+	  bool localhost = false;
+	  if(SOCKET!=0){ localhost = (SOCKET->peerAddress() == QHostAddress::LocalHost) || (SOCKET->peerAddress() == QHostAddress::LocalHostIPv6); }
+	  else if(TSOCKET!=0){ localhost = (TSOCKET->peerAddress() == QHostAddress::LocalHost) || (TSOCKET->peerAddress() == QHostAddress::LocalHostIPv6); }
 	  //Now do the auth
 	  if(out.in_struct.name=="auth" && out.in_struct.args.isObject() ){
 	    //username/password authentication

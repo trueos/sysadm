@@ -58,6 +58,10 @@ QStringList DispatcherClient::parseInputs(QStringList inputs, AuthorizationManag
   return outputs;
 }
 
+bool DispatcherClient::DispatcherAvailable(){
+  return QFile::exists(DISPATCH);
+}
+
 QString DispatcherClient::ReadKey(){
   QFile file(DISPATCHIDFILE);
   if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){ return ""; }

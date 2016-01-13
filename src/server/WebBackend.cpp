@@ -3,6 +3,9 @@
 // Available under the 3-clause BSD License
 // Written by: Ken Moore <ken@pcbsd.org> DEC 2015
 // =================================
+//  Note: Don't forget to run "AUTHSYSTEM->hasFullAccess(SockAuthToken)"
+//    To restrict user access to some systems as needed!
+// =================================
 #include <WebSocket.h>
 
 //sysadm library interface classes
@@ -15,6 +18,34 @@
 
 #define DEBUG 0
 #define SCLISTDELIM QString("::::") //SysCache List Delimiter
+RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(QJsonObject *out){
+  //Probe the various subsystems to see what is available through this server
+  //Output format:
+  /*<out>{
+	<namespace1/name1> : <read/write/other>,
+	<namespace2/name2> : <read/write/other>,
+      }
+  */
+  bool allaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
+  // - syscache
+  if(QFile::exists("/var/run/syscache.pipe")){
+    out->insert("rpc/syscache","read"); //no write to syscache - only reads
+  }
+  // - dispatcher
+  if(DispatcherClient::DispatcherAvailable()){
+    //"read" is the event notifications, "write" is the ability to queue up jobs
+    out->insert("rpc/dispatcher", allaccess ? "read/write" : "read");
+  }
+  // - network
+  out->insert("sysadm/network","read/write");
+  
+  // - lifepreserver
+  if(QFile::exists("/usr/local/bin/lpreserver")){
+    out->insert("sysadm/lifepreserver", "read/write");
+  }
+  
+  return RestOutputStruct::OK;
+}
 
 RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(QString namesp, QString name, const QJsonValue args, QJsonObject *out){
   /*Inputs: 
@@ -25,10 +56,12 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(QString namesp, QSt
   */
   namesp = namesp.toLower(); name = name.toLower();
   //Go through and forward this request to the appropriate sub-system
-  if(namesp=="rpc" && name=="syscache"){
+  if(namesp=="rpc" && name=="query"){
+    return AvailableSubsystems(out);
+  }else if(namesp=="rpc" && name=="syscache"){
     return EvaluateSyscacheRequest(args, out);
   }else if(namesp=="rpc" && name=="dispatcher"){
-    return EvaluateSyscacheRequest(args, out);
+    return EvaluateDispatcherRequest(args, out);
   }else if(namesp=="sysadm" && name=="network"){
     return EvaluateSysadmNetworkRequest(args, out);
   }else if(namesp=="sysadm" && name=="lifepreserver"){
@@ -75,6 +108,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue i
 //==== DISPATCHER ====
 RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue in_args, QJsonObject *out){
   //dispatcher only needs a list of sub-commands at the moment (might change later)
+  if(!AUTHSYSTEM->hasFullAccess(SockAuthToken)){
+    return RestOutputStruct::FORBIDDEN; //this user does not have permission to queue jobs
+  }
   QStringList in_req;
 
   //Parse the input arguments structure

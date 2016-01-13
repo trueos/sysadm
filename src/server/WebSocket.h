@@ -50,6 +50,8 @@ private:
 	QStringList JsonArrayToStringList(QJsonArray);
 
 	//Backend request/reply functions (contained in WebBackend.cpp)
+	// -- Subsystem listing routine
+	RestOutputStruct::ExitCode AvailableSubsystems(QJsonObject *out);
 	// -- Main subsystem parser
 	RestOutputStruct::ExitCode EvaluateBackendRequest(QString namesp, QString name, const QJsonValue in_args, QJsonObject *out);
 	// -- Individual subsystems

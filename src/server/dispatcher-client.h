@@ -19,6 +19,7 @@ public:
 
 	//Static function to run a request and wait for it to finish before returning
 	static QStringList parseInputs(QStringList inputs, AuthorizationManager *auth);
+	static bool DispatcherAvailable();
 
 private:
 	AuthorizationManager *AUTH;
