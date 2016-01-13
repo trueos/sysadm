@@ -1,21 +1,17 @@
-.. _Connection:
-
-Connection
-==========
-
-Some intro text here...
-
 .. _Getting Started:
 
 Getting Started
----------------
+***************
+
+Some intro text here...
+
 
 Add some links to docs on websockets and json....
 
 .. _Authentication:
 
 Authentication
---------------
+==============
 
 Describe how to authenticate to websockets via Local / Remote, local connections do not need username / password...
 
@@ -44,7 +40,7 @@ request contains the following parameters:
 
 Several methods are available for authentication. Here is an example of a login using a username and password:
 
-**Request**
+**WebSocket Request**
 
 .. code-block:: json
 
@@ -60,7 +56,7 @@ Several methods are available for authentication. Here is an example of a login 
 
 Here is an example of using token authentication, where the token is invalidated after 5 minutes of inactivity:
   
-**Request**
+**WebSocket Request**
 
 .. code-block:: json
 
@@ -75,7 +71,7 @@ Here is an example of using token authentication, where the token is invalidated
 
 A successful authentication will provide a reply similar to this:
 
-**Reply**
+**WebSocket Reply**
 
 .. code-block:: json
 
@@ -95,7 +91,7 @@ A successful authentication will provide a reply similar to this:
 
 An invalid authentication, or a system request after the user session has timed out due to inactivity, looks like this:
 
-**Reply**
+**WebSocket Reply**
 
 .. code-block:: json
 
@@ -111,7 +107,7 @@ An invalid authentication, or a system request after the user session has timed 
 
 To clear a pre-saved authentication token, such as signing out, use this request:
   
-**Request**
+**WebSocket Request**
 
 .. code-block:: json
 
@@ -121,3 +117,79 @@ To clear a pre-saved authentication token, such as signing out, use this request
   "id" : "sampleID",
   "args" : "junk argument"
   }
+
+.. _Server Subsystems:
+
+Server Subsystems
+=================
+
+An RPC query can be issued to probe all the known subsystems and return which ones are currently available and what level of read and write access the user has.
+A query contains the following parameters:
+
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Value**     | **Description**                                                                                                      |
+|                                 |               |                                                                                                                      |
++=================================+===============+======================================================================================================================+
+| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| name                            | query         |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| namespace                       | rpc           |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| args                            |               | can be any data                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /rpc/query
+ {
+   "junk" : "junk"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "rpc/dispatcher": "read/write",
+        "rpc/syscache": "read",
+        "sysadm/lifepreserver": "read/write",
+        "sysadm/network": "read/write"
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "query",
+   "namespace" : "rpc",
+   "args" : {
+      "junk" : "junk"
+   }
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "rpc/dispatcher": "read/write",
+    "rpc/syscache": "read",
+    "sysadm/lifepreserver": "read/write",
+    "sysadm/network": "read/write"
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "rpc"
+ }
