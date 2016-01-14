@@ -16,12 +16,12 @@ UserManager::UserManager(QString chroot)
     loadShells();
 }
 
-void UserManager::NewUser(QString fullName, QString userName, QString password, QString shell, int uid, int gid)
+void UserManager::NewUser(QString fullName, QString userName, QString password, QString home, QString shell, int uid, int gid, bool encrypt)
 {
     User user;
     user.UserName = userName;
     user.FullName = fullName;
-    user.HomeFolder = "/usr/home/"+userName;
+    user.HomeFolder = (home.isEmpty())?"/usr/home/"+userName : home;
     user.Shell = shell;
 
     //Add User
@@ -42,17 +42,22 @@ void UserManager::NewUser(QString fullName, QString userName, QString password, 
     args << "-c"; //sets the comment field
     args << "\""+ fullName+"\""; //with the full name of the user
     args << "-m"; //create the user's home directory
+    if(!home.isEmpty())
+    {
+        args << "-d"; //set the home directory to
+        args << home; //this
+    }
     args << "-s"; //set the user's shell
     args << shell; //to this
     if(gid != -1)
     {
-        args << "-g";
-        args << gid;
+        args << "-g"; //set the group id to
+        args << QString::number(gid); //this
     }
     if(uid != -1)
     {
-        args << "-u";
-        args << uid;
+        args << "-u"; //set the user id to
+        args << QString::number(uid); //this
     }
     args << "-G"; //additionally add the user to
     args << "operator"; //the operator's group
@@ -73,6 +78,10 @@ void UserManager::NewUser(QString fullName, QString userName, QString password, 
         args << "\"flashpluginctl on\""; //turn on flashpluginctl
         General::RunCommand("su",args);
     }
+
+    //if we're going to PersonaCrypt the home directory
+    if(encrypt)
+        initPCDevice(user,home,password);
 
     //reloads the groups and users so that the internal model is consistent
     loadUsers();
@@ -132,6 +141,8 @@ const User UserManager::GetUser(QString userName)
 
 void UserManager::ChangeUserPassword(User user, QString newPassword)
 {
+    //Don't Change the password of a user with an encrypted Home directory
+    if( !QFile::exists("/var/db/personacrypt/"+user.UserName+".key") ){ return; }
 
     //Create a temporary file to store the password in
     QTemporaryFile nfile("/tmp/.XXXXXXXX");
@@ -372,4 +383,163 @@ void UserManager::loadShells()
 
     // Add /sbin/nologin as well
     shells.append("/sbin/nologin");
+}
+
+
+void UserManager::importPCKey(User user, QString filename){
+  //Double check that the key does not exist (button should have been hidden earlier if invalid)
+  if( QFile::exists("/var/db/personacrypt/"+user.UserName+".key") ){ return; }
+
+  //if the location is empty cancel
+  if(filename.isEmpty()){ return; }
+
+  //Now run the import command
+  QStringList args;
+  args << "import";
+  args << "\""+filename + "\"";
+  if( 0 == General::RunCommand("personacrypt",args) ){
+    //Success
+    qDebug("The key file was imported successfully.");
+  }else{
+    //Failure
+    qWarning("The key file could not be imported. Please ensure you are using a valid file.");
+  }
+}
+
+void UserManager::exportPCKey(User user, QString filename){
+  //Double check that the key exists (button should have been hidden earlier if invalid)
+  if( !QFile::exists("/var/db/personacrypt/"+user.UserName+".key") ){ return; }
+
+  if(filename.isEmpty()){ return; } //cancelled
+  if( !filename.endsWith(".key") ){ filename.append(".key"); }
+  //Now get/save the key file
+  QStringList args;
+  args << "export";
+  args << "\"" + user.UserName + "\"";
+  QString key = General::RunCommand("personacrypt",args);
+
+  QFile file(filename);
+  if( !file.open(QIODevice::WriteOnly | QIODevice::Truncate) ){
+    //Could not open output file
+    qWarning() <<"Output file could not be opened:\n\n" << filename;
+    return;
+  }
+  QTextStream out(&file);
+  out << key;
+  file.close();
+  qDebug() << "The PersonaCrypt key has been saved successfully: \n\n" << filename;
+}
+
+void UserManager::disablePCKey(User user){
+//Double check that the key exists (button should have been hidden earlier if invalid)
+  if( !QFile::exists("/var/db/personacrypt/"+user.UserName+".key") ){ return; }
+
+  if( QFile::remove("/var/db/personacrypt/"+user.UserName+".key") ){
+    //Success
+    qDebug("The PersonaCrypt user key has been disabled." );
+  }else{
+    //Failure (should almost never happen, since this utility runs as root and just needs to delete a file)
+    qDebug("The PersonaCrypt user key could not be removed. Do you have the proper permissions?" );
+  }
+}
+
+void UserManager::disableAndCopyPCKey(User user, QString password){
+    QStringList args;
+    args << "list";
+    QStringList cusers = General::RunCommand("personacrypt",args).split("\n");
+    bool available = false;
+    for(int i=0; i<cusers.length(); i++){
+        if(cusers[i].section(" on ",0,0) == user.UserName){ available = true; break; } //disk is connected to the system
+    }
+    if(!available){
+        //Warn the user that they need to plug in their USB stick first
+        qWarning("PersonaCrypt Device Not Found, Please ensure that your PersonaCrypt device is connected to the system and try again.");
+        return;
+    }
+
+    if(password.isEmpty()){ return; } //cancelled
+    //Save the password to a temporary file
+    QTemporaryFile tmpfile("/tmp/.XXXXXXXXXXXXXXXXXXXX");
+    if( !tmpfile.open() ){ return; } //could not create a temporary file (extremely rare)
+    QTextStream out(&tmpfile);
+    out << password;
+    tmpfile.close();
+
+    //Now run the PersonaCrypt command
+    args.clear();
+    args << "remove";
+    args << "\"" + user.UserName + "\"";
+    args << "\"" + tmpfile.fileName() + "\"";
+    if(0 == General::RunCommand("personacrypt",args) ){
+        //Success
+        qDebug("Success; The data for this user has been merged onto the system and the system key has been disabled");
+    }else{
+        //Failure
+        qWarning("Failure; The PersonaCrypt user data could not be merged onto the system. Invalid Password?" );
+    }
+}
+
+void UserManager::initPCDevice(User user, QString home, QString password)
+{
+    //Double check that the key does not exist (button should have been hidden earlier if invalid)
+    if( QFile::exists("/var/db/personacrypt/" + user.UserName + ".key") ){ return; }
+
+    //Prompt for the user to select a device
+    QStringList args;
+    args << "list";
+    args << "-r";
+    QStringList devlist = General::RunCommand("personacrypt",args).split("\n");
+    for(int i=0; i<devlist.length(); i++){
+        //qDebug() << "Devlist:" << devlist[i];
+        if(devlist[i].isEmpty() || devlist[i].startsWith("gpart:"))
+        {
+          devlist.removeAt(i);
+          i--;
+        }
+    }
+    if(devlist.isEmpty() || devlist.join("").simplified().isEmpty()){
+        qWarning("No Devices Found; Please connect a removable device and try again");
+        return;
+    }
+
+    args.clear();
+    args << "-h";
+    args << user.HomeFolder;
+    bool ok = false;
+    QString space = General::RunCommand("df -h "+home).split("\n").filter(home).join("");
+    space.replace("\t"," ");
+    space = space.section(" ",2,2,QString::SectionSkipEmpty);
+
+    if(!ok || home.isEmpty()){ return; }
+
+    home = home.section(":",0,0); //only need the raw device
+    //Save the password to a temporary file (for input to personacrypt)
+    QTemporaryFile tmpfile("/tmp/.XXXXXXXXXXXXXXX");
+    if(!tmpfile.open()){
+        //Error: could not open a temporary file
+        qWarning("Error; Could not create a temporary file for personacrypt");
+        return;
+    }
+    QTextStream out(&tmpfile);
+    out << password;
+    tmpfile.close();
+    //Now start the process of setting up the device
+    bool success = false;
+    args.clear();
+    args << "init";
+    args << "\""+user.UserName + "\"";
+    args << "\"" + tmpfile.fileName() + "\"";
+    args << home;
+    QStringList output = General::RunCommand(success,"personacrypt",args).split("\n");
+    if(success){
+        //Success
+        qDebug("Success; The PersonaCrypt device was successfully initialized");
+    }else{
+        //Failure - make sure the key was not created before the failure
+        if(QFile::exists("/var/db/personacrypt/"+user.UserName+".key")){
+            QFile::remove("/var/db/personacrypt/"+user.UserName+".key");
+        }
+        //Now show the error message with the log
+        qWarning("Failure; The PersonaCrypt device could not be initialized");
+  }
 }

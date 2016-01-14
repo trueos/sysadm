@@ -73,11 +73,13 @@ public:
      * @param fullName The full name of the user
      * @param userName The username of the user
      * @param password The user's password
+     * @param home the location of the home directory
      * @param shell the user's shell, defaults to /bin/tcsh
      * @param uid the user id of the user
      * @param gid the group id of the user
+     * @param encrypt whether to personaCrypt the User's home directory
      */
-    void NewUser(QString fullName, QString userName, QString password, QString shell = "/bin/tcsh", int uid = -1, int gid = -1);
+    void NewUser(QString fullName, QString userName, QString password, QString home = "", QString shell = "/bin/tcsh", int uid = -1, int gid = -1, bool encrypt=false);
     /**
      * @brief DeleteUser Deletes a user
      * @param user the user to delete
@@ -181,6 +183,37 @@ public:
      */
     const QStringList GetShells();
 
+    /**
+     * @brief initPCDevice Initiate PersonaCrypt for the user
+     * @param user the user to initiate PersonaCrypt for
+     * @param home the location of the home directory
+     * @param password the password of the user
+     */
+    void initPCDevice(User user, QString home, QString password);
+
+    /**
+     * @brief importPCKey Import a PersonaCrypt Key
+     * @param user the user to import the key for
+     * @param filename the location of the key
+     */
+    void importPCKey(User user, QString filename);
+    /**
+     * @brief exportPCKey Export a PersonaCrypt Key
+     * @param user the user to export the key for
+     * @param filename the file to export to
+     */
+    void exportPCKey(User user, QString filename);
+    /**
+     * @brief disablePCKey Disables a PersonaCrypt key
+     * @param user the user to diable PersonaCrypt for
+     */
+    void disablePCKey(User user);
+    /**
+     * @brief disableAndCopyPCKey Disable a PersonaCrypt Key
+     * @param user for this user
+     * @param password password for the PersonaCrypt
+     */
+    void disableAndCopyPCKey(User user, QString password);
 private:
     QVector<User> users;
     QVector<Group> groups;
