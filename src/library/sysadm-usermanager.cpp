@@ -327,7 +327,7 @@ void UserManager::loadGroups()
                 group.Name = line.section(":",0,0);
                 group.ID = line.section(":",2,2).toInt();
                 QString memberString = line.section(":",3,3);
-                group.Users = memberString.split(",");
+                group.Members = memberString.split(",");
 
                 groups.append(group);
             }

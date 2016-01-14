@@ -13,6 +13,16 @@ namespace sysadm{
 class User
 {
 public:
+    User()
+    {
+        FullName = "";
+        UserName = "";
+        ID = -1;
+        HomeFolder = "";
+        Shell = "";
+        GroupID = -1;
+    }
+
     QString FullName;
     QString UserName;
     int ID;
@@ -34,13 +44,20 @@ public:
 class Group
 {
 public:
+    Group()
+    {
+        ID = -1;
+        Name = "";
+        Members = QStringList();
+    }
+
     int ID;
     QString Name;
     //While the object model would be more "correct" if
     //Users were to be a Vector of User pointers, it's
     //expensive to wire up and we don't really gain anything
     //from doing so
-    QStringList Users;
+    QStringList Members;
 };
 
 class UserManager
