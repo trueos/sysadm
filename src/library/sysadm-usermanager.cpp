@@ -58,9 +58,9 @@ void UserManager::NewUser(QString fullName, QString userName, QString password, 
     if ( chroot.isEmpty() ) { //if we're not in a chroot
         qDebug() << "Enabling Flash Plugin for " << userName;
         args.clear();
-        args.append(userName); //run command as this user
-        args.append("-c"); //with the command
-        args.append("\"flashpluginctl on\""); //turn on flashpluginctl
+        args << userName; //run command as this user
+        args << "-c"; //with the command
+        args << "\"flashpluginctl on\""; //turn on flashpluginctl
         General::RunCommand("su",args);
     }
 
@@ -76,7 +76,7 @@ void UserManager::DeleteUser(User user)
 
     //remove the dataset associated with the home folder
     QStringList args;
-    args.append(user.HomeFolder);
+    args << user.HomeFolder;
     General::RunCommand("/usr/local/share/pcbsd/scripts/rmzfsdir.sh",args);
 
     //delete the user and their home directory
@@ -89,10 +89,9 @@ void UserManager::DeleteUser(User user)
     if ( ! chroot.isEmpty() )
         General::RunCommand("chroot", args);
     else
-        General::RunCommand("pw", args);
+        General::RunCommand("pw", args);    
 
-    //update the internal model
-    users.removeAll(user);
+    loadUsers();
     loadGroups();
 }
 
@@ -139,13 +138,14 @@ void UserManager::ChangeUserPassword(User user, QString newPassword)
     args.append("|"); //which we're going to pipe to the stdin of
     if ( ! chroot.isEmpty() ) //if we're in a chroot
     {
-        args.append("chroot"); //a chroot
-        args.append(chroot); //located here
+        args << "chroot"; //a chroot
+        args << chroot; //located here
     }
-    args.append("pw usermod"); //where we're going to modify a user
-    args.append(user.UserName);//this user
-    args.append("-h"); //set the user's password
-    args.append("0"); //using stdin
+    args << "pw"; //change users
+    args << "usermod"; //where we're going to modify a user
+    args << user.UserName;//this user
+    args << "-h"; //set the user's password
+    args << "0"; //using stdin
     General::RunCommand("cat",args);
 
     //remove the temp file holding the password
@@ -157,45 +157,56 @@ void UserManager::ChangeUserShell(User user, QString shell)
 {
     if(shells.contains(shell))
     {
+        qDebug("Shell found");
         QStringList args;
-        args.append("-s"); //set the shell to
-        args.append(shell); //this shell
-        args.append(user.UserName); //for this user
-        General::RunCommand("chsh",args);
+        args << "usermod"; // modify the user
+        args << "-n"; //specify a user name
+        args << user.UserName; //for this user
+        args << "-s"; //set the shell to
+        args << shell; //this shell
+        General::RunCommand("pw",args);
     }
     else
         qDebug("Shell not found");
+
+    loadUsers();
 }
 
 void UserManager::ChangeUserFullName(User user, QString newName)
 {
     QStringList args;
-    args.append(user.UserName); //for this user
-    args.append("-c"); //change the gecos field to
-    args.append(newName); //this name
-    General::RunCommand("pw usermod",args);
+    args << "usermod"; //modify the user
+    args << user.UserName; //for this user
+    args << "-c"; //change the gecos field to
+    args << newName; //this name
+    General::RunCommand("pw",args);
+    loadUsers();
 }
 
 void UserManager::AddUserToGroup(User user, Group group)
 {
     QStringList args;
-    args.append(group.Name);//modify this group
-    args.append("-m");//by adding a member
-    args.append(user.UserName); //this user
-    General::RunCommand("pw groupmod",args);
+    args << "groupmod"; //modify a group
+    args << "-n"; //modify for a group
+    args << group.Name;//this group
+    args << "-m";//by adding a member
+    args << user.UserName; //this user
+    General::RunCommand("pw",args);
 
-    group.Users.append(user.UserName);
+    loadGroups();
 }
 
 void UserManager::RemoveUserFromGroup(User user, Group group)
 {
     QStringList args;
-    args.append(group.Name); //modify this group
-    args.append("-d"); //by removing a user
-    args.append(user.UserName); //this user
-    General::RunCommand("pw groupmod", args);
+    args << "groupmod"; //modify a group
+    args << "-n"; //modify for a group
+    args << group.Name; //this group
+    args << "-d"; //by removing a user
+    args << user.UserName ; //this user
+    General::RunCommand("pw", args);
 
-    group.Users.removeAll(user.UserName);
+    loadGroups();
 }
 
 void UserManager::NewGroup(QString name, QStringList members)
@@ -213,7 +224,7 @@ void UserManager::NewGroup(QString name, QStringList members)
     else
         General::RunCommand("pw", args);
 
-    LoadGroups();
+    loadGroups();
 }
 
 void UserManager::DeleteGroup(Group group)
@@ -229,7 +240,7 @@ void UserManager::DeleteGroup(Group group)
     else
         General::RunCommand("pw", args);
 
-    LoadGroups();
+    loadGroups();
 }
 
 const QVector<Group> UserManager::GetGroups()
@@ -345,8 +356,8 @@ void UserManager::loadShells()
             }
         }
     } else {
-    //Unable to open file error
-    qWarning("Error! Unable to open /etc/shells");
+        //Unable to open file error
+        qWarning("Error! Unable to open /etc/shells");
     }
 
     // Add /sbin/nologin as well
