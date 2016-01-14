@@ -189,6 +189,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
 	ok = true;
         out->insert("cronsnap", sysadm::LifePreserver::scheduleSnapshot(in_args.toObject()));
       }
+      if(act=="initreplication"){
+	ok = true;
+        out->insert("initreplication", sysadm::LifePreserver::initReplication(in_args.toObject()));
+      }
       if(act=="listcron"){
 	ok = true;
         out->insert("listcron", sysadm::LifePreserver::listCron());

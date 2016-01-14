@@ -83,6 +83,46 @@ QJsonObject LifePreserver::addReplication(QJsonObject jsin) {
    return values;
 }
 
+// Re-init the LP replication target
+QJsonObject LifePreserver::initReplication(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString dset, rhost;
+
+   QStringList keys = jsin.keys();
+   if(! keys.contains("dataset") || ! keys.contains("host")){
+     retObject.insert("error", "Missing dataset or host key");
+     return retObject;
+   }
+
+   // Check which pool we are looking at
+   dset = jsin.value("dataset").toString();
+   rhost = jsin.value("host").toString();
+
+   // Make sure we have the pool key
+   if ( dset.isEmpty() || rhost.isEmpty()) {
+     retObject.insert("error", "Missing dataset or host key");
+     return retObject;
+   }
+
+   // TODO - This command can take a LONG TIME. Find a way to queue / background it and return an event
+   // via websockets later, or block here and return when finished if this is REST
+   QStringList output = General::RunCommand("lpreserver replicate init " + dset + " " + rhost).split("\n");
+
+   // Check for any errors
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("ERROR:") != -1 ) {
+       retObject.insert("error", output.at(i));
+       return retObject;
+      }
+   }
+
+   QJsonObject values;
+   values.insert("dataset", dset);
+   values.insert("host", rhost);
+   return values;
+}
+
 // Build list of scheduled cron snapshot jobs
 QJsonObject LifePreserver::listCron() {
    QJsonObject retObject;
