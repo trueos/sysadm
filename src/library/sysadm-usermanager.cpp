@@ -16,7 +16,7 @@ UserManager::UserManager(QString chroot)
     loadShells();
 }
 
-void UserManager::NewUser(QString fullName, QString userName, QString password, QString shell)
+void UserManager::NewUser(QString fullName, QString userName, QString password, QString shell, int uid, int gid)
 {
     User user;
     user.UserName = userName;
@@ -44,6 +44,16 @@ void UserManager::NewUser(QString fullName, QString userName, QString password, 
     args << "-m"; //create the user's home directory
     args << "-s"; //set the user's shell
     args << shell; //to this
+    if(gid != -1)
+    {
+        args << "-g";
+        args << gid;
+    }
+    if(uid != -1)
+    {
+        args << "-u";
+        args << uid;
+    }
     args << "-G"; //additionally add the user to
     args << "operator"; //the operator's group
 
@@ -89,7 +99,7 @@ void UserManager::DeleteUser(User user)
     if ( ! chroot.isEmpty() )
         General::RunCommand("chroot", args);
     else
-        General::RunCommand("pw", args);    
+        General::RunCommand("pw", args);
 
     loadUsers();
     loadGroups();

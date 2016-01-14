@@ -21,6 +21,7 @@ public:
         HomeFolder = "";
         Shell = "";
         GroupID = -1;
+        Encrypted = false;
     }
 
     QString FullName;
@@ -29,6 +30,7 @@ public:
     QString HomeFolder;
     QString Shell;
     int GroupID;
+    bool Encrypted;
     friend bool operator<(const User lhs, const User rhs){
         return std::tie(lhs.ID,lhs.UserName) < std::tie(rhs.ID,rhs.UserName);
     }
@@ -62,7 +64,7 @@ public:
 
 class UserManager
 {
-public:    
+public:
     UserManager(QString chroot = "");
 
     //#section user actions
@@ -72,8 +74,10 @@ public:
      * @param userName The username of the user
      * @param password The user's password
      * @param shell the user's shell, defaults to /bin/tcsh
+     * @param uid the user id of the user
+     * @param gid the group id of the user
      */
-    void NewUser(QString fullName, QString userName, QString password, QString shell = "/bin/tcsh");
+    void NewUser(QString fullName, QString userName, QString password, QString shell = "/bin/tcsh", int uid = -1, int gid = -1);
     /**
      * @brief DeleteUser Deletes a user
      * @param user the user to delete
