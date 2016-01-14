@@ -133,31 +133,21 @@ void UserManager::ChangeUserPassword(User user, QString newPassword)
         nfile.close();
     }
 
+    //set the user password
+    QStringList args;
+    args.append(nfile.fileName()); //the temp file holding the password
+    args.append("|"); //which we're going to pipe to the stdin of
     if ( ! chroot.isEmpty() ) //if we're in a chroot
     {
-        //set the user password
-        QStringList args;
-        args.append(nfile.fileName()); //the temp file holding the password
-        args.append("|"); //which we're going to pipe to the stdin of
         args.append("chroot"); //a chroot
         args.append(chroot); //located here
-        args.append("pw usermod"); //where we're going to modify a user
-        args.append(user.UserName);//this user
-        args.append("-h"); //set the user's password
-        args.append("0"); //using stdin
-        General::RunCommand("cat",args);
     }
-    else
-    {
-        QStringList args;
-        args.append(nfile.fileName()); //the temp file holding the password
-        args.append("|"); //which we're going to pipe to the stdin of
-        args.append("pw usermod"); //and we're going to modify the user account of
-        args.append(user.UserName); //this user
-        args.append("-h"); //and we're going to set their password
-        args.append("0"); //using stdin
-        General::RunCommand("cat",args);
-    }
+    args.append("pw usermod"); //where we're going to modify a user
+    args.append(user.UserName);//this user
+    args.append("-h"); //set the user's password
+    args.append("0"); //using stdin
+    General::RunCommand("cat",args);
+
     //remove the temp file holding the password
     nfile.remove();
 
