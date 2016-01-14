@@ -339,6 +339,7 @@ void UserManager::loadGroups()
 
 void UserManager::loadShells()
 {
+    shells.clear();
     QFile shellFile(chroot + "/etc/shells");
     if ( shellFile.open(QIODevice::ReadOnly) ) {
         QTextStream stream(&shellFile);
