@@ -59,7 +59,7 @@ public:
      * @param gid the gid of the user, defaults to -1, which means to leave it up to autogen
      * @param uid the uid of the user, defaults to -1, which means to leave it up to autogen
      */
-    void NewUser(QString fullName, QString userName, QString password, QString home = "/usr/home/", QString shell = "/bin/tcsh", int gid = -1, int uid =-1);
+    void NewUser(QString fullName, QString userName, QString password, QString shell = "/bin/tcsh");
     void DeleteUser(User user);
 
     const QVector<User> GetUsers();

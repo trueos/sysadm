@@ -16,56 +16,22 @@ UserManager::UserManager(QString chroot)
     loadShells();
 }
 
-void UserManager::NewUser(QString fullName, QString userName, QString password, QString home, QString shell, int gid, int uid)
+void UserManager::NewUser(QString fullName, QString userName, QString password, QString shell)
 {
     User user;
     user.UserName = userName;
     user.FullName = fullName;
-    user.HomeFolder = home;
+    user.HomeFolder = "/usr/home/"+userName;
     user.Shell = shell;
-    user.ID = uid;
 
-    if (home == "/usr/home/")
-        home += userName;
     //Add User
     qDebug() << "Adding user " << userName;
-    // Create the new home-directory
+    // Create the zfs dataset associated with the home directory
     if ( chroot.isEmpty() )
     {
-        //create the home directory and a zfs dataset for it
         QStringList args;
-        args.append(home);
+        args.append(user.HomeFolder);
         General::RunCommand("/usr/local/share/pcbsd/scripts/mkzfsdir.sh",args);
-
-        //create the group associated with the user
-        args.clear();
-        args.append(userName);
-        General::RunCommand("pw groupadd",args);
-    } else {
-        //make the home directory
-        QStringList args;
-        args.append("-p"); // create intermediate directories as needed
-        args.append(chroot); //chroot location
-        args.append(home); //directory to create, in this case home
-        args.append("2>/dev/null"); //send stderr to /dev/null
-        General::RunCommand("mkdir",args);
-
-        //link /usr/home to /home
-        args.clear();
-        args.append(chroot); //location the chroot is in
-        args.append("ln"); //link
-        args.append("-s"); //symbolic link
-        args.append("/usr/home"); //folder to link from
-        args.append("/home"); //The link to create
-        args.append("2>/dev/null"); //send stderr to /dev/null
-        General::RunCommand("chroot",args);
-
-        //create the group associated with the user
-        args.clear();
-        args.append(chroot); //location the chroot is in
-        args.append("pw groupadd"); //create a group
-        args.append(userName); //name of the group to create
-        General::RunCommand("chroot",args);
     }
 
     QStringList args;
@@ -74,27 +40,13 @@ void UserManager::NewUser(QString fullName, QString userName, QString password, 
     args << "useradd"; //create a user
     args << userName; //with this userName
     args << "-c"; //sets the comment field
-    args << fullName; //with the full name of the user
+    args << "\""+ fullName+"\""; //with the full name of the user
     args << "-m"; //create the user's home directory
-    args << "-d"; //set the path of the user's home directory
-    args << home; //to here
     args << "-s"; //set the user's shell
     args << shell; //to this
-    if (gid != -1) //if a group id was specified
-    {
-        args << "-g"; //set the user's group to
-        args << QString::number(gid); // this
-    } else { //if a group id wasn't set
-        args << "-g"; //set the group
-        args << userName; //to a group with the same name as the user
-    }
     args << "-G"; //additionally add the user to
     args << "operator"; //the operator's group
-    if( uid != -1) //if the user set a UID
-    {
-        args << "-u"; //set the UID
-        args << QString::number( uid ); //to this
-    }
+
     if ( ! chroot.isEmpty() ) //if we're operating with a chroot call
         General::RunCommand("chroot", args);
     else //otherwise
@@ -112,24 +64,6 @@ void UserManager::NewUser(QString fullName, QString userName, QString password, 
         General::RunCommand("su",args);
     }
 
-    // Set permissions
-    if ( chroot.isEmpty() ) //if we're not in a chroot
-    {
-        //give the user ownership of their home directory
-        args.append("-R"); //Recursive, change the ownership of both folders and files
-        args.append(userName+":"+userName); //to the user
-        args.append(home); //their home directory
-        General::RunCommand("chown",args);
-    } else { //if we are in a chroot
-        //give the user ownership of their home directory
-        args.append(chroot); //the chroot location
-        args.append("chown"); //change ownership of
-        args.append("-R"); //Recursive, change the ownership of both folders and files
-        args.append(userName + ":" + userName); //to the user
-        args.append(home); //their home directory
-        General::RunCommand("chroot",args);
-    }
-
     //reloads the groups and users so that the internal model is consistent
     loadUsers();
     loadGroups();
@@ -140,23 +74,22 @@ void UserManager::DeleteUser(User user)
     //Delete User
     qDebug() << "Deleting user " << user.UserName;
 
-    /*if(userIt->getEnc())
-    {
-        // Unmount PEFS
-        system("umount " + userIt->getHome().toLatin1() );
-    }*/
+    //remove the dataset associated with the home folder
     QStringList args;
-    if ( ! chroot.isEmpty() )
-        args << chroot << "pw";
-    args << "userdel";
-    args << user.UserName;
-    args << "-r";
-    system("/usr/local/share/pcbsd/scripts/rmzfsdir.sh " + user.HomeFolder.toLatin1() );
+    args.append(user.HomeFolder);
+    General::RunCommand("/usr/local/share/pcbsd/scripts/rmzfsdir.sh",args);
 
+    //delete the user and their home directory
+    args.clear();
+    if ( ! chroot.isEmpty() ) //if we're in a chroot we need to use chroot before pw
+        args << chroot << "pw";
+    args << "userdel"; //delete a user
+    args << user.UserName; //this user
+    args << "-r"; //remove the contents of the user's home directory
     if ( ! chroot.isEmpty() )
-        QProcess::execute("chroot", args);
+        General::RunCommand("chroot", args);
     else
-        QProcess::execute("pw", args);
+        General::RunCommand("pw", args);
 
     //update the internal model
     users.removeAll(user);
@@ -233,55 +166,80 @@ void UserManager::ChangeUserPassword(User user, QString newPassword)
 void UserManager::ChangeUserShell(User user, QString shell)
 {
     if(shells.contains(shell))
-        system("chsh -s " + shell.toLocal8Bit() + " " + user.UserName.toLocal8Bit());
+    {
+        QStringList args;
+        args.append("-s"); //set the shell to
+        args.append(shell); //this shell
+        args.append(user.UserName); //for this user
+        General::RunCommand("chsh",args);
+    }
     else
         qDebug("Shell not found");
 }
 
 void UserManager::ChangeUserFullName(User user, QString newName)
 {
-    system("pw usermod " + user.UserName.toLatin1() + " -c " + newName.toLatin1());
+    QStringList args;
+    args.append(user.UserName); //for this user
+    args.append("-c"); //change the gecos field to
+    args.append(newName); //this name
+    General::RunCommand("pw usermod",args);
 }
 
 void UserManager::AddUserToGroup(User user, Group group)
 {
-    system("pw groupmod "+ group.Name.toLatin1() + " -m " + user.UserName.toLatin1());
+    QStringList args;
+    args.append(group.Name);//modify this group
+    args.append("-m");//by adding a member
+    args.append(user.UserName); //this user
+    General::RunCommand("pw groupmod",args);
+
+    group.Users.append(user.UserName);
 }
 
 void UserManager::RemoveUserFromGroup(User user, Group group)
 {
-    system("pw groupmod"+ group.Name.toLatin1() +"-d" + user.UserName.toLatin1());
+    QStringList args;
+    args.append(group.Name); //modify this group
+    args.append("-d"); //by removing a user
+    args.append(user.UserName); //this user
+    General::RunCommand("pw groupmod", args);
+
+    group.Users.removeAll(user.UserName);
 }
 
 void UserManager::NewGroup(QString name, QStringList members)
 {
     QStringList args;
     qDebug() << "Adding group " << name;
-    if ( ! chroot.isEmpty() )
+    if ( ! chroot.isEmpty() ) //if we're in a chroot need to add chroot before pw
         args << chroot << "pw";
-    args << "groupadd";
-    args << name;
-    args << "-M";
-    args << members.join(",");
-    if ( ! chroot.isEmpty() )
-        QProcess::execute("chroot", args);
+    args << "groupadd"; //create a new group
+    args << name; // with this name
+    args << "-M"; //with this list of users
+    args << members.join(","); //these guys
+    if ( ! chroot.isEmpty() ) //if we're in a chroot
+        General::RunCommand("chroot", args);
     else
-        QProcess::execute("pw", args);
+        General::RunCommand("pw", args);
 
+    LoadGroups();
 }
 
 void UserManager::DeleteGroup(Group group)
 {
     QStringList args;
     qDebug() << "Deleting group " << group.Name;
-    if ( ! chroot.isEmpty() )
+    if ( ! chroot.isEmpty() ) //if we're in a chroot need to add chroot before pw
         args << chroot << "pw";
-    args << "groupdel";
-    args << group.Name;
-    if ( ! chroot.isEmpty() )
-        QProcess::execute("chroot", args);
+    args << "groupdel"; //delete a group
+    args << group.Name; //of this name
+    if ( ! chroot.isEmpty() ) //if we're in a chroot
+        General::RunCommand("chroot", args);
     else
-        QProcess::execute("pw", args);
+        General::RunCommand("pw", args);
+
+    LoadGroups();
 }
 
 const QVector<Group> UserManager::GetGroups()
