@@ -5,34 +5,20 @@
 // =================================
 #include "WebServer.h"
 
-#include <QCoreApplication>
-#include <QUrl>
-#include <QFile>
-#include <QTextStream>
-#include <QProcess>
-#include <QSslKey>
-#include <QSslCertificate>
-
 #define DEBUG 0
-
-#define APPCAFEWORKING QString("/var/tmp/appcafe/dispatch-queue.working")
 
 //=======================
 //              PUBLIC
 //=======================
 WebServer::WebServer(){
   //Setup all the various settings
-  //Any SSL changes
-    /*QSslConfiguration ssl = this->sslConfiguration();
-      ssl.setProtocol(QSsl::SecureProtocols);
-    this->setSslConfiguration(ssl);*/
   WSServer = 0;
   TCPServer = 0;
   AUTH = new AuthorizationManager();
-  watcher = new QFileSystemWatcher(this);
+  //watcher = new QFileSystemWatcher(this);
     
-  connect(watcher, SIGNAL(fileChanged(const QString&)), this, SLOT(WatcherUpdate(QString)) );
-  connect(watcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(WatcherUpdate(QString)) );
+  //connect(watcher, SIGNAL(fileChanged(const QString&)), this, SLOT(WatcherUpdate(QString)) );
+  //connect(watcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(WatcherUpdate(QString)) );
 }
 
 WebServer::~WebServer(){
@@ -54,11 +40,7 @@ bool WebServer::startServer(quint16 port, bool websocket){
     qDebug() << "Server Started:" << QDateTime::currentDateTime().toString(Qt::ISODate);
     qDebug() << " Port:" << port;
     if(WSServer!=0){ qDebug() << " URL:" << WSServer->serverUrl().toString(); }
-    
-    if(!QFile::exists(APPCAFEWORKING)){ QProcess::execute("touch "+APPCAFEWORKING); }
-    qDebug() << " Dispatcher Events:" << APPCAFEWORKING;
-    watcher->addPath(APPCAFEWORKING);
-    WatcherUpdate(APPCAFEWORKING); //load it initially
+    EVENTS->start();
   }else{ 
     qCritical() << "Could not start server - exiting..."; 
   }
@@ -127,16 +109,6 @@ QString WebServer::generateID(){
   return QString::number(id);
 }
 
-QString WebServer::readFile(QString path){
-  QFile file(path);
-  if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){ return ""; }
-  QTextStream in(&file);
-  QString contents = in.readAll();
-  file.close();
-  if(contents.endsWith("\n")){ contents.chop(1); }
-  return contents;  
-}
-
 //=======================
 //       PRIVATE SLOTS
 //=======================
@@ -152,8 +124,7 @@ void WebServer::NewSocketConnection(){
   if(sock==0){ return; } //no new connection
   qDebug() << "New Socket Connection";	
   connect(sock, SIGNAL(SocketClosed(QString)), this, SLOT(SocketClosed(QString)) );
-  connect(this, SIGNAL(DispatchStatusUpdate(QString)), sock, SLOT(AppCafeStatusUpdate(QString)) );
-  sock->setLastDispatch(lastDispatch); //make sure this socket is aware of the latest notification
+  connect(EVENTS, SIGNAL(NewEvent(EventWatcher::EVENT_TYPE, QString)), sock, SLOT(EventUpdate(EventWatcher::EVENT_TYPE, QString)) );
   OpenSockets << sock;
 }
 
@@ -204,20 +175,4 @@ void WebServer::SocketClosed(QString ID){
     if(OpenSockets[i]->ID()==ID){ delete OpenSockets.takeAt(i); break; }
   }
   QTimer::singleShot(0,this, SLOT(NewSocketConnection()) ); //check for a new connection
-}
-
-void WebServer::WatcherUpdate(QString path){
-  if(path==APPCAFEWORKING){
-    //Read the file contents
-    QString stat = readFile(APPCAFEWORKING);
-    if(stat.simplified().isEmpty()){ stat = "idle"; }
-    qDebug() << "Dispatcher Update:" << stat;
-    lastDispatch = stat; //save for later
-    //Forward those contents on to the currently-open sockets
-    emit DispatchStatusUpdate(stat);
-  }
-  //Make sure this file/dir is not removed from the watcher
-  if(!watcher->files().contains(path) && !watcher->directories().contains(path)){
-    watcher->addPath(path); //re-add it to the watcher. This happens when the file is removed/re-created instead of just overwritten
-  }
 }

@@ -4,13 +4,15 @@ LANGUAGE	= C++
 CONFIG	+= qt warn_on release
 QT = core network websockets
 
-HEADERS	+= WebServer.h \
+HEADERS	+= globals.h globals-qt.h \
+		WebServer.h \
 		WebSocket.h \
 		syscache-client.h \
 		dispatcher-client.h \
 		RestStructs.h \
 		AuthorizationManager.h \ 
-		SslServer.h
+		SslServer.h \
+		EventWatcher.h
 		
 SOURCES	+= main.cpp \
 		WebServer.cpp \
@@ -18,7 +20,8 @@ SOURCES	+= main.cpp \
 		WebBackend.cpp \
 		syscache-client.cpp \
 		dispatcher-client.cpp \
-		AuthorizationManager.cpp
+		AuthorizationManager.cpp \
+		EventWatcher.cpp
 
 
 TARGET=sysadm-server

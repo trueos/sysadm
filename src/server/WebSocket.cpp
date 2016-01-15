@@ -65,11 +65,6 @@ QString WebSocket::ID(){
   return SockID;
 }
 
-void WebSocket::setLastDispatch(QString msg){ 
-  //used on initialization only
-  lastDispatchEvent = msg;
-}
-
 //=======================
 //             PRIVATE
 //=======================
@@ -340,25 +335,18 @@ void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
 // ======================
 //       PUBLIC SLOTS
 // ======================
-void WebSocket::AppCafeStatusUpdate(QString msg){
-  if(!msg.isEmpty()){ lastDispatchEvent = msg; }
-  else{ msg = lastDispatchEvent; }
+void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QString msg){
+  if(msg.isEmpty()){ msg = EVENTS->lastEvent(evtype); }
   //qDebug() << "Socket Status Update:" << msg;
-  if(!SendAppCafeEvents){ return; } //don't report events on this socket
-  RestOutputStruct out;
-    out.CODE = RestOutputStruct::OK;
-    out.in_struct.name = "dispatcher";
-    out.in_struct.namesp = "events";
-  //Pre-set any output fields
-   //QJsonObject outargs;	
-     //outargs.insert("name", "dispatcher");
-    // outargs.insert("args",QJsonValue(msg));
-  out.out_args = QJsonValue(msg);//outargs;	
-
-  //Assemble the output JSON document/text
+  if(evtype==EventWatcher::DISPATCHER){
+    if(!SendAppCafeEvents){ return; } //don't report events on this socket
+    RestOutputStruct out;
+      out.CODE = RestOutputStruct::OK;
+      out.in_struct.name = "dispatcher";
+      out.in_struct.namesp = "events";
+    out.out_args = QJsonValue(msg);//outargs;	
     out.Header << "Content-Type: text/json; charset=utf-8"; //REST header info
-  //Now send the message back through the socket
-  this->sendReply(out.assembleMessage());
-/*  if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
-  else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }*/
+    //Now send the message back through the socket
+    this->sendReply(out.assembleMessage());
+  } //end of DISPATCH event
 }

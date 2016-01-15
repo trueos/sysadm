@@ -6,18 +6,7 @@
 #ifndef _PCBSD_REST_WEB_SERVER_H
 #define _PCBSD_REST_WEB_SERVER_H
 
-#include <QWebSocketServer>
-#include <QTcpServer>
-#include <QWebSocket>
-#include <QSslSocket>
-#include <QWebSocketCorsAuthenticator>
-#include <QFileSystemWatcher>
-#include <QSslError>
-#include <QList>
-#include <QObject>
-#include <QTimer>
-#include <QDebug>
-#include <QtDebug> //for better syntax of qDebug() / qWarning() / qCritical() / qFatal()
+#include "globals.h"
 
 #include "WebSocket.h"
 #include "AuthorizationManager.h"
@@ -38,8 +27,6 @@ private:
 	SslServer *TCPServer;
 	QList<WebSocket*> OpenSockets;
 	AuthorizationManager *AUTH;
-	QFileSystemWatcher *watcher;
-	QString lastDispatch;
 	
 	//Server Setup functions
 	bool setupWebSocket(quint16 port);
@@ -47,7 +34,6 @@ private:
 
 	//Generic functions for either type of server
 	QString generateID(); //generate a new ID for a socket
-	QString readFile(QString path);
 
 private slots:
         // Generic Server Slots
@@ -63,11 +49,8 @@ private slots:
 	void SslErrors(const QList<QSslError>&);	//sslErrors() signal
 	void SocketClosed(QString ID);
 
-	//File watcher signals
-	void WatcherUpdate(QString);
-
 signals:
-	void DispatchStatusUpdate(QString);
+	//void DispatchStatusUpdate(QString);
 
 };
 

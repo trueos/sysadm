@@ -3,24 +3,20 @@
 // Available under the 3-clause BSD License
 // Written by: Ken Moore <ken@pcbsd.org> July 2015
 // =================================
-#include <QCoreApplication>
-#include <QFile>
-#include <QTextStream>
-#include <QTimer>
-#include <QDir>
+#include "globals.h"
+
 #include <unistd.h>
 #include <sys/types.h>
 
 #include "WebServer.h"
 
-#ifndef PREFIX
-#define PREFIX QString("/usr/local/")
-#endif
-
 #define DEBUG 1
-#define WSPORTNUMBER 12150 	// WebSocket server default port
-#define PORTNUMBER 12151		// TCP server default port
 
+//Create any global classes
+QSettings *CONFIG = new QSettings("PCBSD","sysadm");
+EventWatcher *EVENTS = new EventWatcher();
+
+//Create the default logfile
 QFile logfile;
 void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg){
   QString txt;
@@ -80,19 +76,23 @@ int main( int argc, char ** argv )
       logfile.open(QIODevice::WriteOnly | QIODevice::Append);
       qInstallMessageHandler(MessageOutput);
       
-    //Create and start the daemon
+    //Create the daemon
     qDebug() << "Starting the PC-BSD sysadm server...." << (websocket ? "(WebSocket)" : "(TCP)");
     WebServer *w = new WebServer(); 
+    //Start the daemon
+    int ret = 1; //error return value
     if( w->startServer(port, websocket) ){
       //Now start the event loop
-      int ret = a.exec();
+      ret = a.exec();
       qDebug() << "Server Stopped:" << QDateTime::currentDateTime().toString(Qt::ISODate);
-      logfile.close();
-      return ret;
     }else{
       qDebug() << "[FATAL] Server could not be started:" << QDateTime::currentDateTime().toString(Qt::ISODate);
       qDebug() << " - Tried port:" << port;
-      logfile.close();
-      return 1;
     }
+    //Cleanup any globals
+    delete CONFIG;
+    logfile.close();
+    
+    //Return
+    return ret;
 }

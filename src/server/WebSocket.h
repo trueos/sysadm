@@ -6,17 +6,7 @@
 #ifndef _PCBSD_REST_WEB_SOCKET_H
 #define _PCBSD_REST_WEB_SOCKET_H
 
-#include <QWebSocket>
-#include <QSslSocket>
-#include <QSslError>
-#include <QList>
-#include <QObject>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QJsonValue>
-#include <QTimer>
-
+#include "globals.h"
 
 #include "RestStructs.h"
 #include "AuthorizationManager.h"
@@ -29,13 +19,12 @@ public:
 	~WebSocket();
 
 	QString ID();
-	void setLastDispatch(QString); //used on initialization only
 
 private:
 	QTimer *idletimer;
 	QWebSocket *SOCKET;
 	QSslSocket *TSOCKET;
-	QString SockID, SockAuthToken, lastDispatchEvent;
+	QString SockID, SockAuthToken;
 	AuthorizationManager *AUTHSYSTEM;
 	bool SendAppCafeEvents;
 
@@ -77,7 +66,7 @@ private slots:
 	void SslError(const QList<QSslError>&); //sslErrors() signal
 	
 public slots:
-	void AppCafeStatusUpdate(QString msg = "");
+	void EventUpdate(EventWatcher::EVENT_TYPE, QString msg = "");
 
 signals:
 	void SocketClosed(QString); //ID
