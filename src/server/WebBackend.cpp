@@ -205,6 +205,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
 	ok = true;
         out->insert("listsnap", sysadm::LifePreserver::listSnap(in_args.toObject()));
       }
+      if(act=="removereplication"){
+	ok = true;
+        out->insert("removereplication", sysadm::LifePreserver::removeReplication(in_args.toObject()));
+      }
       if(act=="removesnap"){
 	ok = true;
         out->insert("removesnap", sysadm::LifePreserver::removeSnapshot(in_args.toObject()));

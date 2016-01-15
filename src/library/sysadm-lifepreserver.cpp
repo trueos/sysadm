@@ -287,6 +287,47 @@ QJsonObject LifePreserver::listSnap(QJsonObject jsin) {
   return retObject;
 }
 
+// Remove a replication task
+QJsonObject LifePreserver::removeReplication(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString dataset, host;
+
+   QStringList keys = jsin.keys();
+   if(! keys.contains("dataset") || ! keys.contains("host")){
+     retObject.insert("error", "Requires dataset and host keys");
+     return retObject;
+   }
+
+   // Get the dataset / host
+   dataset = jsin.value("dataset").toString();
+   host = jsin.value("host").toString();
+
+   // Make sure we have the dataset / host key(s)
+   if ( dataset.isEmpty() || host.isEmpty() ) {
+     retObject.insert("error", "Empty dataset or host keys ");
+     return retObject;
+   }
+
+   QStringList output;
+   output = General::RunCommand("lpreserver replicate remove " + dataset + " " + host).split("\n");
+
+   // Check for any errors
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("ERROR:") != -1 ) {
+       retObject.insert("error", output.at(i));
+       return retObject;
+      }
+   }
+
+   // Got to the end, return the good json
+   QJsonObject values;
+   values.insert("dataset", dataset);
+   values.insert("host", host);
+
+   return values;
+}
+
 // Remove a snapshot
 QJsonObject LifePreserver::removeSnapshot(QJsonObject jsin) {
    QJsonObject retObject;
