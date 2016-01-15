@@ -217,6 +217,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
 	ok = true;
         out->insert("revertsnap", sysadm::LifePreserver::revertSnapshot(in_args.toObject()));
       }
+      if(act=="runreplication"){
+	ok = true;
+        out->insert("runreplication", sysadm::LifePreserver::runReplication(in_args.toObject()));
+      }
       if(act=="savesettings"){
 	ok = true;
         out->insert("savesettings", sysadm::LifePreserver::saveSettings(in_args.toObject()));

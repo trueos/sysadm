@@ -22,6 +22,7 @@ public:
 	static QJsonObject removeReplication(QJsonObject jsin);
 	static QJsonObject removeSnapshot(QJsonObject jsin);
 	static QJsonObject revertSnapshot(QJsonObject jsin);
+	static QJsonObject runReplication(QJsonObject jsin);
 	static QJsonObject saveSettings(QJsonObject jsin);
 	static QJsonObject scheduleSnapshot(QJsonObject jsin);
 	static QJsonObject scheduleScrub(QJsonObject jsin);
