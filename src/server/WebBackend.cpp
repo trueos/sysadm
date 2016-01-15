@@ -189,13 +189,25 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
 	ok = true;
         out->insert("cronsnap", sysadm::LifePreserver::scheduleSnapshot(in_args.toObject()));
       }
+      if(act=="initreplication"){
+	ok = true;
+        out->insert("initreplication", sysadm::LifePreserver::initReplication(in_args.toObject()));
+      }
       if(act=="listcron"){
 	ok = true;
         out->insert("listcron", sysadm::LifePreserver::listCron());
       }
+      if(act=="listreplication"){
+	ok = true;
+        out->insert("listreplication", sysadm::LifePreserver::listReplication());
+      }
       if(act=="listsnap"){
 	ok = true;
         out->insert("listsnap", sysadm::LifePreserver::listSnap(in_args.toObject()));
+      }
+      if(act=="removereplication"){
+	ok = true;
+        out->insert("removereplication", sysadm::LifePreserver::removeReplication(in_args.toObject()));
       }
       if(act=="removesnap"){
 	ok = true;
@@ -204,6 +216,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
       if(act=="revertsnap"){
 	ok = true;
         out->insert("revertsnap", sysadm::LifePreserver::revertSnapshot(in_args.toObject()));
+      }
+      if(act=="runreplication"){
+	ok = true;
+        out->insert("runreplication", sysadm::LifePreserver::runReplication(in_args.toObject()));
       }
       if(act=="savesettings"){
 	ok = true;

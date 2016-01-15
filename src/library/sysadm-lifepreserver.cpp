@@ -83,6 +83,46 @@ QJsonObject LifePreserver::addReplication(QJsonObject jsin) {
    return values;
 }
 
+// Re-init the LP replication target
+QJsonObject LifePreserver::initReplication(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString dset, rhost;
+
+   QStringList keys = jsin.keys();
+   if(! keys.contains("dataset") || ! keys.contains("host")){
+     retObject.insert("error", "Missing dataset or host key");
+     return retObject;
+   }
+
+   // Check which pool we are looking at
+   dset = jsin.value("dataset").toString();
+   rhost = jsin.value("host").toString();
+
+   // Make sure we have the pool key
+   if ( dset.isEmpty() || rhost.isEmpty()) {
+     retObject.insert("error", "Missing dataset or host key");
+     return retObject;
+   }
+
+   // TODO - This command can take a LONG TIME. Find a way to queue / background it and return an event
+   // via websockets later, or block here and return when finished if this is REST
+   QStringList output = General::RunCommand("lpreserver replicate init " + dset + " " + rhost).split("\n");
+
+   // Check for any errors
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("ERROR:") != -1 ) {
+       retObject.insert("error", output.at(i));
+       return retObject;
+      }
+   }
+
+   QJsonObject values;
+   values.insert("dataset", dset);
+   values.insert("host", rhost);
+   return values;
+}
+
 // Build list of scheduled cron snapshot jobs
 QJsonObject LifePreserver::listCron() {
    QJsonObject retObject;
@@ -146,6 +186,54 @@ QJsonObject LifePreserver::listCron() {
    return retObject;
 }
 
+// Return a list of replication targets
+QJsonObject LifePreserver::listReplication() {
+   QJsonObject retObject;
+
+   QStringList output = General::RunCommand("lpreserver replicate list").split("\n");
+   QStringList setitems;
+   QString tmpkey;
+   QRegExp sep("\\s+");
+
+   // Parse the output
+   bool inSection = false;
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("-----------------") != -1 ) {
+         inSection = true;
+         continue;
+      }
+
+      if (!inSection)
+         continue;
+
+      if ( output.at(i).isEmpty() || output.at(i).indexOf("-----------------") != -1 )
+	  break;
+
+      // Breakdown the settings
+      QJsonObject values;
+      tmpkey = "";
+      QString dset, rdset, user, host, port, parseline, time;
+      dset = output.at(i).section(sep, 0, 0).simplified();
+      parseline = output.at(i).section(sep, 2, 2).simplified();
+      user = parseline.section("@", 0, 0);
+      host = parseline.section("@", 1, 1).section("[", 0, 0);
+      port = parseline.section("@", 1, 1).section("[", 1, 1).section("]", 0, 0);
+      rdset = parseline.section(":", 1, 1);
+      time = output.at(i).section(sep, 4, 4).simplified();
+
+      values.insert("dataset", dset);
+      values.insert("user", user);
+      values.insert("port", port);
+      values.insert("host", host);
+      values.insert("rdset", rdset);
+      values.insert("frequency", time);
+      retObject.insert(dset + "->" + host, values);
+  }
+
+  return retObject;
+}
+
 // Return a list of snapshots on a particular pool / dataset
 QJsonObject LifePreserver::listSnap(QJsonObject jsin) {
    QJsonObject retObject;
@@ -199,6 +287,47 @@ QJsonObject LifePreserver::listSnap(QJsonObject jsin) {
   return retObject;
 }
 
+// Remove a replication task
+QJsonObject LifePreserver::removeReplication(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString dataset, host;
+
+   QStringList keys = jsin.keys();
+   if(! keys.contains("dataset") || ! keys.contains("host")){
+     retObject.insert("error", "Requires dataset and host keys");
+     return retObject;
+   }
+
+   // Get the dataset / host
+   dataset = jsin.value("dataset").toString();
+   host = jsin.value("host").toString();
+
+   // Make sure we have the dataset / host key(s)
+   if ( dataset.isEmpty() || host.isEmpty() ) {
+     retObject.insert("error", "Empty dataset or host keys ");
+     return retObject;
+   }
+
+   QStringList output;
+   output = General::RunCommand("lpreserver replicate remove " + dataset + " " + host).split("\n");
+
+   // Check for any errors
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("ERROR:") != -1 ) {
+       retObject.insert("error", output.at(i));
+       return retObject;
+      }
+   }
+
+   // Got to the end, return the good json
+   QJsonObject values;
+   values.insert("dataset", dataset);
+   values.insert("host", host);
+
+   return values;
+}
+
 // Remove a snapshot
 QJsonObject LifePreserver::removeSnapshot(QJsonObject jsin) {
    QJsonObject retObject;
@@ -236,6 +365,47 @@ QJsonObject LifePreserver::removeSnapshot(QJsonObject jsin) {
    QJsonObject values;
    values.insert("dataset", dataset);
    values.insert("snap", snap);
+
+   return values;
+}
+
+// Run a replication task
+QJsonObject LifePreserver::runReplication(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString dataset, host;
+
+   QStringList keys = jsin.keys();
+   if(! keys.contains("dataset") || ! keys.contains("host")){
+     retObject.insert("error", "Requires dataset and host keys");
+     return retObject;
+   }
+
+   // Get the dataset / host
+   dataset = jsin.value("dataset").toString();
+   host = jsin.value("host").toString();
+
+   // Make sure we have the dataset / host key(s)
+   if ( dataset.isEmpty() || host.isEmpty() ) {
+     retObject.insert("error", "Empty dataset or host keys ");
+     return retObject;
+   }
+
+   QStringList output;
+   output = General::RunCommand("lpreserver replicate run " + dataset + " " + host).split("\n");
+
+   // Check for any errors
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("ERROR:") != -1 ) {
+       retObject.insert("error", output.at(i));
+       return retObject;
+      }
+   }
+
+   // Got to the end, return the good json
+   QJsonObject values;
+   values.insert("dataset", dataset);
+   values.insert("host", host);
 
    return values;
 }

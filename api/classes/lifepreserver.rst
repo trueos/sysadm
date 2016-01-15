@@ -21,11 +21,14 @@ Every lifepreserver class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", "removesnap",               |
-|                                 |               | "addreplication", "settings", and "savesettings"                                                                     |
+|                                 |               | "addreplication", "removereplication", "listreplication", "runreplication", "initreplication", "settings", and       |
+|                                 |               | "savesettings"                                                                                                       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
 The rest of this section provides examples of the available *actions* for each type of request, along with their responses.
+
+.. index:: listcron, Life Preserver
 
 .. _List Schedules:
 
@@ -93,6 +96,8 @@ the time that snapshots are taken. If scrubs have been configured on that ZFS po
   "namespace": "sysadm"
  }
 
+.. index:: cronsnap, Life Preserver
+ 
 .. _Create a Snapshot Schedule:
 
 Create a Snapshot Schedule
@@ -175,6 +180,8 @@ The "cronsnap" action is used to create snapshot schedules for Life Preserver. T
   "namespace": "sysadm"
  }
  
+.. index:: cronscrub, Life Preserver
+ 
 .. _Create a Scrub Schedule:
 
 Create a Scrub Schedule
@@ -249,6 +256,8 @@ The "cronscrub" action is used to schedule a ZFS scrub. This action supports the
   "namespace": "sysadm"
  }
 
+.. index:: listsnap, Life Preserver
+ 
 .. _List Snapshots:
 
 List Snapshots
@@ -329,6 +338,8 @@ The "listsnap" action retrieves the list of saved snapshots.
   "namespace": "sysadm"
  }
 
+.. index:: revertsnap, Life Preserver
+ 
 .. _Revert a Snapshot:
 
 Revert a Snapshot
@@ -394,6 +405,8 @@ The "revertsnap" action is used to rollback the contents of the specified datase
   "namespace": "sysadm"
  }
 
+.. index:: removesnap, Life Preserver
+ 
 .. _Remove a Snapshot:
 
 Remove a Snapshot
@@ -456,6 +469,8 @@ The "removesnap" action is used to remove a ZFS snapshot from the specified data
   "namespace": "sysadm"
  }
 
+.. index:: addreplication, Life Preserver
+ 
 .. _Add Replication:
 
 Add Replication
@@ -564,6 +579,301 @@ The "addreplication" action is used to create a replication task in Life Preserv
   "namespace": "sysadm"
  }
 
+.. index:: removereplication, Life Preserver
+ 
+.. _Remove Replication:
+
+Remove Replication
+===============
+
+The "removereplication" action is used to delete an existing replication task. Note that this action only deletes the task--it does not remove any already replicated data from the
+remote system.
+
+This action supports the following parameters:
+
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Description**                                                                                                      |
+|                                 |                                                                                                                      |
++=================================+======================================================================================================================+
+| host                            | remote hostname or IP address                                                                                        |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| dataset                         | name of local dataset to remove from replication                                                                     |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "dataset" : "tank",
+   "host" : "192.168.0.10",
+   "action" : "removereplication"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "removereplication": {
+            "dataset": "tank",
+            "host": "192.168.0.10"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "action" : "removereplication",
+      "dataset" : "tank",
+      "host" : "192.168.0.10"
+   },
+   "name" : "lifepreserver",
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "removereplication": {
+      "dataset": "tank",
+      "host": "192.168.0.10"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: listreplication, Life Preserver
+ 
+.. _List Replications: 
+
+List Replications
+=================
+
+The "listreplication" action is used to retrieve the settings of configured replication tasks. For each task, the response includes the name of the local ZFS pool or dataset to replicate,
+the IP address and listening port number of the remote system to replicate to, when the replication occurs (see the "frequency" description in :ref:`Add Replication`), the name of the
+dataset on the remote system to store the replicated data ("rdset"), and the name of the replication user account.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "action" : "listreplication"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "listreplication": {
+            "tank1->192.168.0.9": {
+                "dataset": "tank1",
+                "frequency": "22",
+                "host": "192.168.0.9",
+                "port": "22",
+                "rdset": "tank/backups",
+                "user": "backups"
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "listreplication"
+   },
+   "id" : "fooid",
+   "name" : "lifepreserver"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "listreplication": {
+      "tank1->192.168.0.9": {
+        "dataset": "tank1",
+        "frequency": "22",
+        "host": "192.168.0.9",
+        "port": "22",
+        "rdset": "tank/backups",
+        "user": "backups"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: runreplication, Life Preserver
+ 
+.. _Start Replication:
+
+Start Replication
+=================
+
+The "runreplication" action can be used to manually replicate the specified dataset to the specified remote server.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "host" : "10.0.10.100",
+   "dataset" : "mypool",
+   "action" : "runreplication"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "runreplication": {
+            "dataset": "mypool",
+            "host": "10.0.10.100"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "lifepreserver",
+   "args" : {
+      "host" : "10.0.10.100",
+      "dataset" : "mypool",
+      "action" : "runreplication"
+   },
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "runreplication": {
+      "dataset": "mypool",
+      "host": "10.0.10.100"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: initreplication, Life Preserver
+ 
+.. _Initialize Replication:
+
+Initialize Replication
+======================
+
+The "initreplication" action can be used to clear the replication data on the remote server. This is useful if a replication becomes stuck. After running this action, issue a
+"runreplication" action to start a new replication.
+
+The "initreplication" action supports the following parameters:
+
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Description**                                                                                                      |
+|                                 |                                                                                                                      |
++=================================+======================================================================================================================+
+| host                            | remote hostname or IP address                                                                                        |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| dataset                         | name of local dataset or pool being replicated                                                                       |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "dataset" : "tank1",
+   "host" : "192.168.0.9",
+   "action" : "initreplication"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "initreplication": {
+            "dataset": "tank1",
+            "host": "192.168.0.9"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "host" : "192.168.0.9",
+      "dataset" : "tank1",
+      "action" : "initreplication"
+   },
+   "namespace" : "sysadm",
+   "name" : "lifepreserver"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "initreplication": {
+      "dataset": "tank1",
+      "host": "192.168.0.9"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: settings, Life Preserver
  
 .. _View Settings:
 
@@ -630,6 +940,8 @@ Run :command:`lpreserver help set` for more information about each available set
   "namespace": "sysadm"
  }
 
+.. index:: savesettings, Life Preserver
+ 
 .. _Save Settings:
 
 Save Settings
