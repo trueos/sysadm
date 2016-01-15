@@ -21,7 +21,7 @@ Every lifepreserver class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", "removesnap",               |
-|                                 |               | "addreplication", "listreplication", "initreplication", "settings", and "savesettings"                               |
+|                                 |               | "addreplication", "removereplication", "listreplication", "initreplication", "settings", and "savesettings"          |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -564,6 +564,82 @@ The "addreplication" action is used to create a replication task in Life Preserv
   "namespace": "sysadm"
  }
 
+.. _Remove Replication:
+
+Remove Replication
+===============
+
+The "removereplication" action is used to delete an existing replication task. Note that this action only deletes the task--it does not remove any already replicated data from the
+remote system.
+
+This action supports the following parameters:
+
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Description**                                                                                                      |
+|                                 |                                                                                                                      |
++=================================+======================================================================================================================+
+| host                            | remote hostname or IP address                                                                                        |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| dataset                         | name of local dataset to remove from replication                                                                     |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "dataset" : "tank",
+   "host" : "192.168.0.10",
+   "action" : "removereplication"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "removereplication": {
+            "dataset": "tank",
+            "host": "192.168.0.10"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "action" : "removereplication",
+      "dataset" : "tank",
+      "host" : "192.168.0.10"
+   },
+   "name" : "lifepreserver",
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "removereplication": {
+      "dataset": "tank",
+      "host": "192.168.0.10"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
 .. _List Replications: 
 
 List Replications
