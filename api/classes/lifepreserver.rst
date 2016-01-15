@@ -28,6 +28,8 @@ Every lifepreserver class request contains the following parameters:
 
 The rest of this section provides examples of the available *actions* for each type of request, along with their responses.
 
+.. index:: listcron, Life Preserver
+
 .. _List Schedules:
 
 List Schedules
@@ -94,6 +96,8 @@ the time that snapshots are taken. If scrubs have been configured on that ZFS po
   "namespace": "sysadm"
  }
 
+.. index:: cronsnap, Life Preserver
+ 
 .. _Create a Snapshot Schedule:
 
 Create a Snapshot Schedule
@@ -176,6 +180,8 @@ The "cronsnap" action is used to create snapshot schedules for Life Preserver. T
   "namespace": "sysadm"
  }
  
+.. index:: cronscrub, Life Preserver
+ 
 .. _Create a Scrub Schedule:
 
 Create a Scrub Schedule
@@ -250,6 +256,8 @@ The "cronscrub" action is used to schedule a ZFS scrub. This action supports the
   "namespace": "sysadm"
  }
 
+.. index:: listsnap, Life Preserver
+ 
 .. _List Snapshots:
 
 List Snapshots
@@ -330,6 +338,8 @@ The "listsnap" action retrieves the list of saved snapshots.
   "namespace": "sysadm"
  }
 
+.. index:: revertsnap, Life Preserver
+ 
 .. _Revert a Snapshot:
 
 Revert a Snapshot
@@ -395,6 +405,8 @@ The "revertsnap" action is used to rollback the contents of the specified datase
   "namespace": "sysadm"
  }
 
+.. index:: removesnap, Life Preserver
+ 
 .. _Remove a Snapshot:
 
 Remove a Snapshot
@@ -457,6 +469,8 @@ The "removesnap" action is used to remove a ZFS snapshot from the specified data
   "namespace": "sysadm"
  }
 
+.. index:: addreplication, Life Preserver
+ 
 .. _Add Replication:
 
 Add Replication
@@ -565,6 +579,8 @@ The "addreplication" action is used to create a replication task in Life Preserv
   "namespace": "sysadm"
  }
 
+.. index:: removereplication, Life Preserver
+ 
 .. _Remove Replication:
 
 Remove Replication
@@ -641,6 +657,8 @@ This action supports the following parameters:
   "namespace": "sysadm"
  }
  
+.. index:: listreplication, Life Preserver
+ 
 .. _List Replications: 
 
 List Replications
@@ -713,6 +731,8 @@ dataset on the remote system to store the replicated data ("rdset"), and the nam
   "namespace": "sysadm"
  }
  
+.. index:: runreplication, Life Preserver
+ 
 .. _Start Replication:
 
 Start Replication
@@ -774,6 +794,8 @@ The "runreplication" action can be used to manually replicate the specified data
   "name": "response",
   "namespace": "sysadm"
  }
+ 
+.. index:: initreplication, Life Preserver
  
 .. _Initialize Replication:
 
@@ -851,6 +873,8 @@ The "initreplication" action supports the following parameters:
   "namespace": "sysadm"
  }
  
+.. index:: settings, Life Preserver
+ 
 .. _View Settings:
 
 View Settings
@@ -916,6 +940,8 @@ Run :command:`lpreserver help set` for more information about each available set
   "namespace": "sysadm"
  }
 
+.. index:: savesettings, Life Preserver
+ 
 .. _Save Settings:
 
 Save Settings
