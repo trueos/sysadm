@@ -21,7 +21,7 @@ Every lifepreserver class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", "removesnap",               |
-|                                 |               | "addreplication", "initreplication", "settings", and "savesettings"                                                  |
+|                                 |               | "addreplication", "listreplication", "initreplication", "settings", and "savesettings"                               |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -564,6 +564,77 @@ The "addreplication" action is used to create a replication task in Life Preserv
   "namespace": "sysadm"
  }
 
+.. _List Replications: 
+
+List Replications
+=================
+
+The "listreplication" action is used to retrieve the settings of configured replication tasks. For each task, the response includes the name of the local ZFS pool or dataset to replicate,
+the IP address and listening port number of the remote system to replicate to, when the replication occurs (see the "frequency" description in :ref:`Add Replication`), the name of the
+dataset on the remote system to store the replicated data ("rdset"), and the name of the replication user account.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "action" : "listreplication"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "listreplication": {
+            "tank1->192.168.0.9": {
+                "dataset": "tank1",
+                "frequency": "22",
+                "host": "192.168.0.9",
+                "port": "22",
+                "rdset": "tank/backups",
+                "user": "backups"
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "listreplication"
+   },
+   "id" : "fooid",
+   "name" : "lifepreserver"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "listreplication": {
+      "tank1->192.168.0.9": {
+        "dataset": "tank1",
+        "frequency": "22",
+        "host": "192.168.0.9",
+        "port": "22",
+        "rdset": "tank/backups",
+        "user": "backups"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
  
 .. _Initialize Replication:
 
