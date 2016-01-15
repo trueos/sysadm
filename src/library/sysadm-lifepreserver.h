@@ -17,6 +17,7 @@ public:
 	static QJsonObject addReplication(QJsonObject jsin);
 	static QJsonObject initReplication(QJsonObject jsin);
 	static QJsonObject listCron(); 
+	static QJsonObject listReplication();
 	static QJsonObject listSnap(QJsonObject jsin);
 	static QJsonObject removeSnapshot(QJsonObject jsin);
 	static QJsonObject revertSnapshot(QJsonObject jsin);

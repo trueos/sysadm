@@ -70,17 +70,21 @@ echo ""
 # Source our resty functions
 . ./utils/resty -W "https://127.0.0.1:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${fuser}:${fpass}
 
-# Check the reply of this REST query
-echo ""
-echo "REST Request:"
-echo "-------------------------------"
-echo "PUT /${namesp}/${name}"
-echo "${payload}" | perl -0007 -MJSON -ne'print to_json(from_json($_, {allow_nonref=>1}),{pretty=>1})."\n"'
+# Save output to a file in addition to stdout
+ofile="/tmp/api-response"
+echo "" > /tmp/api-response
 
-echo ""
-echo "REST Response:"
-echo "-------------------------------"
-PUT /${namesp}/${name} "${payload}" -v -k 2>/tmp/.rstErr
+# Check the reply of this REST query
+echo "" | tee -a $ofile
+echo "REST Request:" | tee -a $ofile
+echo "-------------------------------" | tee -a $ofile
+echo "PUT /${namesp}/${name}" | tee -a $ofile
+echo "${payload}" | perl -0007 -MJSON -ne'print to_json(from_json($_, {allow_nonref=>1}),{pretty=>1})."\n"' | tee -a $ofile
+
+echo "" | tee -a $ofile
+echo "REST Response:" | tee -a $ofile
+echo "-------------------------------" | tee -a $ofile
+PUT /${namesp}/${name} "${payload}" -v -k 2>/tmp/.rstErr | tee -a $ofile
 if [ $? -ne 0 ] ; then
   echo "Failed.. Error output:"
   cat /tmp/.rstErr
@@ -90,12 +94,12 @@ fi
 # Now check the response via WebSockets
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 
-echo ""
-echo "WebSocket Request:"
-echo "-------------------------------"
-echo "{ \"namespace\":\"${namesp}\", \"name\":\"${name}\", \"id\":\"fooid\", \"args\":${payload} }" | perl -0007 -MJSON -ne'print to_json(from_json($_, {allow_nonref=>1}),{pretty=>1})."\n"'
+echo "" | tee -a $ofile
+echo "WebSocket Request:" | tee -a $ofile
+echo "-------------------------------" | tee -a $ofile
+echo "{ \"namespace\":\"${namesp}\", \"name\":\"${name}\", \"id\":\"fooid\", \"args\":${payload} }" | perl -0007 -MJSON -ne'print to_json(from_json($_, {allow_nonref=>1}),{pretty=>1})."\n"' | tee -a $ofile
 
-echo ""
-echo "WebSocket Response:"
-echo "-------------------------------"
-echo "{ \"namespace\":\"${namesp}\", \"name\":\"${name}\", \"id\":\"fooid\", \"args\":${payload} }" | node sendwebsocket.js "$fuser" "$fpass"
+echo "" | tee -a $ofile
+echo "WebSocket Response:" | tee -a $ofile
+echo "-------------------------------" | tee -a $ofile
+echo "{ \"namespace\":\"${namesp}\", \"name\":\"${name}\", \"id\":\"fooid\", \"args\":${payload} }" | node sendwebsocket.js "$fuser" "$fpass" | tee -a $ofile

@@ -197,6 +197,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
 	ok = true;
         out->insert("listcron", sysadm::LifePreserver::listCron());
       }
+      if(act=="listreplication"){
+	ok = true;
+        out->insert("listreplication", sysadm::LifePreserver::listReplication());
+      }
       if(act=="listsnap"){
 	ok = true;
         out->insert("listsnap", sysadm::LifePreserver::listSnap(in_args.toObject()));

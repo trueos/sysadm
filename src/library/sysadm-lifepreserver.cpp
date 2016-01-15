@@ -186,6 +186,54 @@ QJsonObject LifePreserver::listCron() {
    return retObject;
 }
 
+// Return a list of replication targets
+QJsonObject LifePreserver::listReplication() {
+   QJsonObject retObject;
+
+   QStringList output = General::RunCommand("lpreserver replicate list").split("\n");
+   QStringList setitems;
+   QString tmpkey;
+   QRegExp sep("\\s+");
+
+   // Parse the output
+   bool inSection = false;
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("-----------------") != -1 ) {
+         inSection = true;
+         continue;
+      }
+
+      if (!inSection)
+         continue;
+
+      if ( output.at(i).isEmpty() || output.at(i).indexOf("-----------------") != -1 )
+	  break;
+
+      // Breakdown the settings
+      QJsonObject values;
+      tmpkey = "";
+      QString dset, rdset, user, host, port, parseline, time;
+      dset = output.at(i).section(sep, 0, 0).simplified();
+      parseline = output.at(i).section(sep, 2, 2).simplified();
+      user = parseline.section("@", 0, 0);
+      host = parseline.section("@", 1, 1).section("[", 0, 0);
+      port = parseline.section("@", 1, 1).section("[", 1, 1).section("]", 0, 0);
+      rdset = parseline.section(":", 1, 1);
+      time = output.at(i).section(sep, 4, 4).simplified();
+
+      values.insert("dataset", dset);
+      values.insert("user", user);
+      values.insert("port", port);
+      values.insert("host", host);
+      values.insert("rdset", rdset);
+      values.insert("frequency", time);
+      retObject.insert(dset + "->" + host, values);
+  }
+
+  return retObject;
+}
+
 // Return a list of snapshots on a particular pool / dataset
 QJsonObject LifePreserver::listSnap(QJsonObject jsin) {
    QJsonObject retObject;
