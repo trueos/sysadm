@@ -297,65 +297,66 @@ const QStringList UserManager::GetShells()
 void UserManager::loadUsers()
 {
     users.clear();
-    QFile userFile(chroot + "/etc/passwd");
-    if ( userFile.open(QIODevice::ReadOnly) )
+    QStringList userStrings;
+    QStringList args;
+    if(!chroot.isEmpty())
     {
-        QTextStream stream(&userFile);
-        stream.setCodec("UTF-8");
-        QString line;
+        args << chroot;
+        args << "pw";
+    }
+    args << "usershow";
+    args << "-a";
+    if(chroot.isEmpty())
+        userStrings = General::RunCommand("pw",args).split("\n");
+    else
+        userStrings = General::RunCommand("chroot",args).split("\n");
 
-        while ( !stream.atEnd() )
-        {
-            line = stream.readLine();
+    //remove the empty string at the end
+    userStrings.removeLast();
 
-            if ((line.indexOf("#") != 0) && (! line.isEmpty())) //Make sure it isn't a comment or blank
-            {
-                User user;
-                user.UserName = line.section(":",0,0);
-                user.ID = line.section(":",2,2).toInt();
-                user.GroupID = line.section(":",3,3).toInt();
-                user.HomeFolder = line.section(":",5,5);
-                user.Shell = line.section(":",6,6);
-                user.FullName = line.section(":",4,4);
+    for(QString line : userStrings)
+    {
+        User user;
+        user.UserName = line.section(":",0,0);
+        user.ID = line.section(":",2,2).toInt();
+        user.GroupID = line.section(":",3,3).toInt();
+        user.HomeFolder = line.section(":",8,8);
+        user.Shell = line.section(":",9,9);
+        user.FullName = line.section(":",7,7);
 
-                users.append(user);
-            }
-        }
-    } else {
-    //Unable to open file error
-    qWarning("Error! Unable to open /etc/passwd");
+        users.append(user);
     }
 }
 
 void UserManager::loadGroups()
 {
     groups.clear();
-    QFile groupFile(chroot + "/etc/group");
-    if ( groupFile.open(QIODevice::ReadOnly) )
+    QStringList groupStrings;
+    QStringList args;
+    if(!chroot.isEmpty())
     {
-        QTextStream stream(&groupFile);
-        stream.setCodec("UTF-8");
+        args << chroot;
+        args << "pw";
+    }
+    args << "groupshow";
+    args << "-a";
+    if(chroot.isEmpty())
+        groupStrings = General::RunCommand("pw",args).split("\n");
+    else
+        groupStrings = General::RunCommand("chroot",args).split("\n");
 
-        QString line;
+    //remove the empty string at the end
+    groupStrings.removeLast();
 
-        while ( !stream.atEnd() )
-        {
-            line = stream.readLine();
+    for(QString line : groupStrings)
+    {
+        Group group;
+        group.Name = line.section(":",0,0);
+        group.ID = line.section(":",2,2).toInt();
+        QString memberString = line.section(":",3,3);
+        group.Members = memberString.split(",");
 
-            if ((line.indexOf("#") != 0) && (! line.isEmpty())) //Make sure it isn't a comment or blank
-            {
-                Group group;
-                group.Name = line.section(":",0,0);
-                group.ID = line.section(":",2,2).toInt();
-                QString memberString = line.section(":",3,3);
-                group.Members = memberString.split(",");
-
-                groups.append(group);
-            }
-        }
-    } else {
-    //Unable to open file error
-    qWarning("Error! Unable to open /etc/group");
+        groups.append(group);
     }
 }
 
