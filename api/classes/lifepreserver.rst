@@ -21,7 +21,7 @@ Every lifepreserver class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", "removesnap",               |
-|                                 |               | "addreplication", "settings", and "savesettings"                                                                     |
+|                                 |               | "addreplication", "initreplication", "settings", and "savesettings"                                                  |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -564,6 +564,82 @@ The "addreplication" action is used to create a replication task in Life Preserv
   "namespace": "sysadm"
  }
 
+ 
+.. _Initialize Replication:
+
+Initialize Replication
+======================
+
+The "initreplication" action can be used to clear the replication data on the remote server. This is useful if a replication becomes stuck. After running this action, issue a
+"runreplication" action to start a new replication.
+
+The "initreplication" action supports the following parameters:
+
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Description**                                                                                                      |
+|                                 |                                                                                                                      |
++=================================+======================================================================================================================+
+| host                            | remote hostname or IP address                                                                                        |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+| dataset                         | name of local dataset or pool being replicated                                                                       |
+|                                 |                                                                                                                      |
++---------------------------------+----------------------------------------------------------------------------------------------------------------------+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "dataset" : "tank1",
+   "host" : "192.168.0.9",
+   "action" : "initreplication"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "initreplication": {
+            "dataset": "tank1",
+            "host": "192.168.0.9"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "host" : "192.168.0.9",
+      "dataset" : "tank1",
+      "action" : "initreplication"
+   },
+   "namespace" : "sysadm",
+   "name" : "lifepreserver"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "initreplication": {
+      "dataset": "tank1",
+      "host": "192.168.0.9"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
  
 .. _View Settings:
 
