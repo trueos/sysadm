@@ -21,7 +21,8 @@ Every lifepreserver class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", "removesnap",               |
-|                                 |               | "addreplication", "removereplication", "listreplication", "initreplication", "settings", and "savesettings"          |
+|                                 |               | "addreplication", "removereplication", "listreplication", "runreplication", "initreplication", "settings", and       |
+|                                 |               | "savesettings"                                                                                                       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -705,6 +706,68 @@ dataset on the remote system to store the replicated data ("rdset"), and the nam
         "rdset": "tank/backups",
         "user": "backups"
       }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. _Start Replication:
+
+Start Replication
+=================
+
+The "runreplication" action can be used to manually replicate the specified dataset to the specified remote server.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/lifepreserver
+ {
+   "host" : "10.0.10.100",
+   "dataset" : "mypool",
+   "action" : "runreplication"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "runreplication": {
+            "dataset": "mypool",
+            "host": "10.0.10.100"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "lifepreserver",
+   "args" : {
+      "host" : "10.0.10.100",
+      "dataset" : "mypool",
+      "action" : "runreplication"
+   },
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "runreplication": {
+      "dataset": "mypool",
+      "host": "10.0.10.100"
     }
   },
   "id": "fooid",
