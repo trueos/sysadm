@@ -10,8 +10,9 @@
 
 //sysadm library interface classes
 #include "sysadm-general.h"
-#include "sysadm-network.h"
 #include "sysadm-lifepreserver.h"
+#include "sysadm-network.h"
+#include "sysadm-update.h"
 
 #include "syscache-client.h"
 #include "dispatcher-client.h"
@@ -66,6 +67,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmNetworkRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="lifepreserver"){
     return EvaluateSysadmLifePreserverRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="update"){
+    return EvaluateSysadmUpdateRequest(IN.args, out);
   }else{
     return RestOutputStruct::BADREQUEST; 
   }
@@ -228,6 +231,30 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
       if(act=="settings"){
 	ok = true;
         out->insert("settings", sysadm::LifePreserver::settings());
+      }
+
+    } //end of "action" key usage
+    
+    //If nothing done - return the proper code
+    if(!ok){
+      return RestOutputStruct::BADREQUEST;
+    }
+  }else{  // if(in_args.isArray()){
+    return RestOutputStruct::BADREQUEST;
+  }
+  return RestOutputStruct::OK;
+}
+
+//==== SYSADM -- Update ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonValue in_args, QJsonObject *out){
+  if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    bool ok = false;
+    if(keys.contains("action")){
+      QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="checkupdates"){
+	ok = true;
+        out->insert("checkupdates", sysadm::Update::checkUpdates());
       }
 
     } //end of "action" key usage

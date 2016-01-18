@@ -10,19 +10,21 @@ TEMPLATE	= lib
 LANGUAGE	= C++
 VERSION		= 1.0.0
 
-HEADERS	+= sysadm-global.h \
+HEADERS	+= 	sysadm-global.h \
 		sysadm-general.h \
 		sysadm-lifepreserver.h \
                 sysadm-network.h \
-    sysadm-firewall.h \
-    sysadm-usermanager.h
+		sysadm-firewall.h \
+		sysadm-update.h \
+		sysadm-usermanager.h
 
-SOURCES	+= sysadm-general.cpp \
+SOURCES	+=	NetDevice.cpp \
+           	sysadm-general.cpp \
 		sysadm-lifepreserver.cpp \
 		sysadm-network.cpp \
-                NetDevice.cpp \
-    sysadm-firewall.cpp \
-    sysadm-usermanager.cpp
+		sysadm-firewall.cpp \
+		sysadm-update.cpp \
+		sysadm-usermanager.cpp
 
 include.path=/usr/local/include/
 include.files=sysadm-*.h

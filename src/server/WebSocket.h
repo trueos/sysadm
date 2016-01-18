@@ -50,6 +50,8 @@ private:
 	RestOutputStruct::ExitCode EvaluateSysadmNetworkRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm LifePreserver API
 	RestOutputStruct::ExitCode EvaluateSysadmLifePreserverRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- sysadm Update API
+	RestOutputStruct::ExitCode EvaluateSysadmUpdateRequest(const QJsonValue in_args, QJsonObject *out);
 	
 private slots:
 	void checkIdle(); //see if the currently-connected client is idle
