@@ -165,7 +165,7 @@ void ServiceManager::loadServices()
                     service.Name = service.Directory;
 
                 services << service;
-                qDebug() << "Added Service:" << cDir << service.Directory << service.Name << service.Tag;
+                //qDebug() << "Added Service:" << cDir << service.Directory << service.Name << service.Tag;
             }
         }
     }
