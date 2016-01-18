@@ -8,8 +8,6 @@
 #include "sysadm-lifepreserver.h"
 #include "sysadm-global.h"
 
-#include "QJsonValue"
-
 using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h

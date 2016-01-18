@@ -49,6 +49,7 @@ sysadm_start()
   ssl_keygen
   echo "Starting sysadm (WebSocket)..."
   daemon -p /var/run/sysadm-websocket.pid $command $flags >/dev/null 2>/dev/null
+  chmod 744 /var/run/sysadm-websocket.pid >/dev/null 2>/dev/null
 }
 
 run_rc_command "$1"
