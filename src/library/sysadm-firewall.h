@@ -8,6 +8,7 @@
 #define PORTLOOKUP_H
 #include <QtCore>
 #include <tuple>
+#include "sysadm-servicemanager.h"
 namespace sysadm
 {
 struct PortInfo{
@@ -125,7 +126,10 @@ private:
 
     void LoadOpenPorts();
     void SaveOpenPorts();
+
+    ServiceManager serviceManager;
+    Service firewallService;
 };
 }
 #endif // PORTLOOKUP_H
- 
+
