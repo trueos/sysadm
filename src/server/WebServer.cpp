@@ -15,10 +15,6 @@ WebServer::WebServer(){
   WSServer = 0;
   TCPServer = 0;
   AUTH = new AuthorizationManager();
-  //watcher = new QFileSystemWatcher(this);
-    
-  //connect(watcher, SIGNAL(fileChanged(const QString&)), this, SLOT(WatcherUpdate(QString)) );
-  //connect(watcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(WatcherUpdate(QString)) );
 }
 
 WebServer::~WebServer(){
@@ -124,7 +120,7 @@ void WebServer::NewSocketConnection(){
   if(sock==0){ return; } //no new connection
   qDebug() << "New Socket Connection";	
   connect(sock, SIGNAL(SocketClosed(QString)), this, SLOT(SocketClosed(QString)) );
-  connect(EVENTS, SIGNAL(NewEvent(EventWatcher::EVENT_TYPE, QString)), sock, SLOT(EventUpdate(EventWatcher::EVENT_TYPE, QString)) );
+  connect(EVENTS, SIGNAL(NewEvent(EventWatcher::EVENT_TYPE, QJsonValue)), sock, SLOT(EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue)) );
   OpenSockets << sock;
 }
 

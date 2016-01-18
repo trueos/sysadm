@@ -46,6 +46,6 @@ private slots:
 	void WatcherUpdate(QString);
 
 signals:
-	void NewEvent(EVENT_TYPE ev, QJsonValue); //type/message
+	void NewEvent(EventWatcher::EVENT_TYPE, QJsonValue); //type/message
 };
 #endif

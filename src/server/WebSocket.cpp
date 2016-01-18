@@ -48,6 +48,7 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
 }
 
 WebSocket::~WebSocket(){
+  qDebug() << "SOCKET Destroyed";
   if(SOCKET!=0){
     SOCKET->close();
     delete SOCKET;
@@ -68,8 +69,8 @@ QString WebSocket::ID(){
 //=======================
 void WebSocket::sendReply(QString msg){
   qDebug() << "Sending Socket Reply";
- if(SOCKET!=0){ SOCKET->sendTextMessage(msg); } //Websocket connection
- else if(TSOCKET!=0){ 
+ if(SOCKET!=0 && SOCKET->isValid()){ SOCKET->sendTextMessage(msg); } //Websocket connection
+ else if(TSOCKET!=0 && TSOCKET->isValid()){ 
     //TCP Socket connection
     TSOCKET->write(msg.toUtf8().data()); 
     TSOCKET->disconnectFromHost(); //TCP/REST connections are 1 connection per message.
@@ -280,10 +281,13 @@ void WebSocket::checkIdle(){
 }
 
 void WebSocket::SocketClosing(){
-  qDebug() << "Socket Closing...";
+  qDebug() << "Socket Closing..." ;
   if(idletimer->isActive()){ 
     //This means the client deliberately closed the connection - not the idle timer
+    qDebug() << " - Client Closed Connection";
     idletimer->stop(); 
+  }else{
+    qDebug() << "idleTimer not running";
   }
   //Stop any current requests
 
@@ -297,16 +301,16 @@ void WebSocket::SocketClosing(){
 void WebSocket::EvaluateMessage(const QByteArray &msg){
   qDebug() << "New Binary Message:";
   if(idletimer->isActive()){ idletimer->stop(); }
-  EvaluateREST( QString(msg) );
   idletimer->start(); 
+  EvaluateREST( QString(msg) );
   qDebug() << " - Done with Binary Message";
 }
 
 void WebSocket::EvaluateMessage(const QString &msg){ 
   qDebug() << "New Text Message:";
   if(idletimer->isActive()){ idletimer->stop(); }
-  EvaluateREST(msg);
   idletimer->start(); 
+  EvaluateREST(msg); 
   qDebug() << " - Done with Text Message";
 }
 

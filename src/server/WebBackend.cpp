@@ -254,7 +254,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
       QString act = JsonValueToString(in_args.toObject().value("action"));
       if(act=="checkupdates"){
 	ok = true;
+	qDebug() << " - Starting update check";
         out->insert("checkupdates", sysadm::Update::checkUpdates());
+	qDebug() << " - Finished update check";
       }
 
     } //end of "action" key usage

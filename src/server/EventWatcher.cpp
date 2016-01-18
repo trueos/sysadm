@@ -56,7 +56,7 @@ void EventWatcher::WatcherUpdate(QString path){
     qDebug() << "Dispatcher Update:" << stat;
     HASH.insert(DISPATCHER,stat); //save for later
     //Forward those contents on to the currently-open sockets
-    emit NewEvent(DISPATCHER, stat);
+    emit NewEvent(DISPATCHER, QJsonValue(stat) );
   }else if(path==LPLOG){
     //Main Life Preserver Log File
 	  

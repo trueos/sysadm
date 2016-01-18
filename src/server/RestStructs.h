@@ -37,7 +37,7 @@ public:
 	  if(message.isEmpty()){ return; }
 	  //Pull out any REST headers
 	  Body = message;
-	  qDebug() << "Raw Message:" << message;
+	  //qDebug() << "Raw Message:" << message;
 	  if(!message.startsWith("{")){ 
 	    Header = message.section("{",0,0).split("\n");
 	    Body = "{"+message.section("{",1, 1000000);
