@@ -15,14 +15,16 @@ HEADERS	+= sysadm-global.h \
 		sysadm-lifepreserver.h \
                 sysadm-network.h \
     sysadm-firewall.h \
-    sysadm-usermanager.h
+    sysadm-usermanager.h \
+    sysadm-servicemanager.h
 
 SOURCES	+= sysadm-general.cpp \
 		sysadm-lifepreserver.cpp \
 		sysadm-network.cpp \
                 NetDevice.cpp \
     sysadm-firewall.cpp \
-    sysadm-usermanager.cpp
+    sysadm-usermanager.cpp \
+    sysadm-servicemanager.cpp
 
 include.path=/usr/local/include/
 include.files=sysadm-*.h
