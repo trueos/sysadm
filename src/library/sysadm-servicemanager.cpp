@@ -75,12 +75,12 @@ void ServiceManager::Restart(Service service)
 
 void ServiceManager::Enable(Service service)
 {
-    General:: setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"YES\"", -1);
+    General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"YES\"", -1);
 }
 
 void ServiceManager::Disable(Service service)
 {
-    General:: setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"NO\"", -1);
+    General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"NO\"", -1);
 }
 
 void ServiceManager::loadServices()
@@ -103,7 +103,7 @@ void ServiceManager::loadServices()
         if ( directory.count() == 0 )
             return;
 
-        for ( int i = 0; i < directory.count(); i++ )
+        for (unsigned int i = 0; i < directory.count(); i++ )
         {
             service = Service();
 
