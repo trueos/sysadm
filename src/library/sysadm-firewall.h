@@ -35,6 +35,11 @@ class Firewall
 {
 
 public:
+    ///#section: ctors dtors
+    Firewall();
+    ~Firewall();
+    ///#endsection
+
     ///#section: port commands
     /**
      * @description Returns a structure containing information about the port
@@ -111,11 +116,6 @@ public:
      * @brief Restores the Default Configuration
      */
     void RestoreDefaults();
-    ///#endsection
-
-    ///#section: ctors dtors
-    Firewall();
-    ~Firewall();
     ///#endsection
 
 private:
