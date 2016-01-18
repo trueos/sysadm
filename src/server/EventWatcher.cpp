@@ -25,7 +25,13 @@ void EventWatcher::start(){
   WatcherUpdate(DISPATCHWORKING); //load it initially
 }
 
-QString EventWatcher::lastEvent(EVENT_TYPE type){
+EventWatcher::EVENT_TYPE EventWatcher::typeFromString(QString typ){
+  if(typ=="dispatcher"){ return DISPATCHER; }
+  else if(typ=="life-preserver"){ return LIFEPRESERVER; }
+  else{ return BADEVENT; }
+}
+
+QJsonValue EventWatcher::lastEvent(EVENT_TYPE type){
   if(HASH.contains(type)){ return HASH.value(type); }
   else{ return ""; }
 }
@@ -51,6 +57,15 @@ void EventWatcher::WatcherUpdate(QString path){
     HASH.insert(DISPATCHER,stat); //save for later
     //Forward those contents on to the currently-open sockets
     emit NewEvent(DISPATCHER, stat);
+  }else if(path==LPLOG){
+    //Main Life Preserver Log File
+	  
+  }else if(path==LPERRLOG){
+    //Life Preserver Error log
+	  
+  }else if(path==tmpLPRepFile){
+    //Life Preserver Replication Log (currently-running replication)
+	  
   }
   
   //Make sure this file/dir is not removed from the watcher

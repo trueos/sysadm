@@ -18,7 +18,7 @@
 
 #define DEBUG 0
 #define SCLISTDELIM QString("::::") //SysCache List Delimiter
-RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(QJsonObject *out){
+RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonObject *out){
   //Probe the various subsystems to see what is available through this server
   //Output format:
   /*<out>{
@@ -26,7 +26,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(QJsonObject *out){
 	<namespace2/name2> : <read/write/other>,
       }
   */
-  bool allaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
+  //bool allaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
   // - syscache
   if(QFile::exists("/var/run/syscache.pipe")){
     out->insert("rpc/syscache","read"); //no write to syscache - only reads
@@ -47,25 +47,25 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(QJsonObject *out){
   return RestOutputStruct::OK;
 }
 
-RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(QString namesp, QString name, const QJsonValue args, QJsonObject *out){
+RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStruct &IN, QJsonObject *out){
   /*Inputs: 
 	"namesp" - namespace for the request
 	"name" - name of the request
 	"args" - JSON input arguments structure
 	"out" - JSON output arguments structure
   */
-  namesp = namesp.toLower(); name = name.toLower();
+  QString namesp = IN.namesp.toLower(); QString name = IN.name.toLower();
   //Go through and forward this request to the appropriate sub-system
   if(namesp=="rpc" && name=="query"){
-    return AvailableSubsystems(out);
+    return AvailableSubsystems(IN.fullaccess, out);
   }else if(namesp=="rpc" && name=="syscache"){
-    return EvaluateSyscacheRequest(args, out);
+    return EvaluateSyscacheRequest(IN.args, out);
   }else if(namesp=="rpc" && name=="dispatcher"){
-    return EvaluateDispatcherRequest(args, out);
+    return EvaluateDispatcherRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="network"){
-    return EvaluateSysadmNetworkRequest(args, out);
+    return EvaluateSysadmNetworkRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="lifepreserver"){
-    return EvaluateSysadmLifePreserverRequest(args, out);
+    return EvaluateSysadmLifePreserverRequest(IN.args, out);
   }else{
     return RestOutputStruct::BADREQUEST; 
   }
