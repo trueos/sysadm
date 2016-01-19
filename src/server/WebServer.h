@@ -43,6 +43,7 @@ private slots:
 	// (WebSocket-only) Server signals/slots
 	void ServerClosed(); 						//closed() signal
 	void ServerError(QWebSocketProtocol::CloseCode);	//serverError() signal
+	void ConnectError(QAbstractSocket::SocketError);
 	//  - SSL/Authentication Signals
 	void OriginAuthRequired(QWebSocketCorsAuthenticator*);	//originAuthenticationRequired() signal
 	void PeerVerifyError(const QSslError&);			//peerVerifyError() signal

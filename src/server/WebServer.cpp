@@ -84,6 +84,7 @@ bool WebServer::setupWebSocket(quint16 port){
   connect(WSServer, SIGNAL(originAuthenticationRequired(QWebSocketCorsAuthenticator*)), this, SLOT(OriginAuthRequired(QWebSocketCorsAuthenticator*)) );
   connect(WSServer, SIGNAL(peerVerifyError(const QSslError&)), this, SLOT(PeerVerifyError(const QSslError&)) );
   connect(WSServer, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(SslErrors(const QList<QSslError>&)) );
+  connect(WSServer, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(ConnectError(QAbstractSocket::SocketError)) );
   //Now start the server
   return WSServer->listen(QHostAddress::Any, port);
 }
@@ -151,6 +152,10 @@ void WebServer::OriginAuthRequired(QWebSocketCorsAuthenticator *auth){
     //auth->setAllowed(false);
   //}
 	
+}
+
+void WebServer::ConnectError(QAbstractSocket::SocketError err){
+  qDebug() << "Connection Error" << err;
 }
 
 void WebServer::PeerVerifyError(const QSslError &err){
