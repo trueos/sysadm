@@ -65,6 +65,5 @@ QJsonObject Update::checkUpdates() {
 
   // Update status that we have updates
   retObject.insert("status", "updatesavailable");
-
   return retObject;
 }
