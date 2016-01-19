@@ -584,7 +584,7 @@ The "addreplication" action is used to create a replication task in Life Preserv
 .. _Remove Replication:
 
 Remove Replication
-===============
+==================
 
 The "removereplication" action is used to delete an existing replication task. Note that this action only deletes the task--it does not remove any already replicated data from the
 remote system.
