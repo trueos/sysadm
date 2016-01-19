@@ -26,7 +26,7 @@ private:
 	QSslSocket *TSOCKET;
 	QString SockID, SockAuthToken;
 	AuthorizationManager *AUTHSYSTEM;
-	bool SendAppCafeEvents;
+	QList<EventWatcher::EVENT_TYPE> ForwardEvents;
 
 	void sendReply(QString msg);
 
@@ -40,9 +40,9 @@ private:
 
 	//Backend request/reply functions (contained in WebBackend.cpp)
 	// -- Subsystem listing routine
-	RestOutputStruct::ExitCode AvailableSubsystems(QJsonObject *out);
+	RestOutputStruct::ExitCode AvailableSubsystems(bool fullaccess, QJsonObject *out);
 	// -- Main subsystem parser
-	RestOutputStruct::ExitCode EvaluateBackendRequest(QString namesp, QString name, const QJsonValue in_args, QJsonObject *out);
+	RestOutputStruct::ExitCode EvaluateBackendRequest(const RestInputStruct&, QJsonObject *out);
 	// -- Individual subsystems
 	RestOutputStruct::ExitCode EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out);
 	RestOutputStruct::ExitCode EvaluateDispatcherRequest(const QJsonValue in_args, QJsonObject *out);
@@ -50,6 +50,8 @@ private:
 	RestOutputStruct::ExitCode EvaluateSysadmNetworkRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm LifePreserver API
 	RestOutputStruct::ExitCode EvaluateSysadmLifePreserverRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- sysadm Update API
+	RestOutputStruct::ExitCode EvaluateSysadmUpdateRequest(const QJsonValue in_args, QJsonObject *out);
 	
 private slots:
 	void checkIdle(); //see if the currently-connected client is idle
@@ -66,7 +68,7 @@ private slots:
 	void SslError(const QList<QSslError>&); //sslErrors() signal
 	
 public slots:
-	void EventUpdate(EventWatcher::EVENT_TYPE, QString msg = "");
+	void EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue = QJsonValue() );
 
 signals:
 	void SocketClosed(QString); //ID

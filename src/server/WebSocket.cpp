@@ -15,7 +15,6 @@ WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
   SockAuthToken.clear(); //nothing set initially
   SOCKET = sock;
   TSOCKET = 0;
-  SendAppCafeEvents = false;
   AUTHSYSTEM = auth;
   idletimer = new QTimer(this);
     idletimer->setInterval(IDLETIMEOUTMINS*60000); //connection timout for idle sockets
@@ -32,7 +31,6 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
   SockAuthToken.clear(); //nothing set initially
   TSOCKET = sock;
   SOCKET = 0;
-  SendAppCafeEvents = false;
   AUTHSYSTEM = auth;
   idletimer = new QTimer(this);
     idletimer->setInterval(IDLETIMEOUTMINS*60000); //connection timout for idle sockets
@@ -50,6 +48,7 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
 }
 
 WebSocket::~WebSocket(){
+  qDebug() << "SOCKET Destroyed";
   if(SOCKET!=0){
     SOCKET->close();
     delete SOCKET;
@@ -70,8 +69,8 @@ QString WebSocket::ID(){
 //=======================
 void WebSocket::sendReply(QString msg){
   qDebug() << "Sending Socket Reply";
- if(SOCKET!=0){ SOCKET->sendTextMessage(msg); } //Websocket connection
- else if(TSOCKET!=0){ 
+ if(SOCKET!=0 && SOCKET->isValid()){ SOCKET->sendTextMessage(msg); } //Websocket connection
+ else if(TSOCKET!=0 && TSOCKET->isValid()){ 
     //TCP Socket connection
     TSOCKET->write(msg.toUtf8().data()); 
     TSOCKET->disconnectFromHost(); //TCP/REST connections are 1 connection per message.
@@ -109,8 +108,6 @@ void WebSocket::EvaluateREST(QString msg){
       out.Header << "Accept: text/json";
       out.Header << "Content-Type: text/json; charset=utf-8";
     this->sendReply(out.assembleMessage());
-/*    if(SOCKET!=0){ SOCKET->sendTextMessage(out.assembleMessage()); }
-    else if(TSOCKET!=0){ TSOCKET->write(out.assembleMessage().toUtf8().data()); }*/
   }else{
     EvaluateRequest(IN);
   }
@@ -172,9 +169,11 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 		
 	}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	  //Now provide access to the various subsystems
+	  // First get/set the permissions flag into the input structure
+	    out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
 	  //Pre-set any output fields
           QJsonObject outargs;	
-	    out.CODE = EvaluateBackendRequest(out.in_struct.namesp, out.in_struct.name, out.in_struct.args, &outargs);
+	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
             out.out_args = outargs;	  
         }else{
 	  //Bad/No authentication
@@ -190,21 +189,27 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    if(out.in_struct.args.isObject()){ evlist << JsonValueToString(out.in_struct.args); }
 	    else if(out.in_struct.args.isArray()){ evlist = JsonArrayToStringList(out.in_struct.args.toArray()); }
 	    //Now subscribe/unsubscribe to these events
-	    if(out.in_struct.name=="subscribe"){
-	      if(evlist.contains("dispatcher")){ 
-	        SendAppCafeEvents = true; 
-	        outargs.insert("subscribe",QJsonValue("dispatcher"));  
-		QTimer::singleShot(100, this, SLOT(AppCafeStatusUpdate()) );
+	    int sub = -1; //bad input
+	    if(out.in_struct.name=="subscribe"){ sub = 1; }
+	    else if(out.in_struct.name=="unsubscribe"){ sub = 0; }
+	    
+	    if(sub>=0 && !evlist.isEmpty() ){
+	      for(int i=0; i<evlist.length(); i++){
+	        EventWatcher::EVENT_TYPE type = EventWatcher::typeFromString(evlist[i]);
+		if(type==EventWatcher::BADEVENT){ continue; }
+		outargs.insert(out.in_struct.name,QJsonValue(evlist[i]));
+		if(sub==1){ 
+		  ForwardEvents << type; 
+		  QTimer::singleShot(100, this, SLOT(EventUpdate(type)) );
+		}else{
+		  ForwardEvents.removeAll(type);
+		}
 	      }
-	    }else if(out.in_struct.name=="unsubscribe"){
-	      if(evlist.contains("dispatcher")){ 
-		SendAppCafeEvents = false; 
-		outargs.insert("unsubscribe",QJsonValue("dispatcher"));
-	      }
+	      out.out_args = outargs;
 	    }else{
-	      outargs.insert("unknown",QJsonValue("unknown"));
+	      //Bad/No authentication
+	      out.CODE = RestOutputStruct::BADREQUEST;		    
 	    }
-	    out.out_args = outargs;
           }else{
 	    //Bad/No authentication
 	    out.CODE = RestOutputStruct::UNAUTHORIZED;
@@ -212,9 +217,11 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	//Other namespace - check whether auth has already been established before continuing
 	}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	  //Now provide access to the various subsystems
+	  // First get/set the permissions flag into the input structure
+	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
 	  //Pre-set any output fields
           QJsonObject outargs;	
-	    out.CODE = EvaluateBackendRequest(out.in_struct.namesp, out.in_struct.name, out.in_struct.args, &outargs);
+	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
             out.out_args = outargs;
 	}else{
 	  //Error in inputs - assemble the return error message
@@ -274,10 +281,13 @@ void WebSocket::checkIdle(){
 }
 
 void WebSocket::SocketClosing(){
-  qDebug() << "Socket Closing...";
+  qDebug() << "Socket Closing..." ;
   if(idletimer->isActive()){ 
     //This means the client deliberately closed the connection - not the idle timer
+    qDebug() << " - Client Closed Connection";
     idletimer->stop(); 
+  }else{
+    qDebug() << "idleTimer not running";
   }
   //Stop any current requests
 
@@ -291,16 +301,16 @@ void WebSocket::SocketClosing(){
 void WebSocket::EvaluateMessage(const QByteArray &msg){
   qDebug() << "New Binary Message:";
   if(idletimer->isActive()){ idletimer->stop(); }
-  EvaluateREST( QString(msg) );
   idletimer->start(); 
+  EvaluateREST( QString(msg) );
   qDebug() << " - Done with Binary Message";
 }
 
 void WebSocket::EvaluateMessage(const QString &msg){ 
   qDebug() << "New Text Message:";
   if(idletimer->isActive()){ idletimer->stop(); }
-  EvaluateREST(msg);
   idletimer->start(); 
+  EvaluateREST(msg); 
   qDebug() << " - Done with Text Message";
 }
 
@@ -335,18 +345,21 @@ void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
 // ======================
 //       PUBLIC SLOTS
 // ======================
-void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QString msg){
-  if(msg.isEmpty()){ msg = EVENTS->lastEvent(evtype); }
+void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QJsonValue msg){
+  if(msg.isUndefined()){ msg = EVENTS->lastEvent(evtype); }
   //qDebug() << "Socket Status Update:" << msg;
-  if(evtype==EventWatcher::DISPATCHER){
-    if(!SendAppCafeEvents){ return; } //don't report events on this socket
-    RestOutputStruct out;
-      out.CODE = RestOutputStruct::OK;
-      out.in_struct.name = "dispatcher";
-      out.in_struct.namesp = "events";
-    out.out_args = QJsonValue(msg);//outargs;	
+  if(!ForwardEvents.contains(evtype)){ return; }
+  RestOutputStruct out;
+    out.CODE = RestOutputStruct::OK;
+    out.in_struct.namesp = "events";
+    out.out_args = msg;
     out.Header << "Content-Type: text/json; charset=utf-8"; //REST header info
-    //Now send the message back through the socket
-    this->sendReply(out.assembleMessage());
-  } //end of DISPATCH event
+  if(evtype==EventWatcher::DISPATCHER){
+    out.in_struct.name = "dispatcher";
+  }else if(evtype==EventWatcher::LIFEPRESERVER){
+    out.in_struct.name = "life-preserver";
+  }
+
+  //Now send the message back through the socket
+  this->sendReply(out.assembleMessage());
 }

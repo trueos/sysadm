@@ -19,6 +19,7 @@
 #include <QUrl>
 #include <QFile>
 #include <QDir>
+#include <QDateTime>
 #include <QTextStream>
 #include <QProcess>
 #include <QSslKey>

@@ -10,15 +10,16 @@
 
 //sysadm library interface classes
 #include "sysadm-general.h"
-#include "sysadm-network.h"
 #include "sysadm-lifepreserver.h"
+#include "sysadm-network.h"
+#include "sysadm-update.h"
 
 #include "syscache-client.h"
 #include "dispatcher-client.h"
 
 #define DEBUG 0
 #define SCLISTDELIM QString("::::") //SysCache List Delimiter
-RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(QJsonObject *out){
+RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonObject *out){
   //Probe the various subsystems to see what is available through this server
   //Output format:
   /*<out>{
@@ -26,7 +27,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(QJsonObject *out){
 	<namespace2/name2> : <read/write/other>,
       }
   */
-  bool allaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
+  //bool allaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
   // - syscache
   if(QFile::exists("/var/run/syscache.pipe")){
     out->insert("rpc/syscache","read"); //no write to syscache - only reads
@@ -47,25 +48,27 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(QJsonObject *out){
   return RestOutputStruct::OK;
 }
 
-RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(QString namesp, QString name, const QJsonValue args, QJsonObject *out){
+RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStruct &IN, QJsonObject *out){
   /*Inputs: 
 	"namesp" - namespace for the request
 	"name" - name of the request
 	"args" - JSON input arguments structure
 	"out" - JSON output arguments structure
   */
-  namesp = namesp.toLower(); name = name.toLower();
+  QString namesp = IN.namesp.toLower(); QString name = IN.name.toLower();
   //Go through and forward this request to the appropriate sub-system
   if(namesp=="rpc" && name=="query"){
-    return AvailableSubsystems(out);
+    return AvailableSubsystems(IN.fullaccess, out);
   }else if(namesp=="rpc" && name=="syscache"){
-    return EvaluateSyscacheRequest(args, out);
+    return EvaluateSyscacheRequest(IN.args, out);
   }else if(namesp=="rpc" && name=="dispatcher"){
-    return EvaluateDispatcherRequest(args, out);
+    return EvaluateDispatcherRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="network"){
-    return EvaluateSysadmNetworkRequest(args, out);
+    return EvaluateSysadmNetworkRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="lifepreserver"){
-    return EvaluateSysadmLifePreserverRequest(args, out);
+    return EvaluateSysadmLifePreserverRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="update"){
+    return EvaluateSysadmUpdateRequest(IN.args, out);
   }else{
     return RestOutputStruct::BADREQUEST; 
   }
@@ -228,6 +231,32 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
       if(act=="settings"){
 	ok = true;
         out->insert("settings", sysadm::LifePreserver::settings());
+      }
+
+    } //end of "action" key usage
+    
+    //If nothing done - return the proper code
+    if(!ok){
+      return RestOutputStruct::BADREQUEST;
+    }
+  }else{  // if(in_args.isArray()){
+    return RestOutputStruct::BADREQUEST;
+  }
+  return RestOutputStruct::OK;
+}
+
+//==== SYSADM -- Update ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonValue in_args, QJsonObject *out){
+  if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    bool ok = false;
+    if(keys.contains("action")){
+      QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="checkupdates"){
+	ok = true;
+	qDebug() << " - Starting update check";
+        out->insert("checkupdates", sysadm::Update::checkUpdates());
+	qDebug() << " - Finished update check";
       }
 
     } //end of "action" key usage

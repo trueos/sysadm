@@ -5,12 +5,7 @@
 // =================================
 #ifndef _PCBSD_REST_SERVER_REST_STRUCTS_H
 #define _PCBSD_REST_SERVER_REST_STRUCTS_H
-#include <QString>
-#include <QStringList>
-#include <QDateTime>
-#include <QJsonValue>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include "globals-qt.h"
 
 #define CurHttpVersion QString("HTTP/1.1")
 
@@ -33,13 +28,16 @@ public:
 	//Raw Text
 	QStringList Header; //REST Headers
 	QString Body; //Everything else
+	//User Permissions level
+	bool fullaccess;
 
 	RestInputStruct(QString message = ""){
 	  HTTPVERSION = CurHttpVersion; //default value
+	  fullaccess = false;
 	  if(message.isEmpty()){ return; }
 	  //Pull out any REST headers
 	  Body = message;
-	  qDebug() << "Raw Message:" << message;
+	  //qDebug() << "Raw Message:" << message;
 	  if(!message.startsWith("{")){ 
 	    Header = message.section("{",0,0).split("\n");
 	    Body = "{"+message.section("{",1, 1000000);
