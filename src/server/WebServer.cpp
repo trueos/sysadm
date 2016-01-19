@@ -73,7 +73,7 @@ bool WebServer::setupWebSocket(quint16 port){
 	    qWarning() << "Could not read WS key file:" << KF.fileName();
 	  }
 	config.setPeerVerifyMode(QSslSocket::VerifyNone);
-	config.setProtocol(QSsl::TlsV1_2);
+	config.setProtocol(QSsl::TlsV1_0);
   WSServer->setSslConfiguration(config);
   //Setup Connections
   connect(WSServer, SIGNAL(newConnection()), this, SLOT(NewSocketConnection()) );
