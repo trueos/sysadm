@@ -10,6 +10,20 @@
 #include <algorithm>
 
 using namespace sysadm;
+
+Firewall::Firewall()
+{
+    readServicesFile();
+    LoadOpenPorts();
+
+    firewallService = serviceManager.GetService("ipfw");
+}
+
+Firewall::~Firewall()
+{
+    delete portStrings;
+}
+
 PortInfo Firewall::LookUpPort(int port, QString type)
 {
     //Make sure that the port is valid
@@ -74,7 +88,7 @@ PortInfo Firewall::LookUpPort(int port, QString type)
            returnValue.Description = description;
        }
    }
-    
+
    return returnValue;
 
 }
@@ -122,52 +136,30 @@ bool Firewall::IsRunning()
 
 void Firewall::Start()
 {
-    Enable();
-
-    QStringList args;
-    args << "start";
-    General::RunCommand("/etc/rc.d/ipfw",args);
+    serviceManager.Enable(firewallService);
+    serviceManager.Start(firewallService);
 }
 
 void Firewall::Stop()
 {
-    Enable();
-    QStringList args;
-    args << "stop";
-    General::RunCommand("/etc/rc.d/ipfw",args);
+    serviceManager.Enable(firewallService);
+    serviceManager.Stop(firewallService);
 }
 
 void Firewall::Restart()
 {
-    Enable();
-
-    QStringList args;
-    args << "restart";
-    General::RunCommand("/etc/rc.d/ipfw",args);
+    serviceManager.Enable(firewallService);
+    serviceManager.Restart(firewallService);
 }
 
 void Firewall::Enable()
 {
-    //check if rc.conf has firewall_enable="YES"
-    QStringList rcConf = General::readTextFile("/etc/rc.conf");
-    if (rcConf.filter("firewall_enabled=\"YES\"").size() == 0)
-    {
-        rcConf.removeAll("firewall_enable=\"NO\"");
-        rcConf.append("firewall_enabled=\"YES\"");
-        General::writeTextFile("/etc/rc.conf",rcConf);
-    }
+    serviceManager.Enable(firewallService);
 }
 
 void Firewall::Disable()
 {
-    //check if rc.conf has firewall_enable="NO"
-    QStringList rcConf = General::readTextFile("/etc/rc.conf");
-    if (rcConf.filter("firewall_enabled=\"NO\"").size() == 0)
-    {
-        rcConf.removeAll("firewall_enable=\"YES\"");
-        rcConf.append("firewall_enabled=\"NO\"");
-        General::writeTextFile("/etc/rc.conf",rcConf);
-    }
+    serviceManager.Disable(firewallService);
 }
 
 void Firewall::RestoreDefaults()
@@ -199,17 +191,6 @@ void Firewall::RestoreDefaults()
     General::RunCommand("sh",args);
 
     LoadOpenPorts();
-}
-
-Firewall::Firewall()
-{    
-    readServicesFile();
-    LoadOpenPorts();
-}
-
-Firewall::~Firewall()
-{
-    delete portStrings;
 }
 
 void Firewall::readServicesFile()
@@ -280,4 +261,4 @@ void Firewall::SaveOpenPorts()
           General::RunCommand("sh",args);
       }
 }
- 
+

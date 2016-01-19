@@ -23,7 +23,7 @@ QString General::RunCommand(bool &success, QString command, QStringList argument
   QProcessEnvironment PE = QProcessEnvironment::systemEnvironment();
     if(!env.isEmpty()){
       for(int i=0; i<env.length(); i++){
-	if(!env[i].contains("=")){ continue; }
+    if(!env[i].contains("=")){ continue; }
         PE.insert(env[i].section("=",0,0), env[i].section("=",1,100));
       }
     }
@@ -96,6 +96,137 @@ bool General::writeTextFile(QString filepath, QStringList contents, bool overwri
     ok = true;
   }
   return ok;
+}
+QString General::getConfFileValue(QString fileName, QString Key, int occur )
+{
+    int found = 1;
+
+    QFile file( fileName );
+    if ( ! file.open( QIODevice::ReadOnly ) ) {
+        return QString();
+    }
+
+    QTextStream stream( &file );
+    QString line;
+    while ( !stream.atEnd() )
+    {
+        line = stream.readLine(); // line of text excluding '\n'
+        line = line.section("#",0,0).trimmed(); //remove any comments
+        if(line.isEmpty()){ continue; }
+        int index = line.indexOf(Key, 0);
+        //qDebug() << "Line:" << line << index;
+        // If the KEY is not found at the start of the line, continue processing
+        if(index!=0)
+            continue;
+
+        if ( found == occur) {
+            line.remove(line.indexOf(Key, 0), Key.length());
+
+            // Remove any quotes
+            if ( line.indexOf('"') == 0 )
+                line = line.remove(0, 1);
+
+            if ( line.indexOf('"') != -1  )
+                line.truncate(line.indexOf('"'));
+
+            file.close();
+
+            return line;
+        } else {
+           found++;
+        }
+    }
+
+    file.close();
+    return QString();
+}
+bool General::setConfFileValue(QString fileName, QString oldKey, QString newKey, int occur )
+{
+    // Lets the dev save a value into a specified config file.
+    // The occur value tells which occurance of "oldKey" to replace
+    // If occur is set to -1, it will remove any duplicates of "oldKey"
+
+    //copy the original file to create a temporary file for editing
+    QStringList args;
+    QString oFileTmp = fileName + ".tmp";
+    args << fileName << oFileTmp;
+    General::RunCommand("cp",args);
+
+    //Continue evaluating the temporary file
+    QStringList SavedFile;
+    int found = 1;
+
+    // Load the old file, find the oldKey, remove it and replace with newKey
+    QFile file( oFileTmp );
+    if ( ! file.open( QIODevice::ReadOnly ) )
+        return false;
+
+    QTextStream stream( &file );
+    QString line;
+    while ( !stream.atEnd() ) {
+        line = stream.readLine(); // line of text excluding '\n'
+
+        // Key is not found at all
+        if ( line.indexOf(oldKey, 0) == -1 ) {
+            SavedFile << line ;
+            continue;
+        }
+
+        // Found the key, but it is commented out, so don't worry about this line
+        if ( line.trimmed().indexOf("#", 0) == 0 ) {
+            SavedFile << line ;
+            continue;
+        }
+
+        // If the KEY is found, and we are just on wrong occurance, save it and continue to search
+        if ( occur != -1 && found != occur ) {
+            SavedFile << line ;
+            found++;
+            continue;
+        }
+
+        // If the KEY is found in the line and this matches the occurance that must be processed
+        if ( ! newKey.isEmpty() && found == occur )
+        {
+            SavedFile << newKey ;
+            newKey.clear();
+            found++;
+            continue;
+        }
+
+        // If the KEY is found and we just want one occurance of the key
+        if ( occur == -1 && ! newKey.isEmpty() ) {
+            SavedFile << newKey ;
+            newKey.clear();
+            found++;
+            continue;
+        }
+
+    }
+
+    file.close();
+
+    // Didn't find the key? Write it!
+    if ( ! newKey.isEmpty() )
+        SavedFile << newKey;
+
+
+    // Save the new file
+    QFile fileout( oFileTmp );
+    if ( ! fileout.open( QIODevice::WriteOnly ) )
+        return false;
+
+    QTextStream streamout( &fileout );
+    for (int i = 0; i < SavedFile.size(); ++i)
+        streamout << SavedFile.at(i) << "\n";
+
+    fileout.close();
+
+    //Have the temporary file with new changes overwrite the original file
+    args.clear();
+    args << oFileTmp << fileName;
+    General::RunCommand("mv",args);
+    return true;
 }
 
 //===========================
