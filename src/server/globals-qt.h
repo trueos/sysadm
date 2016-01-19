@@ -41,4 +41,15 @@
 #include <QDebug>
 #include <QtDebug>
 
+inline QString DisplayPriority(int pri){
+  //ensure bounds
+  if(pri<0){ pri = 0; }
+  if(pri>10){ pri = 10; }
+  //Return display string
+  if(pri<3){ return (QString::number(pri)+" - Information"); }
+  else if(pri<6){ return (QString::number(pri)+" - Warning"); }
+  else if(pri<9){ return (QString::number(pri)+" - Critical"); }
+  else{ return (QString::number(pri)+" - Urgent"); }
+}
+
 #endif

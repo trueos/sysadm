@@ -32,18 +32,31 @@ public:
 	
 private:
 	QFileSystemWatcher *watcher;
-	QHash<unsigned int, QJsonValue> HASH; 
+	QHash<unsigned int, QJsonValue> HASH;
+	QTimer *filechecktimer;
+	bool starting;
 	//HASH Note: Fields 1-99 reserved for EVENT_TYPE enum (last message of that type)
 	//	Fields 100-199 reserved for Life Preserver logs (all types)
+	
+	//Life Preserver Event variables/functions
 	QString tmpLPRepFile;
+	QFile *LPlogfile, *LPrepfile, *LPerrfile;
 
+	void ReadLPLogFile();
+	void ReadLPErrFile();
+	void ReadLPRepFile();
+	void sendLPEvent(QString system, int priority, QString msg);
+
+	//General purpose functions
 	QString readFile(QString path);
+	double displayToDoubleK(QString);
 
 public slots:
 	
 private slots:
 	//File watcher signals
 	void WatcherUpdate(QString);
+	void CheckLogFiles(); //catch/load any new log files into the watcher
 
 signals:
 	void NewEvent(EventWatcher::EVENT_TYPE, QJsonValue); //type/message
