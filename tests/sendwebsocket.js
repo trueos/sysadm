@@ -20,7 +20,6 @@ function onOpen(evt)
   wstatus = "idle";
   doSend(authjson);
   doSend(stdargs);
-  websocket.close();
 }
 
 function onClose(evt)
@@ -37,9 +36,11 @@ function onMessage(evt)
   var jsonobj = JSON.parse(evt.data);
   if ( ignorefirst == "true" ) {
     ignorefirst = "false";
+    return;
   } else {
     console.log(JSON.stringify(jsonobj, null, 2));
   }
+  websocket.close();
 }
 
 function doSend(message)
