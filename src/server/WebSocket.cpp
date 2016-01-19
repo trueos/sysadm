@@ -111,7 +111,12 @@ void WebSocket::EvaluateREST(QString msg){
     this->sendReply(out.assembleMessage());
   }else{
     //EvaluateRequest(IN);
-    QtConcurrent::run(this, &WebSocket::EvaluateRequest, IN);
+    if(IN.name.startsWith("auth") ){
+      //Keep auth system requests in order
+      EvaluateRequest(IN);
+    }else{
+      QtConcurrent::run(this, &WebSocket::EvaluateRequest, IN);
+    }
   }
 }
 
