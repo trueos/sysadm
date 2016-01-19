@@ -5,6 +5,7 @@
 // =================================
 #include "WebSocket.h"
 
+#include <QtConcurrent>
 #include <unistd.h>
 
 #define DEBUG 0
@@ -109,7 +110,8 @@ void WebSocket::EvaluateREST(QString msg){
       out.Header << "Content-Type: text/json; charset=utf-8";
     this->sendReply(out.assembleMessage());
   }else{
-    EvaluateRequest(IN);
+    //EvaluateRequest(IN);
+    QtConcurrent::run(this, &WebSocket::EvaluateRequest, IN);
   }
 }
 
