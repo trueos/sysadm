@@ -18,11 +18,70 @@ The systeminfo class is used to retrieve information about the system. Every sys
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "externalmounts"                                                                           |
+| action                          |               | supported actions include "batteryinfo", "externalmounts"                                                            |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
 The rest of this section provides examples of the available *actions* for each type of request, along with their responses.
+
+.. index:: batteryinfo, systeminfo
+
+.. _Battery Information:
+
+Battery Information
+===================
+
+The "batteryinfo" action will indicate whether or not a battery exists. If it does, it will also report its current charge percentage level (1-99) and its
+status (offline, charging, on backup, or unknown).
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/systeminfo
+ {
+   "action" : "batteryinfo"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "batteryinfo": {
+            "battery": "false"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "name" : "systeminfo",
+   "id" : "fooid",
+   "args" : {
+      "action" : "batteryinfo"
+   }
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "batteryinfo": {
+      "battery": "false"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
 
 .. index:: externalmounts, systeminfo
 
