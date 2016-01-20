@@ -69,7 +69,7 @@ QString WebSocket::ID(){
 //             PRIVATE
 //=======================
 void WebSocket::sendReply(QString msg){
-  qDebug() << "Sending Socket Reply";
+  qDebug() << "Sending Socket Reply:" << msg;
  if(SOCKET!=0 && SOCKET->isValid()){ SOCKET->sendTextMessage(msg); } //Websocket connection
  else if(TSOCKET!=0 && TSOCKET->isValid()){ 
     //TCP Socket connection
@@ -199,7 +199,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    int sub = -1; //bad input
 	    if(out.in_struct.name=="subscribe"){ sub = 1; }
 	    else if(out.in_struct.name=="unsubscribe"){ sub = 0; }
-	    
+	    qDebug() << "Got Client Event Modification:" << sub << evlist;
 	    if(sub>=0 && !evlist.isEmpty() ){
 	      for(int i=0; i<evlist.length(); i++){
 	        EventWatcher::EVENT_TYPE type = EventWatcher::typeFromString(evlist[i]);
@@ -207,12 +207,13 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 		outargs.insert(out.in_struct.name,QJsonValue(evlist[i]));
 		if(sub==1){ 
 		  ForwardEvents << type; 
-		  QTimer::singleShot(100, this, SLOT(EventUpdate(type)) );
+		  EventUpdate(type);
 		}else{
 		  ForwardEvents.removeAll(type);
 		}
 	      }
 	      out.out_args = outargs;
+	      out.CODE = RestOutputStruct::OK;
 	    }else{
 	      //Bad/No authentication
 	      out.CODE = RestOutputStruct::BADREQUEST;		    
