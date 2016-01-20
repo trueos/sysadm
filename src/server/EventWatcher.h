@@ -55,7 +55,7 @@ public slots:
 	
 private slots:
 	//File watcher signals
-	void WatcherUpdate(QString);
+	void WatcherUpdate(const QString&);
 	void CheckLogFiles(); //catch/load any new log files into the watcher
 
 signals:

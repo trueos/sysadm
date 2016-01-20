@@ -13,8 +13,8 @@ EventWatcher::EventWatcher(){
     filechecktimer->setSingleShot(false);
     filechecktimer->setInterval(3600000); //1-hour checks (also run on new event notices)
   LPlogfile = LPrepfile = LPerrfile = 0;
-  connect(watcher, SIGNAL(fileChanged(const QString&)), this, SLOT(WatcherUpdate(QString)) );
-  connect(watcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(WatcherUpdate(QString)) );
+  connect(watcher, SIGNAL(fileChanged(const QString&)), this, SLOT(WatcherUpdate(const QString&)) );
+  connect(watcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(WatcherUpdate(const QString&)) );
   connect(filechecktimer, SIGNAL(timeout()), this, SLOT( CheckLogFiles()) );
 }
 
@@ -65,7 +65,7 @@ void EventWatcher::ReadLPLogFile(){
   
   while(!STREAM.atEnd()){
     QString log = STREAM.readLine();
-
+    if(!starting){ qDebug() << "Read LP Log File Line:" << log; }
     //Divide up the log into it's sections
     QString timestamp = log.section(":",0,2).simplified();
     QString time = timestamp.section(" ",3,3).simplified();
@@ -251,12 +251,13 @@ double EventWatcher::displayToDoubleK(QString displayNumber){
 }
 
 // === PRIVATE SLOTS ===
-void EventWatcher::WatcherUpdate(QString path){
+void EventWatcher::WatcherUpdate(const QString &path){
+  if(!starting){ qDebug() << "Event Watcher Update:" << path; }
   if(path==DISPATCHWORKING){
     //Read the file contents
     QString stat = readFile(DISPATCHWORKING);
     if(stat.simplified().isEmpty()){ stat = "idle"; }
-    qDebug() << "Dispatcher Update:" << stat;
+    //qDebug() << "Dispatcher Update:" << stat;
     HASH.insert(DISPATCHER,stat); //save for later
     //Forward those contents on to the currently-open sockets
     emit NewEvent(DISPATCHER, QJsonValue(stat) );
@@ -272,14 +273,18 @@ void EventWatcher::WatcherUpdate(QString path){
   }
   
   //Make sure this file/dir is not removed from the watcher
-  if(!watcher->files().contains(path) && !watcher->directories().contains(path)){
+  /*if(!watcher->files().contains(path) && !watcher->directories().contains(path)){
     watcher->addPath(path); //re-add it to the watcher. This happens when the file is removed/re-created instead of just overwritten
-  }
+  }*/
   CheckLogFiles(); //check for any other missing files
 }
 
 void EventWatcher::CheckLogFiles(){
   //Make sure all the proper files are being watched
-	
-	
+  QStringList watched; watched << watcher->files() << watcher->directories();
+  if(!watched.contains(LPLOG) && QFile::exists(LPLOG)){ watcher->addPath(LPLOG); }
+  if(!watched.contains(LPERRLOG) && QFile::exists(LPERRLOG)){ watcher->addPath(LPERRLOG); }
+  if(!watched.contains(tmpLPRepFile) && QFile::exists(tmpLPRepFile)){ watcher->addPath(tmpLPRepFile); }
+  if(!watched.contains(DISPATCHWORKING) && QFile::exists(LPLOG)){ watcher->addPath(DISPATCHWORKING); }
+  qDebug() << "watched:" << watcher->files() << watcher->directories();
 }
