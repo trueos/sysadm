@@ -257,7 +257,11 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemInfoRequest(const QJso
       QString act = JsonValueToString(in_args.toObject().value("action"));
       if(act=="externalmounts"){
 	ok = true;
-        out->insert("externalmounts", sysadm::SysInfo::ExternalDevicePaths());
+        out->insert("externalmounts", sysadm::SysInfo::externalDevicePaths());
+      }
+      if(act=="batteryinfo"){
+	ok = true;
+        out->insert("batteryinfo", sysadm::SysInfo::batteryInfo());
       }
 
     } //end of "action" key usage

@@ -14,7 +14,8 @@ namespace sysadm{
 
 class SysInfo{
 public:
-	static QJsonObject ExternalDevicePaths();
+	static QJsonObject batteryInfo();
+	static QJsonObject externalDevicePaths();
 };
 	
 } //end of pcbsd namespace

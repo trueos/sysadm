@@ -12,8 +12,42 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+
+//Battery Availability
+QJsonObject SysInfo::batteryInfo(){
+  QJsonObject retObject;
+  bool ok;
+
+  int val = General::RunCommand("apm -l").toInt(&ok);
+  if ( ok && (val >= 0 && val <= 100) ) {
+    retObject.insert("battery", "true");
+  } else {
+    retObject.insert("battery", "false");
+    return retObject;
+  }
+
+  // We have a battery, return info about it
+  //Battery Charge Level
+  QString tmp;
+  tmp.setNum(val);
+  retObject.insert("level", tmp);
+
+  //Battery Charging State
+  int state = General::RunCommand("apm -a").toInt(&ok);
+  if ( ok && state == 0 )
+    retObject.insert("status", "offline");
+  else if ( ok && state == 1 )
+    retObject.insert("status", "charging");
+  else if ( ok && state == 2 )
+    retObject.insert("status", "backup");
+  else
+    retObject.insert("status", "unknown");
+
+  return retObject;
+}
+
 // ==== ExternalDevicePaths() ====
-QJsonObject SysInfo::ExternalDevicePaths() {
+QJsonObject SysInfo::externalDevicePaths() {
   QJsonObject retObject;
 
   //Returns: QStringList[<type>::::<filesystem>::::<path>]
