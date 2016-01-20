@@ -8,6 +8,7 @@
 #define PORTLOOKUP_H
 #include <QtCore>
 #include <tuple>
+#include "sysadm-servicemanager.h"
 namespace sysadm
 {
 struct PortInfo{
@@ -34,6 +35,11 @@ class Firewall
 {
 
 public:
+    ///#section: ctors dtors
+    Firewall();
+    ~Firewall();
+    ///#endsection
+
     ///#section: port commands
     /**
      * @description Returns a structure containing information about the port
@@ -112,11 +118,6 @@ public:
     void RestoreDefaults();
     ///#endsection
 
-    ///#section: ctors dtors
-    Firewall();
-    ~Firewall();
-    ///#endsection
-
 private:
     void readServicesFile();
     QStringList* portStrings;
@@ -125,7 +126,10 @@ private:
 
     void LoadOpenPorts();
     void SaveOpenPorts();
+
+    ServiceManager serviceManager;
+    Service firewallService;
 };
 }
 #endif // PORTLOOKUP_H
- 
+
