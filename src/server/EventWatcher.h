@@ -21,8 +21,6 @@ public:
 	
 	EventWatcher();
 	~EventWatcher();
-
-	void start();
 	
 	//Convert a string into the type flag
 	static EVENT_TYPE typeFromString(QString);
@@ -40,11 +38,8 @@ private:
 	
 	//Life Preserver Event variables/functions
 	QString tmpLPRepFile;
-	QFile *LPlogfile, *LPrepfile, *LPerrfile;
+	qint64 LPlog_pos, LPrep_pos, LPerr_pos; //file position markers
 
-	void ReadLPLogFile();
-	void ReadLPErrFile();
-	void ReadLPRepFile();
 	void sendLPEvent(QString system, int priority, QString msg);
 
 	//General purpose functions
@@ -52,12 +47,17 @@ private:
 	double displayToDoubleK(QString);
 
 public slots:
-	
+	void start();
+
 private slots:
 	//File watcher signals
 	void WatcherUpdate(const QString&);
 	void CheckLogFiles(); //catch/load any new log files into the watcher
 
+	//LP File changed signals/slots
+	void ReadLPLogFile();
+	void ReadLPErrFile();
+	void ReadLPRepFile();
 signals:
 	void NewEvent(EventWatcher::EVENT_TYPE, QJsonValue); //type/message
 };

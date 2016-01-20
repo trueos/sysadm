@@ -354,7 +354,7 @@ void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
 //       PUBLIC SLOTS
 // ======================
 void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QJsonValue msg){
-  if(msg.isUndefined()){ msg = EVENTS->lastEvent(evtype); }
+  if(msg.isNull()){ msg = EVENTS->lastEvent(evtype); }
   //qDebug() << "Socket Status Update:" << msg;
   if(!ForwardEvents.contains(evtype)){ return; }
   RestOutputStruct out;
@@ -367,7 +367,7 @@ void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QJsonValue msg){
   }else if(evtype==EventWatcher::LIFEPRESERVER){
     out.in_struct.name = "life-preserver";
   }
-
+  
   //Now send the message back through the socket
   this->sendReply(out.assembleMessage());
 }

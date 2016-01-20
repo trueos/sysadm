@@ -82,9 +82,14 @@ int main( int argc, char ** argv )
     //Start the daemon
     int ret = 1; //error return value
     if( w->startServer(port, websocket) ){
-      //Now start the event loop
+      QThread TBACK;
+      EVENTS->moveToThread(&TBACK);
+      TBACK.start();
+      QTimer::singleShot(0,EVENTS, SLOT(start()) );
+      //Now start the main event loop
       ret = a.exec();
       qDebug() << "Server Stopped:" << QDateTime::currentDateTime().toString(Qt::ISODate);
+      //TBACK.stop();
     }else{
       qDebug() << "[FATAL] Server could not be started:" << QDateTime::currentDateTime().toString(Qt::ISODate);
       qDebug() << " - Tried port:" << port;

@@ -32,6 +32,7 @@
 #include <QTcpServer>
 #include <QSslSocket>
 
+#include <QThread>
 #include <QFileSystemWatcher>
 
 #include <QList>

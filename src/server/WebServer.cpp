@@ -36,7 +36,6 @@ bool WebServer::startServer(quint16 port, bool websocket){
     qDebug() << "Server Started:" << QDateTime::currentDateTime().toString(Qt::ISODate);
     qDebug() << " Port:" << port;
     if(WSServer!=0){ qDebug() << " URL:" << WSServer->serverUrl().toString(); }
-    EVENTS->start();
   }else{ 
     qCritical() << "Could not start server - exiting..."; 
   }
