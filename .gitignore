@@ -12,6 +12,8 @@ src/library/sysadm-general.o
 src/library/sysadm-lifepreserver.o
 src/library/sysadm-network.o
 src/library/sysadm-firewall.o
+src/library/sysadm-servicemanager.o
+src/library/sysadm-systeminfo.o
 src/library/sysadm-update.o
 src/library/sysadm-usermanager.o
 src/server/AuthorizationManager.o
