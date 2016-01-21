@@ -6,12 +6,10 @@
 #ifndef _PCBSD_REST_AUTHORIZATION_MANAGER_H
 #define _PCBSD_REST_AUTHORIZATION_MANAGER_H
 
-#include <QHash>
-#include <QString>
-#include <QStringList>
-#include <QDateTime>
+#include "globals-qt.h"
 
-class AuthorizationManager{
+class AuthorizationManager : public QObject{
+	Q_OBJECT
 public:
 	AuthorizationManager();
 	~AuthorizationManager();
@@ -24,13 +22,19 @@ public:
 	int checkAuthTimeoutSecs(QString token); //Return the number of seconds that a token is valid for
 
 	// == Token Generation functions
-	QString LoginUP(bool localhost, QString user, QString pass); //Login w/ username & password
-	QString LoginService(bool localhost, QString service); //Login a particular automated service
+	QString LoginUP(QHostAddress host, QString user, QString pass); //Login w/ username & password
+	QString LoginService(QHostAddress host, QString service); //Login a particular automated service
 
 private:
 	QHash<QString, QDateTime> HASH;
+	QHash <QString, QDateTime> IPFAIL;
+
 	QString generateNewToken(bool isOperator);
 	QStringList getUserGroups(QString user);
+
+	//Failure count management
+	bool BumpFailCount(QString host);
+	void ClearHostFail(QString host);
 
 	//token->hashID filter simplification
 	QString hashID(QString token){
@@ -42,6 +46,10 @@ private:
 	//PAM login/check files
 	bool pam_checkPW(QString user, QString pass);
 	void pam_logFailure(int ret);
+	
+signals:
+	void BlockHost(QHostAddress); //block a host address temporarily
+	
 };
 
 #endif

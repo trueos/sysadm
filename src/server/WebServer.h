@@ -11,6 +11,7 @@
 #include "WebSocket.h"
 #include "AuthorizationManager.h"
 #include "SslServer.h"
+
 class WebServer : public QObject{
 	Q_OBJECT
 public:
@@ -31,6 +32,9 @@ private:
 	//Server Setup functions
 	bool setupWebSocket(quint16 port);
 	bool setupTcp(quint16 port);
+	
+	//Server Blacklist / DDOS mitigator
+	bool allowConnection(QHostAddress addr);
 
 	//Generic functions for either type of server
 	QString generateID(); //generate a new ID for a socket
@@ -39,6 +43,8 @@ private slots:
         // Generic Server Slots
 	void NewSocketConnection(); 					//newConnection() signal
 	void NewConnectError(QAbstractSocket::SocketError);	//acceptError() signal
+	//Socket Blacklist function
+	void BlackListConnection(QHostAddress addr);
 
 	// (WebSocket-only) Server signals/slots
 	void ServerClosed(); 						//closed() signal

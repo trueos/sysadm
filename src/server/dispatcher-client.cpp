@@ -21,7 +21,7 @@ bool DispatcherClient::setupProcAuth(){
   QString key = ReadKey();
   if(!AUTH->checkAuth(key) ){
     //Key now invalid - generate a new one (this ensures that the secure key rotates on a regular basis)
-    key = AUTH->LoginService(true, "dispatcher");
+    key = AUTH->LoginService(QHostAddress::LocalHost, "dispatcher");
     //Save the auth key to the file and lock it down
     if(!WriteKey(key)){ 
       qWarning() << "Could not save dispatcher authorization key: **No dispatcher availability**. ";

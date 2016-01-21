@@ -15,6 +15,7 @@ WebServer::WebServer(){
   WSServer = 0;
   TCPServer = 0;
   AUTH = new AuthorizationManager();
+  connect(AUTH, SIGNAL(BlockHost(QHostAddress)), this, SLOT(BlackListConnection(QHostAddress)) );
 }
 
 WebServer::~WebServer(){
@@ -97,6 +98,24 @@ bool WebServer::setupTcp(quint16 port){
   return TCPServer->listen(QHostAddress::Any, port);	
 }
 
+//Server Blacklist / DDOS mitigator
+bool WebServer::allowConnection(QHostAddress addr){
+  //Check if this addr is on the blacklist
+  QString key = "blacklist/"+addr.toString();
+  if(!CONFIG->contains(key) ){ return true; } //not in the list
+  //Address on the list - see if the timeout has expired 
+  QDateTime dt = CONFIG->value(key,QDateTime()).toDateTime();
+  int minblock = CONFIG->value("blacklist/RefuseMinutes",60).toInt();
+  if(dt.addSecs(minblock*60) < QDateTime::currentDateTime()){
+    //This entry has timed out - go ahead and allow it
+    CONFIG->remove(key); //make the next connection check for this IP faster again
+    return true;
+  }else{
+    return false; //blacklist block is still in effect
+  }
+  
+}
+
 QString WebServer::generateID(){
   int id = 0;
   for(int i=0; i<OpenSockets.length(); i++){
@@ -113,20 +132,38 @@ QString WebServer::generateID(){
 void WebServer::NewSocketConnection(){
   WebSocket *sock = 0;
   if(WSServer!=0){
-    if(WSServer->hasPendingConnections()){ sock = new WebSocket( WSServer->nextPendingConnection(), generateID(), AUTH); }
+    if(WSServer->hasPendingConnections()){ 
+      QWebSocket *ws = WSServer->nextPendingConnection();
+      if( !allowConnection(ws->peerAddress()) ){ ws->close(); }
+      else{ sock = new WebSocket( ws, generateID(), AUTH); }
+    }
   }else if(TCPServer!=0){
-    if(TCPServer->hasPendingConnections()){ sock = new WebSocket( TCPServer->nextPendingConnection(), generateID(), AUTH); }
+    if(TCPServer->hasPendingConnections()){ 
+	QSslSocket *ss = TCPServer->nextPendingConnection();
+	if( !allowConnection(ss->peerAddress()) ){ ss->close(); }    
+	else{ sock = new WebSocket( ss, generateID(), AUTH); }
+    }
   }
   if(sock==0){ return; } //no new connection
   qDebug() << "New Socket Connection";	
   connect(sock, SIGNAL(SocketClosed(QString)), this, SLOT(SocketClosed(QString)) );
   connect(EVENTS, SIGNAL(NewEvent(EventWatcher::EVENT_TYPE, QJsonValue)), sock, SLOT(EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue)) );
+  connect(sock, SIGNAL(BlackListAddress(QHostAddress)), this, SLOT(BlackListConnection(QHostAddress)) );
   OpenSockets << sock;
 }
 
 void WebServer::NewConnectError(QAbstractSocket::SocketError err){         
   qWarning() << "New Connection Error["+QString::number(err)+"]:" << ( (WSServer!=0) ? WSServer->errorString() : TCPServer->errorString());
   QTimer::singleShot(0,this, SLOT(NewSocketConnection()) ); //check for a new connection
+}
+
+//Socket Blacklist function
+void WebServer::BlackListConnection(QHostAddress addr){
+  //Make sure this is not the localhost (never block that)
+  if(addr!= QHostAddress(QHostAddress::LocalHost) && addr != QHostAddress(QHostAddress::LocalHostIPv6) ){
+    //Block this remote host
+    CONFIG->setValue("blacklist/"+addr.toString(), QDateTime::currentDateTime());
+  }
 }
 
 //WEBSOCKET SERVER SIGNALS

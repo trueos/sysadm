@@ -4,9 +4,6 @@
 // Written by: Ken Moore <ken@pcbsd.org> July 2015
 // =================================
 #include "AuthorizationManager.h"
-#include <QDebug>
-#include <QProcess>
-#include <QCoreApplication>
 
 // Stuff for PAM to work
 #include <sys/types.h>
@@ -19,15 +16,21 @@
 #include <login_cap.h>
 
 //Internal defines
+// -- token management
 #define TIMEOUTSECS 900 // (15 minutes) time before a token becomes invalid
 #define AUTHCHARS QString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
 #define TOKENLENGTH 20
+// -- Connection failure limitations
+#define AUTHFAILLIMIT 5 //number of sequential failures before IP is blocked for a time
+#define FAILOVERMINS 10 //after this many minutes without a new login attempt the failure count will reset
 
-AuthorizationManager::AuthorizationManager(){
+AuthorizationManager::AuthorizationManager() : QObject(){
   HASH.clear();
+  IPFAIL.clear();
   //initialize the random number generator (need to generate auth tokens)
   qsrand(QDateTime::currentMSecsSinceEpoch());
 }
+
 AuthorizationManager::~AuthorizationManager(){
 	
 }
@@ -71,8 +74,9 @@ int AuthorizationManager::checkAuthTimeoutSecs(QString token){
 
 
 // == Token Generation functions
-QString AuthorizationManager::LoginUP(bool localhost, QString user, QString pass){
+QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString pass){
 	//Login w/ username & password
+  bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) );
   bool ok = false;
   //First check that the user is valid on the system and part of the operator group
   bool isOperator = false;
@@ -92,19 +96,33 @@ QString AuthorizationManager::LoginUP(bool localhost, QString user, QString pass
   }
   
   qDebug() << "User Login Attempt:" << user << " Success:" << ok << " Local Login:" << localhost;
-  if(!ok){ return ""; } //invalid login
-  else{ return generateNewToken(isOperator); } //valid login - generate a new token for it
+  if(!ok){ 
+    //invalid login
+    //Bump the fail count for this host
+    bool overlimit = BumpFailCount(host.toString());
+    if(overlimit){ emit BlockHost(host); }
+    return (overlimit ? "REFUSED" : "");
+  }else{ 
+    //valid login - generate a new token for it
+    ClearHostFail(host.toString());
+    return generateNewToken(isOperator); 
+  } 
 }
 
-QString AuthorizationManager::LoginService(bool localhost, QString service){
+QString AuthorizationManager::LoginService(QHostAddress host, QString service){
+  bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) );
   //Login a particular automated service
   qDebug() << "Service Login Attempt:" << service << " Success:" << localhost;
   if(!localhost){ return ""; } //invalid - services must be local for access
   //Check that the service is valid on the system
-  // -- TO-DO
-  
+  bool isok = false;
+  if(service!="root" && service!="toor"){
+    QStringList groups = getUserGroups(service);
+    isok = (groups.contains(service) && !groups.contains("wheel") && !groups.contains("operator"));
+  }
   //Now generate a new token and send it back
-  return generateNewToken(false); //services are never given operator privileges
+  if(!isok){ return ""; }
+  else{ return generateNewToken(false); }//services are never given operator privileges
 }
 
 // =========================
@@ -143,6 +161,28 @@ QStringList AuthorizationManager::getUserGroups(QString user){
   QStringList out = QString(proc.readAllStandardOutput()).remove("\n").split(" ");
   //qDebug() << "Found Groups for user:" << user << out;
   return out;	
+}
+
+bool AuthorizationManager::BumpFailCount(QString host){
+  //Returns: true if the failure count is over the limit
+  //key: "<IP>::::<failnum>"
+  QStringList keys = QStringList(IPFAIL.keys()).filter(host+"::::");
+  int fails = 0;
+  if(!keys.isEmpty()){
+    //Take the existing key/value and put a new one in (this limits the filter to 1 value maximum)
+    QDateTime last = IPFAIL.take(keys[0]);
+    if(last.addSecs(FAILOVERMINS*60) > QDateTime::currentDateTime() ){
+     fails = keys[0].section("::::",1,1).toInt();
+    }
+  }
+  fails++;
+  IPFAIL.insert(host+"::::"+QString::number(fails), QDateTime::currentDateTime() );
+  return (fails>=AUTHFAILLIMIT);	
+}
+
+void AuthorizationManager::ClearHostFail(QString host){
+  QStringList keys = QStringList(IPFAIL.keys()).filter(host+"::::");
+  for(int i=0; i<keys.length(); i++){ IPFAIL.remove(keys[i]); }
 }
 
 /*

@@ -123,6 +123,9 @@ void WebSocket::EvaluateREST(QString msg){
 void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
   RestOutputStruct out;
     out.in_struct = REQ;
+  QHostAddress host;
+    if(SOCKET!=0){ host = SOCKET->peerAddress(); }
+    else if(TSOCKET!=0){ host = TSOCKET->peerAddress(); }
   if(!REQ.VERB.isEmpty() && REQ.VERB != "GET" && REQ.VERB!="POST" && REQ.VERB!="PUT"){
     //Non-supported request (at the moment) - return an error message
     out.CODE = RestOutputStruct::BADREQUEST;
@@ -134,7 +137,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     //First check for a REST authorization (not stand-alone request)
     if(!out.in_struct.auth.isEmpty()){
       AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
-      SockAuthToken = AUTHSYSTEM->LoginUP(false, out.in_struct.auth.section(":",0,0), out.in_struct.auth.section(":",1,1));
+      SockAuthToken = AUTHSYSTEM->LoginUP(host, out.in_struct.auth.section(":",0,0), out.in_struct.auth.section(":",1,1));
     }
 	  
     //Now check the body of the message and do what it needs
@@ -144,16 +147,13 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	  //Note: This sets/changes the current SockAuthToken
 	  AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
 	  if(DEBUG){ qDebug() << "Authenticate Peer:" << SOCKET->peerAddress().toString(); }
-	  bool localhost = false;
-	  if(SOCKET!=0){ localhost = (SOCKET->peerAddress() == QHostAddress::LocalHost) || (SOCKET->peerAddress() == QHostAddress::LocalHostIPv6); }
-	  else if(TSOCKET!=0){ localhost = (TSOCKET->peerAddress() == QHostAddress::LocalHost) || (TSOCKET->peerAddress() == QHostAddress::LocalHostIPv6); }
 	  //Now do the auth
 	  if(out.in_struct.name=="auth" && out.in_struct.args.isObject() ){
 	    //username/password authentication
 	    QString user, pass;
 	    if(out.in_struct.args.toObject().contains("username")){ user = JsonValueToString(out.in_struct.args.toObject().value("username"));  }
 	    if(out.in_struct.args.toObject().contains("password")){ pass = JsonValueToString(out.in_struct.args.toObject().value("password"));  }
-	    SockAuthToken = AUTHSYSTEM->LoginUP(localhost, user, pass);
+	    SockAuthToken = AUTHSYSTEM->LoginUP(host, user, pass);
 	  }else if(out.in_struct.name == "auth_token" && out.in_struct.args.isObject()){
 	    SockAuthToken = JsonValueToString(out.in_struct.args.toObject().value("token"));
 	  }else if(out.in_struct.name == "auth_clear"){
@@ -169,9 +169,12 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    out.out_args = array;
 	    out.CODE = RestOutputStruct::OK;
 	  }else{
+	    if(SockAuthToken=="REFUSED"){
+	      out.CODE = RestOutputStruct::FORBIDDEN;
+	    }
 	    SockAuthToken.clear(); //invalid token
 	    //Bad Authentication - return error
-	    out.CODE = RestOutputStruct::UNAUTHORIZED;
+	      out.CODE = RestOutputStruct::UNAUTHORIZED;
 	  }
 		
 	}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
@@ -242,6 +245,9 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
   }
   //Return any information
   this->sendReply(out.assembleMessage());
+  if(out.CODE == RestOutputStruct::FORBIDDEN && SOCKET!=0){
+    SOCKET->close(QWebSocketProtocol::CloseCodeNormal, "Too Many Authorization Failures - Try again later");
+  }
 }
 
 // === GENERAL PURPOSE UTILITY FUNCTIONS ===
