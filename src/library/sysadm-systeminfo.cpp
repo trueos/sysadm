@@ -160,3 +160,17 @@ QJsonObject SysInfo::externalDevicePaths() {
   // Return the devices / mounts
   return retObject;
 }
+
+// KPM 1-21-2016
+// This needs to beefed up as well, so we return more stats on arc, wired, etc
+QJsonObject SysInfo::memoryPercentage() {
+  QJsonObject retObject;
+  //SYSCTL: vm.stats.vm.v_<something>_count
+  QStringList info = General::RunCommand("sysctl -n vm.stats.vm.v_page_count vm.stats.vm.v_wire_count vm.stats.vm.v_active_count").split("\n");
+  if(info.length()<3){ return retObject; } //error in fetching information
+     //List output: [total, wired, active]
+  double perc = 100.0* (info[1].toLong()+info[2].toLong())/(info[0].toDouble());
+  retObject.insert("memoryused", qRound(perc));
+  return retObject;
+}
+
