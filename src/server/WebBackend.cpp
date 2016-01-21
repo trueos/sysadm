@@ -259,6 +259,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemInfoRequest(const QJso
 	ok = true;
         out->insert("batteryinfo", sysadm::SysInfo::batteryInfo());
       }
+      if(act=="cpupercentage"){
+	ok = true;
+        out->insert("cpupercentage", sysadm::SysInfo::cpuPercentage());
+      }
       if(act=="cputemps"){
 	ok = true;
         out->insert("cputemps", sysadm::SysInfo::cpuTemps());

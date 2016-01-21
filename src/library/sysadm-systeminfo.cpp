@@ -51,12 +51,58 @@ QJsonObject SysInfo::batteryInfo(){
     retObject.insert("timeleft", "-1");
   }
 
+  return retObject;
+}
 
+// KPM 1-21-2016
+// This needs to be looked at, I'm not 100% sure it is returning correct busy %
+// We probably want to supply more info as well, such as user,nice,system,interrupt,idle
+QJsonObject SysInfo::cpuPercentage() {
+  QJsonObject retObject;
+  QString tmp;
+
+  //Calculate the percentage based on the kernel information directly - no extra utilities
+  QStringList result = General::RunCommand("sysctl -n kern.cp_times").split(" ");
+  static QStringList last = QStringList();
+  if(last.isEmpty()){
+    //need two ticks before it works properly 
+    sleep(1);
+    last = result;
+    result = General::RunCommand("sysctl -n kern.cp_times").split(" ");
+  }
+  double tot = 0;
+  double roundtot;
+  int cpnum = 0;
+  for(int i=4; i<result.length(); i+=5){
+     //The values come in blocks of 5 per CPU: [user,nice,system,interrupt,idle]
+     cpnum++; //the number of CPU's accounted for (to average out at the end)
+     //qDebug() <<"CPU:" << cpnum;
+     long sum = 0;
+     //Adjust/all the data to correspond to diffs from the previous check
+     for(int j=0; j<5; j++){
+       QString tmp = result[i-j];
+       result[i-j] = QString::number(result[i-j].toLong()-last[i-j].toLong()); 
+       //need the difference between last run and this one
+       sum += result[i-j].toLong();
+       last[i-j] = tmp; //make sure to keep the original value around for the next run
+     }
+     QJsonObject vals;
+     roundtot = 100.0L - ( (100.0L*result[i].toLong())/sum );
+     tmp.setNum(qRound(roundtot));
+     vals.insert("busy", tmp );
+     tmp.setNum(cpnum);
+     retObject.insert("cpu" + tmp, vals);
+     //Calculate the percentage used for this CPU (100% - IDLE%)
+     tot += 100.0L - ( (100.0L*result[i].toLong())/sum ); //remember IDLE is the last of the five values per CPU
+   }
+
+  // Add the total busy %
+  tmp.setNum(qRound(tot/cpnum));
+  retObject.insert("busytotal", tmp);
   return retObject;
 }
 
 QJsonObject SysInfo::cpuTemps() {
-
   // Make sure coretemp is loaded
   if ( General::RunCommand("kldstat").indexOf("coretemp") == -1 )
     General::RunCommand("kldload coretemp");
