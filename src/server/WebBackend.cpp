@@ -12,6 +12,7 @@
 #include "sysadm-general.h"
 #include "sysadm-lifepreserver.h"
 #include "sysadm-network.h"
+#include "sysadm-systeminfo.h"
 #include "sysadm-update.h"
 
 #include "syscache-client.h"
@@ -67,6 +68,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmNetworkRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="lifepreserver"){
     return EvaluateSysadmLifePreserverRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="systeminfo"){
+    return EvaluateSysadmSystemInfoRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="update"){
     return EvaluateSysadmUpdateRequest(IN.args, out);
   }else{
@@ -231,6 +234,34 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
       if(act=="settings"){
 	ok = true;
         out->insert("settings", sysadm::LifePreserver::settings());
+      }
+
+    } //end of "action" key usage
+    
+    //If nothing done - return the proper code
+    if(!ok){
+      return RestOutputStruct::BADREQUEST;
+    }
+  }else{  // if(in_args.isArray()){
+    return RestOutputStruct::BADREQUEST;
+  }
+  return RestOutputStruct::OK;
+}
+
+//==== SYSADM -- SysInfo ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemInfoRequest(const QJsonValue in_args, QJsonObject *out){
+  if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    bool ok = false;
+    if(keys.contains("action")){
+      QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="externalmounts"){
+	ok = true;
+        out->insert("externalmounts", sysadm::SysInfo::externalDevicePaths());
+      }
+      if(act=="batteryinfo"){
+	ok = true;
+        out->insert("batteryinfo", sysadm::SysInfo::batteryInfo());
       }
 
     } //end of "action" key usage

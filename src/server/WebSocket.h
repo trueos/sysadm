@@ -50,6 +50,8 @@ private:
 	RestOutputStruct::ExitCode EvaluateSysadmNetworkRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm LifePreserver API
 	RestOutputStruct::ExitCode EvaluateSysadmLifePreserverRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- sysadm info API
+	RestOutputStruct::ExitCode EvaluateSysadmSystemInfoRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm Update API
 	RestOutputStruct::ExitCode EvaluateSysadmUpdateRequest(const QJsonValue in_args, QJsonObject *out);
 	

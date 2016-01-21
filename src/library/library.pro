@@ -16,6 +16,7 @@ HEADERS	+= 	sysadm-global.h \
                 sysadm-network.h \
                 sysadm-firewall.h \
                 sysadm-servicemanager.h\
+                sysadm-systeminfo.h\
                 sysadm-update.h \
                 sysadm-usermanager.h
 
@@ -25,6 +26,7 @@ SOURCES	+=	NetDevice.cpp \
                 sysadm-network.cpp \
                 sysadm-firewall.cpp \
                 sysadm-servicemanager.cpp \
+                sysadm-systeminfo.cpp \
                 sysadm-update.cpp \
                 sysadm-usermanager.cpp
 
