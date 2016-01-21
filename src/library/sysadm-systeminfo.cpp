@@ -43,6 +43,15 @@ QJsonObject SysInfo::batteryInfo(){
   else
     retObject.insert("status", "unknown");
 
+  int timeleft = General::RunCommand("apm -t").toInt(&ok);
+  if ( ok ) {
+    tmp.setNum(timeleft);
+    retObject.insert("timeleft", tmp);
+  } else {
+    retObject.insert("timeleft", "-1");
+  }
+
+
   return retObject;
 }
 
