@@ -15,7 +15,10 @@ namespace sysadm{
 class SysInfo{
 public:
 	static QJsonObject batteryInfo();
+	static QJsonObject cpuPercentage();
+	static QJsonObject cpuTemps();
 	static QJsonObject externalDevicePaths();
+	static QJsonObject memoryPercentage();
 };
 	
 } //end of pcbsd namespace

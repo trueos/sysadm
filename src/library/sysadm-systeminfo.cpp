@@ -43,6 +43,82 @@ QJsonObject SysInfo::batteryInfo(){
   else
     retObject.insert("status", "unknown");
 
+  int timeleft = General::RunCommand("apm -t").toInt(&ok);
+  if ( ok ) {
+    tmp.setNum(timeleft);
+    retObject.insert("timeleft", tmp);
+  } else {
+    retObject.insert("timeleft", "-1");
+  }
+
+  return retObject;
+}
+
+// KPM 1-21-2016
+// This needs to be looked at, I'm not 100% sure it is returning correct busy %
+// We probably want to supply more info as well, such as user,nice,system,interrupt,idle
+QJsonObject SysInfo::cpuPercentage() {
+  QJsonObject retObject;
+  QString tmp;
+
+  //Calculate the percentage based on the kernel information directly - no extra utilities
+  QStringList result = General::RunCommand("sysctl -n kern.cp_times").split(" ");
+  static QStringList last = QStringList();
+  if(last.isEmpty()){
+    //need two ticks before it works properly 
+    sleep(1);
+    last = result;
+    result = General::RunCommand("sysctl -n kern.cp_times").split(" ");
+  }
+  double tot = 0;
+  double roundtot;
+  int cpnum = 0;
+  for(int i=4; i<result.length(); i+=5){
+     //The values come in blocks of 5 per CPU: [user,nice,system,interrupt,idle]
+     cpnum++; //the number of CPU's accounted for (to average out at the end)
+     //qDebug() <<"CPU:" << cpnum;
+     long sum = 0;
+     //Adjust/all the data to correspond to diffs from the previous check
+     for(int j=0; j<5; j++){
+       QString tmp = result[i-j];
+       result[i-j] = QString::number(result[i-j].toLong()-last[i-j].toLong()); 
+       //need the difference between last run and this one
+       sum += result[i-j].toLong();
+       last[i-j] = tmp; //make sure to keep the original value around for the next run
+     }
+     QJsonObject vals;
+     roundtot = 100.0L - ( (100.0L*result[i].toLong())/sum );
+     tmp.setNum(qRound(roundtot));
+     vals.insert("busy", tmp );
+     tmp.setNum(cpnum);
+     retObject.insert("cpu" + tmp, vals);
+     //Calculate the percentage used for this CPU (100% - IDLE%)
+     tot += 100.0L - ( (100.0L*result[i].toLong())/sum ); //remember IDLE is the last of the five values per CPU
+   }
+
+  // Add the total busy %
+  tmp.setNum(qRound(tot/cpnum));
+  retObject.insert("busytotal", tmp);
+  return retObject;
+}
+
+QJsonObject SysInfo::cpuTemps() {
+  // Make sure coretemp is loaded
+  if ( General::RunCommand("kldstat").indexOf("coretemp") == -1 )
+    General::RunCommand("kldload coretemp");
+
+  QJsonObject retObject;
+  QStringList temps;
+  temps = General::RunCommand("sysctl -ai").split("\n").filter(".temperature:");
+  temps.sort();
+  for(int i=0; i<temps.length(); i++){
+    if(temps[i].contains(".acpi.") || temps[i].contains(".cpu")){
+      retObject.insert(temps[i].section(":", 0, 0).section(".", 1,2).replace(".", "").simplified(), temps[i].section(":", 1,5).simplified());
+    }else{
+      //non CPU temperature - skip it
+      temps.removeAt(i); i--;
+    }
+  }
   return retObject;
 }
 
@@ -84,3 +160,17 @@ QJsonObject SysInfo::externalDevicePaths() {
   // Return the devices / mounts
   return retObject;
 }
+
+// KPM 1-21-2016
+// This needs to beefed up as well, so we return more stats on arc, wired, etc
+QJsonObject SysInfo::memoryPercentage() {
+  QJsonObject retObject;
+  //SYSCTL: vm.stats.vm.v_<something>_count
+  QStringList info = General::RunCommand("sysctl -n vm.stats.vm.v_page_count vm.stats.vm.v_wire_count vm.stats.vm.v_active_count").split("\n");
+  if(info.length()<3){ return retObject; } //error in fetching information
+     //List output: [total, wired, active]
+  double perc = 100.0* (info[1].toLong()+info[2].toLong())/(info[0].toDouble());
+  retObject.insert("memoryused", qRound(perc));
+  return retObject;
+}
+
