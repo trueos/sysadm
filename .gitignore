@@ -23,6 +23,8 @@ src/server/WebServer.o
 src/server/WebSocket.o
 src/server/dispatcher-client.o
 src/server/main.o
+src/server/moc_AuthorizationManager.cpp
+src/server/moc_AuthorizationManager.o
 src/server/moc_WebServer.cpp
 src/server/moc_WebServer.o
 src/server/moc_WebSocket.cpp

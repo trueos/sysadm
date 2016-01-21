@@ -55,6 +55,27 @@ QJsonObject SysInfo::batteryInfo(){
   return retObject;
 }
 
+QJsonObject SysInfo::cpuTemps() {
+
+  // Make sure coretemp is loaded
+  if ( General::RunCommand("kldstat").indexOf("coretemp") == -1 )
+    General::RunCommand("kldload coretemp");
+
+  QJsonObject retObject;
+  QStringList temps;
+  temps = General::RunCommand("sysctl -ai").split("\n").filter(".temperature:");
+  temps.sort();
+  for(int i=0; i<temps.length(); i++){
+    if(temps[i].contains(".acpi.") || temps[i].contains(".cpu")){
+      retObject.insert(temps[i].section(":", 0, 0).section(".", 1,2).replace(".", "").simplified(), temps[i].section(":", 1,5).simplified());
+    }else{
+      //non CPU temperature - skip it
+      temps.removeAt(i); i--;
+    }
+  }
+  return retObject;
+}
+
 // ==== ExternalDevicePaths() ====
 QJsonObject SysInfo::externalDevicePaths() {
   QJsonObject retObject;

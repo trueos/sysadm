@@ -15,6 +15,7 @@ namespace sysadm{
 class SysInfo{
 public:
 	static QJsonObject batteryInfo();
+	static QJsonObject cpuTemps();
 	static QJsonObject externalDevicePaths();
 };
 	
