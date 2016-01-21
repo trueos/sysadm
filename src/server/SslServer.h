@@ -8,12 +8,7 @@
 #ifndef _PCBSD_REST_WEB_SSL_SERVER_H
 #define _PCBSD_REST_WEB_SSL_SERVER_H
 
-#include <QTcpServer>
-#include <QSslSocket>
-#include <QTcpSocket>
-#include <QQueue>
-#include <QSslConfiguration>
-#include <QDebug>
+#include "globals-qt.h"
 
 class SslServer : public QTcpServer{
 	Q_OBJECT
@@ -38,9 +33,9 @@ protected:
 	  qDebug() << "New Ssl Connection:";
 	  //setup any supported encruption types here
 	  serverSocket->setSslConfiguration(QSslConfiguration::defaultConfiguration());
-	  serverSocket->setProtocol(QSsl::TlsV1_2);
-	  serverSocket->setPrivateKey("/usr/local/etc/sysadm/restserver.key");
-	  serverSocket->setLocalCertificate("/usr/local/etc/sysadm/restserver.crt");
+	  serverSocket->setProtocol(SSLVERSION);
+	  serverSocket->setPrivateKey(SSLKEYFILE);
+	  serverSocket->setLocalCertificate(SSLCERTFILE);
 	  //qDebug() << " - Supported Protocols:" << serverSocket->sslConfiguration().protocol();
 
 	  if (serverSocket->setSocketDescriptor(socketDescriptor)) {

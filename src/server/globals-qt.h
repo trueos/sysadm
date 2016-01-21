@@ -25,22 +25,30 @@
 #include <QSslKey>
 #include <QSslCertificate>
 #include <QSslError>
+#include <QSslConfiguration>
 
 #include <QWebSocketServer>
 #include <QWebSocketCorsAuthenticator>
 #include <QWebSocket>
 #include <QTcpServer>
 #include <QSslSocket>
+#include <QTcpSocket>
 
 #include <QThread>
 #include <QFileSystemWatcher>
+#include <QQueue>
 
+#include <QDebug>
 #include <QList>
 #include <QHash>
 #include <QObject>
 #include <QTimer>
 #include <QDebug>
 #include <QtDebug>
+
+#define SSLVERSION QSsl::TlsV1_0
+#define SSLCERTFILE "/usr/local/etc/sysadm/restserver.crt"
+#define SSLKEYFILE "/usr/local/etc/sysadm/restserver.key"
 
 inline QString DisplayPriority(int pri){
   //ensure bounds
