@@ -18,11 +18,69 @@ The systeminfo class is used to retrieve information about the system. Every sys
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "batteryinfo", "externalmounts"                                                            |
+| action                          |               | supported actions include "memorypercentage", "batteryinfo", "externalmounts"                                        |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
 The rest of this section provides examples of the available *actions* for each type of request, along with their responses.
+
+.. index:: memorypercentage, systeminfo
+
+.. _Memory Usage:
+
+Memory Usage
+============
+
+The "memorypercentage" action returns the total memory in use.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/systeminfo
+ {
+   "action" : "memorypercentage"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "memorypercentage": {
+            "memoryused": 42
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "action" : "memorypercentage"
+   },
+   "namespace" : "sysadm",
+   "name" : "systeminfo"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "memorypercentage": {
+      "memoryused": 42
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
 
 .. index:: batteryinfo, systeminfo
 
@@ -31,9 +89,8 @@ The rest of this section provides examples of the available *actions* for each t
 Battery Information
 ===================
 
-The "batteryinfo" action will indicate whether or not a battery exists. If it does, it will also report its current charge percentage level (1-99) and its
-status (offline, charging, on backup, or unknown) and estimated time left (in seconds)
-timeleft (1-XXXXXX)
+The "batteryinfo" action will indicate whether or not a battery exists. If it does, it will also report its current charge percentage level (1-99). its
+status (offline, charging, on backup, or unknown), and estimated time left (in seconds).
 
 **REST Request**
 
