@@ -18,7 +18,7 @@ The systeminfo class is used to retrieve information about the system. Every sys
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "memorypercentage", "cpupercentage", "batteryinfo", "externalmounts"                       |
+| action                          |               | supported actions include "memorypercentage", "cpupercentage", "cputemps", "batteryinfo", "externalmounts"           |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -157,6 +157,70 @@ The "cpupercentage" action returns the usage percentage of each CPU.
       "cpu4": {
         "busy": "24"
       }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: cputemps, systeminfo
+
+.. _CPU Temperature:
+
+CPU Temperature
+===============
+
+The "cputemps" action returns the temperature of each CPU.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/systeminfo
+ {
+   "action" : "cputemps"
+ }
+
+**REST Response**
+
+.. code-block:: json  
+
+ {
+    "args": {
+        "cputemps": {
+            "cpu0": "27.0C",
+            "cpu1": "34.0C",
+            "cpu2": "33.0C",
+            "cpu3": "31.0C"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "args" : {
+      "action" : "cputemps"
+   },
+   "id" : "fooid",
+   "name" : "systeminfo",
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "cputemps": {
+      "cpu0": "34.0C",
+      "cpu1": "32.0C",
+      "cpu2": "34.0C",
+      "cpu3": "31.0C"
     }
   },
   "id": "fooid",
