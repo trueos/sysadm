@@ -18,7 +18,7 @@ The systeminfo class is used to retrieve information about the system. Every sys
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "memorypercentage", "batteryinfo", "externalmounts"                                        |
+| action                          |               | supported actions include "memorypercentage", "cpupercentage", "batteryinfo", "externalmounts"                       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -82,6 +82,88 @@ The "memorypercentage" action returns the total memory in use.
   "namespace": "sysadm"
  }
 
+.. index:: cpupercentage, systeminfo
+
+.. _CPU Usage:
+
+CPU Usage
+=========
+
+The "cpupercentage" action returns the usage percentage of each CPU.
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/systeminfo
+ {
+   "action" : "cpupercentage"
+ }
+
+**REST Response**
+
+.. code-block:: json 
+
+ {
+    "args": {
+        "cpupercentage": {
+            "busytotal": "28",
+            "cpu1": {
+                "busy": "28"
+            },
+            "cpu2": {
+                "busy": "31"
+            },
+            "cpu3": {
+                "busy": "29"
+            },
+            "cpu4": {
+                "busy": "24"
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "args" : {
+      "action" : "cpupercentage"
+   },
+   "name" : "systeminfo",
+   "id" : "fooid",
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "cpupercentage": {
+      "busytotal": "28",
+      "cpu1": {
+        "busy": "28"
+      },
+      "cpu2": {
+        "busy": "31"
+      },
+      "cpu3": {
+        "busy": "29"
+      },
+      "cpu4": {
+        "busy": "24"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
 .. index:: batteryinfo, systeminfo
 
 .. _Battery Information:
