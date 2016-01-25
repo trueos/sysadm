@@ -18,7 +18,7 @@ public:
 	static QJsonObject cpuPercentage();
 	static QJsonObject cpuTemps();
 	static QJsonObject externalDevicePaths();
-	static QJsonObject memoryPercentage();
+	static QJsonObject memoryStats();
 	static QJsonObject systemInfo();
 };
 	

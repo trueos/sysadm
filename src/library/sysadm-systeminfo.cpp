@@ -161,16 +161,52 @@ QJsonObject SysInfo::externalDevicePaths() {
   return retObject;
 }
 
-// KPM 1-21-2016
-// This needs to beefed up as well, so we return more stats on arc, wired, etc
-QJsonObject SysInfo::memoryPercentage() {
+// Return information about memory
+QJsonObject SysInfo::memoryStats() {
   QJsonObject retObject;
-  //SYSCTL: vm.stats.vm.v_<something>_count
-  QStringList info = General::RunCommand("sysctl -n vm.stats.vm.v_page_count vm.stats.vm.v_wire_count vm.stats.vm.v_active_count").split("\n");
-  if(info.length()<3){ return retObject; } //error in fetching information
-     //List output: [total, wired, active]
-  double perc = 100.0* (info[1].toLong()+info[2].toLong())/(info[0].toDouble());
-  retObject.insert("memoryused", qRound(perc));
+
+  QString tmp;
+  long pageSize;
+  bool ok;
+  
+  // Get the page size
+  tmp = General::RunCommand("sysctl -n vm.stats.vm.v_page_size").simplified();
+  tmp.toLong(&ok);
+  if ( ok )
+    pageSize = tmp.toLong();
+  else
+    return retObject;
+
+  // Get the free size
+  tmp = General::RunCommand("sysctl -n vm.stats.vm.v_free_count").simplified();
+  tmp.toLong(&ok);
+  if ( ok )
+    retObject.insert("free", tmp.setNum((tmp.toLong() * pageSize) / 1024 / 1024));
+
+  // Get the inactive size
+  tmp = General::RunCommand("sysctl -n vm.stats.vm.v_inactive_count").simplified();
+  tmp.toLong(&ok);
+  if ( ok )
+    retObject.insert("inactive", tmp.setNum((tmp.toLong() * pageSize) / 1024 / 1024));
+
+  // Get the cache size
+  tmp = General::RunCommand("sysctl -n vm.stats.vm.v_cache_count").simplified();
+  tmp.toLong(&ok);
+  if ( ok )
+    retObject.insert("cache", tmp.setNum((tmp.toLong() * pageSize) / 1024 / 1024));
+
+  // Get the wired size
+  tmp = General::RunCommand("sysctl -n vm.stats.vm.v_wire_count").simplified();
+  tmp.toLong(&ok);
+  if ( ok )
+    retObject.insert("wired", tmp.setNum((tmp.toLong() * pageSize) / 1024 / 1024));
+
+  // Get the active size
+  tmp = General::RunCommand("sysctl -n vm.stats.vm.v_active_count").simplified();
+  tmp.toLong(&ok);
+  if ( ok )
+    retObject.insert("active", tmp.setNum((tmp.toLong() * pageSize) / 1024 / 1024));
+
   return retObject;
 }
 
@@ -203,10 +239,11 @@ QJsonObject SysInfo::systemInfo() {
   retObject.insert("cpucores", cpucores);
 
   bool ok;
+  QString tmp;
   QString totalmem = General::RunCommand("sysctl -n hw.realmem").simplified();
-  totalmem.toDouble(&ok);
+  totalmem.toLong(&ok);
   if ( ok ) {
-    retObject.insert("totalmem", totalmem.toDouble() / 1024 / 1024);
+    retObject.insert("totalmem", tmp.setNum(totalmem.toLong() / 1024 / 1024));
   }
 
   return retObject;

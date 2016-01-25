@@ -271,9 +271,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemInfoRequest(const QJso
 	ok = true;
         out->insert("externalmounts", sysadm::SysInfo::externalDevicePaths());
       }
-      if(act=="memorypercentage"){
+      if(act=="memorystats"){
 	ok = true;
-        out->insert("memorypercentage", sysadm::SysInfo::memoryPercentage());
+        out->insert("memorystats", sysadm::SysInfo::memoryStats());
       }
       if(act=="systeminfo"){
 	ok = true;
