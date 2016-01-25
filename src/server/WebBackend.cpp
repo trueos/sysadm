@@ -275,6 +275,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemInfoRequest(const QJso
 	ok = true;
         out->insert("memorypercentage", sysadm::SysInfo::memoryPercentage());
       }
+      if(act=="systeminfo"){
+	ok = true;
+        out->insert("systeminfo", sysadm::SysInfo::systemInfo());
+      }
 
     } //end of "action" key usage
     

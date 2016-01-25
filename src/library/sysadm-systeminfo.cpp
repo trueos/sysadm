@@ -174,3 +174,41 @@ QJsonObject SysInfo::memoryPercentage() {
   return retObject;
 }
 
+// Return a bunch of various system information
+QJsonObject SysInfo::systemInfo() {
+  QJsonObject retObject;
+
+  QString arch = General::RunCommand("uname -m").simplified();
+  retObject.insert("arch", arch);
+
+  QString sysver = General::RunCommand("freebsd-version").simplified();
+  retObject.insert("systemversion", sysver);
+
+  QString kernver = General::RunCommand("uname -r").simplified();
+  retObject.insert("kernelversion", kernver);
+
+  QString kernident = General::RunCommand("uname -i").simplified();
+  retObject.insert("kernelident", kernident);
+
+  QString host = General::RunCommand("hostname").simplified();
+  retObject.insert("hostname", host);
+
+  QString uptime = General::RunCommand("uptime").simplified().section(" ", 1, 4).simplified().replace(",", "");
+  retObject.insert("uptime", uptime);
+
+  QString cputype = General::RunCommand("sysctl -n hw.model").simplified();
+  retObject.insert("cputype", cputype);
+
+  QString cpucores = General::RunCommand("sysctl -n kern.smp.cpus").simplified();
+  retObject.insert("cpucores", cpucores);
+
+  bool ok;
+  QString totalmem = General::RunCommand("sysctl -n hw.realmem").simplified();
+  totalmem.toDouble(&ok);
+  if ( ok ) {
+    retObject.insert("totalmem", totalmem.toDouble() / 1024 / 1024);
+  }
+
+  return retObject;
+}
+
