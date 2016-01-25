@@ -1,7 +1,7 @@
 # Created by: Kris Moore <kmoore@FreeBSD.org>
 # $FreeBSD$
 
-PORTNAME=	pcbsd-sysadm
+PORTNAME=	sysadm
 PORTVERSION=	%%CHGVERSION%%
 CATEGORIES=	sysutils
 
