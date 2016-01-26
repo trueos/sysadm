@@ -4,22 +4,17 @@
 //  Available under the 3-clause BSD license
 //  See the LICENSE file for full details
 //===========================================
-#ifndef __PCBSD_LIB_UTILS_SYSINFO_H
-#define __PCBSD_LIB_UTILS_SYSINFO_H
+#ifndef __PCBSD_LIB_UTILS_IOCAGE_H
+#define __PCBSD_LIB_UTILS_IOCAGE_H
 
 #include <QJsonObject>
 #include "sysadm-global.h"
 
 namespace sysadm{
 
-class SysInfo{
+class Iocage{
 public:
-	static QJsonObject batteryInfo();
-	static QJsonObject cpuPercentage();
-	static QJsonObject cpuTemps();
-	static QJsonObject externalDevicePaths();
-	static QJsonObject memoryStats();
-	static QJsonObject systemInfo();
+	static QJsonObject listJails();
 };
 	
 } //end of pcbsd namespace

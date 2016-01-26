@@ -15,6 +15,7 @@ namespace sysadm{
 class Update{
 public:
 	static QJsonObject checkUpdates();
+	static QJsonObject listBranches();
 };
 	
 } //end of pcbsd namespace

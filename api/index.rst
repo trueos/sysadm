@@ -7,6 +7,7 @@ PC-BSD® API Reference
 
    connection
    users
+   events
    classes/index
 
 Indices and tables

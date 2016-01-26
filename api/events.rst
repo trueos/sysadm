@@ -1,11 +1,13 @@
-.. _iocage:
+.. _Events:
 
-iocage
+Events
 ******
 
-The iocage class is used to manage jails which provide a light-weight, operating system-level virtualization for running applications or services.
+The "events" namespace can be used to setup and receive asyncronous updates about system status and other types of system notifications.
 
-Every iocage class request contains the following parameters:
+.. _note: the events namespace does not really translate over to REST which was not designed for asyncronous events. For this reason, only Websocket examples are used in this section.
+
+Every events request contains the following parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
@@ -14,85 +16,46 @@ Every iocage class request contains the following parameters:
 | id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | iocage        |                                                                                                                      |
+| name                            |               | supported values are "subscribe" or unsubscribe"                                                                     |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | sysadm        |                                                                                                                      |
+| namespace                       | events        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listjails"                                                                                |
+| args                            |               | values vary by type of class                                                                                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
+Here is an example of subscribing to Life Preserver events:
 
-.. index:: listjails, iocage
-
-.. _List Jails:
-
-List Jails
-==========
-
-The "listjails" action lists information about currently installed jails. For each jail, the response includes the UUID of the jail, whether or not the jail has been configured to start at
-system boot, the jail ID (only applies to running jails), whether or not the jail is running, a friendly name for the jail (tag), and the type of jail (basejail or thickjail).
-
-**REST Request**
-
-.. code-block:: json
-
- PUT /sysadm/iocage
- {
-   "action" : "listjails"
- }
-
-**REST Response**
+**Websocket Request**
 
 .. code-block:: json
 
  {
-    "args": {
-        "listjails": {
-            "611c89ae-c43c-11e5-9602-54ee75595566": {
-                "boot": "off",
-                "jid": "-",
-                "state": "down",
-                "tag": "testjail",
-                "type": "basejail"
-            }
-        }
-    }
+  "namespace" : "events",
+  "name" : "subscribe",
+  "id" : "sampleID",
+  "args" : ["dispatcher", "life-preserver"]
  }
+ 
+Once subscribed, events will be received as they are produced. To unsubscribe from events, repeat the request, using "unsubscribe" for the "name". 
 
-**WebSocket Request**
+Here is an example reply:
+ 
+**Websocket Reply**
 
 .. code-block:: json
 
  {
-   "args" : {
-      "action" : "listjails"
-   },
-   "name" : "iocage",
-   "id" : "fooid",
-   "namespace" : "sysadm"
+    "namespace" : "events",
+    "name" : "life-preserver",
+    "id" : "<none>"
+    "args" : {
+       "message" : <message>,
+       "priority" : "<number> -
+  <category>",
+       "class" : "[snapshot/replication]"
+     }
  }
 
-**WebSocket Response**
-
-.. code-block:: json
-
- {
-  "args": {
-    "listjails": {
-      "611c89ae-c43c-11e5-9602-54ee75595566": {
-        "boot": "off",
-        "jid": "-",
-        "state": "down",
-        "tag": "testjail",
-        "type": "basejail"
-      }
-    }
-  },
-  "id": "fooid",
-  "name": "response",
-  "namespace": "sysadm"
- }

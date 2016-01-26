@@ -1,7 +1,7 @@
 # Created by: Kris Moore <kmoore@FreeBSD.org>
 # $FreeBSD$
 
-PORTNAME=	pcbsd-sysadm
+PORTNAME=	sysadm
 PORTVERSION=	%%CHGVERSION%%
 CATEGORIES=	sysutils
 
@@ -9,10 +9,6 @@ MAINTAINER=	kmoore@FreeBSD.org
 COMMENT=	PC-BSD SysAdm API server
 
 LICENSE=	BSD3CLAUSE
-
-RUN_DEPENDS=	sipcalc:${PORTSDIR}/net-mgmt/sipcalc \
-		eject:${PORTSDIR}/sysutils/eject \
-		unzip:${PORTSDIR}/archivers/unzip
 
 WRKSRC_SUBDIR=	src
 USE_QT5=	core network buildtools qmake

@@ -12,6 +12,7 @@ VERSION		= 1.0.0
 
 HEADERS	+= 	sysadm-global.h \
                 sysadm-general.h \
+                sysadm-iocage.h \
                 sysadm-lifepreserver.h \
                 sysadm-network.h \
                 sysadm-firewall.h \
@@ -22,6 +23,7 @@ HEADERS	+= 	sysadm-global.h \
 
 SOURCES	+=	NetDevice.cpp \
                 sysadm-general.cpp \
+                sysadm-iocage.cpp \
                 sysadm-lifepreserver.cpp \
                 sysadm-network.cpp \
                 sysadm-firewall.cpp \
