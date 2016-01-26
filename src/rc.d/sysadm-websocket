@@ -15,9 +15,8 @@
 name="sysadm_websocket"
 rcvar=sysadm_websocket_enable
 
-command="/usr/local/bin/sysadm-server"
-start_cmd="sysadm_start"
-stop_cmd="sysadm_stop"
+start_cmd="sysadm_websocket_start"
+stop_cmd="sysadm_websocket_stop"
 flags="-ws"
 
 [ -z "$sysadm_websocket_enable" ] && sysadm_websocket_enable="NO"
@@ -35,19 +34,20 @@ ssl_keygen()
 	-subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
 }
 
-sysadm_stop()
+sysadm_websocket_stop()
 {
   if [ -e "/var/run/sysadm-websocket.pid" ] ; then
     pkill -9 -F /var/run/sysadm-websocket.pid
   fi
 }
 
-sysadm_start()
+sysadm_websocket_start()
 {
   export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
-  sysadm_stop
+  sysadm_websocket_stop
   ssl_keygen
   echo "Starting sysadm (WebSocket)..."
+  command="/usr/local/bin/sysadm-server"
   daemon -p /var/run/sysadm-websocket.pid $command $flags >/dev/null 2>/dev/null
   chmod 744 /var/run/sysadm-websocket.pid >/dev/null 2>/dev/null
 }
