@@ -45,7 +45,20 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   if(QFile::exists("/usr/local/bin/lpreserver")){
     out->insert("sysadm/lifepreserver", "read/write");
   }
+
+  // - iocage
+  if(QFile::exists("/usr/local/sbin/iocage")){
+    out->insert("sysadm/iocage", "read/write");
+  }
   
+  // - Generic system information
+  out->insert("sysadm/systeminfo","read/write");
+
+  // - PC-BSD Updater
+  if(QFile::exists("/usr/local/bin/pc-updatemanager")){
+    out->insert("sysadm/update", "read/write");
+  }
+
   return RestOutputStruct::OK;
 }
 
