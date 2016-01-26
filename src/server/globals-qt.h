@@ -22,6 +22,8 @@
 #include <QDateTime>
 #include <QTextStream>
 #include <QProcess>
+#include <QProcessEnvironment>
+
 #include <QSslKey>
 #include <QSslCertificate>
 #include <QSslError>
@@ -46,9 +48,13 @@
 #include <QDebug>
 #include <QtDebug>
 
+// SSL Version/File defines
 #define SSLVERSION QSsl::TlsV1_0
 #define SSLCERTFILE "/usr/local/etc/sysadm/restserver.crt"
 #define SSLKEYFILE "/usr/local/etc/sysadm/restserver.key"
+
+// Server Settings defines
+#define DISPATCH_QUEUE "/usr/local/etc/sysadm/dispatch_queue"
 
 inline QString DisplayPriority(int pri){
   //ensure bounds
