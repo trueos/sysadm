@@ -10,6 +10,7 @@
 
 //sysadm library interface classes
 #include "sysadm-general.h"
+#include "sysadm-iocage.h"
 #include "sysadm-lifepreserver.h"
 #include "sysadm-network.h"
 #include "sysadm-systeminfo.h"
@@ -73,14 +74,16 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   //Go through and forward this request to the appropriate sub-system
   if(namesp=="rpc" && name=="query"){
     return AvailableSubsystems(IN.fullaccess, out);
-  }else if(namesp=="rpc" && name=="syscache"){
-    return EvaluateSyscacheRequest(IN.args, out);
   }else if(namesp=="rpc" && name=="dispatcher"){
     return EvaluateDispatcherRequest(IN.args, out);
-  }else if(namesp=="sysadm" && name=="network"){
-    return EvaluateSysadmNetworkRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="iocage"){
+    return EvaluateSysadmIocageRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="lifepreserver"){
     return EvaluateSysadmLifePreserverRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="network"){
+    return EvaluateSysadmNetworkRequest(IN.args, out);
+  }else if(namesp=="rpc" && name=="syscache"){
+    return EvaluateSyscacheRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="systeminfo"){
     return EvaluateSysadmSystemInfoRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="update"){
@@ -319,6 +322,30 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
       if(act=="listbranches"){
 	ok = true;
         out->insert("listbranches", sysadm::Update::listBranches());
+      }
+
+    } //end of "action" key usage
+    
+    //If nothing done - return the proper code
+    if(!ok){
+      return RestOutputStruct::BADREQUEST;
+    }
+  }else{  // if(in_args.isArray()){
+    return RestOutputStruct::BADREQUEST;
+  }
+  return RestOutputStruct::OK;
+}
+
+//==== SYSADM -- iocage ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonValue in_args, QJsonObject *out){
+  if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    bool ok = false;
+    if(keys.contains("action")){
+      QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="listjails"){
+	ok = true;
+        out->insert("listjails", sysadm::Iocage::listJails());
       }
 
     } //end of "action" key usage
