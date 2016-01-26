@@ -18,20 +18,20 @@ The systeminfo class is used to retrieve information about the system. Every sys
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "memorypercentage", "cpupercentage", "cputemps", "batteryinfo", "externalmounts"           |
+| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "batteryinfo", "externalmounts"                |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
 The rest of this section provides examples of the available *actions* for each type of request, along with their responses.
 
-.. index:: memorypercentage, systeminfo
+.. index:: memorystats, systeminfo
 
-.. _Memory Usage:
+.. _Memory Statistics:
 
-Memory Usage
-============
+Memory Statistics
+=================
 
-The "memorypercentage" action returns the total memory in use.
+The "memorystats" action returns memory statistics, including the amount of active, cached, free, inactive, and total physical (wired) memory.
 
 **REST Request**
 
@@ -39,7 +39,7 @@ The "memorypercentage" action returns the total memory in use.
 
  PUT /sysadm/systeminfo
  {
-   "action" : "memorypercentage"
+   "action" : "memorystats"
  }
 
 **REST Response**
@@ -48,8 +48,12 @@ The "memorypercentage" action returns the total memory in use.
 
  {
     "args": {
-        "memorypercentage": {
-            "memoryused": 42
+        "memorystats": {
+            "active": "818",
+            "cache": "69",
+            "free": "4855",
+            "inactive": "2504",
+            "wired": "1598"
         }
     }
  }
@@ -61,7 +65,7 @@ The "memorypercentage" action returns the total memory in use.
  {
    "id" : "fooid",
    "args" : {
-      "action" : "memorypercentage"
+      "action" : "memorystats"
    },
    "namespace" : "sysadm",
    "name" : "systeminfo"
@@ -73,8 +77,12 @@ The "memorypercentage" action returns the total memory in use.
 
  {
   "args": {
-    "memorypercentage": {
-      "memoryused": 42
+    "memorystats": {
+      "active": "826",
+      "cache": "69",
+      "free": "4847",
+      "inactive": "2505",
+      "wired": "1598"
     }
   },
   "id": "fooid",
