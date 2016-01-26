@@ -33,8 +33,8 @@ The rest of this section provides examples of the available *actions* for each t
 List Jails
 ==========
 
-The "listjails" action lists information about currently installed jails. For each jail, the response includes whether or not the jail has been configured to start at system boot, the jail
-ID (only applies to running jails), whether or not the jail is running, a friendly name for the jail (tag), and the type of jail.
+The "listjails" action lists information about currently installed jails. For each jail, the response includes the UUID of the jail, whether or not the jail has been configured to start at
+system boot, the jail ID (only applies to running jails), whether or not the jail is running, a friendly name for the jail (tag), and the type of jail (basejail or thickjail).
 
 **REST Request**
 
