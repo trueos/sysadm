@@ -18,7 +18,7 @@ The systeminfo class is used to retrieve information about the system. Every sys
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "batteryinfo", "externalmounts"                |
+| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "batteryinfo", "externalmounts", "systeminfo"  |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -355,6 +355,81 @@ For each mounted device, the response will include the device name, filesystem, 
         "path": "/usr/home/kris/.gvfs",
         "type": "UNKNOWN"
       }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+.. index:: systeminfo
+
+.. _System Information:
+
+System Information
+==================
+
+The "systeminfo" action lists system information, including the architecture, number of CPUs, type of CPU, hostname, kernel name and version, system version and patch level, total amount
+of RAM, and the system's uptime.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/systeminfo
+ {
+   "action" : "systeminfo"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "systeminfo": {
+            "arch": "amd64",
+            "cpucores": "4",
+            "cputype": "Intel(R) Xeon(R) CPU E3-1220 v3 @ 3.10GHz",
+            "hostname": "krisdesktop",
+            "kernelident": "GENERIC",
+            "kernelversion": "10.2-RELEASE-p11",
+            "systemversion": "10.2-RELEASE-p12",
+            "totalmem": 10720,
+            "uptime": "up 2 days 5:09"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "systeminfo"
+   },
+   "id" : "fooid",
+   "name" : "systeminfo",
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "systeminfo": {
+      "arch": "amd64",
+      "cpucores": "4",
+      "cputype": "Intel(R) Xeon(R) CPU E3-1220 v3 @ 3.10GHz",
+      "hostname": "krisdesktop",
+      "kernelident": "GENERIC",
+      "kernelversion": "10.2-RELEASE-p11",
+      "systemversion": "10.2-RELEASE-p12",
+      "totalmem": 10720,
+      "uptime": "up 2 days 5:09"
     }
   },
   "id": "fooid",
