@@ -11,7 +11,7 @@ COMMENT=	PC-BSD SysAdm API server
 LICENSE=	BSD3CLAUSE
 
 WRKSRC_SUBDIR=	src
-USE_QT5=	core network buildtools qmake
+USE_QT5=	core network buildtools qmake gui websockets
 USES=		pkgconfig tar:xz qmake
 MAKE_ARGS=	PREFIX=${STAGEDIR}${PREFIX}
 
