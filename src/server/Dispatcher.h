@@ -14,7 +14,7 @@
 class DProcess : public QProcess{
 	Q_OBJECT
 public:
-	DProcess(QObject parent = 0);
+	DProcess(QObject *parent = 0);
 	~DProcess();
 	
 	QString ID;
@@ -68,16 +68,10 @@ private:
 	QString queue_file;
 	
 	//Internal lists
-	QHash<PROC_QUEUE, QList<DProcess*> > QUEUES;
+	QHash<PROC_QUEUE, QList<DProcess*> > HASH;
 
 	//Simplification routine for setting up a process
-	DProcess* createProcess(QString ID, QStringList cmds){
-	  DProcess* P = new DProcess(this);
-	    P->cmds = cmds;
-	    P->ID = ID;
-	    connect(P, SIGNAL(ProcFinished(QString)), this, SLOT(ProcFinished(QString)) );
-	  return P;
-	}
+	DProcess* createProcess(QString ID, QStringList cmds);
 
 private slots:
 	void ProcFinished(QString ID);

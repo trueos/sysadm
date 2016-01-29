@@ -8,15 +8,15 @@
 
 #include "globals-qt.h"
 
+#include "LogManager.h"
+
 //Global variables/classes (intially created in main.cpp)
 extern QSettings *CONFIG;
 
 #include "EventWatcher.h"
 extern EventWatcher *EVENTS;
-//#include "ProcessQueue.h"
-//extern ProcessQueue *PQUEUE;
-//#include "LogManager.h"
-//extern LogManager *LOGS;
+#include "Dispatcher.h"
+extern Dispatcher *DISPATCHER;
 
 //Special defines
 #define WSPORTNUMBER 12150 	// WebSocket server default port

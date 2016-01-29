@@ -35,10 +35,10 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
     out->insert("rpc/syscache","read"); //no write to syscache - only reads
   }
   // - dispatcher
-  if(DispatcherClient::DispatcherAvailable()){
+  //if(DispatcherClient::DispatcherAvailable()){
     //"read" is the event notifications, "write" is the ability to queue up jobs
     out->insert("rpc/dispatcher", allaccess ? "read/write" : "read");
-  }
+  //}
   // - network
   out->insert("sysadm/network","read/write");
   
@@ -143,7 +143,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue
   }else{ return RestOutputStruct::BADREQUEST; }
 
   //Run the Request (should be one value for each in_req)
-  QStringList values = DispatcherClient::parseInputs(in_req, AUTHSYSTEM);;
+  QStringList values = DispatcherClient::parseInputs(in_req, AUTHSYSTEM);
   while(values.length() < in_req.length()){ values << "[ERROR]"; } //ensure lists are same length
 
   //Format the result

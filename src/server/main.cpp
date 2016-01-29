@@ -15,6 +15,7 @@
 //Create any global classes
 QSettings *CONFIG = new QSettings("PCBSD","sysadm");
 EventWatcher *EVENTS = new EventWatcher();
+Dispatcher *DISPATCHER = new Dispatcher();
 
 //Create the default logfile
 QFile logfile;
@@ -75,6 +76,10 @@ int main( int argc, char ** argv )
       }
       logfile.open(QIODevice::WriteOnly | QIODevice::Append);
       qInstallMessageHandler(MessageOutput);
+      
+    //Connect the background classes
+    QObject::connect(DISPATCHER, SIGNAL(DispatchFinished(QString, bool)), EVENTS, SLOT(DispatchFinished(QString,bool)) );
+    QObject::connect(DISPATCHER, SIGNAL(DispatchStarting(QString)), EVENTS, SLOT(DispatchStarting(QString)) );
       
     //Create the daemon
     qDebug() << "Starting the PC-BSD sysadm server...." << (websocket ? "(WebSocket)" : "(TCP)");
