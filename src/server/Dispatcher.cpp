@@ -26,10 +26,15 @@ DProcess::~DProcess(){
 }
   
 void DProcess::startProc(){
-  if(cmds.isEmpty()){ emit ProcFinished(ID); return; }
+  if(cmds.isEmpty()){ 
+    finished = QDateTime::currentDateTime();
+    emit ProcFinished(ID); 
+    return; 
+  }
   QString cmd = cmds.takeFirst();
   success = false; //not finished yet
   if(!proclog.isEmpty()){ proclog.append("\n"); }
+  else{ started = QDateTime::currentDateTime(); } //first cmd started
   proclog.append("[Running Command: "+cmd+" ]");
   this->start(cmd);
 }
@@ -58,6 +63,7 @@ void DProcess::cmdFinished(int ret, QProcess::ExitStatus status){
     }else{
       proclog.append("\n[Command Failed: Process Crashed ]");
     }
+    finished = QDateTime::currentDateTime();
     emit ProcFinished(ID);
   }
 }
@@ -123,7 +129,15 @@ void Dispatcher::ProcFinished(QString ID){
       bool found = false;
       for(int l=0; l<list.length() && !found; l++){
         if(list[l].ID==ID){ 
-		
+	  QJsonObject obj;
+	  obj.insert("log",list[l].procLog());
+	  obj.insert("success", list[l].success ? "true" : "false" );
+	  obj.insert("proc_id", ID);
+	  obj.insert("cmd_list", QJsonArray::fromStringList( list[l].rawcmds );
+	  obj.insert("time_started", list[l].started.toString(QT::ISODate) );
+	  obj.insert("time_finished", list[l].finished.toString(QT::ISODate) );
+	  delete list.takeAt(l);
+	  LogManager::log(LogManager::EV_DISPATCH, obj);
 	  found = true;
 	}
       } //end loop over queue list

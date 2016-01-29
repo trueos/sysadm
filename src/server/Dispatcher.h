@@ -19,7 +19,11 @@ public:
 	
 	QString ID;
 	QStringList cmds;
+
+	//output variables for logging purposes
 	bool success;
+	QDateTime started, finished;
+	QStringList rawcmds; //copy of cmds at start of process
 
 	void startProc();
 
