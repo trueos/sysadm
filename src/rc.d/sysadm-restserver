@@ -37,7 +37,7 @@ ssl_keygen()
 sysadm_restserver_stop()
 {
   if [ -e "/var/run/sysadm-rest.pid" ] ; then
-    pkill -9 -F /var/run/sysadm-rest.pid
+    pkill -9 -F /var/run/sysadm-rest.pid >/dev/null 2>/dev/null
   fi
 }
 
