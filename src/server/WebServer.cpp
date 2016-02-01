@@ -148,7 +148,6 @@ void WebServer::NewSocketConnection(){
   qDebug() << "New Socket Connection";	
   connect(sock, SIGNAL(SocketClosed(QString)), this, SLOT(SocketClosed(QString)) );
   connect(EVENTS, SIGNAL(NewEvent(EventWatcher::EVENT_TYPE, QJsonValue)), sock, SLOT(EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue)) );
-  connect(sock, SIGNAL(BlackListAddress(QHostAddress)), this, SLOT(BlackListConnection(QHostAddress)) );
   OpenSockets << sock;
 }
 

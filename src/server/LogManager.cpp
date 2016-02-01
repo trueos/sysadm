@@ -3,7 +3,10 @@
 #define TMPBREAK "<!!line-break!!>"
 //Overall check/creation of the log directory
 void LogManager::checkLogDir(){
-  // - TO-DO
+  if(!QFile::exists(LOGDIR)){
+    QDir dir(LOGDIR);
+    dir.mkpath(LOGDIR);
+  }
 }
 	
 //Main Log write function (all the overloaded versions end up calling this one)

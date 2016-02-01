@@ -52,6 +52,8 @@ int main( int argc, char ** argv )
       qDebug() << "sysadm-server must be started as root!";
       return 1;
     }
+    LogManager::checkLogDir(); //ensure the logging directry exists
+    
     //Evaluate input arguments
     bool websocket = false;
     quint16 port = 0;
@@ -89,6 +91,7 @@ int main( int argc, char ** argv )
     if( w->startServer(port, websocket) ){
       QThread TBACK;
       EVENTS->moveToThread(&TBACK);
+      DISPATCHER->moveToThread(&TBACK);
       TBACK.start();
       QTimer::singleShot(0,EVENTS, SLOT(start()) );
       //Now start the main event loop

@@ -74,12 +74,17 @@ private:
 	DProcess* createProcess(QString ID, QStringList cmds);
 
 private slots:
+	void mkProcs(Dispatcher::PROC_QUEUE, QString ID, QStringList cmds);
 	void ProcFinished(QString ID);
 	void CheckQueues();
 
 signals:
+	//Main signals
 	void DispatchFinished(QString ID, bool success);
 	void DispatchStarting(QString ID);
+
+	//Signals for private usage
+	void mkprocs(Dispatcher::PROC_QUEUE, QString ID, QStringList cmds);
 	
 };
 

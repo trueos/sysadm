@@ -30,14 +30,11 @@ void DProcess::startProc(){
     finished = QDateTime::currentDateTime();
     emit ProcFinished(ID); 
     return; 
-  }else if(proclog.isEmpty()){
-    started = QDateTime::currentDateTime(); //first cmd started
-    rawcmds = cmds;
-  }else{
-    proclog.append("\n");
   }
   QString cmd = cmds.takeFirst();
   success = false; //not finished yet
+  if(!proclog.isEmpty()){ proclog.append("\n"); }
+  else{ started = QDateTime::currentDateTime(); } //first cmd started
   proclog.append("[Running Command: "+cmd+" ]");
   this->start(cmd);
 }
@@ -75,7 +72,7 @@ void DProcess::cmdFinished(int ret, QProcess::ExitStatus status){
 // Dispatcher Class
 // ================================
 Dispatcher::Dispatcher(){
-	
+  connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, QString, QStringList)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, QString, QStringList)) );
 }
 
 Dispatcher::~Dispatcher(){
@@ -104,28 +101,30 @@ void Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QString 
 }
 void Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QStringList cmds){
   //This is the primary queueProcess() function - all the overloads end up here to do the actual work
-  DProcess *P = createProcess(ID, cmds);
-  QList<DProcess*> list;
-  if(!HASH.contains(queue)){ HASH.insert(queue, list); } //insert an empty list
-  HASH[queue] << P; //add this proc to the end of the list
-  if(queue==NO_QUEUE || HASH[queue].length()==1){ 
-    emit DispatchStarting(P->ID); 
-    P->startProc(); //go ahead and start it now
-  }else{ CheckQueues(); }
+  //For multi-threading, need to emit a signal/slot for this action (object creations need to be in same thread as parent)
+  emit mkProcs(queue, ID, cmds);
 }
 
 // === PRIVATE ===
 //Simplification routine for setting up a process
-DProcess* Dispatcher:: createProcess(QString ID, QStringList cmds){
-  DProcess* P = new DProcess(this);
+DProcess* Dispatcher::createProcess(QString ID, QStringList cmds){
+  DProcess* P = new DProcess();
     P->cmds = cmds;
     P->ID = ID;
-    P->success = false;
     connect(P, SIGNAL(ProcFinished(QString)), this, SLOT(ProcFinished(QString)) );
   return P;
 }
 
 // === PRIVATE SLOTS ===
+void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, QString ID, QStringList cmds){
+  DProcess *P = createProcess(ID, cmds);
+  QList<DProcess*> list;
+  if(!HASH.contains(queue)){ HASH.insert(queue, list); } //insert an empty list
+  HASH[queue] << P; //add this proc to the end of the list
+  if(queue==NO_QUEUE || HASH[queue].length()==1){ P->startProc(); } //go ahead and start it now
+  else{ CheckQueues(); }	
+}
+
 void Dispatcher::ProcFinished(QString ID){
   //Find the process with this ID and close it down (with proper events)
   bool found = false;
@@ -154,7 +153,7 @@ void Dispatcher::ProcFinished(QString ID){
 }
 
 void Dispatcher::CheckQueues(){
-  for(int i=0; i<enum_length; i++){
+for(int i=0; i<enum_length; i++){
     PROC_QUEUE queue = static_cast<PROC_QUEUE>(i);
     if(HASH.contains(queue)){
       QList<DProcess*> list = HASH[queue];
@@ -168,5 +167,5 @@ void Dispatcher::CheckQueues(){
       } //end loop over list
     }
     
-  } //end loop over queue types
+  } //end loop over queue types	
 }

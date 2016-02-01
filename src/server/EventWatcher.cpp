@@ -9,6 +9,8 @@
 
 // === PUBLIC ===
 EventWatcher::EventWatcher(){
+  qRegisterMetaType<EventWatcher::EVENT_TYPE>("EventWatcher::EVENT_TYPE");
+	
   starting = true;
   LPlog_pos = LPrep_pos = LPerr_pos = 0; //no pos yet
   watcher = new QFileSystemWatcher(this);
