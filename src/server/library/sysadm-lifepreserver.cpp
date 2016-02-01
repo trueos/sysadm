@@ -4,9 +4,11 @@
 //  Available under the 3-clause BSD license
 //  See the LICENSE file for full details
 //===========================================
+#include <QUuid>
 #include "sysadm-general.h"
 #include "sysadm-lifepreserver.h"
 #include "sysadm-global.h"
+#include "globals.h"
 
 using namespace sysadm;
 
@@ -388,22 +390,16 @@ QJsonObject LifePreserver::runReplication(QJsonObject jsin) {
      return retObject;
    }
 
-   QStringList output;
-   output = General::RunCommand("lpreserver replicate run " + dataset + " " + host).split("\n");
-
-   // Check for any errors
-   for ( int i = 0; i < output.size(); i++)
-   {
-      if ( output.at(i).indexOf("ERROR:") != -1 ) {
-       retObject.insert("error", output.at(i));
-       return retObject;
-      }
-   }
+   // Create a unique ID for this queued action
+   QString ID = QUuid::createUuid().toString();
+   
+   DISPATCHER->queueProcess(ID, "lpreserver replicate run " + dataset + " " + host);
 
    // Got to the end, return the good json
    QJsonObject values;
-   values.insert("dataset", dataset);
-   values.insert("host", host);
+   values.insert("queueid", ID);
+   values.insert("command", "lpreserver replicate run " + dataset + " " + host);
+   values.insert("comment", "Task Queued");
 
    return values;
 }
