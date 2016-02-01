@@ -95,7 +95,8 @@ if [ $? -ne 0 ] ; then
   echo "Failed.. Error output:"
   cat /tmp/.rstErr
 fi
-
+rm $ofile
+rm /tmp/.rstErr
 
 # Now check the response via WebSockets
 export NODE_TLS_REJECT_UNAUTHORIZED=0
@@ -109,3 +110,4 @@ echo "" | tee -a $ofile
 echo "WebSocket Response:" | tee -a $ofile
 echo "-------------------------------" | tee -a $ofile
 echo "{ \"namespace\":\"${namesp}\", \"name\":\"${name}\", \"id\":\"fooid\", \"args\":${payload} }" | node sendwebsocket.js "$fuser" "$fpass" | tee -a $ofile
+rm $ofile
