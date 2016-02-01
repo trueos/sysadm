@@ -11,15 +11,18 @@ void LogManager::checkLogDir(){
 	
 //Main Log write function (all the overloaded versions end up calling this one)
 void LogManager::log(QString file, QStringList msgs, QDateTime time){
+  qDebug() << "Log to File:" << file << msgs;
   if(file.isEmpty()){ return; }
   QFile LOG(file);
-  if( !LOG.open(QIODevice::WriteOnly, QIODevice::Append) ){ return; } //error writing to file
-  QTextStream str(&LOG);
+  if( !LOG.open(QIODevice::WriteOnly, QIODevice::Append) ){ qDebug() << " - Could not write to log:" << file; return; } //error writing to file
+  QTextStream stream(&LOG);
   for(int i=0; i<msgs.length(); i++){
     msgs[i].replace("\n",TMPBREAK);
-    str << "["+time.toString(Qt::ISODate)+"]"+msgs[i]+"\n";
+    stream << QString("["+time.toString(Qt::ISODate)+"]"+msgs[i]+"\n");
+    qDebug() << "logged line:" << msgs[i];
   }
   LOG.close();
+  qDebug() << "Finished saving to log";
 }
 
 //Main Log read function (all the overloaded versions end up calling this one)

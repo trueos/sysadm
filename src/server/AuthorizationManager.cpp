@@ -5,6 +5,8 @@
 // =================================
 #include "AuthorizationManager.h"
 
+#include "globals.h"
+
 // Stuff for PAM to work
 #include <sys/types.h>
 #include <security/pam_appl.h>
@@ -95,7 +97,8 @@ QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString p
     ok = true; //allow local access for users without password
   }
   
-  qDebug() << "User Login Attempt:" << user << " Success:" << ok << " Local Login:" << localhost;
+  qDebug() << "User Login Attempt:" << user << " Success:" << ok << " IP:" << host.toString();
+  LogManager::log(LogManager::HOST, QString("User Login Attempt:")+ user + " Success:" + (ok?"true":"false") + " IP:" + host.toString() );
   if(!ok){ 
     //invalid login
     //Bump the fail count for this host
