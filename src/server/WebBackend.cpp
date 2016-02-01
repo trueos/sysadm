@@ -29,16 +29,15 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
 	<namespace2/name2> : <read/write/other>,
       }
   */
-  //bool allaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
+
   // - syscache
   if(QFile::exists("/var/run/syscache.pipe")){
     out->insert("rpc/syscache","read"); //no write to syscache - only reads
   }
-  // - dispatcher
-  if(DispatcherClient::DispatcherAvailable()){
-    //"read" is the event notifications, "write" is the ability to queue up jobs
-    out->insert("rpc/dispatcher", allaccess ? "read/write" : "read");
-  }
+  // - dispatcher (Internal to server - always available)
+  //"read" is the event notifications, "write" is the ability to queue up jobs
+  out->insert("rpc/dispatcher", allaccess ? "read/write" : "read");
+  
   // - network
   out->insert("sysadm/network","read/write");
   
@@ -71,10 +70,18 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
 	"out" - JSON output arguments structure
   */
   QString namesp = IN.namesp.toLower(); QString name = IN.name.toLower();
-  //Go through and forward this request to the appropriate sub-system
+  
+  //Get/Verify subsystems
   if(namesp=="rpc" && name=="query"){
     return AvailableSubsystems(IN.fullaccess, out);
-  }else if(namesp=="rpc" && name=="dispatcher"){
+  }else{
+    QJsonObject avail;
+    AvailableSubsystems(IN.fullaccess, &avail);
+    if(!avail.contains(namesp+"/"+name)){ return RestOutputStruct::NOTFOUND; }
+  }
+  
+  //Go through and forward this request to the appropriate sub-system 
+  if(namesp=="rpc" && name=="dispatcher"){
     return EvaluateDispatcherRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="iocage"){
     return EvaluateSysadmIocageRequest(IN.args, out);
