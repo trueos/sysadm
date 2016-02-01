@@ -34,6 +34,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   if(QFile::exists("/var/run/syscache.pipe")){
     out->insert("rpc/syscache","read"); //no write to syscache - only reads
   }
+
   // - dispatcher (Internal to server - always available)
   //"read" is the event notifications, "write" is the ability to queue up jobs
   out->insert("rpc/dispatcher", allaccess ? "read/write" : "read");
@@ -150,7 +151,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue
   }else{ return RestOutputStruct::BADREQUEST; }
 
   //Run the Request (should be one value for each in_req)
-  QStringList values = DispatcherClient::parseInputs(in_req, AUTHSYSTEM);;
+  QStringList values = DispatcherClient::parseInputs(in_req, AUTHSYSTEM);
   while(values.length() < in_req.length()){ values << "[ERROR]"; } //ensure lists are same length
 
   //Format the result
@@ -350,6 +351,14 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="getdefaultsettings"){
+	ok = true;
+        out->insert("getdefaultsettings", sysadm::Iocage::getDefaultSettings());
+      }
+      if(act=="getjailsettings"){
+	ok = true;
+        out->insert("getjailsettings", sysadm::Iocage::getJailSettings(in_args.toObject()));
+      }
       if(act=="listjails"){
 	ok = true;
         out->insert("listjails", sysadm::Iocage::listJails());

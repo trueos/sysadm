@@ -8,7 +8,7 @@
 
 #include "globals-qt.h"
 
-#define DISPATCHWORKING QString("/var/tmp/appcafe/dispatch-queue.working")
+//#define DISPATCHWORKING QString("/var/tmp/appcafe/dispatch-queue.working")
 #define LPLOG QString("/var/log/lpreserver/lpreserver.log")
 #define LPERRLOG QString("/var/log/lpreserver/error.log")
 #define LPREPLOGDIR QString("/var/log/lpreserver/")
@@ -48,6 +48,10 @@ private:
 
 public slots:
 	void start();
+
+	//Slots for the global Dispatcher to connect to
+	void DispatchStarting(QString);
+	void DispatchFinished(QString, bool);
 
 private slots:
 	//File watcher signals

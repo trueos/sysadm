@@ -13,7 +13,8 @@ HEADERS	+= globals.h globals-qt.h \
 		AuthorizationManager.h \ 
 		SslServer.h \
 		EventWatcher.h \
-		LogManager.h
+		LogManager.h \
+		Dispatcher.h
 		
 SOURCES	+= main.cpp \
 		WebServer.cpp \
@@ -23,7 +24,8 @@ SOURCES	+= main.cpp \
 		dispatcher-client.cpp \
 		AuthorizationManager.cpp \
 		EventWatcher.cpp \
-		LogManager.cpp
+		LogManager.cpp \
+		Dispatcher.cpp
 
 
 TARGET=sysadm-server

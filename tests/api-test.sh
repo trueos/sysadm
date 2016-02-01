@@ -7,14 +7,20 @@ JSAWK="./utils/jsawk -j js24"
 
 which npm >/dev/null 2>/dev/null
 if [ $? -ne 0 ] ; then
-  echo "Please install npm first"
-  exit 1
+  pkg install -y npm
+  if [ $? -ne 0 ] ; then
+    echo "Requires npm!"
+    exit 1
+  fi
 fi
 
 pkg info p5-JSON >/dev/null 2>/dev/null
 if [ $? -ne 0 ] ; then
-  echo "Please install p5-JSON first"
-  exit 1
+  pkg install -y p5-JSON
+  if [ $? -ne 0 ] ; then
+    echo "Requires p5-JSON!"
+    exit 1
+  fi
 fi
 
 if [ ! -d "${HOME}/.npm/ws" ] ; then

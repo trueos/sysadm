@@ -5,6 +5,8 @@
 // =================================
 #include "EventWatcher.h"
 
+#include "globals.h"
+
 // === PUBLIC ===
 EventWatcher::EventWatcher(){
   starting = true;
@@ -24,9 +26,9 @@ EventWatcher::~EventWatcher(){
 void EventWatcher::start(){
   // - DISPATCH Events
   starting = true;
-  if(!QFile::exists(DISPATCHWORKING)){ QProcess::execute("touch "+DISPATCHWORKING); }
+  //if(!QFile::exists(DISPATCHWORKING)){ QProcess::execute("touch "+DISPATCHWORKING); }
   //qDebug() << " Dispatcher Events:" << DISPATCHWORKING;
-  WatcherUpdate(DISPATCHWORKING); //load it initially (will also add it to the watcher)
+  //WatcherUpdate(DISPATCHWORKING); //load it initially (will also add it to the watcher)
   // - Life Preserver Events
   WatcherUpdate(LPLOG); //load it initially (will also add it to the watcher);
   WatcherUpdate(LPERRLOG); //load it initially (will also add it to the watcher);
@@ -86,10 +88,29 @@ double EventWatcher::displayToDoubleK(QString displayNumber){
   return num;
 }
 
+// === PUBLIC SLOTS ===
+//Slots for the global Dispatcher to connect to
+void EventWatcher::DispatchStarting(QString ID){
+  QJsonObject obj;
+  obj.insert("process_id", ID);
+  obj.insert("state", "running");
+  LogManager::log(LogManager::EV_DISPATCH, obj);	
+  emit NewEvent(DISPATCHER, obj);
+}
+
+void EventWatcher::DispatchFinished(QString ID, bool success){
+  QJsonObject obj;
+  obj.insert("process_id", ID);
+  obj.insert("state", "finished");
+  obj.insert("result", success ? "success" : "failure");
+  LogManager::log(LogManager::EV_DISPATCH, obj);
+  emit NewEvent(DISPATCHER, obj);	
+}
+
 // === PRIVATE SLOTS ===
 void EventWatcher::WatcherUpdate(const QString &path){
   if(!starting){ qDebug() << "Event Watcher Update:" << path; }
-  if(path==DISPATCHWORKING){
+  /*if(path==DISPATCHWORKING){
     //Read the file contents
     QString stat = readFile(DISPATCHWORKING);
     if(stat.simplified().isEmpty()){ stat = "idle"; }
@@ -97,7 +118,8 @@ void EventWatcher::WatcherUpdate(const QString &path){
     HASH.insert(DISPATCHER,stat); //save for later
     //Forward those contents on to the currently-open sockets
     emit NewEvent(DISPATCHER, QJsonValue(stat) );
-  }else if(path==LPLOG){
+  }else*/
+  if(path==LPLOG){
     //Main Life Preserver Log File
     ReadLPLogFile();
   }else if(path==LPERRLOG){
@@ -121,7 +143,7 @@ void EventWatcher::CheckLogFiles(){
   if(!watched.contains(LPLOG) && QFile::exists(LPLOG)){ watcher->addPath(LPLOG); }
   if(!watched.contains(LPERRLOG) && QFile::exists(LPERRLOG)){ watcher->addPath(LPERRLOG); }
   if(!watched.contains(tmpLPRepFile) && QFile::exists(tmpLPRepFile)){ watcher->addPath(tmpLPRepFile); }
-  if(!watched.contains(DISPATCHWORKING) && QFile::exists(LPLOG)){ watcher->addPath(DISPATCHWORKING); }
+  //if(!watched.contains(DISPATCHWORKING) && QFile::exists(LPLOG)){ watcher->addPath(DISPATCHWORKING); }
   //qDebug() << "watched:" << watcher->files() << watcher->directories();
 }
 

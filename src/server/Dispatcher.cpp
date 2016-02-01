@@ -20,7 +20,7 @@ DProcess::DProcess(QObject *parent) : QProcess(parent){
 }
 
 DProcess::~DProcess(){
-  if(this->state()!=QProcess::NotRunning)){
+  if( this->state()!=QProcess::NotRunning ){
     this->terminate();
   }
 }
@@ -30,11 +30,14 @@ void DProcess::startProc(){
     finished = QDateTime::currentDateTime();
     emit ProcFinished(ID); 
     return; 
+  }else if(proclog.isEmpty()){
+    started = QDateTime::currentDateTime(); //first cmd started
+    rawcmds = cmds;
+  }else{
+    proclog.append("\n");
   }
   QString cmd = cmds.takeFirst();
   success = false; //not finished yet
-  if(!proclog.isEmpty()){ proclog.append("\n"); }
-  else{ started = QDateTime::currentDateTime(); } //first cmd started
   proclog.append("[Running Command: "+cmd+" ]");
   this->start(cmd);
 }
@@ -105,8 +108,10 @@ void Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QStringL
   QList<DProcess*> list;
   if(!HASH.contains(queue)){ HASH.insert(queue, list); } //insert an empty list
   HASH[queue] << P; //add this proc to the end of the list
-  if(queue==NO_QUEUE || HASH[queue].length()==1){ P->startProc(); } //go ahead and start it now
-  else{ CheckQueues(); }
+  if(queue==NO_QUEUE || HASH[queue].length()==1){ 
+    emit DispatchStarting(P->ID); 
+    P->startProc(); //go ahead and start it now
+  }else{ CheckQueues(); }
 }
 
 // === PRIVATE ===
@@ -115,6 +120,7 @@ DProcess* Dispatcher:: createProcess(QString ID, QStringList cmds){
   DProcess* P = new DProcess(this);
     P->cmds = cmds;
     P->ID = ID;
+    P->success = false;
     connect(P, SIGNAL(ProcFinished(QString)), this, SLOT(ProcFinished(QString)) );
   return P;
 }
@@ -122,22 +128,23 @@ DProcess* Dispatcher:: createProcess(QString ID, QStringList cmds){
 // === PRIVATE SLOTS ===
 void Dispatcher::ProcFinished(QString ID){
   //Find the process with this ID and close it down (with proper events)
-  for int i=0; i<enum_length; i++){
-    PROC_QUEUE queue = static_cast(PROC_QUEUE>(i);
+  bool found = false;
+  for(int i=0; i<enum_length && !found; i++){
+    Dispatcher::PROC_QUEUE queue = static_cast<Dispatcher::PROC_QUEUE>(i);
     if(HASH.contains(queue)){
       QList<DProcess*> list = HASH[queue];
-      bool found = false;
       for(int l=0; l<list.length() && !found; l++){
-        if(list[l].ID==ID){ 
+        if(list[l]->ID==ID){ 
 	  QJsonObject obj;
-	  obj.insert("log",list[l].procLog());
-	  obj.insert("success", list[l].success ? "true" : "false" );
+	  obj.insert("log",list[l]->getProcLog());
+	  obj.insert("success", list[l]->success ? "true" : "false" );
 	  obj.insert("proc_id", ID);
-	  obj.insert("cmd_list", QJsonArray::fromStringList( list[l].rawcmds );
-	  obj.insert("time_started", list[l].started.toString(QT::ISODate) );
-	  obj.insert("time_finished", list[l].finished.toString(QT::ISODate) );
+	  obj.insert("cmd_list", QJsonArray::fromStringList( list[l]->rawcmds ) );
+	  obj.insert("time_started", list[l]->started.toString(Qt::ISODate) );
+	  obj.insert("time_finished", list[l]->finished.toString(Qt::ISODate) );
+	  emit DispatchFinished(ID, list[l]->success);
 	  delete list.takeAt(l);
-	  LogManager::log(LogManager::EV_DISPATCH, obj);
+	  LogManager::log(LogManager::DISPATCH, obj);
 	  found = true;
 	}
       } //end loop over queue list
@@ -147,5 +154,19 @@ void Dispatcher::ProcFinished(QString ID){
 }
 
 void Dispatcher::CheckQueues(){
-	
+  for(int i=0; i<enum_length; i++){
+    PROC_QUEUE queue = static_cast<PROC_QUEUE>(i);
+    if(HASH.contains(queue)){
+      QList<DProcess*> list = HASH[queue];
+      for(int j=0; j<list.length(); j++){
+	if(j>0 && queue!=NO_QUEUE){ break; } //done with this - only first item in these queues should run at a time
+	if(!list[j]->isRunning() && list[j]->getProcLog().isEmpty()){
+	  //Need to start this one - has not run yet
+	  emit DispatchStarting(list[j]->ID);
+	  list[j]->startProc();
+	}
+      } //end loop over list
+    }
+    
+  } //end loop over queue types
 }

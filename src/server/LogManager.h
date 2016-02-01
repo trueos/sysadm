@@ -15,7 +15,7 @@
 //===========================================
 //  Event Files (EV_*): JSON input/output (full event)
 //  HOST: String input/output (simple messages)
-//
+//  DISPATCH: Full log of dispatcher processes
 //===========================================
 #define LOGDIR QString("/var/log/sysadm")
 
@@ -24,11 +24,12 @@ class LogManager{
 public:
 	//Enumeration of common log files (will automatically use proper file)
 	// === ADD NEW FILE SUPPORT  HERE ===
-	enum LOG_FILE {HOST, EV_DISPATCH, EV_LP};
+	enum LOG_FILE {HOST, DISPATCH, EV_DISPATCH, EV_LP};
 	//Conversion function for flag->path
 	static QString flagToPath(LogManager::LOG_FILE flag){
 	  QString filepath;
 	  if(flag==HOST){ filepath.append("hostinfo"); }
+	  else if(flag==DISPATCH){ filepath.append("dispatcher"); }
 	  else if(flag==EV_DISPATCH){ filepath.append("events-dispatcher"); }
 	  else if(flag==EV_LP){ filepath.append("events-lifepreserver"); }
 	  else{ return ""; } //invalid file given
