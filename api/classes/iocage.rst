@@ -20,7 +20,7 @@ Every iocage class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "getdefaultsettings", "listjails"                                                          |
+| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings"                                       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -374,3 +374,278 @@ system boot, the jail ID (only applies to running jails), whether or not the jai
   "name": "response",
   "namespace": "sysadm"
  }
+
+.. index:: getjailsettings, iocage
+
+.. _Jail Settings:
+
+Jail Settings
+=============
+
+The "getjailsettings" action lists all of the settings that apply to the specified jail. This is equivalent to running :command:`iocage get all <jail>`.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "jail" : "testjail",
+   "action" : "getjailsettings"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "getjailsettings": {
+            "testjail": {
+                "allow_chflags": "0",
+                "allow_mount": "0",
+                "allow_mount_devfs": "0",
+                "allow_mount_nullfs": "0",
+                "allow_mount_procfs": "0",
+                "allow_mount_tmpfs": "0",
+                "allow_mount_zfs": "0",
+                "allow_quotas": "0",
+                "allow_raw_sockets": "0",
+                "allow_set_hostname": "1",
+                "allow_socket_af": "0",
+                "allow_sysvipc": "0",
+                "boot": "off",
+                "bpf": "off",
+                "branch": "-",
+                "children_max": "0",
+                "coredumpsize": "off",
+                "count": "1",
+                "cpuset": "off",
+                "cputime": "off",
+                "datasize": "off",
+                "defaultrouter": "none",
+                "defaultrouter6": "none",
+                "devfs_ruleset": "4",
+                "dhcp": "off",
+                "enforce_statfs": "2",
+                "exec_clean": "1",
+                "exec_fib": "0",
+                "exec_jail_user": "root",
+                "exec_poststart": "/usr/bin/true",
+                "exec_poststop": "/usr/bin/true",
+                "exec_prestart": "/usr/bin/true",
+                "exec_prestop": "/usr/bin/true",
+                "exec_start": "/bin/sh /etc/rc",
+                "exec_stop": "/bin/sh /etc/rc.shutdown",
+                "exec_system_jail_user": "0",
+                "exec_system_user": "root",
+                "exec_timeout": "60",
+                "ftpdir": "-",
+                "ftpfiles": "-",
+                "ftphost": "-",
+                "ftplocaldir": "-",
+                "gitlocation": "https",
+                "hack88": "0",
+                "host_domainname": "none",
+                "host_hostname": "4bb3f929-c6bf-11e5-bbe9-fcaa14deb15d",
+                "host_hostuuid": "4bb3f929-c6bf-11e5-bbe9-fcaa14deb15d",
+                "hostid": "4145fbb8-c5b6-11e5-9f2f-fcaa14deb15d",
+                "interfaces": "vnet0",
+                "ip4": "new",
+                "ip4_addr": "none",
+                "ip4_autoend": "none",
+                "ip4_autostart": "none",
+                "ip4_autosubnet": "none",
+                "ip4_saddrsel": "1",
+                "ip6": "new",
+                "ip6_addr": "none",
+                "ip6_saddrsel": "1",
+                "istemplate": "no",
+                "jail_zfs": "off",
+                "jail_zfs_dataset": "iocage/jails/4ba5d76b-c6bf-11e5-bbe9-fcaa14deb15d/data",
+                "jail_zfs_mountpoint": "none",
+                "last_started": "none",
+                "login_flags": "-f root",
+                "maxproc": "off",
+                "memorylocked": "off",
+                "memoryuse": "8G",
+                "mount_devfs": "1",
+                "mount_fdescfs": "1",
+                "mount_linprocfs": "0",
+                "mount_procfs": "0",
+                "msgqqueued": "off",
+                "msgqsize": "off",
+                "nmsgq": "off",
+                "notes": "none",
+                "nsemop": "off",
+                "nshm": "off",
+                "nthr": "off",
+                "openfiles": "off",
+                "owner": "root",
+                "pcpu": "off",
+                "pkglist": "none",
+                "priority": "99",
+                "pseudoterminals": "off",
+                "release": "10.2-RELEASE",
+                "resolver": "none",
+                "rlimits": "off",
+                "securelevel": "2",
+                "shmsize": "off",
+                "stacksize": "off",
+                "start": "-",
+                "stop_timeout": "30",
+                "swapuse": "off",
+                "sync_stat": "-",
+                "sync_target": "none",
+                "sync_tgt_zpool": "none",
+                "tag": "testjail",
+                "template": "-",
+                "type": "basejail",
+                "vmemoryuse": "off",
+                "vnet": "off",
+                "vnet0_mac": "none",
+                "vnet1_mac": "none",
+                "vnet2_mac": "none",
+                "vnet3_mac": "none",
+                "wallclock": "off"
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "jail" : "testjail",
+      "action" : "getjailsettings"
+   },
+   "id" : "fooid",
+   "name" : "iocage",
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "getjailsettings": {
+      "testjail": {
+        "allow_chflags": "0",
+        "allow_mount": "0",
+        "allow_mount_devfs": "0",
+        "allow_mount_nullfs": "0",
+        "allow_mount_procfs": "0",
+        "allow_mount_tmpfs": "0",
+        "allow_mount_zfs": "0",
+        "allow_quotas": "0",
+        "allow_raw_sockets": "0",
+        "allow_set_hostname": "1",
+        "allow_socket_af": "0",
+        "allow_sysvipc": "0",
+        "boot": "off",
+        "bpf": "off",
+        "branch": "-",
+        "children_max": "0",
+        "coredumpsize": "off",
+        "count": "1",
+        "cpuset": "off",
+        "cputime": "off",
+        "datasize": "off",
+        "defaultrouter": "none",
+        "defaultrouter6": "none",
+        "devfs_ruleset": "4",
+        "dhcp": "off",
+        "enforce_statfs": "2",
+        "exec_clean": "1",
+        "exec_fib": "0",
+        "exec_jail_user": "root",
+        "exec_poststart": "/usr/bin/true",
+        "exec_poststop": "/usr/bin/true",
+        "exec_prestart": "/usr/bin/true",
+        "exec_prestop": "/usr/bin/true",
+        "exec_start": "/bin/sh /etc/rc",
+        "exec_stop": "/bin/sh /etc/rc.shutdown",
+        "exec_system_jail_user": "0",
+        "exec_system_user": "root",
+        "exec_timeout": "60",
+        "ftpdir": "-",
+        "ftpfiles": "-",
+        "ftphost": "-",
+        "ftplocaldir": "-",
+        "gitlocation": "https",
+        "hack88": "0",
+        "host_domainname": "none",
+        "host_hostname": "4bb3f929-c6bf-11e5-bbe9-fcaa14deb15d",
+        "host_hostuuid": "4bb3f929-c6bf-11e5-bbe9-fcaa14deb15d",
+        "hostid": "4145fbb8-c5b6-11e5-9f2f-fcaa14deb15d",
+        "interfaces": "vnet0",
+        "ip4": "new",
+        "ip4_addr": "none",
+        "ip4_autoend": "none",
+        "ip4_autostart": "none",
+        "ip4_autosubnet": "none",
+        "ip4_saddrsel": "1",
+        "ip6": "new",
+        "ip6_addr": "none",
+        "ip6_saddrsel": "1",
+        "istemplate": "no",
+        "jail_zfs": "off",
+        "jail_zfs_dataset": "iocage/jails/4ba5d76b-c6bf-11e5-bbe9-fcaa14deb15d/data",
+        "jail_zfs_mountpoint": "none",
+        "last_started": "none",
+        "login_flags": "-f root",
+        "maxproc": "off",
+        "memorylocked": "off",
+        "memoryuse": "8G",
+        "mount_devfs": "1",
+        "mount_fdescfs": "1",
+        "mount_linprocfs": "0",
+        "mount_procfs": "0",
+        "msgqqueued": "off",
+        "msgqsize": "off",
+        "nmsgq": "off",
+        "notes": "none",
+        "nsemop": "off",
+        "nshm": "off",
+        "nthr": "off",
+        "openfiles": "off",
+        "owner": "root",
+        "pcpu": "off",
+        "pkglist": "none",
+        "priority": "99",
+        "pseudoterminals": "off",
+        "release": "10.2-RELEASE",
+        "resolver": "none",
+        "rlimits": "off",
+        "securelevel": "2",
+        "shmsize": "off",
+        "stacksize": "off",
+        "start": "-",
+        "stop_timeout": "30",
+        "swapuse": "off",
+        "sync_stat": "-",
+        "sync_target": "none",
+        "sync_tgt_zpool": "none",
+        "tag": "testjail",
+        "template": "-",
+        "type": "basejail",
+        "vmemoryuse": "off",
+        "vnet": "off",
+        "vnet0_mac": "none",
+        "vnet1_mac": "none",
+        "vnet2_mac": "none",
+        "vnet3_mac": "none",
+        "wallclock": "off"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
