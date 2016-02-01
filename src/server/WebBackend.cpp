@@ -11,6 +11,7 @@
 //sysadm library interface classes
 #include "library/sysadm-general.h"
 #include "library/sysadm-iocage.h"
+#include "library/sysadm-iohyve.h"
 #include "library/sysadm-lifepreserver.h"
 #include "library/sysadm-network.h"
 #include "library/sysadm-systeminfo.h"
@@ -52,6 +53,11 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
     out->insert("sysadm/iocage", "read/write");
   }
   
+  // - iohyve
+  if(QFile::exists("/usr/local/sbin/iohyve")){
+    out->insert("sysadm/iohyve", "read/write");
+  }
+
   // - Generic system information
   out->insert("sysadm/systeminfo","read/write");
 
@@ -86,6 +92,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateDispatcherRequest(IN.fullaccess, IN.args, out);
   }else if(namesp=="sysadm" && name=="iocage"){
     return EvaluateSysadmIocageRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="iohyve"){
+    return EvaluateSysadmIohyveRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="lifepreserver"){
     return EvaluateSysadmLifePreserverRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="network"){
@@ -374,6 +382,30 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
       if(act=="listjails"){
 	ok = true;
         out->insert("listjails", sysadm::Iocage::listJails());
+      }
+
+    } //end of "action" key usage
+    
+    //If nothing done - return the proper code
+    if(!ok){
+      return RestOutputStruct::BADREQUEST;
+    }
+  }else{  // if(in_args.isArray()){
+    return RestOutputStruct::BADREQUEST;
+  }
+  return RestOutputStruct::OK;
+}
+
+//==== SYSADM -- iohyve ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonValue in_args, QJsonObject *out){
+  if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    bool ok = false;
+    if(keys.contains("action")){
+      QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="listvms"){
+	ok = true;
+        out->insert("listvms", sysadm::Iohyve::listVMs());
       }
 
     } //end of "action" key usage

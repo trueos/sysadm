@@ -48,6 +48,8 @@ private:
 	RestOutputStruct::ExitCode EvaluateDispatcherRequest(bool allaccess, const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm iocage API
 	RestOutputStruct::ExitCode EvaluateSysadmIocageRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- sysadm iohyve API
+	RestOutputStruct::ExitCode EvaluateSysadmIohyveRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm Network API
 	RestOutputStruct::ExitCode EvaluateSysadmNetworkRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm LifePreserver API
