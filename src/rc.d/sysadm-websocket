@@ -37,7 +37,7 @@ ssl_keygen()
 sysadm_websocket_stop()
 {
   if [ -e "/var/run/sysadm-websocket.pid" ] ; then
-    pkill -9 -F /var/run/sysadm-websocket.pid
+    pkill -9 -F /var/run/sysadm-websocket.pid >/dev/null 2>/dev/null
   fi
 }
 
