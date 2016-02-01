@@ -45,7 +45,7 @@ private:
 	RestOutputStruct::ExitCode EvaluateBackendRequest(const RestInputStruct&, QJsonObject *out);
 	// -- Individual subsystems
 	RestOutputStruct::ExitCode EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out);
-	RestOutputStruct::ExitCode EvaluateDispatcherRequest(const QJsonValue in_args, QJsonObject *out);
+	RestOutputStruct::ExitCode EvaluateDispatcherRequest(bool allaccess, const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm iocage API
 	RestOutputStruct::ExitCode EvaluateSysadmIocageRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm Network API

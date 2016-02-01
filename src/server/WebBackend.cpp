@@ -9,15 +9,15 @@
 #include <WebSocket.h>
 
 //sysadm library interface classes
-#include "sysadm-general.h"
-#include "sysadm-iocage.h"
-#include "sysadm-lifepreserver.h"
-#include "sysadm-network.h"
-#include "sysadm-systeminfo.h"
-#include "sysadm-update.h"
+#include "library/sysadm-general.h"
+#include "library/sysadm-iocage.h"
+#include "library/sysadm-lifepreserver.h"
+#include "library/sysadm-network.h"
+#include "library/sysadm-systeminfo.h"
+#include "library/sysadm-update.h"
 
 #include "syscache-client.h"
-#include "dispatcher-client.h"
+//#include "dispatcher-client.h"
 
 #define DEBUG 0
 #define SCLISTDELIM QString("::::") //SysCache List Delimiter
@@ -83,7 +83,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   
   //Go through and forward this request to the appropriate sub-system 
   if(namesp=="rpc" && name=="dispatcher"){
-    return EvaluateDispatcherRequest(IN.args, out);
+    return EvaluateDispatcherRequest(IN.fullaccess, IN.args, out);
   }else if(namesp=="sysadm" && name=="iocage"){
     return EvaluateSysadmIocageRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="lifepreserver"){
@@ -136,15 +136,21 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue i
 }
 
 //==== DISPATCHER ====
-RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue in_args, QJsonObject *out){
+RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, const QJsonValue in_args, QJsonObject *out){
   //dispatcher only needs a list of sub-commands at the moment (might change later)
-  if(!AUTHSYSTEM->hasFullAccess(SockAuthToken)){
+  if(!in_args.isObject() || !in_args.toObject().contains("action") ){ return RestOutputStruct::BADREQUEST; }
+  QString act = in_args.toObject().value("action").toString().toLower();
+  
+  //Determing the type of action to perform
+  if(act=="run"){ }
+  if(!allaccess){
     return RestOutputStruct::FORBIDDEN; //this user does not have permission to queue jobs
   }
-  QStringList in_req;
+
+  
 
   //Parse the input arguments structure
-  if(in_args.isArray()){ in_req = JsonArrayToStringList(in_args.toArray()); }
+  /*if(in_args.isArray()){ in_req = JsonArrayToStringList(in_args.toArray()); }
   else if(in_args.isObject()){
     QStringList keys = in_args.toObject().keys();
     for(int i=0; i<keys.length(); i++){ in_req << JsonValueToString(in_args.toObject().value(keys[i])); }
@@ -155,7 +161,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(const QJsonValue
   while(values.length() < in_req.length()){ values << "[ERROR]"; } //ensure lists are same length
 
   //Format the result
-  for(int i=0; i<values.length(); i++){ out->insert(in_req[i],values[i]); }
+  for(int i=0; i<values.length(); i++){ out->insert(in_req[i],values[i]); }*/
   //Return Success
   return RestOutputStruct::OK;
 }
