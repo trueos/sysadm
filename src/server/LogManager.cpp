@@ -14,15 +14,16 @@ void LogManager::log(QString file, QStringList msgs, QDateTime time){
   qDebug() << "Log to File:" << file << msgs;
   if(file.isEmpty()){ return; }
   QFile LOG(file);
-  if( !LOG.open(QIODevice::WriteOnly, QIODevice::Append) ){ qDebug() << " - Could not write to log:" << file; return; } //error writing to file
+  //if(!LOG.exists()){ system( QString("touch "+file).toLocal8Bit() ); }
+  if( !LOG.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text) ){ qDebug() << " - Could not write to log:" << file; return; } //error writing to file
   QTextStream stream(&LOG);
   for(int i=0; i<msgs.length(); i++){
     msgs[i].replace("\n",TMPBREAK);
     stream << QString("["+time.toString(Qt::ISODate)+"]"+msgs[i]+"\n");
-    qDebug() << "logged line:" << msgs[i];
+    //qDebug() << "logged line:" << msgs[i];
   }
   LOG.close();
-  qDebug() << "Finished saving to log";
+  //qDebug() << "Finished saving to log";
 }
 
 //Main Log read function (all the overloaded versions end up calling this one)
@@ -30,7 +31,7 @@ QStringList LogManager::readLog(QString file, QDateTime starttime, QDateTime end
   //Read the whole file into memory as quickly as possible
   QStringList all;
   QFile LOG(file);
-  if( !LOG.open(QIODevice::ReadOnly) ){ return QStringList(); } //error opening file
+  if( !LOG.open(QIODevice::ReadOnly | QIODevice::Text) ){ return QStringList(); } //error opening file
   QTextStream str(&LOG);
   all = str.readAll().split("\n");
   LOG.close();
