@@ -142,26 +142,32 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, 
   QString act = in_args.toObject().value("action").toString().toLower();
   
   //Determing the type of action to perform
-  if(act=="run"){ }
-  if(!allaccess){
-    return RestOutputStruct::FORBIDDEN; //this user does not have permission to queue jobs
+  if(act=="run"){
+    if(!allaccess){ return RestOutputStruct::FORBIDDEN; } //this user does not have permission to queue jobs
+    QStringList ids = in_args.toObject().keys();
+    ids.removeAll("action"); //already handled the action
+    for(int i=0; i<ids.length(); i++){
+      //Get the list of commands for this id
+      QStringList cmds;
+      QJsonValue val = in_args.toObject().value(ids[i]);
+      if(val.isArray()){ cmds = JsonArrayToStringList(val.toArray()); }
+      else if(val.isString()){ cmds << val.toString(); }
+      else{ 
+	ids.removeAt(i); 
+	i--;      
+	continue; 
+      }
+      //queue up this process
+      DISPATCHER->queueProcess(ids[i], cmds);
+    }
+    //Return the PENDING result
+    out->insert("started", QJsonArray::fromStringList(ids));
+  //}else if(act=="read"){
+    
+  }else{
+    return RestOutputStruct::BADREQUEST;
   }
 
-  
-
-  //Parse the input arguments structure
-  /*if(in_args.isArray()){ in_req = JsonArrayToStringList(in_args.toArray()); }
-  else if(in_args.isObject()){
-    QStringList keys = in_args.toObject().keys();
-    for(int i=0; i<keys.length(); i++){ in_req << JsonValueToString(in_args.toObject().value(keys[i])); }
-  }else{ return RestOutputStruct::BADREQUEST; }
-
-  //Run the Request (should be one value for each in_req)
-  QStringList values = DispatcherClient::parseInputs(in_req, AUTHSYSTEM);
-  while(values.length() < in_req.length()){ values << "[ERROR]"; } //ensure lists are same length
-
-  //Format the result
-  for(int i=0; i<values.length(); i++){ out->insert(in_req[i],values[i]); }*/
   //Return Success
   return RestOutputStruct::OK;
 }
