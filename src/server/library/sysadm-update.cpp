@@ -142,6 +142,7 @@ QJsonObject Update::startUpdate(QJsonObject jsin) {
   // Create a unique ID for this queued action
   QString ID = QUuid::createUuid().toString();
 
+  // Queue the update action
   DISPATCHER->queueProcess(ID, "pc-updatemanager " + flags);
 
   // Return some details to user that the action was queued
