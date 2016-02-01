@@ -4,6 +4,7 @@
 //  Available under the 3-clause BSD license
 //  See the LICENSE file for full details
 //===========================================
+#include <QUuid>
 #include "sysadm-general.h"
 #include "sysadm-update.h"
 #include "sysadm-global.h"
@@ -96,5 +97,55 @@ QJsonObject Update::listBranches() {
       retObject.insert(tmp, "available");
   }
 
+  return retObject;
+}
+
+// Kickoff an update process
+QJsonObject Update::startUpdate(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("target") ) {
+    retObject.insert("error", "Missing required key 'target'");
+    return retObject;
+  }
+  // Save the target
+  QString target;
+  target = jsin.value("target").toString();
+
+  QString flags;
+  if ( target == "chbranch" ) {
+    if (! keys.contains("branch") ) {
+      retObject.insert("error", "Missing required key 'branch'");
+      return retObject;
+    }
+    flags = "chbranch " + jsin.value("branch").toString();
+  } else if ( target == "pkgupdate" ) {
+    flags = "pkgupdate";
+  } else if ( target == "fbsdupdate" ) {
+    flags = "fbsdupdate";
+  } else if ( target == "fbsdupdatepkgs" ) {
+    flags = "fbsdupdatepkgs";
+  } else if ( target == "standalone" ) {
+    if (! keys.contains("tag") ) {
+      retObject.insert("error", "Missing required key 'tag'");
+      return retObject;
+    }
+    flags = "install " + jsin.value("tag").toString();
+  } else {
+    // Ruh-roh
+    retObject.insert("error", "Unknown target key: " + target);
+    return retObject;
+  } 
+
+  // Create a unique ID for this queued action
+  QString ID = QUuid::createUuid().toString();
+
+  //DISPATCHER::queueProcess(ID, "pc-updatemanager " + flags).split("\n");
+
+  // Return some details to user that the action was queued
+  retObject.insert("command", "pc-updatemanger " + flags);
+  retObject.insert("comment", "Task Queued");
+  retObject.insert("queueid", ID);
   return retObject;
 }

@@ -16,6 +16,7 @@ class Update{
 public:
 	static QJsonObject checkUpdates();
 	static QJsonObject listBranches();
+	static QJsonObject startUpdate(QJsonObject);
 };
 	
 } //end of pcbsd namespace
