@@ -210,6 +210,44 @@ QJsonObject SysInfo::memoryStats() {
   return retObject;
 }
 
+// Return a json list of process information
+QJsonObject SysInfo::procInfo() {
+  QJsonObject retObject;
+  QStringList output;
+  output = General::RunCommand("top -t -n all").split("\n");
+  bool inSection = false;
+  for(int i=0; i<output.length(); i++){
+    if (output.at(i).contains("PID") && output.at(i).contains("USERNAME")){
+      inSection = true;
+      continue;	   
+    }
+    if (!inSection)
+      continue;
+    if ( output.at(i).isEmpty())
+      continue;
+
+    // Now, lets break down the various elements of process information
+    QJsonObject values;
+    QString line = output.at(i).simplified();
+    QString pid = line.section(" ", 0, 0);
+    values.insert("username", line.section(" ", 1, 1));
+    values.insert("thr", line.section(" ", 2, 2));
+    values.insert("pri", line.section(" ", 3, 3));
+    values.insert("nice", line.section(" ", 4, 4));
+    values.insert("size", line.section(" ", 5, 5));
+    values.insert("res", line.section(" ", 6, 6));
+    values.insert("state", line.section(" ", 7, 7));
+    values.insert("cpu", line.section(" ", 8, 8));
+    values.insert("time", line.section(" ", 9, 9));
+    values.insert("wcpu", line.section(" ", 10, 10));
+    values.insert("command", line.section(" ", 11, 11));
+
+    // Add the PID object
+    retObject.insert(pid, values);
+  }
+  return retObject;
+}
+
 // Return a bunch of various system information
 QJsonObject SysInfo::systemInfo() {
   QJsonObject retObject;

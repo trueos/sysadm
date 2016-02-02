@@ -319,6 +319,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemInfoRequest(const QJso
 	ok = true;
         out->insert("memorystats", sysadm::SysInfo::memoryStats());
       }
+      if(act=="procinfo"){
+	ok = true;
+        out->insert("procinfo", sysadm::SysInfo::procInfo());
+      }
       if(act=="systeminfo"){
 	ok = true;
         out->insert("systeminfo", sysadm::SysInfo::systemInfo());
