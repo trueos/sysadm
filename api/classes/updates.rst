@@ -20,7 +20,7 @@ Every update class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "checkupdates", "listbranches"                                                             |
+| action                          |               | supported actions include "checkupdates", "listbranches", "startupdate"                                              |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -138,6 +138,80 @@ The "listbranches" action retrieves the list of available branches (operating sy
     "listbranches": {
       "10.2-RELEASE": "active",
       "11.0-CURRENTJAN2016": "available"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: startupdate, update
+
+.. _Start Updates:
+
+Start Updates
+=============
+
+The "startupdate" action starts the specified update. You must specify a "target" to indicate the type of update to perform. The available targets are:
+
+* **chbranch:** will update to the specified "branch" (operating system version). You can determine which branches are available by using the "listbranches" action.
+
+* **pkgupdate:** only update installed software.
+
+* **fbsdupdate:** only apply FreeBSD system updates.
+
+* **fbsdupdatepkgs:** update installed software and apply FreeBSD system updates.
+
+* **standalone:** only update package specified as a "tag" (e.g. pkgng-1.6.9).
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/update
+ {
+   "action" : "startupdate",
+   "target" : "pkgupdate"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+      "startupdate": {
+        "queueid": "611c89ae-c43c-11e5-9602-54ee75595566",
+        "command": "pc-updatemanager pkgupdate",
+        "comment": "Task Queued"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "startupdate",
+      "target" : "pkgupdate"
+   },
+   "name" : "update",
+   "id" : "fooid",
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "startupdate": {
+      "queueid": "611c89ae-c43c-11e5-9602-54ee75595566",
+      "command": "pc-updatemanager pkgupdate",
+      "comment": "Task Queued"
     }
   },
   "id": "fooid",
