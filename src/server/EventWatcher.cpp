@@ -46,6 +46,7 @@ EventWatcher::EVENT_TYPE EventWatcher::typeFromString(QString typ){
 }
 
 QJsonValue EventWatcher::lastEvent(EVENT_TYPE type){
+  CheckLogFiles();
   if(HASH.contains(type)){ return HASH.value(type); }
   else{ qDebug() << "No saved event:" << type; return QJsonValue(); }
 }
@@ -124,15 +125,15 @@ void EventWatcher::WatcherUpdate(const QString &path){
       watcher->removePath(path);
     }
   }
-  CheckLogFiles(); //check for any other missing files
+  QTimer::singleShot(10,this, SLOT(CheckLogFiles()) ); //check for any other missing files
 }
 
 void EventWatcher::CheckLogFiles(){
   //Make sure all the proper files are being watched
   QStringList watched; watched << watcher->files() << watcher->directories();
-  if(!watched.contains(LPLOG) && QFile::exists(LPLOG)){ watcher->addPath(LPLOG); }
-  if(!watched.contains(LPERRLOG) && QFile::exists(LPERRLOG)){ watcher->addPath(LPERRLOG); }
-  if(!watched.contains(tmpLPRepFile) && QFile::exists(tmpLPRepFile)){ watcher->addPath(tmpLPRepFile); }
+  if(!watched.contains(LPLOG) && QFile::exists(LPLOG)){ watcher->addPath(LPLOG); WatcherUpdate(LPLOG); }
+  if(!watched.contains(LPERRLOG) && QFile::exists(LPERRLOG)){ watcher->addPath(LPERRLOG); WatcherUpdate(LPERRLOG); }
+  if(!watched.contains(tmpLPRepFile) && QFile::exists(tmpLPRepFile)){ watcher->addPath(tmpLPRepFile);  WatcherUpdate(tmpLPRepFile); }
   //qDebug() << "watched:" << watcher->files() << watcher->directories();
 }
 
