@@ -166,9 +166,11 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, 
 	continue; 
       }
       //queue up this process
+
       DISPATCHER->queueProcess(ids[i], cmds);
     }
     //Return the PENDING result
+    LogManager::log(LogManager::HOST, "Client Launched Processes["+SockPeerIP+"]: "+ids.join(",") );
     out->insert("started", QJsonArray::fromStringList(ids));
   //}else if(act=="read"){
     

@@ -100,11 +100,7 @@ void EventWatcher::DispatchStarting(QString ID){
   emit NewEvent(DISPATCHER, obj);
 }
 
-void EventWatcher::DispatchFinished(QString ID, bool success){
-  QJsonObject obj;
-  obj.insert("process_id", ID);
-  obj.insert("state", "finished");
-  obj.insert("result", success ? "success" : "failure");
+void EventWatcher::DispatchFinished(QJsonObject obj){
   LogManager::log(LogManager::EV_DISPATCH, obj);
   emit NewEvent(DISPATCHER, obj);	
 }

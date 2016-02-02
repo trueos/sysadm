@@ -160,7 +160,7 @@ void Dispatcher::ProcFinished(QString ID){
 	  obj.insert("cmd_list", QJsonArray::fromStringList( list[l]->rawcmds ) );
 	  obj.insert("time_started", list[l]->t_started.toString(Qt::ISODate) );
 	  obj.insert("time_finished", list[l]->t_finished.toString(Qt::ISODate) );
-	  emit DispatchFinished(ID, list[l]->success);
+	  emit DispatchFinished(obj);
 	  delete list.takeAt(l);
 	  LogManager::log(LogManager::DISPATCH, obj);
 	  found = true;
@@ -187,7 +187,7 @@ for(int i=0; i<enum_length; i++){
 	    obj.insert("cmd_list", QJsonArray::fromStringList( list[j]->rawcmds ) );
 	    obj.insert("time_started", list[j]->t_started.toString(Qt::ISODate) );
 	    obj.insert("time_finished", list[j]->t_finished.toString(Qt::ISODate) );
-	    emit DispatchFinished(list[j]->ID, list[j]->success);
+	    emit DispatchFinished(obj);
 	    LogManager::log(LogManager::DISPATCH, obj);
 	    delete list.takeAt(j);
 	    j--;

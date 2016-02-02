@@ -24,7 +24,7 @@ private:
 	QTimer *idletimer;
 	QWebSocket *SOCKET;
 	QSslSocket *TSOCKET;
-	QString SockID, SockAuthToken;
+	QString SockID, SockAuthToken, SockPeerIP;
 	AuthorizationManager *AUTHSYSTEM;
 	QList<EventWatcher::EVENT_TYPE> ForwardEvents;
 

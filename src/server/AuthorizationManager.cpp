@@ -98,7 +98,7 @@ QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString p
   }
   
   qDebug() << "User Login Attempt:" << user << " Success:" << ok << " IP:" << host.toString();
-  LogManager::log(LogManager::HOST, QString("User Login Attempt:")+ user + " Success:" + (ok?"true":"false") + " IP:" + host.toString() );
+  LogManager::log(LogManager::HOST, QString("User Login Attempt: ")+user+"   Success: "+(ok?"true":"false")+"   IP: "+host.toString() );
   if(!ok){ 
     //invalid login
     //Bump the fail count for this host
@@ -114,18 +114,29 @@ QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString p
 
 QString AuthorizationManager::LoginService(QHostAddress host, QString service){
   bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) );
+	
   //Login a particular automated service
   qDebug() << "Service Login Attempt:" << service << " Success:" << localhost;
   if(!localhost){ return ""; } //invalid - services must be local for access
   //Check that the service is valid on the system
   bool isok = false;
-  if(service!="root" && service!="toor"){
+  if(service!="root" && service!="toor" && localhost){
     QStringList groups = getUserGroups(service);
     isok = (groups.contains(service) && !groups.contains("wheel") && !groups.contains("operator"));
   }
+  
   //Now generate a new token and send it back
-  if(!isok){ return ""; }
-  else{ return generateNewToken(false); }//services are never given operator privileges
+  if(!isok){ 
+    //invalid login
+    if(!localhost){
+      //Bump the fail count for this host
+      bool overlimit = BumpFailCount(host.toString());
+      if(overlimit){ emit BlockHost(host); }
+      return (overlimit ? "REFUSED" : "");	  
+    }else{
+      return "";
+    }
+  }else{ return generateNewToken(false); }//services are never given operator privileges
 }
 
 // =========================

@@ -83,7 +83,7 @@ private slots:
 
 signals:
 	//Main signals
-	void DispatchFinished(QString ID, bool success);
+	void DispatchFinished(QJsonObject obj); //obj is the data associated with the process
 	void DispatchStarting(QString ID);
 
 	//Signals for private usage

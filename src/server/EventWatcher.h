@@ -51,7 +51,7 @@ public slots:
 
 	//Slots for the global Dispatcher to connect to
 	void DispatchStarting(QString);
-	void DispatchFinished(QString, bool);
+	void DispatchFinished(QJsonObject);
 
 private slots:
 	//File watcher signals

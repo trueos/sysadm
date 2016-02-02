@@ -17,6 +17,8 @@ WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
   SOCKET = sock;
   TSOCKET = 0;
   AUTHSYSTEM = auth;
+  SockPeerIP = SOCKET->peerAddress().toString();
+  LogManager::log(LogManager::HOST,"New Connection: "+SockPeerIP);
   idletimer = new QTimer(this);
     idletimer->setInterval(IDLETIMEOUTMINS*60000); //connection timout for idle sockets
     idletimer->setSingleShot(true);
@@ -32,6 +34,8 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
   SockAuthToken.clear(); //nothing set initially
   TSOCKET = sock;
   SOCKET = 0;
+  SockPeerIP = TSOCKET->peerAddress().toString();
+  LogManager::log(LogManager::HOST,"New Connection: "+SockPeerIP);
   AUTHSYSTEM = auth;
   idletimer = new QTimer(this);
     idletimer->setInterval(IDLETIMEOUTMINS*60000); //connection timout for idle sockets
@@ -42,14 +46,14 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
   connect(TSOCKET, SIGNAL(encrypted()), this, SLOT(nowEncrypted()) );
   connect(TSOCKET, SIGNAL(peerVerifyError(const QSslError &)), this, SLOT(peerError(const QSslError &)) );
   connect(TSOCKET, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(SslError(const QList<QSslError> &)) );
-  qDebug() << " - Starting Server Encryption Handshake";
+  //qDebug() << " - Starting Server Encryption Handshake";
    TSOCKET->startServerEncryption();
   //qDebug() << " - Socket Encrypted:" << TSOCKET->isEncrypted();
   idletimer->start();
 }
 
 WebSocket::~WebSocket(){
-  qDebug() << "SOCKET Destroyed";
+  //qDebug() << "SOCKET Destroyed";
   if(SOCKET!=0){
     SOCKET->close();
     delete SOCKET;
@@ -69,7 +73,7 @@ QString WebSocket::ID(){
 //             PRIVATE
 //=======================
 void WebSocket::sendReply(QString msg){
-  qDebug() << "Sending Socket Reply:" << msg;
+  //qDebug() << "Sending Socket Reply:" << msg;
  if(SOCKET!=0 && SOCKET->isValid()){ SOCKET->sendTextMessage(msg); } //Websocket connection
  else if(TSOCKET!=0 && TSOCKET->isValid()){ 
     //TCP Socket connection
@@ -202,7 +206,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    int sub = -1; //bad input
 	    if(out.in_struct.name=="subscribe"){ sub = 1; }
 	    else if(out.in_struct.name=="unsubscribe"){ sub = 0; }
-	    qDebug() << "Got Client Event Modification:" << sub << evlist;
+	    //qDebug() << "Got Client Event Modification:" << sub << evlist;
 	    if(sub>=0 && !evlist.isEmpty() ){
 	      for(int i=0; i<evlist.length(); i++){
 	        EventWatcher::EVENT_TYPE type = EventWatcher::typeFromString(evlist[i]);
@@ -283,25 +287,24 @@ QStringList WebSocket::JsonArrayToStringList(QJsonArray array){
 //       PRIVATE SLOTS
 // =====================
 void WebSocket::checkIdle(){
-  //This function is called automatically every few seconds that a client is connected
   if(SOCKET !=0){
-    qDebug() << " - Client Timeout: Closing connection...";
+    LogManager::log(LogManager::HOST,"Connection Idle: "+SockPeerIP);
     SOCKET->close(); //timeout - close the connection to make way for others
   }
   if(TSOCKET !=0){
-    qDebug() << " - Client Timeout: Closing connection...";
+    LogManager::log(LogManager::HOST,"Connection Idle: "+SockPeerIP);
     TSOCKET->close(); //timeout - close the connection to make way for others
   }
 }
 
 void WebSocket::SocketClosing(){
-  qDebug() << "Socket Closing..." ;
+  LogManager::log(LogManager::HOST,"Connection Closing: "+SockPeerIP);
   if(idletimer->isActive()){ 
     //This means the client deliberately closed the connection - not the idle timer
-    qDebug() << " - Client Closed Connection";
+    //qDebug() << " - Client Closed Connection";
     idletimer->stop(); 
   }else{
-    qDebug() << "idleTimer not running";
+    //qDebug() << "idleTimer not running";
   }
   //Stop any current requests
 
@@ -313,24 +316,24 @@ void WebSocket::SocketClosing(){
 }
 
 void WebSocket::EvaluateMessage(const QByteArray &msg){
-  qDebug() << "New Binary Message:";
+  //qDebug() << "New Binary Message:";
   if(idletimer->isActive()){ idletimer->stop(); }
   idletimer->start(); 
   EvaluateREST( QString(msg) );
-  qDebug() << " - Done with Binary Message";
+  //qDebug() << " - Done with Binary Message";
 }
 
 void WebSocket::EvaluateMessage(const QString &msg){ 
-  qDebug() << "New Text Message:";
+  //qDebug() << "New Text Message:";
   if(idletimer->isActive()){ idletimer->stop(); }
   idletimer->start(); 
   EvaluateREST(msg); 
-  qDebug() << " - Done with Text Message";
+  //qDebug() << " - Done with Text Message";
 }
 
 void WebSocket::EvaluateTcpMessage(){
   //Need to read the data from the Tcp socket and turn it into a string
-  qDebug() << "New TCP Message:";
+  //qDebug() << "New TCP Message:";
   if(idletimer->isActive()){ idletimer->stop(); }
   QString msg = QString(TSOCKET->readAll());
   for(int i=0; i<5 && !msg.endsWith("}"); i++){
@@ -339,21 +342,21 @@ void WebSocket::EvaluateTcpMessage(){
   }
   EvaluateREST(msg );
   idletimer->start(); 
-  qDebug() << " - Done with TCP Message";	
+  //qDebug() << " - Done with TCP Message";	
 }
 
 //SSL signal handling
 void WebSocket::nowEncrypted(){
   //the socket/connection is now encrypted
-  qDebug() << " - Socket now encrypted";
+  //qDebug() << " - Socket now encrypted";
 }
 
 void WebSocket::peerError(const QSslError&){ //peerVerifyError() signal
-  qDebug() << "Socket Peer Error:";
+  //qDebug() << "Socket Peer Error:";
 }
 
 void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
-  qDebug() << "Socket SSL Errors:" << err.length();
+  LogManager::log(LogManager::HOST,"Connection SSL Errors ["+SockPeerIP+"]: "+err.length());
 }
 
 // ======================
