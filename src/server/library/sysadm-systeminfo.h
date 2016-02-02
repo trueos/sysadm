@@ -20,6 +20,7 @@ public:
 	static QJsonObject externalDevicePaths();
 	static QJsonObject memoryStats();
 	static QJsonObject systemInfo();
+	static QJsonObject procInfo();
 };
 	
 } //end of pcbsd namespace
