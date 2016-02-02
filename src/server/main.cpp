@@ -89,10 +89,11 @@ int main( int argc, char ** argv )
     //Start the daemon
     int ret = 1; //error return value
     if( w->startServer(port, websocket) ){
-      QThread TBACK;
+      QThread TBACK, TBACK2;
       EVENTS->moveToThread(&TBACK);
-      DISPATCHER->moveToThread(&TBACK);
+      DISPATCHER->moveToThread(&TBACK2);
       TBACK.start();
+      TBACK2.start();
       QTimer::singleShot(0,EVENTS, SLOT(start()) );
       //Now start the main event loop
       ret = a.exec();

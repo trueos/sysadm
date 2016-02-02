@@ -22,20 +22,23 @@ public:
 
 	//output variables for logging purposes
 	bool success;
-	QDateTime started, finished;
+	QDateTime t_started, t_finished;
 	QStringList rawcmds; //copy of cmds at start of process
-
-	void startProc();
 
 	//Get the current process log (can be run during/after the process runs)
 	QString getProcLog();
-
+	//Process Status
 	bool isRunning();
+	bool isDone();
+
+public slots:
+	void startProc();
 
 private:
 	QString proclog;
 
 private slots:
+	void cmdError(QProcess::ProcessError);
 	void cmdFinished(int, QProcess::ExitStatus);
 
 signals:
