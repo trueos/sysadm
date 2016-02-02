@@ -59,6 +59,7 @@ void EventWatcher::sendLPEvent(QString system, int priority, QString msg){
   obj.insert("class" , system);
   HASH.insert(LIFEPRESERVER, obj);
   //qDebug() << "New LP Event Object:" << obj;
+  LogManager::log(LogManager::EV_LP, obj);
   if(!starting){ emit NewEvent(LIFEPRESERVER, obj); }
 }
 
