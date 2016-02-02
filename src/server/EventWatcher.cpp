@@ -108,15 +108,6 @@ void EventWatcher::DispatchFinished(QJsonObject obj){
 // === PRIVATE SLOTS ===
 void EventWatcher::WatcherUpdate(const QString &path){
   if(!starting){ qDebug() << "Event Watcher Update:" << path; }
-  /*if(path==DISPATCHWORKING){
-    //Read the file contents
-    QString stat = readFile(DISPATCHWORKING);
-    if(stat.simplified().isEmpty()){ stat = "idle"; }
-    //qDebug() << "Dispatcher Update:" << stat;
-    HASH.insert(DISPATCHER,stat); //save for later
-    //Forward those contents on to the currently-open sockets
-    emit NewEvent(DISPATCHER, QJsonValue(stat) );
-  }else*/
   if(path==LPLOG){
     //Main Life Preserver Log File
     ReadLPLogFile();
@@ -141,7 +132,6 @@ void EventWatcher::CheckLogFiles(){
   if(!watched.contains(LPLOG) && QFile::exists(LPLOG)){ watcher->addPath(LPLOG); }
   if(!watched.contains(LPERRLOG) && QFile::exists(LPERRLOG)){ watcher->addPath(LPERRLOG); }
   if(!watched.contains(tmpLPRepFile) && QFile::exists(tmpLPRepFile)){ watcher->addPath(tmpLPRepFile); }
-  //if(!watched.contains(DISPATCHWORKING) && QFile::exists(LPLOG)){ watcher->addPath(DISPATCHWORKING); }
   //qDebug() << "watched:" << watcher->files() << watcher->directories();
 }
 

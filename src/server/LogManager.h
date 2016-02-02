@@ -15,7 +15,7 @@
 //===========================================
 //  Event Files (EV_*): JSON input/output (full event)
 //  HOST: String input/output (simple messages)
-//  DISPATCH: Full log of dispatcher processes
+//  DISPATCH: Full log of dispatcher processes output (JSON)
 //===========================================
 #define LOGDIR QString("/var/log/sysadm")
 

@@ -8,7 +8,6 @@ HEADERS	+= globals.h globals-qt.h \
 		WebServer.h \
 		WebSocket.h \
 		syscache-client.h \
-		dispatcher-client.h \
 		RestStructs.h \
 		AuthorizationManager.h \ 
 		SslServer.h \
@@ -21,7 +20,6 @@ SOURCES	+= main.cpp \
 		WebSocket.cpp \
 		WebBackend.cpp \
 		syscache-client.cpp \
-		dispatcher-client.cpp \
 		AuthorizationManager.cpp \
 		EventWatcher.cpp \
 		LogManager.cpp \
