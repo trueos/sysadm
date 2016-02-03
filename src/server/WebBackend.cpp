@@ -389,6 +389,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="stopjail"){
+	ok = true;
+        out->insert("stopjail", sysadm::Iocage::stopJail(in_args.toObject()));
+      }
       if(act=="startjail"){
 	ok = true;
         out->insert("startjail", sysadm::Iocage::startJail(in_args.toObject()));
