@@ -4,15 +4,15 @@
 //  Available under the 3-clause BSD license
 //  See the LICENSE file for full details
 //===========================================
-#ifndef __PCBSD_LIB_UTILS_SYSINFO_H
-#define __PCBSD_LIB_UTILS_SYSINFO_H
+#ifndef __PCBSD_LIB_UTILS_SYSMGMT_H
+#define __PCBSD_LIB_UTILS_SYSMGMT_H
 
 #include <QJsonObject>
 #include "sysadm-global.h"
 
 namespace sysadm{
 
-class SysInfo{
+class SysMgmt{
 public:
 	static QJsonObject batteryInfo();
 	static QJsonObject cpuPercentage();

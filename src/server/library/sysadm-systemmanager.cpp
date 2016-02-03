@@ -5,7 +5,7 @@
 //  See the LICENSE file for full details
 //===========================================
 #include "sysadm-general.h"
-#include "sysadm-systeminfo.h"
+#include "sysadm-systemmanager.h"
 #include "sysadm-global.h"
 
 using namespace sysadm;
@@ -14,7 +14,7 @@ using namespace sysadm;
 
 
 //Battery Availability
-QJsonObject SysInfo::batteryInfo(){
+QJsonObject SysMgmt::batteryInfo(){
   QJsonObject retObject;
   bool ok;
 
@@ -57,7 +57,7 @@ QJsonObject SysInfo::batteryInfo(){
 // KPM 1-21-2016
 // This needs to be looked at, I'm not 100% sure it is returning correct busy %
 // We probably want to supply more info as well, such as user,nice,system,interrupt,idle
-QJsonObject SysInfo::cpuPercentage() {
+QJsonObject SysMgmt::cpuPercentage() {
   QJsonObject retObject;
   QString tmp;
 
@@ -102,7 +102,7 @@ QJsonObject SysInfo::cpuPercentage() {
   return retObject;
 }
 
-QJsonObject SysInfo::cpuTemps() {
+QJsonObject SysMgmt::cpuTemps() {
   // Make sure coretemp is loaded
   if ( General::RunCommand("kldstat").indexOf("coretemp") == -1 )
     General::RunCommand("kldload coretemp");
@@ -123,7 +123,7 @@ QJsonObject SysInfo::cpuTemps() {
 }
 
 // ==== ExternalDevicePaths() ====
-QJsonObject SysInfo::externalDevicePaths() {
+QJsonObject SysMgmt::externalDevicePaths() {
   QJsonObject retObject;
 
   //Returns: QStringList[<type>::::<filesystem>::::<path>]
@@ -162,7 +162,7 @@ QJsonObject SysInfo::externalDevicePaths() {
 }
 
 // Return information about memory
-QJsonObject SysInfo::memoryStats() {
+QJsonObject SysMgmt::memoryStats() {
   QJsonObject retObject;
 
   QString tmp;
@@ -211,7 +211,7 @@ QJsonObject SysInfo::memoryStats() {
 }
 
 // Return a json list of process information
-QJsonObject SysInfo::procInfo() {
+QJsonObject SysMgmt::procInfo() {
   QJsonObject retObject;
   QStringList output;
   output = General::RunCommand("top -t -n all").split("\n");
@@ -249,7 +249,7 @@ QJsonObject SysInfo::procInfo() {
 }
 
 // Return a bunch of various system information
-QJsonObject SysInfo::systemInfo() {
+QJsonObject SysMgmt::systemInfo() {
   QJsonObject retObject;
 
   QString arch = General::RunCommand("uname -m").simplified();

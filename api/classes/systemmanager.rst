@@ -1,9 +1,9 @@
-.. _systeminfo:
+.. _systemmanager:
 
-systeminfo
+systemmanager
 **********
 
-The systeminfo class is used to retrieve information about the system. Every systeminfo class request contains the following parameters:
+The systemmanager class is used to manage various aspects of the FreeBSD system. Every systemmanager class request contains the following parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
@@ -12,19 +12,19 @@ The systeminfo class is used to retrieve information about the system. Every sys
 | id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | systeminfo    |                                                                                                                      |
+| name                            | systemmanager |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "batteryinfo", "externalmounts", "systeminfo"  |
+| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "batteryinfo", "externalmounts", "systemmanager"  |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
 The rest of this section provides examples of the available *actions* for each type of request, along with their responses.
 
-.. index:: memorystats, systeminfo
+.. index:: memorystats, systemmanager
 
 .. _Memory Statistics:
 
@@ -37,7 +37,7 @@ The "memorystats" action returns memory statistics, including the amount of acti
 
 .. code-block:: json
 
- PUT /sysadm/systeminfo
+ PUT /sysadm/systemmanager
  {
    "action" : "memorystats"
  }
@@ -68,7 +68,7 @@ The "memorystats" action returns memory statistics, including the amount of acti
       "action" : "memorystats"
    },
    "namespace" : "sysadm",
-   "name" : "systeminfo"
+   "name" : "systemmanager"
  }
 
 **WebSocket Response**
@@ -90,7 +90,7 @@ The "memorystats" action returns memory statistics, including the amount of acti
   "namespace": "sysadm"
  }
 
-.. index:: cpupercentage, systeminfo
+.. index:: cpupercentage, systemmanager
 
 .. _CPU Usage:
 
@@ -103,7 +103,7 @@ The "cpupercentage" action returns the usage percentage of each CPU.
 
 .. code-block:: json 
 
- PUT /sysadm/systeminfo
+ PUT /sysadm/systemmanager
  {
    "action" : "cpupercentage"
  }
@@ -140,7 +140,7 @@ The "cpupercentage" action returns the usage percentage of each CPU.
    "args" : {
       "action" : "cpupercentage"
    },
-   "name" : "systeminfo",
+   "name" : "systemmanager",
    "id" : "fooid",
    "namespace" : "sysadm"
  }
@@ -172,7 +172,7 @@ The "cpupercentage" action returns the usage percentage of each CPU.
   "namespace": "sysadm"
  }
  
-.. index:: cputemps, systeminfo
+.. index:: cputemps, systemmanager
 
 .. _CPU Temperature:
 
@@ -185,7 +185,7 @@ The "cputemps" action returns the temperature of each CPU.
 
 .. code-block:: json  
 
- PUT /sysadm/systeminfo
+ PUT /sysadm/systemmanager
  {
    "action" : "cputemps"
  }
@@ -214,7 +214,7 @@ The "cputemps" action returns the temperature of each CPU.
       "action" : "cputemps"
    },
    "id" : "fooid",
-   "name" : "systeminfo",
+   "name" : "systemmanager",
    "namespace" : "sysadm"
  }
 
@@ -236,7 +236,7 @@ The "cputemps" action returns the temperature of each CPU.
   "namespace": "sysadm"
  }
  
-.. index:: batteryinfo, systeminfo
+.. index:: batteryinfo, systemmanager
 
 .. _Battery Information:
 
@@ -250,7 +250,7 @@ status (offline, charging, on backup, or unknown), and estimated time left (in s
 
 .. code-block:: json
 
- PUT /sysadm/systeminfo
+ PUT /sysadm/systemmanager
  {
    "action" : "batteryinfo"
  }
@@ -273,7 +273,7 @@ status (offline, charging, on backup, or unknown), and estimated time left (in s
 
  {
    "namespace" : "sysadm",
-   "name" : "systeminfo",
+   "name" : "systemmanager",
    "id" : "fooid",
    "args" : {
       "action" : "batteryinfo"
@@ -295,7 +295,7 @@ status (offline, charging, on backup, or unknown), and estimated time left (in s
   "namespace": "sysadm"
  }
 
-.. index:: externalmounts, systeminfo
+.. index:: externalmounts, systemmanager
 
 .. _List External Mounts:
 
@@ -309,7 +309,7 @@ For each mounted device, the response will include the device name, filesystem, 
 
 .. code-block:: json
 
- PUT /sysadm/systeminfo
+ PUT /sysadm/systemmanager
  {
    "action" : "externalmounts"
  }
@@ -337,7 +337,7 @@ For each mounted device, the response will include the device name, filesystem, 
  {
    "id" : "fooid",
    "namespace" : "sysadm",
-   "name" : "systeminfo",
+   "name" : "systemmanager",
    "args" : {
       "action" : "externalmounts"
    }
@@ -362,23 +362,23 @@ For each mounted device, the response will include the device name, filesystem, 
   "namespace": "sysadm"
  }
 
-.. index:: systeminfo
+.. index:: systemmanager
 
 .. _System Information:
 
 System Information
 ==================
 
-The "systeminfo" action lists system information, including the architecture, number of CPUs, type of CPU, hostname, kernel name and version, system version and patch level, total amount
+The "systemmanager" action lists system information, including the architecture, number of CPUs, type of CPU, hostname, kernel name and version, system version and patch level, total amount
 of RAM, and the system's uptime.
 
 **REST Request**
 
 .. code-block:: json
 
- PUT /sysadm/systeminfo
+ PUT /sysadm/systemmanager
  {
-   "action" : "systeminfo"
+   "action" : "systemmanager"
  }
 
 **REST Response**
@@ -387,7 +387,7 @@ of RAM, and the system's uptime.
 
  {
     "args": {
-        "systeminfo": {
+        "systemmanager": {
             "arch": "amd64",
             "cpucores": "4",
             "cputype": "Intel(R) Xeon(R) CPU E3-1220 v3 @ 3.10GHz",
@@ -407,10 +407,10 @@ of RAM, and the system's uptime.
 
  {
    "args" : {
-      "action" : "systeminfo"
+      "action" : "systemmanager"
    },
    "id" : "fooid",
-   "name" : "systeminfo",
+   "name" : "systemmanager",
    "namespace" : "sysadm"
  }
 
@@ -420,7 +420,7 @@ of RAM, and the system's uptime.
 
  {
   "args": {
-    "systeminfo": {
+    "systemmanager": {
       "arch": "amd64",
       "cpucores": "4",
       "cputype": "Intel(R) Xeon(R) CPU E3-1220 v3 @ 3.10GHz",

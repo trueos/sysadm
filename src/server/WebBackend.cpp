@@ -14,7 +14,7 @@
 #include "library/sysadm-iohyve.h"
 #include "library/sysadm-lifepreserver.h"
 #include "library/sysadm-network.h"
-#include "library/sysadm-systeminfo.h"
+#include "library/sysadm-systemmanager.h"
 #include "library/sysadm-update.h"
 
 #include "syscache-client.h"
@@ -59,7 +59,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   }
 
   // - Generic system information
-  out->insert("sysadm/systeminfo","read/write");
+  out->insert("sysadm/systemmanager","read/write");
 
   // - PC-BSD Updater
   if(QFile::exists("/usr/local/bin/pc-updatemanager")){
@@ -101,7 +101,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   }else if(namesp=="rpc" && name=="syscache"){
     return EvaluateSyscacheRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="systeminfo"){
-    return EvaluateSysadmSystemInfoRequest(IN.args, out);
+    return EvaluateSysadmSystemMgmtRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="update"){
     return EvaluateSysadmUpdateRequest(IN.args, out);
   }else{
@@ -294,8 +294,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
   return RestOutputStruct::OK;
 }
 
-//==== SYSADM -- SysInfo ====
-RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemInfoRequest(const QJsonValue in_args, QJsonObject *out){
+//==== SYSADM -- SysMgmt ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemMgmtRequest(const QJsonValue in_args, QJsonObject *out){
   if(in_args.isObject()){
     QStringList keys = in_args.toObject().keys();
     bool ok = false;
@@ -303,31 +303,31 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemInfoRequest(const QJso
       QString act = JsonValueToString(in_args.toObject().value("action"));
       if(act=="batteryinfo"){
 	ok = true;
-        out->insert("batteryinfo", sysadm::SysInfo::batteryInfo());
+        out->insert("batteryinfo", sysadm::SysMgmt::batteryInfo());
       }
       if(act=="cpupercentage"){
 	ok = true;
-        out->insert("cpupercentage", sysadm::SysInfo::cpuPercentage());
+        out->insert("cpupercentage", sysadm::SysMgmt::cpuPercentage());
       }
       if(act=="cputemps"){
 	ok = true;
-        out->insert("cputemps", sysadm::SysInfo::cpuTemps());
+        out->insert("cputemps", sysadm::SysMgmt::cpuTemps());
       }
       if(act=="externalmounts"){
 	ok = true;
-        out->insert("externalmounts", sysadm::SysInfo::externalDevicePaths());
+        out->insert("externalmounts", sysadm::SysMgmt::externalDevicePaths());
       }
       if(act=="memorystats"){
 	ok = true;
-        out->insert("memorystats", sysadm::SysInfo::memoryStats());
+        out->insert("memorystats", sysadm::SysMgmt::memoryStats());
       }
       if(act=="procinfo"){
 	ok = true;
-        out->insert("procinfo", sysadm::SysInfo::procInfo());
+        out->insert("procinfo", sysadm::SysMgmt::procInfo());
       }
       if(act=="systeminfo"){
 	ok = true;
-        out->insert("systeminfo", sysadm::SysInfo::systemInfo());
+        out->insert("systeminfo", sysadm::SysMgmt::systemInfo());
       }
 
     } //end of "action" key usage
