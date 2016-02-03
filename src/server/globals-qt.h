@@ -40,7 +40,6 @@
 #include <QFileSystemWatcher>
 #include <QQueue>
 
-#include <QDebug>
 #include <QList>
 #include <QHash>
 #include <QObject>
