@@ -1,17 +1,34 @@
+// ===============================
+//  PC-BSD REST/JSON API Server
+// Available under the 3-clause BSD License
+// Written by: Ken Moore <ken@pcbsd.org> 2016
+// =================================
 #include "LogManager.h"
-	
+#include "globals.h"
+
 #define TMPBREAK "<!!line-break!!>"
 //Overall check/creation of the log directory
 void LogManager::checkLogDir(){
-  if(!QFile::exists(LOGDIR)){
-    QDir dir(LOGDIR);
-    dir.mkpath(LOGDIR);
+  //Determing the log dir based on type of server
+  QString logd = LOGDIR; //base log dir
+    if(WS_MODE){ logd.append("/websocket"); }
+    else{ logd.append("/restserver"); }
+  //Check/create the dir
+  if(!QFile::exists(logd)){
+    QDir dir(logd);
+    dir.mkpath(logd);
   }
 }
 	
 //Main Log write function (all the overloaded versions end up calling this one)
 void LogManager::log(QString file, QStringList msgs, QDateTime time){
-  qDebug() << "Log to File:" << file << msgs;
+  if(file.isEmpty()){ return; }
+  else if(!file.startsWith("/")){
+    //relative path - put it in the main log dir
+    if(WS_MODE){ file.prepend(LOGDIR+"/websocket/"); }
+    else{ file.prepend(LOGDIR+"/restserver/"); }
+  }
+  //qDebug() << "Log to File:" << file << msgs;
   if(file.isEmpty()){ return; }
   QFile LOG(file);
   //if(!LOG.exists()){ system( QString("touch "+file).toLocal8Bit() ); }

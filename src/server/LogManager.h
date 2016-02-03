@@ -49,7 +49,7 @@ public:
 	//Log a list of strings (same timestamp for all lines)
 	static void log(QString file, QStringList msgs, QDateTime time = QDateTime::currentDateTime());
 	static void log(LogManager::LOG_FILE file, QStringList msgs, QDateTime time = QDateTime::currentDateTime()){
-	  log(LOGDIR+"/"+flagToPath(file).arg(time.date().toString(Qt::ISODate)), msgs, time);
+	  log(flagToPath(file).arg(time.date().toString(Qt::ISODate)), msgs, time);
 	}
 	
 	//Log a simple text string
@@ -57,7 +57,7 @@ public:
 	  log(file, QStringList() << msg, time);
 	}
 	static void log(LogManager::LOG_FILE file, QString msg, QDateTime time = QDateTime::currentDateTime()){
-	  log(LOGDIR+"/"+flagToPath(file).arg(time.date().toString(Qt::ISODate)), QStringList() << msg, time);
+	  log(flagToPath(file).arg(time.date().toString(Qt::ISODate)), QStringList() << msg, time);
 	}
 	
 	//Log a JSON Object
@@ -65,15 +65,15 @@ public:
 	  log(file, QStringList() << QJsonDocument(obj).toJson(QJsonDocument::Compact), time);
 	}
 	static void log(LogManager::LOG_FILE file, QJsonObject obj, QDateTime time = QDateTime::currentDateTime()){
-	  log(LOGDIR+"/"+flagToPath(file).arg(time.date().toString(Qt::ISODate)), QStringList() << QJsonDocument(obj).toJson(QJsonDocument::Compact), time);
+	  log(flagToPath(file).arg(time.date().toString(Qt::ISODate)), QStringList() << QJsonDocument(obj).toJson(QJsonDocument::Compact), time);
 	}
 	
 	//Log a JSON Array
 	static void log(QString file, QJsonArray array, QDateTime time = QDateTime::currentDateTime()){
-	  log(LOGDIR+"/"+file, QStringList() << QJsonDocument(array).toJson(QJsonDocument::Compact), time);
+	  log(file, QStringList() << QJsonDocument(array).toJson(QJsonDocument::Compact), time);
 	}
 	static void log(LogManager::LOG_FILE file, QJsonArray array, QDateTime time = QDateTime::currentDateTime()){
-	  log(LOGDIR+"/"+flagToPath(file).arg(time.date().toString(Qt::ISODate)), QStringList() << QJsonDocument(array).toJson(QJsonDocument::Compact), time);
+	  log(flagToPath(file).arg(time.date().toString(Qt::ISODate)), QStringList() << QJsonDocument(array).toJson(QJsonDocument::Compact), time);
 	}	
 	
 	// === READ FROM LOG FUNCTIONS ===

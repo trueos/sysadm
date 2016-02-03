@@ -10,12 +10,13 @@
 
 #include "WebServer.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 //Create any global classes
 QSettings *CONFIG = new QSettings("PCBSD","sysadm");
 EventWatcher *EVENTS = new EventWatcher();
 Dispatcher *DISPATCHER = new Dispatcher();
+bool WS_MODE = false;
 
 //Create the default logfile
 QFile logfile;
@@ -52,13 +53,13 @@ int main( int argc, char ** argv )
       qDebug() << "sysadm-server must be started as root!";
       return 1;
     }
-    LogManager::checkLogDir(); //ensure the logging directry exists
+
     
     //Evaluate input arguments
     bool websocket = false;
     quint16 port = 0;
     for(int i=1; i<argc; i++){
-      if( QString(argv[i])=="-ws" ){ websocket = true; }
+      if( QString(argv[i])=="-ws" ){ websocket = true; WS_MODE = true;}
       else if( QString(argv[i])=="-p" && (i+1<argc) ){ i++; port = QString(argv[i]).toUInt(); }
     }
     if(port==0){
@@ -66,6 +67,7 @@ int main( int argc, char ** argv )
       else{ port = PORTNUMBER; }
     }
     //Setup the log file
+    LogManager::checkLogDir(); //ensure the logging directory exists
     if(!websocket){ logfile.setFileName("/var/log/sysadm-server-tcp.log"); }
     else{ logfile.setFileName("/var/log/sysadm-server-ws.log"); }
     if(DEBUG){ qDebug() << "Log File:" << logfile.fileName(); }

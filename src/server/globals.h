@@ -12,6 +12,7 @@
 
 //Global variables/classes (intially created in main.cpp)
 extern QSettings *CONFIG;
+extern bool WS_MODE;
 
 #include "EventWatcher.h"
 extern EventWatcher *EVENTS;

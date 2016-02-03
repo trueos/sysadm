@@ -22,9 +22,10 @@ public:
 	EventWatcher();
 	~EventWatcher();
 	
-	//Convert a string into the type flag
+	//Convert between strings and type flags
 	static EVENT_TYPE typeFromString(QString);
-	
+	static QString typeToString(EventWatcher::EVENT_TYPE);
+
 	//Retrieve the most recent event message for a particular type of event
 	QJsonValue lastEvent(EVENT_TYPE type);
 	
@@ -38,7 +39,6 @@ private:
 	
 	//Life Preserver Event variables/functions
 	QString tmpLPRepFile;
-	qint64 LPlog_pos, LPrep_pos, LPerr_pos; //file position markers
 
 	void sendLPEvent(QString system, int priority, QString msg);
 

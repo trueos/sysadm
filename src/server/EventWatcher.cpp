@@ -12,7 +12,6 @@ EventWatcher::EventWatcher(){
   qRegisterMetaType<EventWatcher::EVENT_TYPE>("EventWatcher::EVENT_TYPE");
 	
   starting = true;
-  LPlog_pos = LPrep_pos = LPerr_pos = 0; //no pos yet
   watcher = new QFileSystemWatcher(this);
   filechecktimer = new QTimer(this);
     filechecktimer->setSingleShot(false);
@@ -28,9 +27,6 @@ EventWatcher::~EventWatcher(){
 void EventWatcher::start(){
   // - DISPATCH Events
   starting = true;
-  //if(!QFile::exists(DISPATCHWORKING)){ QProcess::execute("touch "+DISPATCHWORKING); }
-  //qDebug() << " Dispatcher Events:" << DISPATCHWORKING;
-  //WatcherUpdate(DISPATCHWORKING); //load it initially (will also add it to the watcher)
   // - Life Preserver Events
   WatcherUpdate(LPLOG); //load it initially (will also add it to the watcher);
   WatcherUpdate(LPERRLOG); //load it initially (will also add it to the watcher);
@@ -43,6 +39,12 @@ EventWatcher::EVENT_TYPE EventWatcher::typeFromString(QString typ){
   if(typ=="dispatcher"){ return DISPATCHER; }
   else if(typ=="life-preserver"){ return LIFEPRESERVER; }
   else{ return BADEVENT; }
+}
+
+QString EventWatcher::typeToString(EventWatcher::EVENT_TYPE typ){
+  if(typ==DISPATCHER){ return "dispatcher"; }
+  else if(typ==LIFEPRESERVER){ return "life-preserver"; }
+  else{ return ""; }
 }
 
 QJsonValue EventWatcher::lastEvent(EVENT_TYPE type){
@@ -143,9 +145,14 @@ void EventWatcher::ReadLPLogFile(){
   QFile LPlogfile(LPLOG);
   if( !LPlogfile.open(QIODevice::ReadOnly) ){ return; } //could not open file
   QTextStream STREAM(&LPlogfile);
-  if(LPlog_pos>0){ STREAM.seek(LPlog_pos); }
+  qint64 LPlog_pos = CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-log-pos",0).toLongLong();
+  if(LPlog_pos>0 && QFileInfo(LPlogfile).created() < CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-log-lastread").toDateTime() ){ 
+    STREAM.seek(LPlog_pos); 
+  }
   QStringList info = STREAM.readAll().split("\n");
-  LPlog_pos = STREAM.pos();
+  //Now save the file pointer for later
+  CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-log-pos",STREAM.pos());
+  CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-log-lastread",QDateTime::currentDateTime());
   LPlogfile.close();
   //Now parse the new info line-by-line
   for(int i=0; i<info.length(); i++){
@@ -174,7 +181,7 @@ void EventWatcher::ReadLPLogFile(){
       //Setup the file watcher for this new log file
       //qDebug() << " - Found Rep Start:" << dev << message;
       tmpLPRepFile = dev;
-       LPrep_pos = 0; //reset file position
+       CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-pos",0);
       dev = message.section(" on ",1,1,QString::SectionSkipEmpty);
       //qDebug() << " - New Dev:" << dev << "Valid Pools:" << reppools;
       //Make sure the device is currently setup for replication
@@ -192,7 +199,7 @@ void EventWatcher::ReadLPLogFile(){
     }else if(message.contains("finished replication task", Qt::CaseInsensitive)){
       //Done with this replication - close down the rep file watcher
         tmpLPRepFile.clear();
-	LPrep_pos = 0; //reset file position
+	CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-pos",0);
       dev = message.section(" -> ",0,0).section(" ",-1).simplified();
       //Make sure the device is currently setup for replication
       //if( reppools.contains(dev) ){
@@ -208,7 +215,7 @@ void EventWatcher::ReadLPLogFile(){
         sendLPEvent("replication", 1, timestamp+": "+msg);
     }else if( message.contains("FAILED replication", Qt::CaseInsensitive) ){
         tmpLPRepFile.clear();
-	LPrep_pos = 0; //reset file position
+	CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-pos",0);
       //Now set the status of the process
       dev = message.section(" -> ",0,0).section(" ",-1).simplified();
       //Make sure the device is currently setup for replication
@@ -233,13 +240,14 @@ void EventWatcher::ReadLPErrFile(){
 }
 
 void EventWatcher::ReadLPRepFile(){
-  static QString stat = "";
-  static QString repTotK = "";
-  static QString lastSize = "";
+  QString stat = CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-s","").toString();
+  QString repTotK = CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-totk","").toString();
+  QString lastSize = CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-lastsize","").toString();
  //Open/Read any new info in the file
   QFile LPlogfile(LPLOG);
   if( !LPlogfile.open(QIODevice::ReadOnly) ){ return; } //could not open file
   QTextStream STREAM(&LPlogfile);
+   qint64 LPrep_pos = CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-pos",0).toLongLong();
   if(LPrep_pos<=0 || !STREAM.seek(LPrep_pos) ){
     //New file location
     stat.clear();
@@ -247,7 +255,7 @@ void EventWatcher::ReadLPRepFile(){
     lastSize.clear();	  
   }
   QStringList info = STREAM.readAll().split("\n");
-  LPrep_pos = STREAM.pos();
+  CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-pos",STREAM.pos());
   LPlogfile.close();
   //Now parse the new info line-by-line
   for(int i=0; i<info.length(); i++){
@@ -290,5 +298,9 @@ void EventWatcher::ReadLPRepFile(){
       HASH.insert(123,txt);
       emit sendLPEvent("replication", 0, txt);
     }
-  }	
+  }
+  //Save the internal values
+  CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-stat",stat);
+  if(repTotK!="??"){CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-totk",repTotK); }
+  CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-lastsize",lastSize);
 }

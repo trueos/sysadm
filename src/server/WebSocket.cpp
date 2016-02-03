@@ -371,11 +371,7 @@ void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QJsonValue msg){
     out.in_struct.namesp = "events";
     out.out_args = msg;
     out.Header << "Content-Type: text/json; charset=utf-8"; //REST header info
-  if(evtype==EventWatcher::DISPATCHER){
-    out.in_struct.name = "dispatcher";
-  }else if(evtype==EventWatcher::LIFEPRESERVER){
-    out.in_struct.name = "life-preserver";
-  }
+    out.in_struct.name = EventWatcher::typeToString(evtype);
   
   //Now send the message back through the socket
   this->sendReply(out.assembleMessage());
