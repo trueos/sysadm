@@ -100,7 +100,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmNetworkRequest(IN.args, out);
   }else if(namesp=="rpc" && name=="syscache"){
     return EvaluateSyscacheRequest(IN.args, out);
-  }else if(namesp=="sysadm" && name=="systeminfo"){
+  }else if(namesp=="sysadm" && name=="systemmanager"){
     return EvaluateSysadmSystemMgmtRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="update"){
     return EvaluateSysadmUpdateRequest(IN.args, out);
@@ -316,6 +316,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemMgmtRequest(const QJso
       if(act=="externalmounts"){
 	ok = true;
         out->insert("externalmounts", sysadm::SysMgmt::externalDevicePaths());
+      }
+      if(act=="killproc"){
+	ok = true;
+        out->insert("killproc", sysadm::SysMgmt::killProc(in_args.toObject()));
       }
       if(act=="memorystats"){
 	ok = true;

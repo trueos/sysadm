@@ -18,9 +18,10 @@ public:
 	static QJsonObject cpuPercentage();
 	static QJsonObject cpuTemps();
 	static QJsonObject externalDevicePaths();
+	static QJsonObject killProc(QJsonObject);
 	static QJsonObject memoryStats();
-	static QJsonObject systemInfo();
 	static QJsonObject procInfo();
+	static QJsonObject systemInfo();
 };
 	
 } //end of pcbsd namespace

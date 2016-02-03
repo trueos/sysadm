@@ -161,6 +161,49 @@ QJsonObject SysMgmt::externalDevicePaths() {
   return retObject;
 }
 
+// Kill a process
+QJsonObject SysMgmt::killProc(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("pid") ) {
+    retObject.insert("error", "Missing required key 'pid'");
+    return retObject;
+  }
+  // Save the target
+  QString pid, sig, tmp;
+  pid = jsin.value("pid").toString();
+
+  if ( keys.contains("signal") ) {
+    tmp  = jsin.value("signal").toString();
+    if ( tmp == "HUP" ) {
+      sig = "-1";
+    } else if ( tmp == "INT" ) {
+      sig = "-2";
+    } else if ( tmp == "QUIT" ) {
+      sig = "-3";
+    } else if ( tmp == "ABRT" ) {
+      sig = "-6";
+    } else if ( tmp == "KILL" ) {
+      sig = "-9";
+    } else if ( tmp == "ALRM" ) {
+      sig = "-14";
+    } else if ( tmp == "TERM" ) {
+      sig = "-15";
+    } else {
+      retObject.insert("error", "Invalid signal! (INT|QUIT|ABRT|KILL|ALRM|TERM)");
+      return retObject;
+    }
+  } else {
+    sig = "-9";
+  }
+
+  // This could be switched to kill(2) at some point
+  General::RunCommand("kill " + sig + " "  + pid);
+
+  return jsin;
+}
+
 // Return information about memory
 QJsonObject SysMgmt::memoryStats() {
   QJsonObject retObject;
