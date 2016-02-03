@@ -329,6 +329,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemMgmtRequest(const QJso
 	ok = true;
         out->insert("procinfo", sysadm::SysMgmt::procInfo());
       }
+      if(act=="sysctllist"){
+	ok = true;
+        out->insert("sysctllist", sysadm::SysMgmt::sysctlList());
+      }
       if(act=="systeminfo"){
 	ok = true;
         out->insert("systeminfo", sysadm::SysMgmt::systemInfo());

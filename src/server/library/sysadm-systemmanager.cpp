@@ -291,6 +291,26 @@ QJsonObject SysMgmt::procInfo() {
   return retObject;
 }
 
+// Return list of sysctls and their values
+QJsonObject SysMgmt::sysctlList() {
+  QJsonObject retObject;
+
+  // This can be cleaned up and not use CLI
+  QStringList output = General::RunCommand("sysctl -W -a").split("\n");
+
+  QString sysctl, value;
+  for(int i=0; i<output.length(); i++){
+    if ( output.at(i).isEmpty())
+      continue;
+
+    sysctl = output.at(i).section(":", 0, 0);
+    value = output.at(i).section(":", 1, -1).simplified();
+    retObject.insert(sysctl, value);
+  }
+
+  return retObject;
+}
+
 // Return a bunch of various system information
 QJsonObject SysMgmt::systemInfo() {
   QJsonObject retObject;
