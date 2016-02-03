@@ -8,7 +8,6 @@
 #include "sysadm-iocage.h"
 #include "sysadm-global.h"
 
-
 using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
@@ -99,5 +98,5 @@ QJsonObject Iocage::listJails() {
     retObject.insert(uuid, jail);
   }
 
-   return retObject;
+  return retObject;
 }
