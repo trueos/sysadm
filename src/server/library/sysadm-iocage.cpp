@@ -11,6 +11,41 @@
 using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
+
+// Start a jail on the box
+QJsonObject Iocage::startJail(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("jail") ) {
+    retObject.insert("error", "Missing required keys");
+    return retObject;
+  }
+
+  // Get the key values
+  QString jail = jsin.value("jail").toString();
+
+  QStringList output = General::RunCommand("iocage start " + jail).split("\n");
+
+  QJsonObject vals;
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("JID") != -1 )
+      continue;
+
+    if ( output.at(i).isEmpty() )
+      break;
+
+    QString key = output.at(i).simplified().section(":", 0, 0);
+    QString value = output.at(i).simplified().section(":", 1, 1);
+
+    vals.insert(key, value);
+  }
+
+  retObject.insert(jail, vals);
+  return retObject;
+}
+
 // Return all the default iocage settings
 QJsonObject Iocage::getDefaultSettings() {
   QJsonObject retObject;
@@ -36,7 +71,7 @@ QJsonObject Iocage::getDefaultSettings() {
   return retObject;
 }
 
-// List the jails on the box
+// Return all of the jail settings
 QJsonObject Iocage::getJailSettings(QJsonObject jsin) {
   QJsonObject retObject;
 

@@ -14,11 +14,12 @@ namespace sysadm{
 
 class Iocage{
 public:
+	static QJsonObject startJail(QJsonObject);
 	static QJsonObject getDefaultSettings();
 	static QJsonObject getJailSettings(QJsonObject);
 	static QJsonObject listJails();
 };
-	
+
 } //end of pcbsd namespace
 
 #endif

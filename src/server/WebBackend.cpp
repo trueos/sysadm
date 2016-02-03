@@ -39,10 +39,10 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   // - dispatcher (Internal to server - always available)
   //"read" is the event notifications, "write" is the ability to queue up jobs
   out->insert("rpc/dispatcher", allaccess ? "read/write" : "read");
-  
+
   // - network
   out->insert("sysadm/network","read/write");
-  
+
   // - lifepreserver
   if(QFile::exists("/usr/local/bin/lpreserver")){
     out->insert("sysadm/lifepreserver", "read/write");
@@ -52,7 +52,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   if(QFile::exists("/usr/local/sbin/iocage")){
     out->insert("sysadm/iocage", "read/write");
   }
-  
+
   // - iohyve
   if(QFile::exists("/usr/local/sbin/iohyve")){
     out->insert("sysadm/iohyve", "read/write");
@@ -70,14 +70,14 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
 }
 
 RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStruct &IN, QJsonObject *out){
-  /*Inputs: 
+  /*Inputs:
 	"namesp" - namespace for the request
 	"name" - name of the request
 	"args" - JSON input arguments structure
 	"out" - JSON output arguments structure
   */
   QString namesp = IN.namesp.toLower(); QString name = IN.name.toLower();
-  
+
   //Get/Verify subsystems
   if(namesp=="rpc" && name=="query"){
     return AvailableSubsystems(IN.fullaccess, out);
@@ -86,8 +86,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     AvailableSubsystems(IN.fullaccess, &avail);
     if(!avail.contains(namesp+"/"+name)){ return RestOutputStruct::NOTFOUND; }
   }
-  
-  //Go through and forward this request to the appropriate sub-system 
+
+  //Go through and forward this request to the appropriate sub-system
   if(namesp=="rpc" && name=="dispatcher"){
     return EvaluateDispatcherRequest(IN.fullaccess, IN.args, out);
   }else if(namesp=="sysadm" && name=="iocage"){
@@ -105,7 +105,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   }else if(namesp=="sysadm" && name=="update"){
     return EvaluateSysadmUpdateRequest(IN.args, out);
   }else{
-    return RestOutputStruct::BADREQUEST; 
+    return RestOutputStruct::BADREQUEST;
   }
 
 }
@@ -148,7 +148,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, 
   //dispatcher only needs a list of sub-commands at the moment (might change later)
   if(!in_args.isObject() || !in_args.toObject().contains("action") ){ return RestOutputStruct::BADREQUEST; }
   QString act = in_args.toObject().value("action").toString().toLower();
-  
+
   //Determing the type of action to perform
   if(act=="run"){
     if(!allaccess){ return RestOutputStruct::FORBIDDEN; } //this user does not have permission to queue jobs
@@ -160,10 +160,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, 
       QJsonValue val = in_args.toObject().value(ids[i]);
       if(val.isArray()){ cmds = JsonArrayToStringList(val.toArray()); }
       else if(val.isString()){ cmds << val.toString(); }
-      else{ 
-	ids.removeAt(i); 
-	i--;      
-	continue; 
+      else{
+	ids.removeAt(i);
+	i--;
+	continue;
       }
       //queue up this process
 
@@ -173,7 +173,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, 
     LogManager::log(LogManager::HOST, "Client Launched Processes["+SockPeerIP+"]: "+ids.join(",") );
     out->insert("started", QJsonArray::fromStringList(ids));
   //}else if(act=="read"){
-    
+
   }else{
     return RestOutputStruct::BADREQUEST;
   }
@@ -211,7 +211,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmNetworkRequest(const QJsonVa
       }
 
     } //end of "action" key usage
-    
+
     //If nothing done - return the proper code
     if(!ok){
       return RestOutputStruct::BADREQUEST;
@@ -283,7 +283,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
       }
 
     } //end of "action" key usage
-    
+
     //If nothing done - return the proper code
     if(!ok){
       return RestOutputStruct::BADREQUEST;
@@ -343,7 +343,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemMgmtRequest(const QJso
       }
 
     } //end of "action" key usage
-    
+
     //If nothing done - return the proper code
     if(!ok){
       return RestOutputStruct::BADREQUEST;
@@ -371,7 +371,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
       }
 
     } //end of "action" key usage
-    
+
     //If nothing done - return the proper code
     if(!ok){
       return RestOutputStruct::BADREQUEST;
@@ -389,6 +389,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="startjail"){
+	ok = true;
+        out->insert("startjail", sysadm::Iocage::startJail(in_args.toObject()));
+      }
       if(act=="getdefaultsettings"){
 	ok = true;
         out->insert("getdefaultsettings", sysadm::Iocage::getDefaultSettings());
@@ -403,7 +407,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
       }
 
     } //end of "action" key usage
-    
+
     //If nothing done - return the proper code
     if(!ok){
       return RestOutputStruct::BADREQUEST;
@@ -427,7 +431,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
       }
 
     } //end of "action" key usage
-    
+
     //If nothing done - return the proper code
     if(!ok){
       return RestOutputStruct::BADREQUEST;
