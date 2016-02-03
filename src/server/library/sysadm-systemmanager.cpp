@@ -291,6 +291,27 @@ QJsonObject SysMgmt::procInfo() {
   return retObject;
 }
 
+// Set a sysctl
+QJsonObject SysMgmt::setSysctl(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("sysctl") || ! keys.contains("value") ) {
+    retObject.insert("error", "Missing required keys 'sysctl / value'");
+    return retObject;
+  }
+  QString sysctl, value;
+  sysctl = jsin.value("sysctl").toString();
+  value = jsin.value("value").toString();
+  QString output = General::RunCommand("sysctl " + sysctl + "=" + value);
+
+  retObject.insert("sysctl", sysctl);
+  retObject.insert("value", value);
+  retObject.insert("response", output.simplified());
+
+  return retObject;
+}
+
 // Return list of sysctls and their values
 QJsonObject SysMgmt::sysctlList() {
   QJsonObject retObject;
