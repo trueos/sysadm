@@ -441,6 +441,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("listvms", sysadm::Iohyve::listVMs());
       }
+      if(act=="fetchiso"){
+	ok = true;
+        out->insert("fetchiso", sysadm::Iohyve::fetchISO(in_args.toObject()));
+      }
 
     } //end of "action" key usage
 
