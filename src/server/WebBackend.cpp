@@ -445,6 +445,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("fetchiso", sysadm::Iohyve::fetchISO(in_args.toObject()));
       }
+      if(act=="renameiso"){
+	ok = true;
+        out->insert("renameiso", sysadm::Iohyve::renameISO(in_args.toObject()));
+      }
 
     } //end of "action" key usage
 

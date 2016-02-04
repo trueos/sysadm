@@ -16,6 +16,7 @@ class Iohyve{
 public:
 	static QJsonObject fetchISO(QJsonObject);
 	static QJsonObject listVMs();
+	static QJsonObject renameISO(QJsonObject);
 };
 	
 } //end of pcbsd namespace
