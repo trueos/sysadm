@@ -12,6 +12,41 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Activate a zpool for iocage on the box
+QJsonObject Iocage::activatePool(QJsonObject jsin) {
+  QJsonObject retObject;
+  QStringList keys = jsin.keys();
+
+  // Get the key values
+  QString pool = jsin.value("pool").toString();
+  QStringList output = General::RunCommand("iocage activate " + pool).split("\n");
+  QJsonObject vals;
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // Otherwise we get null output before the actual active pool
+    if ( i > 0 )
+      break;
+
+    // When a pool activation is successful, iocage doesn't return anything,
+    // so we have to fudge the output a bit.
+    if ( output.at(i).isEmpty())
+    {
+      retObject.insert("success", "pool " + pool + " activated.");
+      break;
+    } else {
+        QString key = output.at(i).simplified().section(":", 0, 0);
+        QString value = output.at(i).simplified().section(":", 1, 1);
+
+        vals.insert(key, value);
+
+        retObject.insert("currently active", vals);
+    }
+  }
+
+  return retObject;
+}
+
 // Stop a jail on the box
 QJsonObject Iocage::stopJail(QJsonObject jsin) {
   QJsonObject retObject;
@@ -30,9 +65,6 @@ QJsonObject Iocage::stopJail(QJsonObject jsin) {
   QJsonObject vals;
   for ( int i = 0; i < output.size(); i++)
   {
-    if ( output.at(i).indexOf("JID") != -1 )
-      continue;
-
     if ( output.at(i).isEmpty() )
       break;
 
@@ -64,9 +96,6 @@ QJsonObject Iocage::startJail(QJsonObject jsin) {
   QJsonObject vals;
   for ( int i = 0; i < output.size(); i++)
   {
-    if ( output.at(i).indexOf("JID") != -1 )
-      continue;
-
     if ( output.at(i).isEmpty() )
       break;
 
