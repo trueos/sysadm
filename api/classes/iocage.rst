@@ -332,6 +332,7 @@ system boot, the jail ID (only applies to running jails), whether or not the jai
         "listjails": {
             "611c89ae-c43c-11e5-9602-54ee75595566": {
                 "boot": "off",
+                "ip4": "-",
                 "jid": "-",
                 "state": "down",
                 "tag": "testjail",
@@ -363,6 +364,7 @@ system boot, the jail ID (only applies to running jails), whether or not the jai
     "listjails": {
       "611c89ae-c43c-11e5-9602-54ee75595566": {
         "boot": "off",
+        "ip4": "-",
         "jid": "-",
         "state": "down",
         "tag": "testjail",
