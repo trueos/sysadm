@@ -1,9 +1,9 @@
 .. _systemmanager:
 
 systemmanager
-**********
+*************
 
-The systemmanager class is used to manage various aspects of the FreeBSD system. Every systemmanager class request contains the following parameters:
+The systemmanager class is used to retrieve information about the system. Every systemmanager class request contains the following parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
@@ -18,7 +18,8 @@ The systemmanager class is used to manage various aspects of the FreeBSD system.
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "batteryinfo", "externalmounts", "systemmanager"  |
+| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "procinfo", "batteryinfo", "externalmounts",   |
+|                                 |               | "systemmanager"                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -230,6 +231,88 @@ The "cputemps" action returns the temperature of each CPU.
       "cpu2": "34.0C",
       "cpu3": "31.0C"
     }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: procinfo, systemmanager
+
+.. _Process Information:
+
+Process Information
+===================
+
+The "procinfo" action lists information about each running process. Since a system will have many running processes, the responses in this section only show one process as an example
+of the type of information listed by this action.
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/systemmanager
+ {
+   "action" : "procinfo"
+ }
+
+**REST Response**
+
+.. code-block:: json 
+
+ {
+    "args": {
+        "procinfo": {
+                  "228": {
+        "command": "adjkerntz",
+        "cpu": "3",
+        "nice": "0",
+        "pri": "52",
+        "res": "1968K",
+        "size": "8276K",
+        "state": "pause",
+        "thr": "1",
+        "time": "0:00",
+        "username": "root",
+        "wcpu": "0.00%"
+          }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "name" : "systemmanager",
+   "args" : {
+      "action" : "procinfo"
+   }
+ }
+
+**WebSocket Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "procinfo": {
+      "228": {
+        "command": "adjkerntz",
+        "cpu": "3",
+        "nice": "0",
+        "pri": "52",
+        "res": "1968K",
+        "size": "8276K",
+        "state": "pause",
+        "thr": "1",
+        "time": "0:00",
+        "username": "root",
+        "wcpu": "0.00%"
+      }
   },
   "id": "fooid",
   "name": "response",
