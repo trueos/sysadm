@@ -21,7 +21,7 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
-|                                 |               | "activatepool"                                                                                                       |
+|                                 |               | "activatepool", and "deactivatepool"                                                                                 |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -900,6 +900,66 @@ These examples show responses when the pool is not specified:
       "currently active": {
         "pool": " tank"
       }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+ .. index:: deactivatepool, iocage
+
+.. _Deactivate a Pool:
+
+Deactivate a Pool
+=================
+
+The "deactivatepool" action can be used to prevent jail creation on the specified ZFS pool. 
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "action" : "deactivatepool",
+   "pool" : "tank"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "deactivatepool": {
+            "success": "pool tank deactivated."
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "iocage",
+   "args" : {
+      "pool" : "tank",
+      "action" : "deactivatepool"
+   },
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "deactivatepool": {
+      "success": "pool tank deactivated."
     }
   },
   "id": "fooid",
