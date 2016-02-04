@@ -20,7 +20,8 @@ Every iocage class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail"              |
+| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
+|                                 |               | "activatepool"                                                                                                       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -781,6 +782,123 @@ The "stopjail" action stops the specified jail.
     "stopjail": {
       "test": {
         "INFO": " 0bf985de-ca0f-11e5-8d45-d05099728dbf (test) is already down"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: activatepool, iocage
+
+.. _Activate a Pool:
+
+Activate a Pool
+===============
+
+The "activatepool" action can be used to specify which ZFS pool is used to store jails. If you do not specify the pool, the response will indicate the current setting.
+
+These examples specify the pool to use:
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "action" : "activatepool",
+   "pool" : "tank"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "activatepool": {
+            "success": "pool tank activated."
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "activatepool",
+      "pool" : "tank"
+   },
+   "name" : "iocage",
+   "id" : "fooid",
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "activatepool": {
+      "success": "pool tank activated."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+These examples show responses when the pool is not specified:
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "action" : "activatepool"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "activatepool": {
+            "currently active": {
+                "pool": " tank"
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "activatepool"
+   },
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "id" : "fooid"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "activatepool": {
+      "currently active": {
+        "pool": " tank"
       }
     }
   },
