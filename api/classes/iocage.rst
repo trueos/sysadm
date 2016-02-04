@@ -20,7 +20,7 @@ Every iocage class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings"                                       |
+| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail"              |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -651,3 +651,140 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
   "namespace": "sysadm"
  }
  
+.. index:: startjail, iocage
+
+.. _Start a Jail:
+
+Start a Jail
+============
+
+The "startjail" action starts the specified jail.
+
+.. note:: since a jail can only be started once, you will receive an error if the jail is already running.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "action" : "startjail",
+   "jail" : "test"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "startjail": {
+            "test": {
+                "* Starting 0bf985de-ca0f-11e5-8d45-d05099728dbf (test)": "",
+                "+ Started (shared IP mode) OK": "",
+                "+ Starting services OK": ""
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "action" : "startjail",
+      "jail" : "test"
+   },
+   "name" : "iocage"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "startjail": {
+      "test": {
+        "INFO": " 0bf985de-ca0f-11e5-8d45-d05099728dbf (test) is already up"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: stopjail, iocage
+
+.. _Stop a Jail:
+
+Stop a Jail
+===========
+
+The "stopjail" action stops the specified jail.
+
+.. note:: since a jail can only be stopped once, you will receive an error if the jail is not running.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "action" : "stopjail",
+   "jail" : "test"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "stopjail": {
+            "test": {
+                "* Stopping 0bf985de-ca0f-11e5-8d45-d05099728dbf (test)": "",
+                "+ Removing jail process OK": "",
+                "+ Running post-stop OK": "",
+                "+ Running pre-stop OK": "",
+                "+ Stopping services OK": ""
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "jail" : "test",
+      "action" : "stopjail"
+   },
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "name" : "iocage"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "stopjail": {
+      "test": {
+        "INFO": " 0bf985de-ca0f-11e5-8d45-d05099728dbf (test) is already down"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }

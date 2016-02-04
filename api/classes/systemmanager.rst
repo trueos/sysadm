@@ -19,7 +19,7 @@ The systemmanager class is used to retrieve information about the system. Every 
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "procinfo", "killproc", "batteryinfo",         |
-|                                 |               | "externalmounts", "systemmanager"                                                                                    |
+|                                 |               | "externalmounts", "systemmanager", "sysctllist", and "setsysctl"                                                     |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -579,6 +579,146 @@ of RAM, and the system's uptime.
       "systemversion": "10.2-RELEASE-p12",
       "totalmem": 10720,
       "uptime": "up 2 days 5:09"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: sysctllist, systemmanager
+
+.. _List Sysctls:
+
+List Sysctls
+============
+
+The "sysctllist" action lists returns the list of all setable sysctl values. Since there are many, the example responses in this section have been truncated to just show a few.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/systemmanager
+ {
+   "action" : "sysctllist"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "sysctllist": {
+            "compat.ia32.maxdsiz": "536870912",
+            "compat.ia32.maxssiz": "67108864",
+            "compat.ia32.maxvmem": "0",
+            "compat.linux.osname": "Linux",
+            "compat.linux.osrelease": "2.6.18",
+            "compat.linux.oss_version": "198144",
+            "compat.linux32.maxdsiz": "536870912",
+            "compat.linux32.maxssiz": "67108864",
+            "compat.linux32.maxvmem": "0",
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "systemmanager",
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "action" : "sysctllist"
+   }
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "sysctllist": {
+      "compat.ia32.maxdsiz": "536870912",
+      "compat.ia32.maxssiz": "67108864",
+      "compat.ia32.maxvmem": "0",
+      "compat.linux.osname": "Linux",
+      "compat.linux.osrelease": "2.6.18",
+      "compat.linux.oss_version": "198144",
+      "compat.linux32.maxdsiz": "536870912",
+      "compat.linux32.maxssiz": "67108864",
+      "compat.linux32.maxvmem": "0",
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: setsysctl, systemmanager
+
+.. _Set a Sysctl:
+
+Set a Sysctl
+============
+
+The "setsysctl" action sets the specified setable sysctl to the specified value. The response indicates that the old value was changed to the new value.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/systemmanager
+ {
+   "value" : "0",
+   "sysctl" : "security.jail.mount_devfs_allowed",
+   "action" : "setsysctl"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "setsysctl": {
+            "response": "security.jail.mount_devfs_allowed: 1 -> 0",
+            "sysctl": "security.jail.mount_devfs_allowed",
+            "value": "0"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "value" : "0",
+      "action" : "setsysctl",
+      "sysctl" : "security.jail.mount_devfs_allowed"
+   },
+   "name" : "systemmanager",
+   "namespace" : "sysadm",
+   "id" : "fooid"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "setsysctl": {
+      "response": "security.jail.mount_devfs_allowed: 1 -> 0",
+      "sysctl": "security.jail.mount_devfs_allowed",
+      "value": "0"
     }
   },
   "id": "fooid",
