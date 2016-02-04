@@ -19,7 +19,7 @@ The systemmanager class is used to retrieve information about the system. Every 
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "procinfo", "killproc", "batteryinfo",         |
-|                                 |               | "externalmounts", "systemmanager"                                                                                    |
+|                                 |               | "externalmounts", "systemmanager", and "sysctllist"                                                                  |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -579,6 +579,80 @@ of RAM, and the system's uptime.
       "systemversion": "10.2-RELEASE-p12",
       "totalmem": 10720,
       "uptime": "up 2 days 5:09"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: sysctllist, systemmanager
+
+.. _List Sysctls:
+
+List Sysctls
+============
+
+The "sysctllist" action lists returns the list of all setable sysctl values. Since there are many, the example responses in this section have been truncated to just show a few.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/systemmanager
+ {
+   "action" : "sysctllist"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "sysctllist": {
+            "compat.ia32.maxdsiz": "536870912",
+            "compat.ia32.maxssiz": "67108864",
+            "compat.ia32.maxvmem": "0",
+            "compat.linux.osname": "Linux",
+            "compat.linux.osrelease": "2.6.18",
+            "compat.linux.oss_version": "198144",
+            "compat.linux32.maxdsiz": "536870912",
+            "compat.linux32.maxssiz": "67108864",
+            "compat.linux32.maxvmem": "0",
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "systemmanager",
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "action" : "sysctllist"
+   }
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "sysctllist": {
+      "compat.ia32.maxdsiz": "536870912",
+      "compat.ia32.maxssiz": "67108864",
+      "compat.ia32.maxvmem": "0",
+      "compat.linux.osname": "Linux",
+      "compat.linux.osrelease": "2.6.18",
+      "compat.linux.oss_version": "198144",
+      "compat.linux32.maxdsiz": "536870912",
+      "compat.linux32.maxssiz": "67108864",
+      "compat.linux32.maxvmem": "0",
     }
   },
   "id": "fooid",
