@@ -18,8 +18,8 @@ The systemmanager class is used to retrieve information about the system. Every 
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "procinfo", "batteryinfo", "externalmounts",   |
-|                                 |               | "systemmanager"                                                                                                      |
+| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "procinfo", "killproc", "batteryinfo",         |
+|                                 |               | "externalmounts", "systemmanager"                                                                                    |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -313,6 +313,72 @@ of the type of information listed by this action.
         "username": "root",
         "wcpu": "0.00%"
       }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: killproc, systemmanager 
+
+.. _Kill a Process:
+
+Kill a Process
+==============
+
+The "killproc" action can be used to send the specified signal to the specified Process ID (PID). The following signals are supported: INT, QUIT, ABRT, KILL, ALRM, or TERM.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/systemmanager
+ {
+   "signal" : "KILL",
+   "pid" : "13939",
+   "action" : "killproc"
+ }
+
+**REST Response**
+
+.. code-block:: json  
+
+ {
+    "args": {
+        "killproc": {
+            "action": "killproc",
+            "pid": "13939",
+            "signal": "KILL"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "pid" : "13939",
+      "action" : "killproc",
+      "signal" : "KILL"
+   },
+   "id" : "fooid",
+   "name" : "systemmanager"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "killproc": {
+      "action": "killproc",
+      "pid": "13939",
+      "signal": "KILL"
+    }
   },
   "id": "fooid",
   "name": "response",
