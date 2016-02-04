@@ -98,4 +98,28 @@ QJsonObject Iohyve::renameISO(QJsonObject jsin) {
   return retObject;
 }
 
+// Remove an ISO file
+QJsonObject Iohyve::rmISO(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("target") ) {
+    retObject.insert("error", "Missing required key 'target'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString target = jsin.value("target").toString();
+
+  QStringList output = General::RunCommand("iohyve rmiso " + target).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("cannot open") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+  retObject.insert("target", target);
+  return retObject;
+}
 
