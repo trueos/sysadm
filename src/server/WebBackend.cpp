@@ -389,6 +389,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="deactivatepool"){
+	ok = true;
+        out->insert("deactivatepool", sysadm::Iocage::deactivatePool(in_args.toObject()));
+      }
       if(act=="activatepool"){
 	ok = true;
         out->insert("activatepool", sysadm::Iocage::activatePool(in_args.toObject()));

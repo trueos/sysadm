@@ -12,6 +12,34 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Deactivate a zpool for iocage on the box
+QJsonObject Iocage::deactivatePool(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("pool") ) {
+    retObject.insert("error", "Missing required keys");
+    return retObject;
+  }
+
+  // Get the key values
+  QString pool = jsin.value("pool").toString();
+  QStringList output = General::RunCommand("iocage deactivate " + pool).split("\n");
+  QJsonObject vals;
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( ! output.at(i).isEmpty())
+      break;
+
+    // When a pool deactivation is successful, iocage doesn't return anything,
+    // so we have to fudge the output a bit.
+    retObject.insert("success", "pool " + pool + " deactivated.");
+  }
+
+  return retObject;
+}
+
 // Activate a zpool for iocage on the box
 QJsonObject Iocage::activatePool(QJsonObject jsin) {
   QJsonObject retObject;
@@ -40,7 +68,13 @@ QJsonObject Iocage::activatePool(QJsonObject jsin) {
 
         vals.insert(key, value);
 
+        // This means no pool exists, give them the error.
+        if ( output.at(i).indexOf("ERROR:") != -1 ) {
+          retObject.insert("error", output.at(i));
+          break;
+
         retObject.insert("currently active", vals);
+      }
     }
   }
 
