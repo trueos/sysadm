@@ -389,6 +389,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="cleanall"){
+	ok = true;
+        out->insert("cleanall", sysadm::Iocage::cleanAll());
+      }
       if(act=="cleantemplates"){
 	ok = true;
         out->insert("cleantemplates", sysadm::Iocage::cleanTemplates());
