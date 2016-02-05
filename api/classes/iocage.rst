@@ -21,7 +21,7 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
-|                                 |               | "capjail", "cleanjails", "cleanreleases", "activatepool", and "deactivatepool"                                       |
+|                                 |               | "capjail", "cleanjails", "cleanreleases", "cleantemplates" "activatepool", and "deactivatepool"                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -846,7 +846,7 @@ the jail.
 Clean Jails
 ===========
 
-The "cleanjails" action destroys all existing jail datasets.
+The "cleanjails" action destroys all existing jail datasets, including ISOs, templates, and all data stored in the jails.
 
 **REST Request**
 
@@ -928,6 +928,52 @@ The "cleanreleases" action deletes all releases that have been fetched.
   "args": {
     "cleanreleases": {
       "success": "All RELEASEs have been cleaned."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: cleantemplates, iocage
+
+.. _Clean Templates:
+
+Clean Templates
+===============
+
+The "cleantemplates" action destroys all existing jail templates.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/iocage
+ {
+   "action" : "cleantemplates"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "args" : {
+      "action" : "cleantemplates"
+   },
+   "name" : "iocage",
+   "id" : "fooid",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "cleantemplates": {
+      "success": "All templates have been cleaned."
     }
   },
   "id": "fooid",
