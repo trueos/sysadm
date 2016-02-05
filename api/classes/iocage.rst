@@ -21,7 +21,7 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
-|                                 |               | "activatepool", and "deactivatepool"                                                                                 |
+|                                 |               | "capjail", "activatepool", and "deactivatepool"                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -783,6 +783,55 @@ The "stopjail" action stops the specified jail.
       "test": {
         "INFO": " 0bf985de-ca0f-11e5-8d45-d05099728dbf (test) is already down"
       }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: capjail, iocage
+
+.. _Cap a Jail:
+
+Cap a Jail
+===========
+
+The "capjail" action re-applies resource limits to a running jail. Use this action when you make a change to the specified jail's resources and want to apply the changes without restarting
+the jail.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "jail" : "test",
+   "action" : "capjail"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "jail" : "test",
+      "action" : "capjail"
+   },
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "capjail": {
+      "success": "jail test capped."
     }
   },
   "id": "fooid",
