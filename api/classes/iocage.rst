@@ -21,7 +21,7 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
-|                                 |               | "capjail", "activatepool", and "deactivatepool"                                                                      |
+|                                 |               | "capjail", "cleanjails", "activatepool", and "deactivatepool"                                                        |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -832,6 +832,52 @@ the jail.
   "args": {
     "capjail": {
       "success": "jail test capped."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: cleanjails, iocage
+
+.. _Clean Jails:
+
+Clean Jails
+===========
+
+The "cleanjails" action destroys all existing jail datasets.
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iocage
+ {
+   "action" : "cleanjails"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "cleanjails"
+   },
+   "id" : "fooid",
+   "name" : "iocage"
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "cleanjails": {
+      "success": "All jails have been cleaned."
     }
   },
   "id": "fooid",
