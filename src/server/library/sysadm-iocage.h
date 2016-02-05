@@ -14,6 +14,7 @@ namespace sysadm{
 
 class Iocage{
 public:
+	static QJsonObject cleanJails();
 	static QJsonObject capJail(QJsonObject);
 	static QJsonObject deactivatePool(QJsonObject);
 	static QJsonObject activatePool(QJsonObject);

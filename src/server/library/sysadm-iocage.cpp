@@ -12,6 +12,29 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Clean all jails on a box
+QJsonObject Iocage::cleanJails() {
+  QJsonObject retObject;
+
+  QStringList output = General::RunCommand("iocage clean -fj ").split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This means either a mount is stuck or a jail cannot be stopped,
+    // give them the error.
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      break;
+    } else {
+      // iocage does a spinner for these that is distracting to see returned,
+      // returning what a user wants to actually see.
+      retObject.insert("success", "All jails have been cleaned.");
+    }
+  }
+
+  return retObject;
+}
+
 // Resource cap a jail on the box
 QJsonObject Iocage::capJail(QJsonObject jsin) {
   QJsonObject retObject;
