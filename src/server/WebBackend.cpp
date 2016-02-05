@@ -9,6 +9,7 @@
 #include <WebSocket.h>
 
 //sysadm library interface classes
+#include "library/sysadm-beadm.h"
 #include "library/sysadm-general.h"
 #include "library/sysadm-iocage.h"
 #include "library/sysadm-iohyve.h"
@@ -34,6 +35,11 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   // - syscache
   if(QFile::exists("/var/run/syscache.pipe")){
     out->insert("rpc/syscache","read"); //no write to syscache - only reads
+  }
+
+  // - beadm
+  if(QFile::exists("/usr/local/sbin/beadm")){
+    out->insert("sysadm/beadm", "read/write");
   }
 
   // - dispatcher (Internal to server - always available)
@@ -90,6 +96,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   //Go through and forward this request to the appropriate sub-system
   if(namesp=="rpc" && name=="dispatcher"){
     return EvaluateDispatcherRequest(IN.fullaccess, IN.args, out);
+  }else if(namesp=="sysadm" && name=="beadm"){
+    return EvaluateSysadmBEADMRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="iocage"){
     return EvaluateSysadmIocageRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="iohyve"){
@@ -179,6 +187,29 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, 
   }
 
   //Return Success
+  return RestOutputStruct::OK;
+}
+
+//==== SYSADM -- BEADM ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValue in_args, QJsonObject *out){
+  if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    bool ok = false;
+    if(keys.contains("action")){
+      QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="listbes"){
+	ok = true;
+        out->insert("listbes", sysadm::BEADM::listBEs());
+      }
+    } //end of "action" key usage
+
+    //If nothing done - return the proper code
+    if(!ok){
+      return RestOutputStruct::BADREQUEST;
+    }
+  }else{  // if(in_args.isArray()){
+    return RestOutputStruct::BADREQUEST;
+  }
   return RestOutputStruct::OK;
 }
 
