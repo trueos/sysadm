@@ -20,7 +20,7 @@ Every iohyve class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms"                                                                                  |
+| action                          |               | supported actions include "listvms", "fetchiso"                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -31,7 +31,7 @@ The rest of this section provides examples of the available *actions* for each t
 .. _List VMs:
 
 List VMs
-================
+========
 
 The "listvms" action lists information about currently installed VMs. For each VM, the response includes the VM's name, description, whether or not it is scheduled to start when the host
 system boots, whether or not it is currently running, and whether or not the VM is currently loaded into memory.
@@ -41,7 +41,7 @@ system boots, whether or not it is currently running, and whether or not the VM 
 .. code-block:: json
 
  PUT /sysadm/iohyve
-{
+ {
    "action" : "listvms"
  }
 
@@ -88,6 +88,58 @@ system boots, whether or not it is currently running, and whether or not the VM 
         "running": "NO",
         "vmm": "YES"
       }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: fetchiso, iohyve
+
+.. _Fetch ISO:
+
+Fetch ISO
+=========
+
+The "fetchiso" action is used to retrieve the installation ISO. It is used with the "url" argument which contains the ISO address beginning with *http://*, 
+*ftp://*, or
+*file://*.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "url" : "ftp://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.1/FreeBSD-10.1-RELEASE-amd64-disc1.iso",
+   "action" : "fetchiso"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "name" : "iohyve",
+   "args" : {
+      "url" : "ftp://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.1/FreeBSD-10.1-RELEASE-amd64-disc1.iso",
+      "action" : "fetchiso"
+   },
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "fetchiso": {
+      "command": "iohyve fetch ftp://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.1/FreeBSD-10.1-RELEASE-amd64-disc1.iso",
+      "comment": "Task Queued",
+      "queueid": "{b3a8b980-a564-4ff8-86a2-1971bd4f58d1}"
     }
   },
   "id": "fooid",
