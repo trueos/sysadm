@@ -20,7 +20,7 @@ Every iohyve class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms", "fetchiso"                                                                      |
+| action                          |               | supported actions include "listvms", "fetchiso", "renameiso"                                                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -140,6 +140,57 @@ The "fetchiso" action is used to retrieve the installation ISO. It is used with 
       "command": "iohyve fetch ftp://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.1/FreeBSD-10.1-RELEASE-amd64-disc1.iso",
       "comment": "Task Queued",
       "queueid": "{b3a8b980-a564-4ff8-86a2-1971bd4f58d1}"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: renameiso, iohyve
+
+.. _Rename ISO:
+
+Rename ISO
+==========
+
+The "renameiso" action is used to to rename an existing ISO file on disk. Specify the existing name with "source" and the new name with "target".
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "source" : "test.iso",
+   "target" : "102.iso",
+   "action" : "renameiso"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "target" : "102.iso",
+      "source" : "test.iso",
+      "action" : "renameiso"
+   },
+   "id" : "fooid",
+   "name" : "iohyve",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "renameiso": {
+      "source": "test.iso",
+      "target": "102.iso"
     }
   },
   "id": "fooid",
