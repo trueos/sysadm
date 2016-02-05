@@ -20,7 +20,7 @@ Every iohyve class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms", "fetchiso", "renameiso"                                                         |
+| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso"                                                |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -191,6 +191,54 @@ The "renameiso" action is used to to rename an existing ISO file on disk. Specif
     "renameiso": {
       "source": "test.iso",
       "target": "102.iso"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: rmiso, iohyve
+
+.. _Remove ISO:
+
+Remove ISO
+==========
+
+The "rmiso" action is used to to remove an existing ISO file from disk. Specify the ISO's name as the "target".
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "rmiso",
+   "target" : "FreeBSD-10.2-RELEASE-amd64-bootonly.iso"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "iohyve",
+   "args" : {
+      "target" : "FreeBSD-10.2-RELEASE-amd64-bootonly.iso",
+      "action" : "rmiso"
+   },
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "rmiso": {
+      "target": "FreeBSD-10.2-RELEASE-amd64-bootonly.iso"
     }
   },
   "id": "fooid",
