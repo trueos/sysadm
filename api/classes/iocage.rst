@@ -914,7 +914,9 @@ These examples show responses when the pool is not specified:
 Deactivate a Pool
 =================
 
-The "deactivatepool" action can be used to prevent jail creation on the specified ZFS pool. 
+Since only one pool can be active, the "deactivatepool" action can be used to deactivate a currently active pool. This should be done before using the
+"activatepool" action to activate a different pool. When a pool is deactivated, no data is removed. However, you won't have access to its jails unless you move those datasets to the newly
+activated pool or activate the old pool again.
 
 **REST Request**
 
