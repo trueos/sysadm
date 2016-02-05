@@ -21,7 +21,7 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
-|                                 |               | "capjail", "cleanjails", "cleanreleases", "cleantemplates" "activatepool", and "deactivatepool"                      |
+|                                 |               | "capjail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall", "activatepool", and "deactivatepool"         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -846,7 +846,7 @@ the jail.
 Clean Jails
 ===========
 
-The "cleanjails" action destroys all existing jail datasets, including ISOs, templates, and all data stored in the jails.
+The "cleanjails" action destroys all existing jail datasets, including all data stored in the jails.
 
 **REST Request**
 
@@ -892,7 +892,7 @@ The "cleanjails" action destroys all existing jail datasets, including ISOs, tem
 Clean Releases
 ==============
 
-The "cleanreleases" action deletes all releases that have been fetched.
+The "cleanreleases" action deletes all releases that have been fetched. Since basejails rely on releases, do not run this action if any basejails still exist.
 
 **REST Request**
 
@@ -974,6 +974,52 @@ The "cleantemplates" action destroys all existing jail templates.
   "args": {
     "cleantemplates": {
       "success": "All templates have been cleaned."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+ .. index:: cleanall, iocage
+
+.. _Clean All:
+
+Clean All
+===========
+
+The "cleanall" action destroys everything associated with iocage. 
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iocage
+ {
+   "action" : "cleanall"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "cleanall"
+   },
+   "id" : "fooid",
+   "name" : "iocage"
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "cleanall": {
+      "success": "All iocage datasets have been cleaned."
     }
   },
   "id": "fooid",
