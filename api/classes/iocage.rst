@@ -21,7 +21,7 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
-|                                 |               | "capjail", "cleanjails", "activatepool", and "deactivatepool"                                                        |
+|                                 |               | "capjail", "cleanjails", "cleanreleases", "activatepool", and "deactivatepool"                                       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -878,6 +878,56 @@ The "cleanjails" action destroys all existing jail datasets.
   "args": {
     "cleanjails": {
       "success": "All jails have been cleaned."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: cleanreleases, iocage
+
+.. _Clean Releases:
+
+Clean Releases
+==============
+
+The "cleanreleases" action deletes all releases that have been fetched.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/iocage
+ {
+   "action" : "cleanreleases"
+ }
+
+**WebSocket Request**
+
+**REST Request**
+
+.. code-block:: json  
+
+ {
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "cleanreleases"
+   },
+   "name" : "iocage"
+ }
+
+**Response**
+
+**REST Request**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "cleanreleases": {
+      "success": "All RELEASEs have been cleaned."
     }
   },
   "id": "fooid",
