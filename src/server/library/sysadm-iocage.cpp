@@ -12,6 +12,34 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Resource cap a jail on the box
+QJsonObject Iocage::capJail(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("jail") ) {
+    retObject.insert("error", "Missing required keys");
+    return retObject;
+  }
+
+  // Get the key values
+  QString jail = jsin.value("jail").toString();
+  QStringList output = General::RunCommand("iocage cap " + jail).split("\n");
+  QJsonObject vals;
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( ! output.at(i).isEmpty())
+      break;
+
+    // When a cap is successful, iocage doesn't return anything, so we have to
+    // fudge the output a bit.
+    retObject.insert("success", "jail " + jail + " capped.");
+  }
+
+  return retObject;
+}
+
 // Deactivate a zpool for iocage on the box
 QJsonObject Iocage::deactivatePool(QJsonObject jsin) {
   QJsonObject retObject;
