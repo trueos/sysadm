@@ -20,7 +20,7 @@ Every beadm class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listbes"                                                                                  |
+| action                          |               | supported actions include "listbes", "renamebe"                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -80,6 +80,58 @@ The "listbes" action retrieves the list of boot environments. For each boot envi
         "nick": "07:00",
         "space": "1.2G"
       }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: renamebe, beadm
+
+.. _Rename a Boot Environment:
+
+Rename a Boot Environment
+=========================
+
+The "renamebe" action renames the specified boot environment. When using this action, specify the new name as the "source" and the boot environment as the "target".
+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/beadm
+ {
+   "source" : "newname",
+   "action" : "renamebe",
+   "target" : "bootthingy"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "name" : "beadm",
+   "id" : "fooid",
+   "args" : {
+      "source" : "newname",
+      "target" : "bootthingy",
+      "action" : "renamebe"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "renamebe": {
+      "source": "newname",
+      "target": "bootthingy"
     }
   },
   "id": "fooid",
