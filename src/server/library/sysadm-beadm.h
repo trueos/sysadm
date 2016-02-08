@@ -15,6 +15,7 @@ namespace sysadm{
 class BEADM{
 public:
 	static QJsonObject listBEs();
+	static QJsonObject renameBE(QJsonObject);
 };
 	
 } //end of pcbsd namespace

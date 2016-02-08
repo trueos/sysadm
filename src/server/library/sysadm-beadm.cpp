@@ -47,3 +47,31 @@ QJsonObject BEADM::listBEs() {
 
   return retObject;
 }
+
+QJsonObject BEADM::renameBE(QJsonObject jsin) {
+  QJsonObject retObject;
+  
+  QStringList keys = jsin.keys();
+  if (! keys.contains("source") || ! keys.contains("target") ) {
+    retObject.insert("error", "Missing required key(s) 'source / target'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString source = jsin.value("source").toString();
+  QString target = jsin.value("target").toString();
+
+
+  QStringList output = General::RunCommand("beadm rename " + source + " " + target).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("ERROR") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+  
+  retObject.insert("source", source);
+  retObject.insert("target", target);
+  return retObject;
+}
