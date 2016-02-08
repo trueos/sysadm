@@ -17,9 +17,15 @@ DEFCLASS="lifepreserver"
 # Set variable to call jsawk utility
 JSAWK="./utils/jsawk -j js24"
 
+if [ `id -u` != "0" ] ; then
+  pkgPre="sudo"
+else
+  pkgPre=""
+fi
+
 which npm >/dev/null 2>/dev/null
 if [ $? -ne 0 ] ; then
-  pkg install -y npm
+  $pkgPre pkg install -y npm
   if [ $? -ne 0 ] ; then
     echo "Requires npm!"
     exit 1
@@ -28,7 +34,7 @@ fi
 
 pkg info p5-JSON >/dev/null 2>/dev/null
 if [ $? -ne 0 ] ; then
-  pkg install -y p5-JSON
+  $pkgPre pkg install -y p5-JSON
   if [ $? -ne 0 ] ; then
     echo "Requires p5-JSON!"
     exit 1
