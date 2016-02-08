@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [SysAdm](#sysadm)
+    - [Required Qt Modules](#required-qt-modules)
+    - [Building SysAdm](#building-sysadm)
+    - [Starting SysAdm](#starting-sysadm)
+    - [API Documentation](#api-documentation)
+    - [Contributing new API calls](#contributing-new-api-calls)
+    - [Adding new Classes for API calls](#adding-new-classes-for-api-calls)
+    - [Testing new API calls / classes](#testing-new-api-calls--classes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SysAdm
 
 Official repo for PC-BSD's sysadm middleware WebSocket & REST server
