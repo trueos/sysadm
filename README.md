@@ -6,9 +6,11 @@ This middleware acts as the core for controlling a PC-BSD or FreeBSD system eith
 
 ### Required Qt Modules
 
-Qt5 Core
-Qt5 Concurrent
-Qt5 Websockets
+```
+Qt5 Core (pkg install qt5-core)
+Qt5 Concurrent (pkg install qt5-concurrent)
+Qt5 Websockets (pkg install qt5-websockets)
+```
 
 ### Building SysAdm
 
