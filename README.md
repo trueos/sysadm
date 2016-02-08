@@ -56,8 +56,8 @@ https://github.com/pcbsd/sysadm/commit/1ba65b33880e2298ade3e5cc4f2718aa6112e44f
 
 ### Testing new API calls / classes
 
-Before committing or sending a pull request, you'll need to run our 
-"api-test.sh" script and confirm it works properly. To do so, first add
+Before committing or sending a pull request, you'll need to run our  <br />
+"api-test.sh" script and confirm it works properly. To do so, first add <br />
 your new call and restart the websocket server. Next do the following:
 
 ```
@@ -65,9 +65,9 @@ your new call and restart the websocket server. Next do the following:
 % ./api-test.sh
 ```
 
-The api-test script will prompt you to enter username, password, and some
-information about which class / API call to run. When that is done, and you
-have verified the functionality of your new call you should add the output
-of the test script (either from copy-n-paste, or from the file /tmp/api-response)
+The api-test script will prompt you to enter username, password, and some <br />
+information about which class / API call to run. When that is done, and you <br />
+have verified the functionality of your new call you should add the output <br />
+of the test script (either from copy-n-paste, or from the file /tmp/api-response) <br />
 to your commit. (This will allow us to document the new call / class)
 
