@@ -132,6 +132,7 @@ fi
 # Now check the response via WebSockets
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 
+rm $ofile >/dev/null 2>/dev/null
 ofile="/tmp/api-response"
 echo "" > $ofile
 
@@ -149,4 +150,3 @@ echo "" | tee -a $ofile
 echo "Response:" | tee -a $ofile
 echo "-------------------------------" | tee -a $ofile
 echo "{ \"namespace\":\"${APITESTNAMESPACE}\", \"name\":\"${APITESTCLASS}\", \"id\":\"fooid\", \"args\":${APITESTPAYLOAD} }" | node sendwebsocket.js "$APITESTUSER" "$APITESTPASS" | tee -a $ofile
-rm $ofile
