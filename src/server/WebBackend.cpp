@@ -1,4 +1,4 @@
-// ===============================
+﻿// ===============================
 //  PC-BSD REST API Server
 // Available under the 3-clause BSD License
 // Written by: Ken Moore <ken@pcbsd.org> DEC 2015
@@ -41,6 +41,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   if(QFile::exists("/usr/local/sbin/beadm")){
     out->insert("sysadm/beadm", "read/write");
   }
+  
 
   // - dispatcher (Internal to server - always available)
   //"read" is the event notifications, "write" is the ability to queue up jobs
@@ -200,6 +201,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValu
       if(act=="listbes"){
 	ok = true;
         out->insert("listbes", sysadm::BEADM::listBEs());
+      }
+      if(act=="renamebe"){
+	ok = true;
+        out->insert("renamebe", sysadm::BEADM::renameBE(in_args.toObject()));
       }
     } //end of "action" key usage
 
