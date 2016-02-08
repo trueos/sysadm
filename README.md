@@ -2,7 +2,7 @@
 
 Official repo for PC-BSD's sysadm middleware WebSocket & REST server
 
-This middleware acts as the core for controlling a PC-BSD or FreeBSD
+This middleware acts as the core for controlling a PC-BSD or FreeBSD <br />
 system either locally or remotely via WebSockets or REST.
 
 ### Required Qt Modules
@@ -40,8 +40,8 @@ https://api.pcbsd.org
 
 ### Contributing new API calls
 
-Adding new API calls to the middleware is very straight-forward, simply
-add a new function which accepts JSON in, and returns JSON, then connect
+Adding new API calls to the middleware is very straight-forward, simply <br />
+add a new function which accepts JSON in, and returns JSON, then connect <br />
 it to the backend.
 
 Example:
