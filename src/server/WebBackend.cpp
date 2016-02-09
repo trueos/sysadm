@@ -501,6 +501,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="create"){
+	ok = true;
+        out->insert("create", sysadm::Iohyve::createGuest(in_args.toObject()));
+      }
       if(act=="listvms"){
 	ok = true;
         out->insert("listvms", sysadm::Iohyve::listVMs());

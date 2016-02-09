@@ -14,6 +14,7 @@ namespace sysadm{
 
 class Iohyve{
 public:
+	static QJsonObject createGuest(QJsonObject);
 	static QJsonObject fetchISO(QJsonObject);
 	static QJsonObject isSetup();
 	static QJsonObject listVMs();
