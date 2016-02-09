@@ -18,6 +18,7 @@ public:
 	static QJsonObject listVMs();
 	static QJsonObject renameISO(QJsonObject);
 	static QJsonObject rmISO(QJsonObject);
+	static QJsonObject setupIohyve(QJsonObject);
 };
 	
 } //end of pcbsd namespace

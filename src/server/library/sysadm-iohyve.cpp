@@ -13,7 +13,6 @@
 using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
-
 // Queue the fetch of an ISO
 QJsonObject Iohyve::fetchISO(QJsonObject jsin) {
   QJsonObject retObject;
@@ -123,3 +122,37 @@ QJsonObject Iohyve::rmISO(QJsonObject jsin) {
   return retObject;
 }
 
+// setup iohyve
+QJsonObject Iohyve::setupIohyve(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("pool") || ! keys.contains("nic") ) {
+    retObject.insert("error", "Missing required key(s) 'pool / nic'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString pool = jsin.value("pool").toString();
+  QString nic = jsin.value("nic").toString();
+
+  // Enable the rc.conf values
+  if ( ! General::setConfFileValue("/etc/rc.conf", "iohyve_flags=", "iohyve_flags=\"kmod=1 net=" + nic  + "\"", -1 ) ) {
+    retObject.insert("error", "Failed enabling rc.conf iohyve_flags");
+    return retObject;
+  }
+
+  // Do the setup right now
+  QStringList output = General::RunCommand("iohyve setup pool=" + pool + " kmod=1 net=" + nic).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("cannot create") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("pool", pool);
+  retObject.insert("nic", nic);
+  return retObject;
+}
