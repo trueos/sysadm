@@ -210,7 +210,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValu
       }else if(act=="createbe"){
 	ok = true;
         out->insert("createbe", sysadm::BEADM::createBE(in_args.toObject()));
-      }
+      }else if(act=="destroybe"){
+	ok = true;
+        out->insert("destroybe", sysadm::BEADM::destroyBE(in_args.toObject()));
+      } 
     } //end of "action" key usage
 
     //If nothing done - return the proper code
