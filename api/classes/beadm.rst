@@ -20,7 +20,7 @@ Every beadm class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listbes", "renamebe", "activatebe"                                                        |
+| action                          |               | supported actions include "listbes", "renamebe", "activatebe", "createbe"                                            |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -181,6 +181,58 @@ The "activatebe" action activates the specified boot environment (target) so tha
   "args": {
     "activatebe": {
       "target": "bootthingy"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: createbe, beadm
+
+.. _Create Boot Environment:
+
+Create Boot Environment
+=======================
+
+The "create" action creates a new boot environment. Specify the name of the boot environment as the "newbe". If you wish to create a new boot environment which is a clone of an existing
+boot environment, also include "clonefrom" to specify which boot environment to clone.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/beadm
+ {
+   "action" : "createbe",
+   "newbe" : "red",
+   "clonefrom" : "green"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "newbe" : "red",
+      "clonefrom" : "green",
+      "action" : "createbe"
+   },
+   "namespace" : "sysadm",
+   "name" : "beadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "createbe": {
+      "clonefrom": "green",
+      "newbe": "red"
     }
   },
   "id": "fooid",
