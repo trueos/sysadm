@@ -229,3 +229,30 @@ QJsonObject Iohyve::setupIohyve(QJsonObject jsin) {
   retObject.insert("nic", nic);
   return retObject;
 }
+
+// Start a guest
+QJsonObject Iohyve::startGuest(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  // Do the setup right now
+  QStringList output = General::RunCommand("iohyve start " + name).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("Not a valid") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("name", name);
+  return retObject;
+}

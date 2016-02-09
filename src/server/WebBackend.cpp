@@ -533,6 +533,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("setup", sysadm::Iohyve::setupIohyve(in_args.toObject()));
       }
+      if(act=="start"){
+	ok = true;
+        out->insert("start", sysadm::Iohyve::startGuest(in_args.toObject()));
+      }
     } //end of "action" key usage
 
     //If nothing done - return the proper code
