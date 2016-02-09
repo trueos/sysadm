@@ -256,3 +256,38 @@ QJsonObject Iohyve::startGuest(QJsonObject jsin) {
   retObject.insert("name", name);
   return retObject;
 }
+
+// Stop a guest
+QJsonObject Iohyve::stopGuest(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  QString stoparg = "stop";
+  if (! keys.contains("force") ) {
+    if ( jsin.value("force").toString() == "true" ) {
+      stoparg = "forcekill";
+    }
+  }
+
+  // Do the stop right now
+  QStringList output = General::RunCommand("iohyve " + stoparg + " " + name).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This doesn't work, iohyve doesn't return error message right now
+    if ( output.at(i).indexOf("No such guest") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("name", name);
+  return retObject;
+}
