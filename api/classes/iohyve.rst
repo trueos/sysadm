@@ -21,7 +21,7 @@ Every iohyve class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup",  "issetup", "create",  "install",    |
-|                                 |               | "stop"                                                                                                               |
+|                                 |               | "start", "stop"                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -439,6 +439,54 @@ run :command:`iohyve console <name>` from the system.
   "args": {
     "install": {
       "iso": "FreeBSD-10.2-RELEASE-amd64-disc1.iso",
+      "name": "bsdguest"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: start, iohyve
+
+.. _Start VM:
+
+Start VM
+========
+
+The "start" action starts the specified VM.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "start",
+   "name" : "bsdguest"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "iohyve",
+   "id" : "fooid",
+   "args" : {
+      "action" : "start",
+      "name" : "bsdguest"
+   },
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "start": {
       "name": "bsdguest"
     }
   },
