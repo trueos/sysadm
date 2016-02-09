@@ -39,6 +39,20 @@ QJsonObject Iohyve::fetchISO(QJsonObject jsin) {
   return retObject;
 }
 
+// Return if iohyve is setup on the box
+QJsonObject Iohyve::isSetup() {
+  QJsonObject retObject;
+
+  // Check if iohyve is setup on this box
+  // We check the flags variable, enabling / disabling is done via service mgmt
+  QString ioflags = General::getConfFileValue("/etc/rc.conf", "iohyve_flags=", 1);
+  if ( ioflags.isEmpty() )
+    retObject.insert("setup", "false");
+  else
+    retObject.insert("setup", "true");
+
+  return retObject;
+}
 
 // List the VMs on the box
 QJsonObject Iohyve::listVMs() {

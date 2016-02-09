@@ -15,6 +15,7 @@ namespace sysadm{
 class Iohyve{
 public:
 	static QJsonObject fetchISO(QJsonObject);
+	static QJsonObject isSetup();
 	static QJsonObject listVMs();
 	static QJsonObject renameISO(QJsonObject);
 	static QJsonObject rmISO(QJsonObject);
