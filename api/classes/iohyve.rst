@@ -20,7 +20,7 @@ Every iohyve class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup",  "issetup", "create"                 |
+| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup",  "issetup", "create",  "install"     |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -387,6 +387,58 @@ The "create" action creates a new iohyve guest of the specified "name" and "size
     "create": {
       "name": "bsdguest",
       "size": "10G"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: install, iohyve
+
+.. _Install Guest:
+
+Install Guest
+=============
+
+The "install" action starts the iohyve installation of the specified guest from the specified ISO. This action only boots the VM with the ISO; to do the actual installation,
+run :command:`iohyve console <name>` from the system.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "name" : "bsdguest",
+   "iso" : "FreeBSD-10.2-RELEASE-amd64-disc1.iso",
+   "action" : "install"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "name" : "iohyve",
+   "id" : "fooid",
+   "args" : {
+      "action" : "install",
+      "iso" : "FreeBSD-10.2-RELEASE-amd64-disc1.iso",
+      "name" : "bsdguest"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "install": {
+      "iso": "FreeBSD-10.2-RELEASE-amd64-disc1.iso",
+      "name": "bsdguest"
     }
   },
   "id": "fooid",
