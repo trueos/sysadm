@@ -195,8 +195,8 @@ The "activatebe" action activates the specified boot environment (target) so tha
 Create Boot Environment
 =======================
 
-The "create" action creates a new boot environment. Specify the name of the boot environment as the "newbe". If you wish to create a new boot environment which is a clone of an existing
-boot environment, also include "clonefrom" to specify which boot environment to clone.
+The "create" action creates a new boot environment. Specify the name of the boot environment as the "newbe". By default, this action clones the active boot environment. 
+To specify another, inactive boot environment, also include "clonefrom" to specify which boot environment to clone from.
 
 **REST Request**
 

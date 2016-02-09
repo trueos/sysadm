@@ -20,7 +20,7 @@ Every iohyve class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso"                                                |
+| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup"                                       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -239,6 +239,57 @@ The "rmiso" action is used to to remove an existing ISO file from disk. Specify 
   "args": {
     "rmiso": {
       "target": "FreeBSD-10.2-RELEASE-amd64-bootonly.iso"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: setup, iohyve
+
+.. _Setup Iohyve:
+
+Setup Iohyve
+============
+
+The "setup" action performs the initial setup of Iohyve. It is mandatory to specify the FreeBSD device name of the "nic" and the ZFS "pool" to use.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "nic" : "re0",
+   "pool" : "tank",
+   "action" : "setup"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "iohyve",
+   "args" : {
+      "pool" : "tank",
+      "nic" : "re0",
+      "action" : "setup"
+   },
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "setup": {
+      "nic": "re0",
+      "pool": "tank"
     }
   },
   "id": "fooid",
