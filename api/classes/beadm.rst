@@ -20,7 +20,7 @@ Every beadm class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listbes", "renamebe"                                                                      |
+| action                          |               | supported actions include "listbes", "renamebe", "activatebe"                                                        |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -131,6 +131,55 @@ The "renamebe" action renames the specified boot environment. When using this ac
   "args": {
     "renamebe": {
       "source": "newname",
+      "target": "bootthingy"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: activatebe, beadm
+
+.. _Activate Boot Environment:
+
+Activate Boot Environment
+=========================
+
+The "activatebe" action activates the specified boot environment (target) so that it will be the default at next boot.
+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/beadm
+ {
+   "target" : "bootthingy",
+   "action" : "activatebe"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "beadm",
+   "args" : {
+      "action" : "activatebe",
+      "target" : "bootthingy"
+   },
+   "namespace" : "sysadm",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "activatebe": {
       "target": "bootthingy"
     }
   },
