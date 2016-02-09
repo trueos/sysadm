@@ -20,7 +20,8 @@ Every iohyve class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup",  "issetup", "create",  "install"     |
+| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup",  "issetup", "create",  "install",    |
+|                                 |               | "stop"                                                                                                               |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -438,6 +439,54 @@ run :command:`iohyve console <name>` from the system.
   "args": {
     "install": {
       "iso": "FreeBSD-10.2-RELEASE-amd64-disc1.iso",
+      "name": "bsdguest"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: stop, iohyve
+
+.. _Stop VM:
+
+Stop VM
+=======
+
+The "stop" action stops the specified VM.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "stop",
+   "name" : "bsdguest"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "action" : "stop",
+      "name" : "bsdguest"
+   },
+   "name" : "iohyve",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "stop": {
       "name": "bsdguest"
     }
   },
