@@ -159,7 +159,7 @@ void WebServer::NewConnectError(QAbstractSocket::SocketError err){
 //Socket Blacklist function
 void WebServer::BlackListConnection(QHostAddress addr){
   //Make sure this is not the localhost (never block that)
-  if(addr!= QHostAddress(QHostAddress::LocalHost) && addr != QHostAddress(QHostAddress::LocalHostIPv6) ){
+  if(addr!=QHostAddress(QHostAddress::LocalHost) && addr!=QHostAddress(QHostAddress::LocalHostIPv6)  && addr.toString()!="::ffff:127.0.0.1" ){
     //Block this remote host
     LogManager::log(LogManager::HOST,"Blacklisting IP Temporarily: "+addr.toString());
     CONFIG->setValue("blacklist/"+addr.toString(), QDateTime::currentDateTime());
@@ -178,16 +178,9 @@ void WebServer::ServerError(QWebSocketProtocol::CloseCode code){
 
 // -  SSL/Authentication Signals (still websocket only)
 void WebServer::OriginAuthRequired(QWebSocketCorsAuthenticator *auth){
-  qDebug() << "Origin Auth Required:" << auth->origin();
-  //if(auth->origin() == this->serverAddress().toString()){
-  // TO-DO: Provide some kind of address filtering routine for which to accept/reject
-    qDebug() << " - Allowed";
-    auth->setAllowed(true);
-  //}else{
-    //qDebug() << " - Not Allowed";
-    //auth->setAllowed(false);
-  //}
-	
+  //This just provides the ability to check the URL/app which is trying to connect from
+  //	- this is not really useful right now since anything could be set there (accurate or not)
+  auth->setAllowed(true);
 }
 
 void WebServer::ConnectError(QAbstractSocket::SocketError err){

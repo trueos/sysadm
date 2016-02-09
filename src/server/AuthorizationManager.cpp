@@ -78,7 +78,7 @@ int AuthorizationManager::checkAuthTimeoutSecs(QString token){
 // == Token Generation functions
 QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString pass){
 	//Login w/ username & password
-  bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) );
+  bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) || (host.toString()=="::ffff:127.0.0.1") );
   bool ok = false;
   //First check that the user is valid on the system and part of the operator group
   bool isOperator = false;
@@ -89,7 +89,7 @@ QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString p
       return ""; //user not allowed access if not in either of the wheel/operator groups
     }
   }else{ isOperator = true; }
-  //qDebug() << "Check username/password" << user << pass;
+  qDebug() << "Check username/password" << user << pass << localhost;
   //Need to run the full username/password through PAM
   if(!localhost || user=="root" || user=="toor"){
     ok = pam_checkPW(user,pass);

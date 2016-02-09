@@ -91,7 +91,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   }else{
     QJsonObject avail;
     AvailableSubsystems(IN.fullaccess, &avail);
-    if(!avail.contains(namesp+"/"+name)){ return RestOutputStruct::NOTFOUND; }
+    if(!avail.contains(namesp+"/"+name)){ return RestOutputStruct::BADREQUEST; }
   }
 
   //Go through and forward this request to the appropriate sub-system
