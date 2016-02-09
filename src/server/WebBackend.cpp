@@ -511,6 +511,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("rmiso", sysadm::Iohyve::rmISO(in_args.toObject()));
       }
+      if(act=="setup"){
+	ok = true;
+        out->insert("setup", sysadm::Iohyve::setupIohyve(in_args.toObject()));
+      }
     } //end of "action" key usage
 
     //If nothing done - return the proper code
