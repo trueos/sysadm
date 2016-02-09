@@ -20,7 +20,8 @@ Every iocage class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings"                                       |
+| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
+|                                 |               | "capjail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall", "activatepool", and "deactivatepool"         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -332,6 +333,7 @@ system boot, the jail ID (only applies to running jails), whether or not the jai
         "listjails": {
             "611c89ae-c43c-11e5-9602-54ee75595566": {
                 "boot": "off",
+                "ip4": "-",
                 "jid": "-",
                 "state": "down",
                 "tag": "testjail",
@@ -363,6 +365,7 @@ system boot, the jail ID (only applies to running jails), whether or not the jai
     "listjails": {
       "611c89ae-c43c-11e5-9602-54ee75595566": {
         "boot": "off",
+        "ip4": "-",
         "jid": "-",
         "state": "down",
         "tag": "testjail",
@@ -649,3 +652,556 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
   "namespace": "sysadm"
  }
  
+.. index:: startjail, iocage
+
+.. _Start a Jail:
+
+Start a Jail
+============
+
+The "startjail" action starts the specified jail.
+
+.. note:: since a jail can only be started once, you will receive an error if the jail is already running.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "action" : "startjail",
+   "jail" : "test"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "startjail": {
+            "test": {
+                "* Starting 0bf985de-ca0f-11e5-8d45-d05099728dbf (test)": "",
+                "+ Started (shared IP mode) OK": "",
+                "+ Starting services OK": ""
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "action" : "startjail",
+      "jail" : "test"
+   },
+   "name" : "iocage"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "startjail": {
+      "test": {
+        "INFO": " 0bf985de-ca0f-11e5-8d45-d05099728dbf (test) is already up"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: stopjail, iocage
+
+.. _Stop a Jail:
+
+Stop a Jail
+===========
+
+The "stopjail" action stops the specified jail.
+
+.. note:: since a jail can only be stopped once, you will receive an error if the jail is not running.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "action" : "stopjail",
+   "jail" : "test"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "stopjail": {
+            "test": {
+                "* Stopping 0bf985de-ca0f-11e5-8d45-d05099728dbf (test)": "",
+                "+ Removing jail process OK": "",
+                "+ Running post-stop OK": "",
+                "+ Running pre-stop OK": "",
+                "+ Stopping services OK": ""
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "jail" : "test",
+      "action" : "stopjail"
+   },
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "name" : "iocage"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "stopjail": {
+      "test": {
+        "INFO": " 0bf985de-ca0f-11e5-8d45-d05099728dbf (test) is already down"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: capjail, iocage
+
+.. _Cap a Jail:
+
+Cap a Jail
+===========
+
+The "capjail" action re-applies resource limits to a running jail. Use this action when you make a change to the specified jail's resources and want to apply the changes without restarting
+the jail.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "jail" : "test",
+   "action" : "capjail"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "jail" : "test",
+      "action" : "capjail"
+   },
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "capjail": {
+      "success": "jail test capped."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: cleanjails, iocage
+
+.. _Clean Jails:
+
+Clean Jails
+===========
+
+The "cleanjails" action destroys all existing jail datasets, including all data stored in the jails.
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iocage
+ {
+   "action" : "cleanjails"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "cleanjails"
+   },
+   "id" : "fooid",
+   "name" : "iocage"
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "cleanjails": {
+      "success": "All jails have been cleaned."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: cleanreleases, iocage
+
+.. _Clean Releases:
+
+Clean Releases
+==============
+
+The "cleanreleases" action deletes all releases that have been fetched. Since basejails rely on releases, do not run this action if any basejails still exist.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/iocage
+ {
+   "action" : "cleanreleases"
+ }
+
+**WebSocket Request**
+
+**REST Request**
+
+.. code-block:: json  
+
+ {
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "cleanreleases"
+   },
+   "name" : "iocage"
+ }
+
+**Response**
+
+**REST Request**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "cleanreleases": {
+      "success": "All RELEASEs have been cleaned."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: cleantemplates, iocage
+
+.. _Clean Templates:
+
+Clean Templates
+===============
+
+The "cleantemplates" action destroys all existing jail templates.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/iocage
+ {
+   "action" : "cleantemplates"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "args" : {
+      "action" : "cleantemplates"
+   },
+   "name" : "iocage",
+   "id" : "fooid",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "cleantemplates": {
+      "success": "All templates have been cleaned."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+ .. index:: cleanall, iocage
+
+.. _Clean All:
+
+Clean All
+===========
+
+The "cleanall" action destroys everything associated with iocage. 
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iocage
+ {
+   "action" : "cleanall"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "cleanall"
+   },
+   "id" : "fooid",
+   "name" : "iocage"
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "cleanall": {
+      "success": "All iocage datasets have been cleaned."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: activatepool, iocage
+
+.. _Activate a Pool:
+
+Activate a Pool
+===============
+
+The "activatepool" action can be used to specify which ZFS pool is used to store jails. If you do not specify the pool, the response will indicate the current setting.
+
+These examples specify the pool to use:
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "action" : "activatepool",
+   "pool" : "tank"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "activatepool": {
+            "success": "pool tank activated."
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "activatepool",
+      "pool" : "tank"
+   },
+   "name" : "iocage",
+   "id" : "fooid",
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "activatepool": {
+      "success": "pool tank activated."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+These examples show responses when the pool is not specified:
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "action" : "activatepool"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "activatepool": {
+            "currently active": {
+                "pool": " tank"
+            }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "activatepool"
+   },
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "id" : "fooid"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "activatepool": {
+      "currently active": {
+        "pool": " tank"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+ .. index:: deactivatepool, iocage
+
+.. _Deactivate a Pool:
+
+Deactivate a Pool
+=================
+
+Since only one pool can be active, the "deactivatepool" action can be used to deactivate a currently active pool. This should be done before using the
+"activatepool" action to activate a different pool. When a pool is deactivated, no data is removed. However, you won't have access to its jails unless you move those datasets to the newly
+activated pool or activate the old pool again.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "action" : "deactivatepool",
+   "pool" : "tank"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "deactivatepool": {
+            "success": "pool tank deactivated."
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "iocage",
+   "args" : {
+      "pool" : "tank",
+      "action" : "deactivatepool"
+   },
+   "namespace" : "sysadm"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "deactivatepool": {
+      "success": "pool tank deactivated."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }

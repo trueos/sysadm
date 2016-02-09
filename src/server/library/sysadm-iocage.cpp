@@ -12,6 +12,126 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Clean everything iocage related on a box
+QJsonObject Iocage::cleanAll() {
+  QJsonObject retObject;
+
+  QStringList output = General::RunCommand("iocage clean -fa ").split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This means either a mount is stuck or a jail cannot be stopped,
+    // give them the error.
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      break;
+    } else {
+      // iocage does a spinner for these that is distracting to see returned,
+      // returning what a user wants to actually see.
+      retObject.insert("success", "All iocage datasets have been cleaned.");
+    }
+  }
+
+  return retObject;
+}
+
+// Clean all templates on a box
+QJsonObject Iocage::cleanTemplates() {
+  QJsonObject retObject;
+
+  QStringList output = General::RunCommand("iocage clean -ft ").split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This means either a mount is stuck or a jail cannot be stopped,
+    // give them the error.
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      break;
+    } else {
+      // iocage does a spinner for these that is distracting to see returned,
+      // returning what a user wants to actually see.
+      retObject.insert("success", "All templates have been cleaned.");
+    }
+  }
+
+  return retObject;
+}
+
+// Clean all RELEASEs on a box
+QJsonObject Iocage::cleanReleases() {
+  QJsonObject retObject;
+
+  QStringList output = General::RunCommand("iocage clean -fr ").split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This means either a mount is stuck or a jail cannot be stopped,
+    // give them the error.
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      break;
+    } else {
+      // iocage does a spinner for these that is distracting to see returned,
+      // returning what a user wants to actually see.
+      retObject.insert("success", "All RELEASEs have been cleaned.");
+    }
+  }
+
+  return retObject;
+}
+
+// Clean all jails on a box
+QJsonObject Iocage::cleanJails() {
+  QJsonObject retObject;
+
+  QStringList output = General::RunCommand("iocage clean -fj ").split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This means either a mount is stuck or a jail cannot be stopped,
+    // give them the error.
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      break;
+    } else {
+      // iocage does a spinner for these that is distracting to see returned,
+      // returning what a user wants to actually see.
+      retObject.insert("success", "All jails have been cleaned.");
+    }
+  }
+
+  return retObject;
+}
+
+// Resource cap a jail on the box
+QJsonObject Iocage::capJail(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("jail") ) {
+    retObject.insert("error", "Missing required keys");
+    return retObject;
+  }
+
+  // Get the key values
+  QString jail = jsin.value("jail").toString();
+  QStringList output = General::RunCommand("iocage cap " + jail).split("\n");
+  QJsonObject vals;
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( ! output.at(i).isEmpty())
+      break;
+
+    // When a cap is successful, iocage doesn't return anything, so we have to
+    // fudge the output a bit.
+    retObject.insert("success", "jail " + jail + " capped.");
+  }
+
+  return retObject;
+}
+
 // Deactivate a zpool for iocage on the box
 QJsonObject Iocage::deactivatePool(QJsonObject jsin) {
   QJsonObject retObject;

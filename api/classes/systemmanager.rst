@@ -1,9 +1,9 @@
 .. _systemmanager:
 
 systemmanager
-**********
+*************
 
-The systemmanager class is used to manage various aspects of the FreeBSD system. Every systemmanager class request contains the following parameters:
+The systemmanager class is used to retrieve information about the system. Every systemmanager class request contains the following parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
@@ -18,7 +18,8 @@ The systemmanager class is used to manage various aspects of the FreeBSD system.
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "batteryinfo", "externalmounts", "systemmanager"  |
+| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "procinfo", "killproc", "batteryinfo",         |
+|                                 |               | "externalmounts", "systemmanager", "sysctllist", and "setsysctl"                                                     |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -236,6 +237,154 @@ The "cputemps" action returns the temperature of each CPU.
   "namespace": "sysadm"
  }
  
+.. index:: procinfo, systemmanager
+
+.. _Process Information:
+
+Process Information
+===================
+
+The "procinfo" action lists information about each running process. Since a system will have many running processes, the responses in this section only show one process as an example
+of the type of information listed by this action.
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/systemmanager
+ {
+   "action" : "procinfo"
+ }
+
+**REST Response**
+
+.. code-block:: json 
+
+ {
+    "args": {
+        "procinfo": {
+                  "228": {
+        "command": "adjkerntz",
+        "cpu": "3",
+        "nice": "0",
+        "pri": "52",
+        "res": "1968K",
+        "size": "8276K",
+        "state": "pause",
+        "thr": "1",
+        "time": "0:00",
+        "username": "root",
+        "wcpu": "0.00%"
+          }
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "name" : "systemmanager",
+   "args" : {
+      "action" : "procinfo"
+   }
+ }
+
+**WebSocket Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "procinfo": {
+      "228": {
+        "command": "adjkerntz",
+        "cpu": "3",
+        "nice": "0",
+        "pri": "52",
+        "res": "1968K",
+        "size": "8276K",
+        "state": "pause",
+        "thr": "1",
+        "time": "0:00",
+        "username": "root",
+        "wcpu": "0.00%"
+      }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: killproc, systemmanager 
+
+.. _Kill a Process:
+
+Kill a Process
+==============
+
+The "killproc" action can be used to send the specified signal to the specified Process ID (PID). The following signals are supported: INT, QUIT, ABRT, KILL, ALRM, or TERM.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/systemmanager
+ {
+   "signal" : "KILL",
+   "pid" : "13939",
+   "action" : "killproc"
+ }
+
+**REST Response**
+
+.. code-block:: json  
+
+ {
+    "args": {
+        "killproc": {
+            "action": "killproc",
+            "pid": "13939",
+            "signal": "KILL"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "pid" : "13939",
+      "action" : "killproc",
+      "signal" : "KILL"
+   },
+   "id" : "fooid",
+   "name" : "systemmanager"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "killproc": {
+      "action": "killproc",
+      "pid": "13939",
+      "signal": "KILL"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
 .. index:: batteryinfo, systemmanager
 
 .. _Battery Information:
@@ -430,6 +579,146 @@ of RAM, and the system's uptime.
       "systemversion": "10.2-RELEASE-p12",
       "totalmem": 10720,
       "uptime": "up 2 days 5:09"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: sysctllist, systemmanager
+
+.. _List Sysctls:
+
+List Sysctls
+============
+
+The "sysctllist" action lists returns the list of all setable sysctl values. Since there are many, the example responses in this section have been truncated to just show a few.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/systemmanager
+ {
+   "action" : "sysctllist"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "sysctllist": {
+            "compat.ia32.maxdsiz": "536870912",
+            "compat.ia32.maxssiz": "67108864",
+            "compat.ia32.maxvmem": "0",
+            "compat.linux.osname": "Linux",
+            "compat.linux.osrelease": "2.6.18",
+            "compat.linux.oss_version": "198144",
+            "compat.linux32.maxdsiz": "536870912",
+            "compat.linux32.maxssiz": "67108864",
+            "compat.linux32.maxvmem": "0",
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "systemmanager",
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "action" : "sysctllist"
+   }
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "sysctllist": {
+      "compat.ia32.maxdsiz": "536870912",
+      "compat.ia32.maxssiz": "67108864",
+      "compat.ia32.maxvmem": "0",
+      "compat.linux.osname": "Linux",
+      "compat.linux.osrelease": "2.6.18",
+      "compat.linux.oss_version": "198144",
+      "compat.linux32.maxdsiz": "536870912",
+      "compat.linux32.maxssiz": "67108864",
+      "compat.linux32.maxvmem": "0",
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: setsysctl, systemmanager
+
+.. _Set a Sysctl:
+
+Set a Sysctl
+============
+
+The "setsysctl" action sets the specified setable sysctl to the specified value. The response indicates that the old value was changed to the new value.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/systemmanager
+ {
+   "value" : "0",
+   "sysctl" : "security.jail.mount_devfs_allowed",
+   "action" : "setsysctl"
+ }
+
+**REST Response**
+
+.. code-block:: json
+
+ {
+    "args": {
+        "setsysctl": {
+            "response": "security.jail.mount_devfs_allowed: 1 -> 0",
+            "sysctl": "security.jail.mount_devfs_allowed",
+            "value": "0"
+        }
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "value" : "0",
+      "action" : "setsysctl",
+      "sysctl" : "security.jail.mount_devfs_allowed"
+   },
+   "name" : "systemmanager",
+   "namespace" : "sysadm",
+   "id" : "fooid"
+ }
+
+**WebSocket Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "setsysctl": {
+      "response": "security.jail.mount_devfs_allowed: 1 -> 0",
+      "sysctl": "security.jail.mount_devfs_allowed",
+      "value": "0"
     }
   },
   "id": "fooid",

@@ -162,7 +162,7 @@ The "startupdate" action starts the specified update. You must specify a "target
 
 * **fbsdupdatepkgs:** update installed software and apply FreeBSD system updates.
 
-* **standalone:** only update package specified as a "tag" (e.g. pkgng-1.6.9).
+* **standalone:** only apply the update specified as a "tag". Use the "checkupdates" action to determine the name (tag) of the update to specify.
 
 **REST Request**
 

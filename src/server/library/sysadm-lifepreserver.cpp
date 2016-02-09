@@ -127,7 +127,7 @@ QJsonObject LifePreserver::initReplication(QJsonObject jsin) {
 QJsonObject LifePreserver::listCron() {
    QJsonObject retObject;
 
-   QStringList output = General::RunCommand("lpreserver listcron").split("\n");
+   QStringList output = General::RunCommand("lpreserver cronsnap list").split("\n");
    QList<QStringList> snaps;
    
    // Parse the output
@@ -254,7 +254,7 @@ QJsonObject LifePreserver::listSnap(QJsonObject jsin) {
      return retObject;
    }
 
-   QStringList output = General::RunCommand("lpreserver listsnap " + pool ).split("\n");
+   QStringList output = General::RunCommand("lpreserver snapshot list " + pool ).split("\n");
    QList<QStringList> snaps;
    QStringList snapitems;
    QRegExp sep("\\s+");
@@ -350,7 +350,7 @@ QJsonObject LifePreserver::removeSnapshot(QJsonObject jsin) {
    }
 
    QStringList output;
-   output = General::RunCommand("lpreserver rmsnap " + dataset + " " + snap).split("\n");
+   output = General::RunCommand("lpreserver snapshot remove " + dataset + " " + snap).split("\n");
 
    // Check for any errors
    for ( int i = 0; i < output.size(); i++)
@@ -426,7 +426,7 @@ QJsonObject LifePreserver::revertSnapshot(QJsonObject jsin) {
    }
 
    QStringList output;
-   output = General::RunCommand("lpreserver revertsnap " + dataset + " " + snap).split("\n");
+   output = General::RunCommand("lpreserver snapshot revert " + dataset + " " + snap).split("\n");
 
    // Check for any errors
    for ( int i = 0; i < output.size(); i++)
@@ -589,9 +589,9 @@ QJsonObject LifePreserver::scheduleSnapshot(QJsonObject jsin) {
 
    QStringList output;
    if ( frequency == "none" )
-     output = General::RunCommand("lpreserver cronsnap " + pool + " stop " ).split("\n");
+     output = General::RunCommand("lpreserver cronsnap stop " + pool ).split("\n");
    else
-     output = General::RunCommand("lpreserver cronsnap " + pool + " start " + frequency + " " + keep ).split("\n");
+     output = General::RunCommand("lpreserver cronsnap start " + pool + " " + frequency + " " + keep ).split("\n");
 
    // Check for any errors
    for ( int i = 0; i < output.size(); i++)

@@ -1,4 +1,4 @@
-// ===============================
+﻿// ===============================
 //  PC-BSD REST API Server
 // Available under the 3-clause BSD License
 // Written by: Ken Moore <ken@pcbsd.org> DEC 2015
@@ -9,6 +9,7 @@
 #include <WebSocket.h>
 
 //sysadm library interface classes
+#include "library/sysadm-beadm.h"
 #include "library/sysadm-general.h"
 #include "library/sysadm-iocage.h"
 #include "library/sysadm-iohyve.h"
@@ -35,6 +36,12 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   if(QFile::exists("/var/run/syscache.pipe")){
     out->insert("rpc/syscache","read"); //no write to syscache - only reads
   }
+
+  // - beadm
+  if(QFile::exists("/usr/local/sbin/beadm")){
+    out->insert("sysadm/beadm", "read/write");
+  }
+  
 
   // - dispatcher (Internal to server - always available)
   //"read" is the event notifications, "write" is the ability to queue up jobs
@@ -90,6 +97,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   //Go through and forward this request to the appropriate sub-system
   if(namesp=="rpc" && name=="dispatcher"){
     return EvaluateDispatcherRequest(IN.fullaccess, IN.args, out);
+  }else if(namesp=="sysadm" && name=="beadm"){
+    return EvaluateSysadmBEADMRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="iocage"){
     return EvaluateSysadmIocageRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="iohyve"){
@@ -179,6 +188,33 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, 
   }
 
   //Return Success
+  return RestOutputStruct::OK;
+}
+
+//==== SYSADM -- BEADM ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValue in_args, QJsonObject *out){
+  if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    bool ok = false;
+    if(keys.contains("action")){
+      QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="listbes"){
+	ok = true;
+        out->insert("listbes", sysadm::BEADM::listBEs());
+      }
+      if(act=="renamebe"){
+	ok = true;
+        out->insert("renamebe", sysadm::BEADM::renameBE(in_args.toObject()));
+      }
+    } //end of "action" key usage
+
+    //If nothing done - return the proper code
+    if(!ok){
+      return RestOutputStruct::BADREQUEST;
+    }
+  }else{  // if(in_args.isArray()){
+    return RestOutputStruct::BADREQUEST;
+  }
   return RestOutputStruct::OK;
 }
 
@@ -389,6 +425,26 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="cleanall"){
+	ok = true;
+        out->insert("cleanall", sysadm::Iocage::cleanAll());
+      }
+      if(act=="cleantemplates"){
+	ok = true;
+        out->insert("cleantemplates", sysadm::Iocage::cleanTemplates());
+      }
+      if(act=="cleanreleases"){
+	ok = true;
+        out->insert("cleanreleases", sysadm::Iocage::cleanReleases());
+      }
+      if(act=="cleanjails"){
+	ok = true;
+        out->insert("cleanjails", sysadm::Iocage::cleanJails());
+      }
+      if(act=="capjail"){
+	ok = true;
+        out->insert("capjail", sysadm::Iocage::capJail(in_args.toObject()));
+      }
       if(act=="deactivatepool"){
 	ok = true;
         out->insert("deactivatepool", sysadm::Iocage::deactivatePool(in_args.toObject()));
@@ -441,7 +497,18 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("listvms", sysadm::Iohyve::listVMs());
       }
-
+      if(act=="fetchiso"){
+	ok = true;
+        out->insert("fetchiso", sysadm::Iohyve::fetchISO(in_args.toObject()));
+      }
+      if(act=="renameiso"){
+	ok = true;
+        out->insert("renameiso", sysadm::Iohyve::renameISO(in_args.toObject()));
+      }
+      if(act=="rmiso"){
+	ok = true;
+        out->insert("rmiso", sysadm::Iohyve::rmISO(in_args.toObject()));
+      }
     } //end of "action" key usage
 
     //If nothing done - return the proper code
