@@ -20,7 +20,7 @@ Every iohyve class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup"                                       |
+| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup",  "issetup"                           |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -248,12 +248,12 @@ The "rmiso" action is used to to remove an existing ISO file from disk. Specify 
  
 .. index:: setup, iohyve
 
-.. _Setup Iohyve:
+.. _Setup iohyve:
 
-Setup Iohyve
+Setup iohyve
 ============
 
-The "setup" action performs the initial setup of Iohyve. It is mandatory to specify the FreeBSD device name of the "nic" and the ZFS "pool" to use.
+The "setup" action performs the initial setup of iohyve. It is mandatory to specify the FreeBSD device name of the "nic" and the ZFS "pool" to use.
 
 **REST Request**
 
@@ -290,6 +290,52 @@ The "setup" action performs the initial setup of Iohyve. It is mandatory to spec
     "setup": {
       "nic": "re0",
       "pool": "tank"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: issetup, iohyve
+
+.. _Determine iohyve Setup:
+
+Determine iohyve Setup
+======================
+
+The "issetup" action queries if iohyve has been setup and returns either "true" or "false".
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "issetup"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "issetup"
+   },
+   "name" : "iohyve"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "issetup": {
+      "setup": "true"
     }
   },
   "id": "fooid",
