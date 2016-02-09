@@ -91,7 +91,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   }else{
     QJsonObject avail;
     AvailableSubsystems(IN.fullaccess, &avail);
-    if(!avail.contains(namesp+"/"+name)){ return RestOutputStruct::BADREQUEST; }
+    if(!avail.contains(namesp+"/"+name)){ return RestOutputStruct::NOTFOUND; }
   }
 
   //Go through and forward this request to the appropriate sub-system
@@ -207,6 +207,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValu
       }else if(act=="activatebe"){
 	ok = true;
         out->insert("activatebe", sysadm::BEADM::activateBE(in_args.toObject()));
+      }else if(act=="createbe"){
+	ok = true;
+        out->insert("createbe", sysadm::BEADM::createBE(in_args.toObject()));
       }
     } //end of "action" key usage
 

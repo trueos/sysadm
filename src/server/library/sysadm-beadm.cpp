@@ -106,3 +106,40 @@ QJsonObject BEADM::activateBE(QJsonObject jsin) {
   retObject.insert("target", target);
   return retObject;
 }
+
+// createbe  (optional flag -e for cloning from an inactive BE) : Create a new Boot environment
+
+QJsonObject BEADM::createBE(QJsonObject jsin) {
+	QJsonObject retObject;
+
+	QStringList keys = jsin.keys();
+	if (! keys.contains("newbe") ) {
+		retObject.insert("error", "Missing required key(s) 'target'");
+		return retObject;
+	}
+
+  // Get the key values
+
+  QString newbe = jsin.value("newbe").toString();
+  QString flags;
+  if ( keys.contains("clonefrom") ) {
+    flags  = "-e " + jsin.value("clonefrom").toString();
+  }
+
+  QStringList output = General::RunCommand("beadm create " + flags + " " + newbe).split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("ERROR") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("newbe", newbe);
+  if ( keys.contains("clonefrom") ) {
+    retObject.insert("clonefrom", jsin.value("clonefrom").toString());
+  }
+  return retObject;
+
+}
