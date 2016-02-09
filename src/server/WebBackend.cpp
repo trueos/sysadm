@@ -513,6 +513,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("fetchiso", sysadm::Iohyve::fetchISO(in_args.toObject()));
       }
+      if(act=="install"){
+	ok = true;
+        out->insert("install", sysadm::Iohyve::installGuest(in_args.toObject()));
+      }
       if(act=="issetup"){
 	ok = true;
         out->insert("issetup", sysadm::Iohyve::isSetup());

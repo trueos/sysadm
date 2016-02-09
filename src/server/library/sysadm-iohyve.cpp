@@ -69,6 +69,35 @@ QJsonObject Iohyve::fetchISO(QJsonObject jsin) {
   return retObject;
 }
 
+// Create a new guest VM
+QJsonObject Iohyve::installGuest(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") || !keys.contains("iso") ) {
+    retObject.insert("error", "Missing required key(s) 'name/iso'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+  QString iso = jsin.value("iso").toString();
+
+  QStringList output = General::RunCommand("iohyve install " + name + " " + iso).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("Could not open") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  // Return some details to user that the action was queued
+  retObject.insert("name", name);
+  retObject.insert("iso", iso);
+  return retObject;
+}
+
 // Return if iohyve is setup on the box
 QJsonObject Iohyve::isSetup() {
   QJsonObject retObject;
