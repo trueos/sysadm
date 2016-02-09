@@ -20,7 +20,7 @@ Every iohyve class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup",  "issetup"                           |
+| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup",  "issetup", "create"                 |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -336,6 +336,57 @@ The "issetup" action queries if iohyve has been setup and returns either "true" 
   "args": {
     "issetup": {
       "setup": "true"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: create, iohyve
+
+.. _Create Guest:
+
+Create Guest
+============
+
+The "create" action creates a new iohyve guest of the specified "name" and "size".
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "create",
+   "name" : "bsdguest",
+   "size" : "10G"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "iohyve",
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "name" : "bsdguest",
+      "action" : "create",
+      "size" : "10G"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "create": {
+      "name": "bsdguest",
+      "size": "10G"
     }
   },
   "id": "fooid",
