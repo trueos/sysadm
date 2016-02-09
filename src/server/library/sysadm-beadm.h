@@ -16,6 +16,7 @@ class BEADM{
 public:
 	static QJsonObject listBEs();
 	static QJsonObject renameBE(QJsonObject);
+	static QJsonObject activateBE(QJsonObject);
 };
 	
 } //end of pcbsd namespace

@@ -197,14 +197,16 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValu
     QStringList keys = in_args.toObject().keys();
     bool ok = false;
     if(keys.contains("action")){
-      QString act = JsonValueToString(in_args.toObject().value("action"));
+      QString act = JsonValueToString(in_args.toObject().value("action")).toLower();
       if(act=="listbes"){
 	ok = true;
         out->insert("listbes", sysadm::BEADM::listBEs());
-      }
-      if(act=="renamebe"){
+      }else if(act=="renamebe"){
 	ok = true;
         out->insert("renamebe", sysadm::BEADM::renameBE(in_args.toObject()));
+      }else if(act=="activatebe"){
+	ok = true;
+        out->insert("activatebe", sysadm::BEADM::activateBE(in_args.toObject()));
       }
     } //end of "action" key usage
 

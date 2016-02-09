@@ -48,6 +48,8 @@ QJsonObject BEADM::listBEs() {
   return retObject;
 }
 
+// Rename the specified source BE to a a new target BE name
+
 QJsonObject BEADM::renameBE(QJsonObject jsin) {
   QJsonObject retObject;
   
@@ -61,7 +63,6 @@ QJsonObject BEADM::renameBE(QJsonObject jsin) {
   QString source = jsin.value("source").toString();
   QString target = jsin.value("target").toString();
 
-
   QStringList output = General::RunCommand("beadm rename " + source + " " + target).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
@@ -72,6 +73,36 @@ QJsonObject BEADM::renameBE(QJsonObject jsin) {
   }
   
   retObject.insert("source", source);
+  retObject.insert("target", target);
+  return retObject;
+}
+
+// Activate the given BeName for the next boot
+
+QJsonObject BEADM::activateBE(QJsonObject jsin) {
+	QJsonObject retObject;
+
+	QStringList keys = jsin.keys();
+	if (! keys.contains("target") ) {
+		retObject.insert("error", "Missing required key(s) 'target'");
+		return retObject;
+}
+
+  // Get the key values
+
+  QString target = jsin.value("target").toString();
+
+
+  QStringList output = General::RunCommand("beadm activate " + target).split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("ERROR") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
   retObject.insert("target", target);
   return retObject;
 }
