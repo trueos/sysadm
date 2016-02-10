@@ -41,7 +41,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   if(QFile::exists("/usr/local/sbin/beadm")){
     out->insert("sysadm/beadm", "read/write");
   }
-  
+
 
   // - dispatcher (Internal to server - always available)
   //"read" is the event notifications, "write" is the ability to queue up jobs
@@ -213,7 +213,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValu
       }else if(act=="destroybe"){
 	ok = true;
         out->insert("destroybe", sysadm::BEADM::destroyBE(in_args.toObject()));
-      } 
+      }
     } //end of "action" key usage
 
     //If nothing done - return the proper code
@@ -433,6 +433,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="clonejail"){
+	ok = true;
+        out->insert("clonejail", sysadm::Iocage::cloneJail(in_args.toObject()));
+      }
       if(act=="cleanall"){
 	ok = true;
         out->insert("cleanall", sysadm::Iocage::cleanAll());
