@@ -90,8 +90,7 @@ bool AuthorizationManager::RevokeCertificate(QString token, QString key, QString
   return true;
 }
 
-QJsonObject AuthorizationManager::ListCertificates(QString token){
-  QJsonObject obj;
+void AuthorizationManager::ListCertificates(QString token, QJsonObject *out){
   QStringList keys; //Format: "RegisteredCerts/<user>/<key>"
   if( hasFullAccess(token) ){ 
     //Read all user's certs
@@ -106,14 +105,12 @@ QJsonObject AuthorizationManager::ListCertificates(QString token){
   QJsonObject user; QString username;
   for(int i=0; i<keys.length(); i++){
     if(username!=keys[i].section("/",1,1)){
-      if(!user.isEmpty()){ obj.insert(username, user); user = QJsonObject(); } //save the current info to the output
+      if(!user.isEmpty()){ out->insert(username, user); user = QJsonObject(); } //save the current info to the output
       username = keys[i].section("/",1,1); //save the new username for later
     }
     user.insert(keys[i].section("/",2,3000), CONFIG->value(keys[i]).toString() ); //just in case the key has additional "/" in it
   }
-  if(!user.isEmpty() && !username.isEmpty()){ obj.insert(username, user); }
-  
-  return obj;
+  if(!user.isEmpty() && !username.isEmpty()){ out->insert(username, user); }
 }
 
 //Generic functions

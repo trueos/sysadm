@@ -19,10 +19,10 @@ public:
 	bool checkAuth(QString token); //see if the given token is valid
 	bool hasFullAccess(QString token); //see if the token is associated with a full-access account
 
-	//SSL Certificate register/revoke/list
+	//SSL Certificate register/revoke/list (should only run if the current token is valid)
 	bool RegisterCertificate(QString token, QSslCertificate cert); //if token is valid, register the given cert for future logins
 	bool RevokeCertificate(QString token, QString key, QString user=""); //user will be the current user if not empty - cannot touch other user's certs without full perms on current session
-	QJsonObject ListCertificates(QString token);
+	void ListCertificates(QString token, QJsonObject *out);
 
 	int checkAuthTimeoutSecs(QString token); //Return the number of seconds that a token is valid for
 

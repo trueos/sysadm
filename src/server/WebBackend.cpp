@@ -31,7 +31,9 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
 	<namespace2/name2> : <read/write/other>,
       }
   */
-
+  // - server settings (always available)
+  out->insert("sysadm/settings","read/write");
+	
   // - syscache
   if(QFile::exists("/var/run/syscache.pipe")){
     out->insert("rpc/syscache","read"); //no write to syscache - only reads
@@ -95,7 +97,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   }
 
   //Go through and forward this request to the appropriate sub-system
-  if(namesp=="rpc" && name=="dispatcher"){
+  if(namesp=="sysadm" && name=="settings"){
+    return EvaluateSysadmSettingsRequest(IN.args, out);
+  }else if(namesp=="rpc" && name=="dispatcher"){
     return EvaluateDispatcherRequest(IN.fullaccess, IN.args, out);
   }else if(namesp=="sysadm" && name=="beadm"){
     return EvaluateSysadmBEADMRequest(IN.args, out);
@@ -117,6 +121,40 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return RestOutputStruct::BADREQUEST;
   }
 
+}
+
+// === SYSADM SETTINGS ===
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSettingsRequest(const QJsonValue in_args, QJsonObject *out){
+  if(!in_args.isObject()){ return RestOutputStruct::BADREQUEST; }
+  QJsonObject argsO = in_args.toObject();
+  QStringList keys = argsO.keys();
+  if(!keys.contains("action")){ return RestOutputStruct::BADREQUEST; }
+  QString act = argsO.value("action").toString();
+  bool ok = false;
+  if(act=="register_ssl_cert" && keys.contains("pub_key")){
+    //Additional arguments: "pub_key" (String), and the cert with that key must already be loaded into the connection
+    QString pub_key = argsO.value("pub_key").toString();\
+    //Now find the currently-loaded certificate with the given public key
+    QList<QSslCertificate> certs;
+    if(SOCKET!=0){ certs = SOCKET->sslConfiguration().peerCertificateChain(); }
+    else if(TSOCKET!=0){ certs = TSOCKET->peerCertificateChain(); }
+    for(int i=0; i<certs.length() && !ok; i++){
+      if(certs[i].publicKey().toPem()==pub_key){
+	//Certificate found - register it
+        ok = AUTHSYSTEM->RegisterCertificate(SockAuthToken, certs[i]);
+      }
+    }
+  }else if(act=="list_ssl_certs"){
+    AUTHSYSTEM->ListCertificates(SockAuthToken, out);
+    ok = true; //always works for current user (even if nothing found)
+  }else if(act=="revoke_ssl_cert" && keys.contains("pub_key") ){
+    //Additional arguments: "user" (optional), "pub_key" (String)
+    QString user; if(keys.contains("user")){ user = argsO.value("user").toString(); }
+    ok = AUTHSYSTEM->RevokeCertificate(SockAuthToken,argsO.value("pub_key").toString(), user); 
+  }
+  
+  if(ok){ return RestOutputStruct::OK; }
+  else{ return RestOutputStruct::BADREQUEST; }
 }
 
 //==== SYSCACHE ====
