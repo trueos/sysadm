@@ -13,7 +13,7 @@
 #define DEBUG 0
 
 //Create any global classes
-QSettings *CONFIG = new QSettings("PCBSD","sysadm");
+QSettings *CONFIG = new QSettings("/usr/local/etc/sysadm.conf", QSettings::IniFormat);
 EventWatcher *EVENTS = new EventWatcher();
 Dispatcher *DISPATCHER = new Dispatcher();
 bool WS_MODE = false;
@@ -91,6 +91,7 @@ int main( int argc, char ** argv )
     //Start the daemon
     int ret = 1; //error return value
     if( w->startServer(port, websocket) ){
+      qDebug() << " - Configuration File:" << CONFIG->fileName();
       QThread TBACK, TBACK2;
       EVENTS->moveToThread(&TBACK);
       DISPATCHER->moveToThread(&TBACK2);

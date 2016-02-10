@@ -153,11 +153,20 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	  if(DEBUG){ qDebug() << "Authenticate Peer:" << SOCKET->peerAddress().toString(); }
 	  //Now do the auth
 	  if(out.in_struct.name=="auth" && out.in_struct.args.isObject() ){
-	    //username/password authentication
+	    //username/[password/cert] authentication
 	    QString user, pass;
 	    if(out.in_struct.args.toObject().contains("username")){ user = JsonValueToString(out.in_struct.args.toObject().value("username"));  }
 	    if(out.in_struct.args.toObject().contains("password")){ pass = JsonValueToString(out.in_struct.args.toObject().value("password"));  }
-	    SockAuthToken = AUTHSYSTEM->LoginUP(host, user, pass);
+	    if(!pass.isEmpty()){
+	      //Use the given password
+	      SockAuthToken = AUTHSYSTEM->LoginUP(host, user, pass);
+	    }else{
+	      //No password - use the current SSL certificates instead
+	      QList<QSslCertificate> certs;
+	      if(SOCKET!=0){ certs = SOCKET->sslConfiguration().peerCertificateChain(); }
+	      else if(TSOCKET!=0){ certs = TSOCKET->peerCertificateChain(); }
+	      SockAuthToken = AUTHSYSTEM->LoginUC(host, user, certs);
+	    }
 	  }else if(out.in_struct.name == "auth_token" && out.in_struct.args.isObject()){
 	    SockAuthToken = JsonValueToString(out.in_struct.args.toObject().value("token"));
 	  }else if(out.in_struct.name == "auth_clear"){
