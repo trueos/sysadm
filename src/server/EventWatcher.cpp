@@ -25,7 +25,6 @@ EventWatcher::~EventWatcher(){
 }
 
 void EventWatcher::start(){
-  // - DISPATCH Events
   starting = true;
   // - Life Preserver Events
   WatcherUpdate(LPLOG); //load it initially (will also add it to the watcher);

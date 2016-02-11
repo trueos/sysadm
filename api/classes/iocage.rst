@@ -21,7 +21,8 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
-|                                 |               | "capjail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall", "activatepool", and "deactivatepool"         |
+|                                 |               | "capjail", "clonejail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall", "activatepool", and             |
+|                                 |               | "deactivatepool"                                                                                                     |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -832,6 +833,108 @@ the jail.
   "args": {
     "capjail": {
       "success": "jail test capped."
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: clonejail, iocage
+
+.. _Clone a Jail:
+
+Clone a Jail
+============
+
+The "clonejail" action clones the specified "jail". By default, the clone will inherit that jail's properties. Use "props" to specify any properties that should differ. All available
+properties are described in `iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_. 
+
+In this example, the "tag" property is specified so that the new jail has a different name than the jail it was cloned from. 
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iocage
+ {
+   "props" : "tag=newtest",
+   "jail" : "test",
+   "action" : "clonejail"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "args" : {
+      "action" : "clonejail",
+      "jail" : "test",
+      "props" : "tag=newtest"
+   },
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "clonejail": {
+      "jail": "test",
+      "props": "tag=newtest",
+      "success": {
+        "Successfully created": " 5e1fe97e-cfba-11e5-8209-d05099728dbf (newtest)"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+In this example, no properties are specified so iocage populates its own values and the props returned in the response is empty:
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iocage
+ {
+   "action" : "clonejail",
+   "jail" : "test"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "args" : {
+      "jail" : "test",
+      "action" : "clonejail"
+   },
+   "name" : "iocage",
+   "namespace" : "sysadm",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "clonejail": {
+      "jail": "test",
+      "props": "",
+      "success": {
+        "Successfully created": " 89e78032-cfba-11e5-8209-d05099728dbf (2016-02-09@23"
+      }
     }
   },
   "id": "fooid",

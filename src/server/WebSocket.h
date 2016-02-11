@@ -43,8 +43,14 @@ private:
 	RestOutputStruct::ExitCode AvailableSubsystems(bool fullaccess, QJsonObject *out);
 	// -- Main subsystem parser
 	RestOutputStruct::ExitCode EvaluateBackendRequest(const RestInputStruct&, QJsonObject *out);
+
+
 	// -- Individual subsystems
+	// -- Server Settings Modification API
+	RestOutputStruct::ExitCode EvaluateSysadmSettingsRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- rpc syscache API
 	RestOutputStruct::ExitCode EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- rpc dispatcher API
 	RestOutputStruct::ExitCode EvaluateDispatcherRequest(bool allaccess, const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm beadm API
 	RestOutputStruct::ExitCode EvaluateSysadmBEADMRequest(const QJsonValue in_args, QJsonObject *out);

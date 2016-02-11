@@ -14,11 +14,16 @@ namespace sysadm{
 
 class Iohyve{
 public:
+	static QJsonObject createGuest(QJsonObject);
 	static QJsonObject fetchISO(QJsonObject);
+	static QJsonObject installGuest(QJsonObject);
+	static QJsonObject isSetup();
 	static QJsonObject listVMs();
 	static QJsonObject renameISO(QJsonObject);
 	static QJsonObject rmISO(QJsonObject);
 	static QJsonObject setupIohyve(QJsonObject);
+	static QJsonObject startGuest(QJsonObject);
+	static QJsonObject stopGuest(QJsonObject);
 };
 	
 } //end of pcbsd namespace

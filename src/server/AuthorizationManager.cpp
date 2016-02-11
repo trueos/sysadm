@@ -68,6 +68,52 @@ bool AuthorizationManager::hasFullAccess(QString token){
   return ok;
 }
 
+//SSL Certificate register/revoke/list
+bool AuthorizationManager::RegisterCertificate(QString token, QSslCertificate cert){
+  if(!checkAuth(token)){ return false; }
+  QString user = hashID(token).section("::::",2,2); //get the user name from the currently-valid token
+  CONFIG->setValue("RegisteredCerts/"+user+"/"+QString(cert.publicKey().toPem()), cert.toText());
+  return true;
+}
+
+bool AuthorizationManager::RevokeCertificate(QString token, QString key, QString user){
+  //user will be the current user if not empty - cannot touch other user's certs without full perms on current session
+  QString cuser = hashID(token).section("::::",2,2);
+  if(user.isEmpty()){ user = cuser; } //only probe current user
+  if(user !=cuser){
+    //Check permissions for this cross-user action
+    if(!hasFullAccess(token)){ return false; }
+  }
+  //Check that the given cert exists first
+  if( !CONFIG->contains("RegisteredCerts/"+user+"/"+key) ){ return false; }
+  CONFIG->remove("RegisteredCerts/"+user+"/"+key);
+  return true;
+}
+
+void AuthorizationManager::ListCertificates(QString token, QJsonObject *out){
+  QStringList keys; //Format: "RegisteredCerts/<user>/<key>"
+  if( hasFullAccess(token) ){ 
+    //Read all user's certs
+    keys = CONFIG->allKeys().filter("RegisteredCerts/");
+  }else{
+    //Only list certs for current user
+    QString cuser = hashID(token).section("::::",2,2);
+    keys = CONFIG->allKeys().filter("RegisteredCerts/"+cuser+"/");
+  }
+  keys.sort();
+  //Now put the known keys into the output structure arranged by username/key
+  QJsonObject user; QString username;
+  for(int i=0; i<keys.length(); i++){
+    if(username!=keys[i].section("/",1,1)){
+      if(!user.isEmpty()){ out->insert(username, user); user = QJsonObject(); } //save the current info to the output
+      username = keys[i].section("/",1,1); //save the new username for later
+    }
+    user.insert(keys[i].section("/",2,3000), CONFIG->value(keys[i]).toString() ); //just in case the key has additional "/" in it
+  }
+  if(!user.isEmpty() && !username.isEmpty()){ out->insert(username, user); }
+}
+
+//Generic functions
 int AuthorizationManager::checkAuthTimeoutSecs(QString token){
 	//Return the number of seconds that a token is valid for
   if(!HASH.contains(token)){ return 0; } //invalid token
@@ -89,14 +135,14 @@ QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString p
       return ""; //user not allowed access if not in either of the wheel/operator groups
     }
   }else{ isOperator = true; }
-  qDebug() << "Check username/password" << user << pass << localhost;
+  //qDebug() << "Check username/password" << user << pass << localhost;
   //Need to run the full username/password through PAM
   if(!localhost || user=="root" || user=="toor"){
     ok = pam_checkPW(user,pass);
   }else{
     ok = true; //allow local access for users without password
   }
-  
+
   qDebug() << "User Login Attempt:" << user << " Success:" << ok << " IP:" << host.toString();
   LogManager::log(LogManager::HOST, QString("User Login Attempt: ")+user+"   Success: "+(ok?"true":"false")+"   IP: "+host.toString() );
   if(!ok){ 
@@ -108,12 +154,55 @@ QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString p
   }else{ 
     //valid login - generate a new token for it
     ClearHostFail(host.toString());
-    return generateNewToken(isOperator); 
+    return generateNewToken(isOperator, user);
   } 
 }
 
+QString AuthorizationManager::LoginUC(QHostAddress host, QString user, QList<QSslCertificate> certs){
+  //Login w/ username & SSL certificate
+  bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) || (host.toString()=="::ffff:127.0.0.1") );
+  bool ok = false;
+  //First check that the user is valid on the system and part of the operator group
+  bool isOperator = false;
+  if(user!="root" && user!="toor"){
+    QStringList groups = getUserGroups(user);
+    if(groups.contains("wheel")){ isOperator = true; } //full-access user
+    else if(!groups.contains("operator")){
+      return ""; //user not allowed access if not in either of the wheel/operator groups
+    }
+  }else{ isOperator = true; }
+  //qDebug() << "Check username/certificate combination" << user << localhost;
+
+  //Need to check the registered certificates for the designated user
+  if(!localhost || user=="root" || user=="toor"){
+    for(int i=0; i<certs.length() && !ok; i++){
+      if(CONFIG->contains("RegisteredCerts/"+user+"/"+QString(certs[i].publicKey().toPem()) ) ){
+        //Cert was registered - check expiration info
+	// TO-DO
+	ok = true;
+      }
+    }
+  }else{
+    ok = true; //allow local access for users without password
+  }
+
+  qDebug() << "User Login Attempt:" << user << " Success:" << ok << " IP:" << host.toString();
+  LogManager::log(LogManager::HOST, QString("User Login Attempt: ")+user+"   Success: "+(ok?"true":"false")+"   IP: "+host.toString() );
+  if(!ok){
+    //invalid login
+    //Bump the fail count for this host
+    bool overlimit = BumpFailCount(host.toString());
+    if(overlimit){ emit BlockHost(host); }
+    return (overlimit ? "REFUSED" : "");
+  }else{
+    //valid login - generate a new token for it
+    ClearHostFail(host.toString());
+    return generateNewToken(isOperator, user);
+  }
+}
+
 QString AuthorizationManager::LoginService(QHostAddress host, QString service){
-  bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) );
+  bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) || (host.toString()=="::ffff:127.0.0.1") );
 	
   //Login a particular automated service
   qDebug() << "Service Login Attempt:" << service << " Success:" << localhost;
@@ -136,13 +225,13 @@ QString AuthorizationManager::LoginService(QHostAddress host, QString service){
     }else{
       return "";
     }
-  }else{ return generateNewToken(false); }//services are never given operator privileges
+  }else{ return generateNewToken(false, service); }//services are never given operator privileges
 }
 
 // =========================
 //               PRIVATE
 // =========================
-QString AuthorizationManager::generateNewToken(bool isOp){
+QString AuthorizationManager::generateNewToken(bool isOp, QString user){
   QString tok;
   for(int i=0; i<TOKENLENGTH; i++){
     tok.append( AUTHCHARS.at( qrand() % AUTHCHARS.length() ) );
@@ -150,10 +239,10 @@ QString AuthorizationManager::generateNewToken(bool isOp){
   
   if( !hashID(tok).isEmpty() ){ 
     //Just in case the randomizer came up with something identical - re-run it
-    tok = generateNewToken(isOp);
+    tok = generateNewToken(isOp, user);
   }else{ 
     //unique token created - add it to the hash with the current time (+timeout)
-    QString id = tok + "::::"+(isOp ? "operator" : "user"); //append operator status to auth key
+    QString id = tok + "::::"+(isOp ? "operator" : "user")+"::::"+user; //append operator status to auth key
     HASH.insert(id, QDateTime::currentDateTime().addSecs(TIMEOUTSECS) );
   }
   return tok;

@@ -19,17 +19,23 @@ public:
 	bool checkAuth(QString token); //see if the given token is valid
 	bool hasFullAccess(QString token); //see if the token is associated with a full-access account
 
+	//SSL Certificate register/revoke/list (should only run if the current token is valid)
+	bool RegisterCertificate(QString token, QSslCertificate cert); //if token is valid, register the given cert for future logins
+	bool RevokeCertificate(QString token, QString key, QString user=""); //user will be the current user if not empty - cannot touch other user's certs without full perms on current session
+	void ListCertificates(QString token, QJsonObject *out);
+
 	int checkAuthTimeoutSecs(QString token); //Return the number of seconds that a token is valid for
 
 	// == Token Generation functions
 	QString LoginUP(QHostAddress host, QString user, QString pass); //Login w/ username & password
+	QString LoginUC(QHostAddress host, QString user, QList<QSslCertificate> certs); //Login w/ username & SSL certificate
 	QString LoginService(QHostAddress host, QString service); //Login a particular automated service
 
 private:
 	QHash<QString, QDateTime> HASH;
 	QHash <QString, QDateTime> IPFAIL;
 
-	QString generateNewToken(bool isOperator);
+	QString generateNewToken(bool isOperator, QString name);
 	QStringList getUserGroups(QString user);
 
 	//Failure count management

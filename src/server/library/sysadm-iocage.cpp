@@ -12,6 +12,207 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Execute a process in a jail on the box
+QJsonObject Iocage::execJail(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("jail")
+     || ! keys.contains("user")
+     || ! keys.contains("command") ) {
+    retObject.insert("error", "Missing required keys");
+    return retObject;
+  }
+
+  // Get the key values
+  QString jail = jsin.value("jail").toString();
+  QString user = jsin.value("user").toString();
+  QString command = jsin.value("command").toString();
+
+  QStringList output;
+
+  output = General::RunCommand("iocage exec -U " + user + " " + jail + " " + command).split("\n");
+
+  QJsonObject vals;
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).isEmpty() )
+      break;
+
+    if ( output.at(i).indexOf("execvp:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    } else {
+      QString key = output.at(i).simplified().section(":", 0, 0);
+      QString value = output.at(i).simplified().section(":", 1, 1);
+
+      vals.insert(key, value);
+    }
+  }
+
+  retObject.insert("success", vals);
+
+  return retObject;
+}
+
+// Show resource usage for jails on the box
+QJsonObject Iocage::df() {
+  QJsonObject retObject;
+
+  // Get the key values
+  QStringList output = General::RunCommand("iocage df").split("\n");
+  QJsonObject vals;
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // Null output at first
+    if ( output.at(i).isEmpty() )
+      continue;
+
+    QJsonObject jail;
+    QString line = output.at(i).simplified();
+    QString uuid = line.section(" ", 0, 0);
+
+    // Otherwise we get a list of what we already know.
+    if ( line.section(" ", 0, 0) == "UUID" )
+      continue;
+
+    jail.insert("crt", line.section(" ", 1, 1));
+    jail.insert("res", line.section(" ", 2, 2));
+    jail.insert("qta", line.section(" ", 3, 3));
+    jail.insert("use", line.section(" ", 4, 4));
+    jail.insert("ava", line.section(" ", 5, 5));
+    jail.insert("tag", line.section(" ", 6, 6));
+
+    retObject.insert(uuid, jail);
+  }
+
+  return retObject;
+}
+
+// Destroy a jail on the box
+QJsonObject Iocage::destroyJail(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("jail") ) {
+    retObject.insert("error", "Missing required keys");
+    return retObject;
+  }
+
+  // Get the key values
+  QString jail = jsin.value("jail").toString();
+  QStringList output;
+
+  output = General::RunCommand("iocage destroy -f " + jail).split("\n");
+
+  QJsonObject vals;
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).isEmpty() )
+      break;
+
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    } else {
+      QString key = output.at(i).simplified().section(":", 0, 0);
+      QString value = output.at(i).simplified().section(":", 1, 1);
+
+      vals.insert(key, value);
+    }
+  }
+
+  retObject.insert("success", vals);
+
+  return retObject;
+}
+
+// Create a jail on the box
+QJsonObject Iocage::createJail(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+
+  // Get the key values
+  QString switches = jsin.value("switches").toString();
+  QString props = jsin.value("props").toString();
+  QStringList output;
+
+  if ( keys.contains("switches" ) ) {
+    output = General::RunCommand("iocage create " + switches + " " + props).split("\n");
+  } else {
+    output = General::RunCommand("iocage create " + props).split("\n");
+  }
+
+  QJsonObject vals;
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).isEmpty() )
+      break;
+
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    } else {
+      QString key = output.at(i).simplified().section(":", 0, 0);
+      QString value = output.at(i).simplified().section(":", 1, 1);
+
+      if ( keys.contains("switches" ) ) {
+        vals.insert("uuid", key);
+      } else {
+        vals.insert(key, value);
+      }
+    }
+  }
+
+  retObject.insert("switches", switches);
+  retObject.insert("props", props);
+  retObject.insert("success", vals);
+
+  return retObject;
+}
+
+// Clone a jail on the box
+QJsonObject Iocage::cloneJail(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("jail") ) {
+    retObject.insert("error", "Missing required keys");
+    return retObject;
+  }
+
+  // Get the key values
+  QString jail = jsin.value("jail").toString();
+  QString props = jsin.value("props").toString();
+
+  QStringList output = General::RunCommand("iocage clone " + jail + " " + props).split("\n");
+
+  QJsonObject vals;
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).isEmpty() )
+      break;
+
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    } else {
+      QString key = output.at(i).simplified().section(":", 0, 0);
+      QString value = output.at(i).simplified().section(":", 1, 1);
+
+    vals.insert(key, value);
+    }
+  }
+
+  retObject.insert("jail", jail);
+  retObject.insert("props", props);
+  retObject.insert("success", vals);
+
+  return retObject;
+}
+
 // Clean everything iocage related on a box
 QJsonObject Iocage::cleanAll() {
   QJsonObject retObject;
@@ -291,17 +492,33 @@ QJsonObject Iocage::getDefaultSettings() {
 // Return all of the jail settings
 QJsonObject Iocage::getJailSettings(QJsonObject jsin) {
   QJsonObject retObject;
-
-  QStringList keys = jsin.keys();
-  if (! keys.contains("jail") ) {
-    retObject.insert("error", "Missing required keys");
-    return retObject;
-  }
+  QStringList output;
 
   // Get the key values
   QString jail = jsin.value("jail").toString();
+  QString prop = jsin.value("prop").toString();
 
-  QStringList output = General::RunCommand("iocage get all " + jail).split("\n");
+  QString switches = jsin.value("switches").toString();
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("jail")
+     && keys.contains("prop")
+     && keys.contains("switches") ) {
+    output = General::RunCommand("iocage get " + switches + " " + prop).split("\n");
+  } else if ( ! keys.contains("jail")
+     && ! keys.contains("prop")
+     && ! keys.contains("switches") ){
+      retObject.insert("error", "Missing required keys");
+      return retObject;
+  }
+
+  if ( ! keys.contains("prop")
+     && ! keys.contains("switches") ) {
+    output = General::RunCommand("iocage get all " + jail).split("\n");
+  } else if ( keys.contains("prop")
+       && ! keys.contains("switches") ) {
+      output = General::RunCommand("iocage get " + prop + " " + jail).split("\n");
+  }
 
   QJsonObject vals;
   for ( int i = 0; i < output.size(); i++)
@@ -312,13 +529,42 @@ QJsonObject Iocage::getJailSettings(QJsonObject jsin) {
     if ( output.at(i).isEmpty() )
       break;
 
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    } else {
     QString key = output.at(i).simplified().section(":", 0, 0);
     QString value = output.at(i).simplified().section(":", 1, 1);
 
+    if ( keys.contains("switches" ) ) {
+      QString line = output.at(i).simplified();
+
+      // Otherwise we get a list of what we already know.
+      if ( line.section(" ", 0, 0) == "UUID" )
+        continue;
+
+      QJsonObject jail;
+      QString uuid = line.section(" ", 0, 0);
+
+      jail.insert("TAG", line.section(" ", 1, 1));
+      jail.insert(prop, line.section(" ", 2, 2));
+      retObject.insert(uuid, jail);
+      continue;
+    }
+
+    if ( keys.contains("prop" )
+       && ! keys.contains("switches")
+       && prop != "all") {
+      vals.insert(prop, key);
+      retObject.insert(jail, vals);
+      continue;
+    }
+
     vals.insert(key, value);
+    retObject.insert(jail, vals);
+    }
   }
 
-  retObject.insert(jail, vals);
   return retObject;
 }
 

@@ -20,7 +20,8 @@ Every iohyve class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso"                                                |
+| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup",  "issetup", "create",  "install",    |
+|                                 |               | "start", "stop"                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -239,6 +240,302 @@ The "rmiso" action is used to to remove an existing ISO file from disk. Specify 
   "args": {
     "rmiso": {
       "target": "FreeBSD-10.2-RELEASE-amd64-bootonly.iso"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: setup, iohyve
+
+.. _Setup iohyve:
+
+Setup iohyve
+============
+
+The "setup" action performs the initial setup of iohyve. It is mandatory to specify the FreeBSD device name of the "nic" and the ZFS "pool" to use.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "nic" : "re0",
+   "pool" : "tank",
+   "action" : "setup"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "iohyve",
+   "args" : {
+      "pool" : "tank",
+      "nic" : "re0",
+      "action" : "setup"
+   },
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "setup": {
+      "nic": "re0",
+      "pool": "tank"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: issetup, iohyve
+
+.. _Determine iohyve Setup:
+
+Determine iohyve Setup
+======================
+
+The "issetup" action queries if iohyve has been setup and returns either "true" or "false".
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "issetup"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "issetup"
+   },
+   "name" : "iohyve"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "issetup": {
+      "setup": "true"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: create, iohyve
+
+.. _Create Guest:
+
+Create Guest
+============
+
+The "create" action creates a new iohyve guest of the specified "name" and "size".
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "create",
+   "name" : "bsdguest",
+   "size" : "10G"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "iohyve",
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "name" : "bsdguest",
+      "action" : "create",
+      "size" : "10G"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "create": {
+      "name": "bsdguest",
+      "size": "10G"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: install, iohyve
+
+.. _Install Guest:
+
+Install Guest
+=============
+
+The "install" action starts the iohyve installation of the specified guest from the specified ISO. This action only boots the VM with the ISO; to do the actual installation,
+run :command:`iohyve console <name>` from the system.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "name" : "bsdguest",
+   "iso" : "FreeBSD-10.2-RELEASE-amd64-disc1.iso",
+   "action" : "install"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "name" : "iohyve",
+   "id" : "fooid",
+   "args" : {
+      "action" : "install",
+      "iso" : "FreeBSD-10.2-RELEASE-amd64-disc1.iso",
+      "name" : "bsdguest"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "install": {
+      "iso": "FreeBSD-10.2-RELEASE-amd64-disc1.iso",
+      "name": "bsdguest"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: start, iohyve
+
+.. _Start VM:
+
+Start VM
+========
+
+The "start" action starts the specified VM.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "start",
+   "name" : "bsdguest"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "iohyve",
+   "id" : "fooid",
+   "args" : {
+      "action" : "start",
+      "name" : "bsdguest"
+   },
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "start": {
+      "name": "bsdguest"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: stop, iohyve
+
+.. _Stop VM:
+
+Stop VM
+=======
+
+The "stop" action stops the specified VM.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "stop",
+   "name" : "bsdguest"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "action" : "stop",
+      "name" : "bsdguest"
+   },
+   "name" : "iohyve",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "stop": {
+      "name": "bsdguest"
     }
   },
   "id": "fooid",

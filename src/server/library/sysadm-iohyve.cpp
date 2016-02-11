@@ -13,6 +13,36 @@
 using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
+
+// Create a new guest VM
+QJsonObject Iohyve::createGuest(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") || !keys.contains("size") ) {
+    retObject.insert("error", "Missing required key(s) 'name/size'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+  QString size = jsin.value("size").toString();
+
+  QStringList output = General::RunCommand("iohyve create " + name + " " + size).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("cannot create") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  // Return some details to user that the action was queued
+  retObject.insert("name", name);
+  retObject.insert("size", size);
+  return retObject;
+}
+
 // Queue the fetch of an ISO
 QJsonObject Iohyve::fetchISO(QJsonObject jsin) {
   QJsonObject retObject;
@@ -39,6 +69,49 @@ QJsonObject Iohyve::fetchISO(QJsonObject jsin) {
   return retObject;
 }
 
+// Create a new guest VM
+QJsonObject Iohyve::installGuest(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") || !keys.contains("iso") ) {
+    retObject.insert("error", "Missing required key(s) 'name/iso'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+  QString iso = jsin.value("iso").toString();
+
+  QStringList output = General::RunCommand("iohyve install " + name + " " + iso).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("Could not open") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  // Return some details to user that the action was queued
+  retObject.insert("name", name);
+  retObject.insert("iso", iso);
+  return retObject;
+}
+
+// Return if iohyve is setup on the box
+QJsonObject Iohyve::isSetup() {
+  QJsonObject retObject;
+
+  // Check if iohyve is setup on this box
+  // We check the flags variable, enabling / disabling is done via service mgmt
+  QString ioflags = General::getConfFileValue("/etc/rc.conf", "iohyve_flags=", 1);
+  if ( ioflags.isEmpty() )
+    retObject.insert("setup", "false");
+  else
+    retObject.insert("setup", "true");
+
+  return retObject;
+}
 
 // List the VMs on the box
 QJsonObject Iohyve::listVMs() {
@@ -154,5 +227,67 @@ QJsonObject Iohyve::setupIohyve(QJsonObject jsin) {
 
   retObject.insert("pool", pool);
   retObject.insert("nic", nic);
+  return retObject;
+}
+
+// Start a guest
+QJsonObject Iohyve::startGuest(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  // Do the setup right now
+  QStringList output = General::RunCommand("iohyve start " + name).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("Not a valid") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("name", name);
+  return retObject;
+}
+
+// Stop a guest
+QJsonObject Iohyve::stopGuest(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  QString stoparg = "stop";
+  if (! keys.contains("force") ) {
+    if ( jsin.value("force").toString() == "true" ) {
+      stoparg = "forcekill";
+    }
+  }
+
+  // Do the stop right now
+  QStringList output = General::RunCommand("iohyve " + stoparg + " " + name).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This doesn't work, iohyve doesn't return error message right now
+    if ( output.at(i).indexOf("No such guest") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("name", name);
   return retObject;
 }

@@ -30,7 +30,7 @@ public:
 protected:
 	void incomingConnection(qintptr socketDescriptor){
 	  QSslSocket *serverSocket = new QSslSocket(this);
-	  qDebug() << "New Ssl Connection:";
+	  //qDebug() << "New Ssl Connection:";
 	  //setup any supported encruption types here
 	  serverSocket->setSslConfiguration(QSslConfiguration::defaultConfiguration());
 	  serverSocket->setProtocol(SSLVERSION);

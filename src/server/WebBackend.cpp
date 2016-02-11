@@ -31,6 +31,8 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
 	<namespace2/name2> : <read/write/other>,
       }
   */
+  // - server settings (always available)
+  out->insert("sysadm/settings","read/write");
 
   // - syscache
   if(QFile::exists("/var/run/syscache.pipe")){
@@ -41,7 +43,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   if(QFile::exists("/usr/local/sbin/beadm")){
     out->insert("sysadm/beadm", "read/write");
   }
-  
+
 
   // - dispatcher (Internal to server - always available)
   //"read" is the event notifications, "write" is the ability to queue up jobs
@@ -95,7 +97,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   }
 
   //Go through and forward this request to the appropriate sub-system
-  if(namesp=="rpc" && name=="dispatcher"){
+  if(namesp=="sysadm" && name=="settings"){
+    return EvaluateSysadmSettingsRequest(IN.args, out);
+  }else if(namesp=="rpc" && name=="dispatcher"){
     return EvaluateDispatcherRequest(IN.fullaccess, IN.args, out);
   }else if(namesp=="sysadm" && name=="beadm"){
     return EvaluateSysadmBEADMRequest(IN.args, out);
@@ -117,6 +121,40 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return RestOutputStruct::BADREQUEST;
   }
 
+}
+
+// === SYSADM SETTINGS ===
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSettingsRequest(const QJsonValue in_args, QJsonObject *out){
+  if(!in_args.isObject()){ return RestOutputStruct::BADREQUEST; }
+  QJsonObject argsO = in_args.toObject();
+  QStringList keys = argsO.keys();
+  if(!keys.contains("action")){ return RestOutputStruct::BADREQUEST; }
+  QString act = argsO.value("action").toString();
+  bool ok = false;
+  if(act=="register_ssl_cert" && keys.contains("pub_key")){
+    //Additional arguments: "pub_key" (String), and the cert with that key must already be loaded into the connection
+    QString pub_key = argsO.value("pub_key").toString();\
+    //Now find the currently-loaded certificate with the given public key
+    QList<QSslCertificate> certs;
+    if(SOCKET!=0){ certs = SOCKET->sslConfiguration().peerCertificateChain(); }
+    else if(TSOCKET!=0){ certs = TSOCKET->peerCertificateChain(); }
+    for(int i=0; i<certs.length() && !ok; i++){
+      if(certs[i].publicKey().toPem()==pub_key){
+	//Certificate found - register it
+        ok = AUTHSYSTEM->RegisterCertificate(SockAuthToken, certs[i]);
+      }
+    }
+  }else if(act=="list_ssl_certs"){
+    AUTHSYSTEM->ListCertificates(SockAuthToken, out);
+    ok = true; //always works for current user (even if nothing found)
+  }else if(act=="revoke_ssl_cert" && keys.contains("pub_key") ){
+    //Additional arguments: "user" (optional), "pub_key" (String)
+    QString user; if(keys.contains("user")){ user = argsO.value("user").toString(); }
+    ok = AUTHSYSTEM->RevokeCertificate(SockAuthToken,argsO.value("pub_key").toString(), user);
+  }
+
+  if(ok){ return RestOutputStruct::OK; }
+  else{ return RestOutputStruct::BADREQUEST; }
 }
 
 //==== SYSCACHE ====
@@ -436,6 +474,26 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="execjail"){
+	ok = true;
+        out->insert("execjail", sysadm::Iocage::execJail(in_args.toObject()));
+      }
+      if(act=="df"){
+	ok = true;
+        out->insert("df", sysadm::Iocage::df());
+      }
+      if(act=="destroyjail"){
+	ok = true;
+        out->insert("destroyjail", sysadm::Iocage::destroyJail(in_args.toObject()));
+      }
+      if(act=="createjail"){
+	ok = true;
+        out->insert("createjail", sysadm::Iocage::createJail(in_args.toObject()));
+      }
+      if(act=="clonejail"){
+	ok = true;
+        out->insert("clonejail", sysadm::Iocage::cloneJail(in_args.toObject()));
+      }
       if(act=="cleanall"){
 	ok = true;
         out->insert("cleanall", sysadm::Iocage::cleanAll());
@@ -504,6 +562,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="create"){
+	ok = true;
+        out->insert("create", sysadm::Iohyve::createGuest(in_args.toObject()));
+      }
       if(act=="listvms"){
 	ok = true;
         out->insert("listvms", sysadm::Iohyve::listVMs());
@@ -512,6 +574,14 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("fetchiso", sysadm::Iohyve::fetchISO(in_args.toObject()));
       }
+      if(act=="install"){
+	ok = true;
+        out->insert("install", sysadm::Iohyve::installGuest(in_args.toObject()));
+      }
+      if(act=="issetup"){
+	ok = true;
+        out->insert("issetup", sysadm::Iohyve::isSetup());
+      }
       if(act=="renameiso"){
 	ok = true;
         out->insert("renameiso", sysadm::Iohyve::renameISO(in_args.toObject()));
@@ -519,6 +589,18 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
       if(act=="rmiso"){
 	ok = true;
         out->insert("rmiso", sysadm::Iohyve::rmISO(in_args.toObject()));
+      }
+      if(act=="setup"){
+	ok = true;
+        out->insert("setup", sysadm::Iohyve::setupIohyve(in_args.toObject()));
+      }
+      if(act=="start"){
+	ok = true;
+        out->insert("start", sysadm::Iohyve::startGuest(in_args.toObject()));
+      }
+      if(act=="stop"){
+	ok = true;
+        out->insert("stop", sysadm::Iohyve::stopGuest(in_args.toObject()));
       }
     } //end of "action" key usage
 
