@@ -19,6 +19,7 @@ public:
 	static QJsonObject activateBE(QJsonObject);
 	static QJsonObject createBE(QJsonObject);
 	static QJsonObject destroyBE(QJsonObject);
+	static QJsonObject mountBE(QJsonObject);
 };
 	
 } //end of pcbsd namespace

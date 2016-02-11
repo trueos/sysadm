@@ -213,6 +213,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValu
       }else if(act=="destroybe"){
 	ok = true;
         out->insert("destroybe", sysadm::BEADM::destroyBE(in_args.toObject()));
+      }else if(act=="mountbe"){
+	ok = true;
+        out->insert("mountbe", sysadm::BEADM::mountBE(in_args.toObject()));
       } 
     } //end of "action" key usage
 
@@ -516,10 +519,6 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
       if(act=="rmiso"){
 	ok = true;
         out->insert("rmiso", sysadm::Iohyve::rmISO(in_args.toObject()));
-      }
-      if(act=="setup"){
-	ok = true;
-        out->insert("setup", sysadm::Iohyve::setupIohyve(in_args.toObject()));
       }
     } //end of "action" key usage
 
