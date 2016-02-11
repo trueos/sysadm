@@ -20,7 +20,7 @@ Every iocage class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
+| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "df", "startjail", "stopjail",       |
 |                                 |               | "capjail", "clonejail", "createjail", "destroyjail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall",    |
 |                                 |               | "activatepool", and "deactivatepool"                                                                                 |
 |                                 |               |                                                                                                                      |
@@ -645,6 +645,68 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
         "vnet2_mac": "none",
         "vnet3_mac": "none",
         "wallclock": "off"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: df, iocage
+
+.. _List Resource Usage:
+
+List Resource Usage
+===================
+
+The "df" action lists resource usage for all jails. For each jail, the response includes: CRT (compression ratio), RES (reserved space), QTA (disk quota), USE (used space), AVA (available
+space), and TAG (jail name).
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iocage
+ {
+   "action" : "df"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "id" : "fooid",
+   "args" : {
+      "action" : "df"
+   }
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "df": {
+      "f250ab25-d062-11e5-8209-d05099728dbf": {
+        "ava": "83.4G",
+        "crt": "2.30x",
+        "qta": "none",
+        "res": "none",
+        "tag": "test",
+        "use": "1.69M"
+      },
+      "f39318ae-d064-11e5-8209-d05099728dbf": {
+        "ava": "83.4G",
+        "crt": "2.30x",
+        "qta": "none",
+        "res": "none",
+        "tag": "test2",
+        "use": "1.69M"
       }
     }
   },
