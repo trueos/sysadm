@@ -12,6 +12,51 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Create a jail on the box
+QJsonObject Iocage::createJail(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+
+  // Get the key values
+  QString switches = jsin.value("switches").toString();
+  QString props = jsin.value("props").toString();
+  QStringList output;
+
+  if ( keys.contains("switches" ) ) {
+    output = General::RunCommand("iocage create " + switches + " " + props).split("\n");
+  } else {
+    output = General::RunCommand("iocage create " + props).split("\n");
+  }
+
+  QJsonObject vals;
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).isEmpty() )
+      break;
+
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    } else {
+      QString key = output.at(i).simplified().section(":", 0, 0);
+      QString value = output.at(i).simplified().section(":", 1, 1);
+
+      if ( keys.contains("switches" ) ) {
+        vals.insert("uuid", key);
+      } else {
+        vals.insert(key, value);
+      }
+    }
+  }
+
+  retObject.insert("switches", switches);
+  retObject.insert("props", props);
+  retObject.insert("success", vals);
+
+  return retObject;
+}
+
 // Clone a jail on the box
 QJsonObject Iocage::cloneJail(QJsonObject jsin) {
   QJsonObject retObject;
@@ -38,8 +83,8 @@ QJsonObject Iocage::cloneJail(QJsonObject jsin) {
       retObject.insert("error", output.at(i));
       return retObject;
     } else {
-    QString key = output.at(i).simplified().section(":", 0, 0);
-    QString value = output.at(i).simplified().section(":", 1, 1);
+      QString key = output.at(i).simplified().section(":", 0, 0);
+      QString value = output.at(i).simplified().section(":", 1, 1);
 
     vals.insert(key, value);
     }

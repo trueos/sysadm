@@ -33,7 +33,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   */
   // - server settings (always available)
   out->insert("sysadm/settings","read/write");
-	
+
   // - syscache
   if(QFile::exists("/var/run/syscache.pipe")){
     out->insert("rpc/syscache","read"); //no write to syscache - only reads
@@ -150,9 +150,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSettingsRequest(const QJsonV
   }else if(act=="revoke_ssl_cert" && keys.contains("pub_key") ){
     //Additional arguments: "user" (optional), "pub_key" (String)
     QString user; if(keys.contains("user")){ user = argsO.value("user").toString(); }
-    ok = AUTHSYSTEM->RevokeCertificate(SockAuthToken,argsO.value("pub_key").toString(), user); 
+    ok = AUTHSYSTEM->RevokeCertificate(SockAuthToken,argsO.value("pub_key").toString(), user);
   }
-  
+
   if(ok){ return RestOutputStruct::OK; }
   else{ return RestOutputStruct::BADREQUEST; }
 }
@@ -471,6 +471,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      if(act=="createjail"){
+	ok = true;
+        out->insert("createjail", sysadm::Iocage::createJail(in_args.toObject()));
+      }
       if(act=="clonejail"){
 	ok = true;
         out->insert("clonejail", sysadm::Iocage::cloneJail(in_args.toObject()));
