@@ -12,6 +12,41 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Show resource usage for jails on the box
+QJsonObject Iocage::df() {
+  QJsonObject retObject;
+
+  // Get the key values
+  QStringList output = General::RunCommand("iocage df").split("\n");
+  QJsonObject vals;
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // Null output at first
+    if ( output.at(i).isEmpty() )
+      continue;
+
+    QJsonObject jail;
+    QString line = output.at(i).simplified();
+    QString uuid = line.section(" ", 0, 0);
+
+    // Otherwise we get a list of what we already know.
+    if ( line.section(" ", 0, 0) == "UUID" )
+      continue;
+
+    jail.insert("crt", line.section(" ", 1, 1));
+    jail.insert("res", line.section(" ", 2, 2));
+    jail.insert("qta", line.section(" ", 3, 3));
+    jail.insert("use", line.section(" ", 4, 4));
+    jail.insert("ava", line.section(" ", 5, 5));
+    jail.insert("tag", line.section(" ", 6, 6));
+
+    retObject.insert(uuid, jail);
+  }
+
+  return retObject;
+}
+
 // Destroy a jail on the box
 QJsonObject Iocage::destroyJail(QJsonObject jsin) {
   QJsonObject retObject;
