@@ -20,9 +20,9 @@ Every iocage class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
-|                                 |               | "capjail", "clonejail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall", "activatepool", and             |
-|                                 |               | "deactivatepool"                                                                                                     |
+| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "df", "startjail", "stopjail",       |
+|                                 |               | "capjail", "clonejail", "createjail", "destroyjail", "execjail", "cleanjails", "cleanreleases", "cleantemplates",    |
+|                                 |               | "cleanall", "activatepool", and "deactivatepool"                                                                     |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -653,6 +653,68 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
   "namespace": "sysadm"
  }
  
+.. index:: df, iocage
+
+.. _List Resource Usage:
+
+List Resource Usage
+===================
+
+The "df" action lists resource usage for all jails. For each jail, the response includes: CRT (compression ratio), RES (reserved space), QTA (disk quota), USE (used space), AVA (available
+space), and TAG (jail name).
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iocage
+ {
+   "action" : "df"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "id" : "fooid",
+   "args" : {
+      "action" : "df"
+   }
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "df": {
+      "f250ab25-d062-11e5-8209-d05099728dbf": {
+        "ava": "83.4G",
+        "crt": "2.30x",
+        "qta": "none",
+        "res": "none",
+        "tag": "test",
+        "use": "1.69M"
+      },
+      "f39318ae-d064-11e5-8209-d05099728dbf": {
+        "ava": "83.4G",
+        "crt": "2.30x",
+        "qta": "none",
+        "res": "none",
+        "tag": "test2",
+        "use": "1.69M"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
 .. index:: startjail, iocage
 
 .. _Start a Jail:
@@ -934,6 +996,213 @@ In this example, no properties are specified so iocage populates its own values 
       "props": "",
       "success": {
         "Successfully created": " 89e78032-cfba-11e5-8209-d05099728dbf (2016-02-09@23"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: createjail, iocage
+
+.. _Create a Jail:
+
+Create a Jail
+=============
+
+The "createjail" action creates a jail. 
+
+In this example, the "tag" property sets the name of the new jail and the "release" property specifies which template to use.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/iocage
+ {
+   "action" : "createjail",
+   "props" : "tag=test release=10.2-RELEASE"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "args" : {
+      "props" : "tag=test release=10.2-RELEASE",
+      "action" : "createjail"
+   },
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "createjail": {
+      "props": "tag=test release=10.2-RELEASE",
+      "success": {
+        "Successfully created": " 3030c554-d05e-11e5-8209-d05099728dbf (test)"
+      },
+      "switches": ""
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+In this example, the **-e** switch, which creates an empty jail, is specified using "switches". Refer to `iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_ for the list
+of available switches.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/iocage
+ {
+   "switches" : "-e",
+   "action" : "createjail",
+   "props" : "tag=emptytest"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "props" : "tag=emptytest",
+      "action" : "createjail",
+      "switches" : "-e"
+   },
+   "name" : "iocage",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "createjail": {
+      "props": "tag=emptytest",
+      "success": {
+        "uuid": "1325b8bc-d05e-11e5-8209-d05099728dbf"
+      },
+      "switches": "-e"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+ .. index:: destroyjail, iocage
+
+.. _Destroy a Jail:
+
+Destroy a Jail
+==============
+
+The "destroyjail" action destroys the specified jail. This action is irreversible and does not prompt for confirmation, but will fail if the jail is running.
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iocage
+ {
+   "action" : "destroyjail",
+   "jail" : "test"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "args" : {
+      "action" : "destroyjail",
+      "jail" : "test"
+   },
+   "name" : "iocage",
+   "id" : "fooid",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "destroyjail": {
+      "success": {
+        "Destroying": " 3030c554-d05e-11e5-8209-d05099728dbf"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: execjail, iocage
+
+.. _Run Command:
+
+Run Command
+===========
+
+The "execjail" action executes the specified "command" under the privileges of the specified "user" in the specified "jail". The response will indicate whether or not command execution
+succeeded as well as any output from the command.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/iocage
+ {
+   "action" : "execjail",
+   "jail" : "test",
+   "command" : "echo hi",
+   "user" : "root"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "args" : {
+      "user" : "root",
+      "action" : "execjail",
+      "jail" : "test",
+      "command" : "echo hi"
+   },
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "execjail": {
+      "success": {
+        "hi": ""
       }
     }
   },
