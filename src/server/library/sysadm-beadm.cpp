@@ -201,8 +201,8 @@ QJsonObject BEADM::listBEs() {
       retObject.insert("error", output.at(i));
       return retObject;
     }
-    if ( output.at(i).indexOf("Mounted successfully")) {
-      retObject.insert("mountpoint", output.at(i).section("'",1,1));
+    if ( output.at(i).indexOf("Mounted successfully") != -1) {
+      retObject.insert("mountpoint", output.at(i).section("\'",1,1));
     }
   }
   retObject.insert("be", be);
