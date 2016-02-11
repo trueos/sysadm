@@ -21,8 +21,8 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
-|                                 |               | "capjail", "clonejail", "createjail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall", "activatepool",   |
-|                                 |               | and "deactivatepool"                                                                                                 |
+|                                 |               | "capjail", "clonejail", "createjail", "destroyjail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall",    |
+|                                 |               | "activatepool", and "deactivatepool"                                                                                 |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -1037,6 +1037,56 @@ of available switches.
         "uuid": "1325b8bc-d05e-11e5-8209-d05099728dbf"
       },
       "switches": "-e"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+ .. index:: destroyjail, iocage
+
+.. _Destroy a Jail:
+
+Destroy a Jail
+==============
+
+The "destroyjail" action destroys the specified jail. This action is irreversible and does not prompt for confirmation, but will fail if the jail is running.
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iocage
+ {
+   "action" : "destroyjail",
+   "jail" : "test"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "args" : {
+      "action" : "destroyjail",
+      "jail" : "test"
+   },
+   "name" : "iocage",
+   "id" : "fooid",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "destroyjail": {
+      "success": {
+        "Destroying": " 3030c554-d05e-11e5-8209-d05099728dbf"
+      }
     }
   },
   "id": "fooid",
