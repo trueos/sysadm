@@ -12,6 +12,49 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Execute a process in a jail on the box
+QJsonObject Iocage::execJail(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("jail")
+     || ! keys.contains("user")
+     || ! keys.contains("command") ) {
+    retObject.insert("error", "Missing required keys");
+    return retObject;
+  }
+
+  // Get the key values
+  QString jail = jsin.value("jail").toString();
+  QString user = jsin.value("user").toString();
+  QString command = jsin.value("command").toString();
+
+  QStringList output;
+
+  output = General::RunCommand("iocage exec -U " + user + " " + jail + " " + command).split("\n");
+
+  QJsonObject vals;
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).isEmpty() )
+      break;
+
+    if ( output.at(i).indexOf("execvp:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    } else {
+      QString key = output.at(i).simplified().section(":", 0, 0);
+      QString value = output.at(i).simplified().section(":", 1, 1);
+
+      vals.insert(key, value);
+    }
+  }
+
+  retObject.insert("success", vals);
+
+  return retObject;
+}
+
 // Show resource usage for jails on the box
 QJsonObject Iocage::df() {
   QJsonObject retObject;
