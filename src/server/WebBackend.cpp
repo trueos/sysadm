@@ -254,6 +254,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValu
       }else if(act=="mountbe"){
 	ok = true;
         out->insert("mountbe", sysadm::BEADM::mountBE(in_args.toObject()));
+     }else if(act=="umountbe"){
+	ok = true;
+        out->insert("umountbe", sysadm::BEADM::umountBE(in_args.toObject()));
       } 
     } //end of "action" key usage
 
