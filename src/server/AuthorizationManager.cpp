@@ -135,7 +135,7 @@ QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString p
       return ""; //user not allowed access if not in either of the wheel/operator groups
     }
   }else{ isOperator = true; }
-  qDebug() << "Check username/password" << user << pass << localhost;
+  //qDebug() << "Check username/password" << user << pass << localhost;
   //Need to run the full username/password through PAM
   if(!localhost || user=="root" || user=="toor"){
     ok = pam_checkPW(user,pass);
@@ -171,7 +171,7 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString user, QList<QSs
       return ""; //user not allowed access if not in either of the wheel/operator groups
     }
   }else{ isOperator = true; }
-  qDebug() << "Check username/certificate combination" << user << localhost;
+  //qDebug() << "Check username/certificate combination" << user << localhost;
 
   //Need to check the registered certificates for the designated user
   if(!localhost || user=="root" || user=="toor"){
@@ -202,7 +202,7 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString user, QList<QSs
 }
 
 QString AuthorizationManager::LoginService(QHostAddress host, QString service){
-  bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) );
+  bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) || (host.toString()=="::ffff:127.0.0.1") );
 	
   //Login a particular automated service
   qDebug() << "Service Login Attempt:" << service << " Success:" << localhost;
