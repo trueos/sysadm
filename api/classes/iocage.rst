@@ -21,8 +21,8 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "startjail", "stopjail",             |
-|                                 |               | "capjail", "clonejail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall", "activatepool", and             |
-|                                 |               | "deactivatepool"                                                                                                     |
+|                                 |               | "capjail", "clonejail", "createjail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall", "activatepool",   |
+|                                 |               | and "deactivatepool"                                                                                                 |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -935,6 +935,108 @@ In this example, no properties are specified so iocage populates its own values 
       "success": {
         "Successfully created": " 89e78032-cfba-11e5-8209-d05099728dbf (2016-02-09@23"
       }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: createjail, iocage
+
+.. _Create a Jail:
+
+Create a Jail
+=============
+
+The "createjail" action creates a jail. 
+
+In this example, the "tag" property sets the name of the new jail and the "release" property specifies which template to use.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/iocage
+ {
+   "action" : "createjail",
+   "props" : "tag=test release=10.2-RELEASE"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "args" : {
+      "props" : "tag=test release=10.2-RELEASE",
+      "action" : "createjail"
+   },
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "createjail": {
+      "props": "tag=test release=10.2-RELEASE",
+      "success": {
+        "Successfully created": " 3030c554-d05e-11e5-8209-d05099728dbf (test)"
+      },
+      "switches": ""
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+In this example, the **-e** switch, which creates an empty jail, is specified using "switches". Refer to `iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_ for the list
+of available switches.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/iocage
+ {
+   "switches" : "-e",
+   "action" : "createjail",
+   "props" : "tag=emptytest"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "props" : "tag=emptytest",
+      "action" : "createjail",
+      "switches" : "-e"
+   },
+   "name" : "iocage",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "createjail": {
+      "props": "tag=emptytest",
+      "success": {
+        "uuid": "1325b8bc-d05e-11e5-8209-d05099728dbf"
+      },
+      "switches": "-e"
     }
   },
   "id": "fooid",
