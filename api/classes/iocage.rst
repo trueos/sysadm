@@ -21,8 +21,8 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "df", "startjail", "stopjail",       |
-|                                 |               | "capjail", "clonejail", "createjail", "destroyjail", "cleanjails", "cleanreleases", "cleantemplates", "cleanall",    |
-|                                 |               | "activatepool", and "deactivatepool"                                                                                 |
+|                                 |               | "capjail", "clonejail", "createjail", "destroyjail", "execjail", "cleanjails", "cleanreleases", "cleantemplates",    |
+|                                 |               | "cleanall", "activatepool", and "deactivatepool"                                                                     |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -1148,6 +1148,61 @@ The "destroyjail" action destroys the specified jail. This action is irreversibl
     "destroyjail": {
       "success": {
         "Destroying": " 3030c554-d05e-11e5-8209-d05099728dbf"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: execjail, iocage
+
+.. _Run Command:
+
+Run Command
+===========
+
+The "execjail" action executes the specified "command" under the privileges of the specified "user" in the specified "jail". The response will indicate whether or not command execution
+succeeded as well as any output from the command.
+
+**REST Request**
+
+.. code-block:: json  
+
+ PUT /sysadm/iocage
+ {
+   "action" : "execjail",
+   "jail" : "test",
+   "command" : "echo hi",
+   "user" : "root"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json  
+
+ {
+   "namespace" : "sysadm",
+   "name" : "iocage",
+   "args" : {
+      "user" : "root",
+      "action" : "execjail",
+      "jail" : "test",
+      "command" : "echo hi"
+   },
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json  
+
+ {
+  "args": {
+    "execjail": {
+      "success": {
+        "hi": ""
       }
     }
   },
