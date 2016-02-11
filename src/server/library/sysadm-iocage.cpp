@@ -492,17 +492,33 @@ QJsonObject Iocage::getDefaultSettings() {
 // Return all of the jail settings
 QJsonObject Iocage::getJailSettings(QJsonObject jsin) {
   QJsonObject retObject;
-
-  QStringList keys = jsin.keys();
-  if (! keys.contains("jail") ) {
-    retObject.insert("error", "Missing required keys");
-    return retObject;
-  }
+  QStringList output;
 
   // Get the key values
   QString jail = jsin.value("jail").toString();
+  QString prop = jsin.value("prop").toString();
 
-  QStringList output = General::RunCommand("iocage get all " + jail).split("\n");
+  QString switches = jsin.value("switches").toString();
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("jail")
+     && keys.contains("prop")
+     && keys.contains("switches") ) {
+    output = General::RunCommand("iocage get " + switches + " " + prop).split("\n");
+  } else if ( ! keys.contains("jail")
+     && ! keys.contains("prop")
+     && ! keys.contains("switches") ){
+      retObject.insert("error", "Missing required keys");
+      return retObject;
+  }
+
+  if ( ! keys.contains("prop")
+     && ! keys.contains("switches") ) {
+    output = General::RunCommand("iocage get all " + jail).split("\n");
+  } else if ( keys.contains("prop")
+       && ! keys.contains("switches") ) {
+      output = General::RunCommand("iocage get " + prop + " " + jail).split("\n");
+  }
 
   QJsonObject vals;
   for ( int i = 0; i < output.size(); i++)
@@ -513,13 +529,42 @@ QJsonObject Iocage::getJailSettings(QJsonObject jsin) {
     if ( output.at(i).isEmpty() )
       break;
 
+    if ( output.at(i).indexOf("ERROR:") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    } else {
     QString key = output.at(i).simplified().section(":", 0, 0);
     QString value = output.at(i).simplified().section(":", 1, 1);
 
+    if ( keys.contains("switches" ) ) {
+      QString line = output.at(i).simplified();
+
+      // Otherwise we get a list of what we already know.
+      if ( line.section(" ", 0, 0) == "UUID" )
+        continue;
+
+      QJsonObject jail;
+      QString uuid = line.section(" ", 0, 0);
+
+      jail.insert("TAG", line.section(" ", 1, 1));
+      jail.insert(prop, line.section(" ", 2, 2));
+      retObject.insert(uuid, jail);
+      continue;
+    }
+
+    if ( keys.contains("prop" )
+       && ! keys.contains("switches")
+       && prop != "all") {
+      vals.insert(prop, key);
+      retObject.insert(jail, vals);
+      continue;
+    }
+
     vals.insert(key, value);
+    retObject.insert(jail, vals);
+    }
   }
 
-  retObject.insert(jail, vals);
   return retObject;
 }
 
