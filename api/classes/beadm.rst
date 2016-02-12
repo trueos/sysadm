@@ -332,7 +332,7 @@ The "mountbe" action mounts the specified boot environment. Use the optional "mo
   "args": {
     "mountbe": {
       "be": "green",
-      "mountpoint": ""
+      "mountpoint": "/tmp/mountdir"
     }
   },
   "id": "fooid",
