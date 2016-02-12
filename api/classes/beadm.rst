@@ -20,7 +20,7 @@ Every beadm class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listbes", "renamebe", "activatebe", "createbe", "destroybe", and "mountbe"                |
+| action                          |               | supported actions include "listbes", "renamebe", "activatebe", "createbe", "destroybe", "mountbe", and "umountbe"    |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -333,6 +333,54 @@ The "mountbe" action mounts the specified boot environment. Use the optional "mo
     "mountbe": {
       "be": "green",
       "mountpoint": "/tmp/mountdir"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: umountbe, beadm
+
+.. _Unmount a Boot Environment:
+
+Unmount a Boot Environment
+==========================
+
+The "umountbe" action forcibly unmounts the specified boot environment, even if it is in use.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/beadm
+ {
+   "action" : "umountbe",
+   "be" : "green"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "beadm",
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "be" : "green",
+      "action" : "umountbe"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "umountbe": {
+      "be": "green"
     }
   },
   "id": "fooid",
