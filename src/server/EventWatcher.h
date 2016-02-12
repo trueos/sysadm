@@ -17,7 +17,7 @@ class EventWatcher : public QObject{
 	Q_OBJECT
 public:
 	//Add more event types here as needed
-	enum EVENT_TYPE{ BADEVENT, DISPATCHER, LIFEPRESERVER};
+	enum EVENT_TYPE{ BADEVENT, DISPATCHER, LIFEPRESERVER, STATE};
 	
 	EventWatcher();
 	~EventWatcher();
@@ -33,6 +33,7 @@ private:
 	QFileSystemWatcher *watcher;
 	QHash<unsigned int, QJsonValue> HASH;
 	QTimer *filechecktimer;
+	QTimer *syschecktimer;
 	bool starting;
 	//HASH Note: Fields 1-99 reserved for EVENT_TYPE enum (last message of that type)
 	//	Fields 100-199 reserved for Life Preserver logs (all types)
@@ -46,6 +47,9 @@ private:
 	QString readFile(QString path);
 	double displayToDoubleK(QString);
 
+	// For health monitoring
+	QString oldhostname;
+
 public slots:
 	void start();
 
@@ -57,6 +61,7 @@ private slots:
 	//File watcher signals
 	void WatcherUpdate(const QString&);
 	void CheckLogFiles(); //catch/load any new log files into the watcher
+	void CheckSystemState(); // Periodic check to monitor health of system
 
 	//LP File changed signals/slots
 	void ReadLPLogFile();

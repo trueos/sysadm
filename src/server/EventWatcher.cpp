@@ -6,6 +6,7 @@
 #include "EventWatcher.h"
 
 #include "globals.h"
+#include "sysadm-general.h"
 
 // === PUBLIC ===
 EventWatcher::EventWatcher(){
@@ -14,11 +15,17 @@ EventWatcher::EventWatcher(){
   starting = true;
   watcher = new QFileSystemWatcher(this);
   filechecktimer = new QTimer(this);
-    filechecktimer->setSingleShot(false);
-    filechecktimer->setInterval(3600000); //1-hour checks (also run on new event notices)
+  filechecktimer->setSingleShot(false);
+  filechecktimer->setInterval(3600000); //1-hour checks (also run on new event notices)
   connect(watcher, SIGNAL(fileChanged(const QString&)), this, SLOT(WatcherUpdate(const QString&)) );
   connect(watcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(WatcherUpdate(const QString&)) );
   connect(filechecktimer, SIGNAL(timeout()), this, SLOT( CheckLogFiles()) );
+
+  oldhostname = sysadm::General::RunCommand("hostname").simplified();
+  syschecktimer = new QTimer(this);
+  syschecktimer->setSingleShot(false);
+  syschecktimer->setInterval(900000); //15 minute checks
+  connect(syschecktimer, SIGNAL(timeout()), this, SLOT( CheckSystemState()) );
 }
 
 EventWatcher::~EventWatcher(){
@@ -303,3 +310,77 @@ void EventWatcher::ReadLPRepFile(){
   if(repTotK!="??"){CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-totk",repTotK); }
   CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-lastsize",lastSize);
 }
+
+// Periodic check to monitor the health of the running system
+void EventWatcher::CheckSystemState(){
+  QJsonObject obj;
+  QString tmp, line;
+  bool ok;
+  int priority = 0;
+
+  qDebug() << "Starting health check";
+  // Query the system, check how things are running
+
+  // First up, get the hostname
+  QString newhostname = sysadm::General::RunCommand("hostname").simplified();
+  if ( newhostname != oldhostname )
+  {
+    // Interesting, hostname changed, lets notify
+    obj.insert("hostnamechanged","true");
+    oldhostname = newhostname;
+    if ( priority < 3 )
+      priority = 3;
+  }
+  obj.insert("hostname",oldhostname);
+
+  // Next check zpools
+  QStringList output = sysadm::General::RunCommand("zpool list -H").split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    line = output.at(i).simplified();
+
+    // Get the individual elements
+    QString pool = line.section(" ", 0, 0);
+    QString total = line.section(" ", 1, 1);
+    QString used = line.section(" ", 2, 2);
+    QString free = line.section(" ", 3, 3);
+    QString frag = line.section(" ", 5, 5).replace("%", "");
+    QString cap = line.section(" ", 6, 6).replace("%", "");
+    QString health = line.section(" ", 8, 8);
+
+    // If the health is bad, we need to notify
+    if ( health != "ONLINE" )
+      if ( priority < 9 )
+        priority = 9;
+
+    // Check the capacity, if over 90% we should warn
+    cap.toInt(&ok);
+    if ( ok ) {
+      if ( cap.toInt() > 90 ) {
+        if ( priority < 9 )
+          priority = 6;
+      }
+    }
+
+    QJsonObject zpool;
+    QJsonObject zstats;
+    zstats.insert("size", total);
+    zstats.insert("used", used);
+    zstats.insert("free", free);
+    zstats.insert("frag", frag);
+    zstats.insert("capacity", cap);
+    zstats.insert("health", health);
+    zpool.insert(pool, zstats);
+    obj.insert("zpools", zpool );
+  }
+
+  // Priority 0-10
+  obj.insert("priority", DisplayPriority(priority) );
+
+  qDebug() << "Done health check";
+
+  // Log and send out event
+  LogManager::log(LogManager::EV_STATE, obj);
+  emit NewEvent(STATE, obj);
+}
+
