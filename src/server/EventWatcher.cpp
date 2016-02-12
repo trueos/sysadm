@@ -6,7 +6,7 @@
 #include "EventWatcher.h"
 
 #include "globals.h"
-#include "sysadm-general.h"
+#include "library/sysadm-general.h"
 
 // === PUBLIC ===
 EventWatcher::EventWatcher(){
