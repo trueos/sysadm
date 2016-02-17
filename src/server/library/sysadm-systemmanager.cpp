@@ -371,3 +371,23 @@ QJsonObject SysMgmt::systemInfo() {
   return retObject;
 }
 
+// Halt the box
+QJsonObject SysMgmt::systemHalt() {
+  QJsonObject retObject;
+
+  QString output = General::RunCommand("shutdown -p now");
+  retObject.insert("response", "true");
+
+  return retObject;
+}
+
+
+// Reboot the box
+QJsonObject SysMgmt::systemReboot() {
+  QJsonObject retObject;
+
+  QString output = General::RunCommand("shutdown -r now");
+  retObject.insert("response", "true");
+
+  return retObject;
+}

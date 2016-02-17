@@ -405,6 +405,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemMgmtRequest(const QJso
 	ok = true;
         out->insert("externalmounts", sysadm::SysMgmt::externalDevicePaths());
       }
+      if(act=="halt"){
+	ok = true;
+        out->insert("halt", sysadm::SysMgmt::systemHalt());
+      }
       if(act=="killproc"){
 	ok = true;
         out->insert("killproc", sysadm::SysMgmt::killProc(in_args.toObject()));
@@ -416,6 +420,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemMgmtRequest(const QJso
       if(act=="procinfo"){
 	ok = true;
         out->insert("procinfo", sysadm::SysMgmt::procInfo());
+      }
+      if(act=="reboot"){
+	ok = true;
+        out->insert("reboot", sysadm::SysMgmt::systemReboot());
       }
       if(act=="setsysctl"){
 	ok = true;
