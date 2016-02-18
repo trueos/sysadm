@@ -145,7 +145,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     }
 	  
     //Now check the body of the message and do what it needs
-      if(out.in_struct.namesp.toLower() == "rpc"){
+if(out.in_struct.namesp.toLower() == "rpc"){
 	if(out.in_struct.name.startsWith("auth")){
 	  //Now perform authentication based on type of auth given
 	  //Note: This sets/changes the current SockAuthToken
@@ -157,15 +157,18 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    QString user, pass;
 	    if(out.in_struct.args.toObject().contains("username")){ user = JsonValueToString(out.in_struct.args.toObject().value("username"));  }
 	    if(out.in_struct.args.toObject().contains("password")){ pass = JsonValueToString(out.in_struct.args.toObject().value("password"));  }
-	    if(!pass.isEmpty()){
+	    
 	      //Use the given password
 	      SockAuthToken = AUTHSYSTEM->LoginUP(host, user, pass);
-	    }else{
-	      //No password - use the current SSL certificates instead
-	      QList<QSslCertificate> certs;
-	      if(SOCKET!=0){ certs = SOCKET->sslConfiguration().peerCertificateChain(); }
-	      else if(TSOCKET!=0){ certs = TSOCKET->peerCertificateChain(); }
-	      SockAuthToken = AUTHSYSTEM->LoginUC(host, user, certs);
+    }else if(out.in_struct.name=="auth_ssl" && out.in_struct.args.isObject() ){
+	    if(!out.in_struct.args.toObject().contains("encrypted_string")){
+        //Stage 1: Send the client a random string to encrypt with their SSL key
+        QString key = AUTHSYSTEM->GenerateEncCheckString();
+        QJsonObject obj; obj.insert("test_string", key);
+        out.CODE = RestOutputStruct::PARTIALCONTENT;
+      }else{
+        //Stage 2: Check the returned encrypted/string
+	      SockAuthToken = AUTHSYSTEM->LoginUC(host, JsonValueToString(out.in_struct.args.toObject().value("encrypted_string")) );
 	    }
 	  }else if(out.in_struct.name == "auth_token" && out.in_struct.args.isObject()){
 	    SockAuthToken = JsonValueToString(out.in_struct.args.toObject().value("token"));
@@ -193,17 +196,17 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	  //Now provide access to the various subsystems
 	  // First get/set the permissions flag into the input structure
-	    out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
+	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
 	  //Pre-set any output fields
-          QJsonObject outargs;	
+    QJsonObject outargs;	
 	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
-            out.out_args = outargs;	  
-        }else{
+      out.out_args = outargs;	  
+  }else{
 	  //Bad/No authentication
 	  out.CODE = RestOutputStruct::UNAUTHORIZED;
 	}
 	    	
-      }else if(out.in_struct.namesp.toLower() == "events"){
+}else if(out.in_struct.namesp.toLower() == "events"){
           if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	    //Pre-set any output fields
             QJsonObject outargs;	
@@ -239,7 +242,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    out.CODE = RestOutputStruct::UNAUTHORIZED;
 	  }
 	//Other namespace - check whether auth has already been established before continuing
-	}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
+}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	  //Now provide access to the various subsystems
 	  // First get/set the permissions flag into the input structure
 	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
@@ -247,10 +250,11 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
           QJsonObject outargs;	
 	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
             out.out_args = outargs;
-	}else{
+}else{
 	  //Error in inputs - assemble the return error message
 	  out.CODE = RestOutputStruct::UNAUTHORIZED;
-	}
+}
+
     //If this is a REST input - go ahead and format the output header
     if(out.CODE == RestOutputStruct::OK){
       out.Header << "Content-Type: text/json; charset=utf-8";

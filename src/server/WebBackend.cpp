@@ -95,7 +95,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     AvailableSubsystems(IN.fullaccess, &avail);
     if(!avail.contains(namesp+"/"+name)){ return RestOutputStruct::NOTFOUND; }
   }
-
+  qDebug() << "Evaluate Backend Request:" << namesp << name;
   //Go through and forward this request to the appropriate sub-system
   if(namesp=="sysadm" && name=="settings"){
     return EvaluateSysadmSettingsRequest(IN.args, out);
@@ -125,24 +125,25 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
 
 // === SYSADM SETTINGS ===
 RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSettingsRequest(const QJsonValue in_args, QJsonObject *out){
+  qDebug() << "sysadm/settings Request:" << in_args;
   if(!in_args.isObject()){ return RestOutputStruct::BADREQUEST; }
   QJsonObject argsO = in_args.toObject();
   QStringList keys = argsO.keys();
+  qDebug() << " - keys:" << keys;
   if(!keys.contains("action")){ return RestOutputStruct::BADREQUEST; }
   QString act = argsO.value("action").toString();
   bool ok = false;
   if(act=="register_ssl_cert" && keys.contains("pub_key")){
-    //Additional arguments: "pub_key" (String), and the cert with that key must already be loaded into the connection
-    QString pub_key = argsO.value("pub_key").toString();\
-    //Now find the currently-loaded certificate with the given public key
-    QList<QSslCertificate> certs;
-    if(SOCKET!=0){ certs = SOCKET->sslConfiguration().peerCertificateChain(); }
-    else if(TSOCKET!=0){ certs = TSOCKET->peerCertificateChain(); }
-    for(int i=0; i<certs.length() && !ok; i++){
-      if(certs[i].publicKey().toPem()==pub_key){
-	//Certificate found - register it
-        ok = AUTHSYSTEM->RegisterCertificate(SockAuthToken, certs[i]);
-      }
+    //Required arguments: "pub_key" (String)
+    //Optional arguments: "nickname" (String), "email" (String)
+    QString pub_key, nickname, email;
+    pub_key = argsO.value("pub_key").toString();
+    if(keys.contains("nickname")){ nickname = argsO.value("nickname").toString(); }
+    if(keys.contains("email")){ email = argsO.value("email").toString(); }
+    
+    if(!pub_key.isEmpty()){
+      ok = AUTHSYSTEM->RegisterCertificate(SockAuthToken, pub_key, nickname, email);
+	    if(!ok){ return RestOutputStruct::FORBIDDEN; }
     }
   }else if(act=="list_ssl_certs"){
     AUTHSYSTEM->ListCertificates(SockAuthToken, out);

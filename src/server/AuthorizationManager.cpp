@@ -17,6 +17,14 @@
 #include <pwd.h>
 #include <login_cap.h>
 
+//Stuff for OpenSSL to work
+#include <openssl/pem.h>
+#include <openssl/ssl.h>
+#include <openssl/rsa.h>
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+#include <openssl/err.h>
+
 //Internal defines
 // -- token management
 #define TIMEOUTSECS 900 // (15 minutes) time before a token becomes invalid
@@ -69,10 +77,10 @@ bool AuthorizationManager::hasFullAccess(QString token){
 }
 
 //SSL Certificate register/revoke/list
-bool AuthorizationManager::RegisterCertificate(QString token, QSslCertificate cert){
+bool AuthorizationManager::RegisterCertificate(QString token, QString pubkey, QString nickname, QString email){
   if(!checkAuth(token)){ return false; }
   QString user = hashID(token).section("::::",2,2); //get the user name from the currently-valid token
-  CONFIG->setValue("RegisteredCerts/"+user+"/"+QString(cert.publicKey().toPem()), cert.toText());
+  CONFIG->setValue("RegisteredCerts/"+user+"/"+pubkey, "Nickname: "+nickname+", Email: "+email);
   return true;
 }
 
@@ -158,49 +166,6 @@ QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString p
   } 
 }
 
-QString AuthorizationManager::LoginUC(QHostAddress host, QString user, QList<QSslCertificate> certs){
-  //Login w/ username & SSL certificate
-  bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) || (host.toString()=="::ffff:127.0.0.1") );
-  bool ok = false;
-  //First check that the user is valid on the system and part of the operator group
-  bool isOperator = false;
-  if(user!="root" && user!="toor"){
-    QStringList groups = getUserGroups(user);
-    if(groups.contains("wheel")){ isOperator = true; } //full-access user
-    else if(!groups.contains("operator")){
-      return ""; //user not allowed access if not in either of the wheel/operator groups
-    }
-  }else{ isOperator = true; }
-  //qDebug() << "Check username/certificate combination" << user << localhost;
-
-  //Need to check the registered certificates for the designated user
-  if(!localhost || user=="root" || user=="toor"){
-    for(int i=0; i<certs.length() && !ok; i++){
-      if(CONFIG->contains("RegisteredCerts/"+user+"/"+QString(certs[i].publicKey().toPem()) ) ){
-        //Cert was registered - check expiration info
-	// TO-DO
-	ok = true;
-      }
-    }
-  }else{
-    ok = true; //allow local access for users without password
-  }
-
-  qDebug() << "User Login Attempt:" << user << " Success:" << ok << " IP:" << host.toString();
-  LogManager::log(LogManager::HOST, QString("User Login Attempt: ")+user+"   Success: "+(ok?"true":"false")+"   IP: "+host.toString() );
-  if(!ok){
-    //invalid login
-    //Bump the fail count for this host
-    bool overlimit = BumpFailCount(host.toString());
-    if(overlimit){ emit BlockHost(host); }
-    return (overlimit ? "REFUSED" : "");
-  }else{
-    //valid login - generate a new token for it
-    ClearHostFail(host.toString());
-    return generateNewToken(isOperator, user);
-  }
-}
-
 QString AuthorizationManager::LoginService(QHostAddress host, QString service){
   bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) || (host.toString()=="::ffff:127.0.0.1") );
 	
@@ -226,6 +191,80 @@ QString AuthorizationManager::LoginService(QHostAddress host, QString service){
       return "";
     }
   }else{ return generateNewToken(false, service); }//services are never given operator privileges
+}
+
+//Stage 1 SSL Login Check: Generation of random string for this user
+QString AuthorizationManager::GenerateEncCheckString(){
+  QString key;
+  for(int i=0; i<TOKENLENGTH; i++){
+    key.append( AUTHCHARS.at( qrand() % AUTHCHARS.length() ) );
+  }
+  if(HASH.contains("SSL_CHECK_STRING/"+key)){ key = GenerateEncCheckString(); } //get a different one
+  else{
+    //insert this new key into the hash for later
+    HASH.insert("SSL_CHECK_STRING/"+key, QDateTime::currentDateTime().addSecs(30) ); //only keep a key "alive" for 30 seconds
+  }
+  return key;
+}
+
+//Stage 2 SSL Login Check: Verify that the returned/encrypted string can be decoded and matches the initial random string
+QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
+  //Login w/  SSL certificate
+  bool ok = false;
+
+    //First clean out any old strings/keys
+    QStringList pubkeys = QStringList(HASH.keys()).filter("SSL_CHECK_STRING/"); //temporary, re-use variable below
+    for(int i=0; i<pubkeys.length(); i++){ 
+      //Check expiration time on each initial string
+      if(QDateTime::currentDateTime() > HASH[pubkeys[i]]){ 
+        //Note: normally only 1 request per user at a time, but it is possible for a couple different clients to try 
+        // and authenticate as the same user (but different keys) at nearly the same time - so keep a short valid-string time frame (<30 seconds)
+        // to mitigate this possibility (need to prevent the second user-auth request from invalidating the first before the first auth handshake is finished)
+        HASH.remove(pubkeys[i]); //initstring expired - go ahead and remove it to reduce calc time later
+      }
+    }
+    //Now re-use the "pubkeys" variable for the public SSL keys
+    QString user;
+    pubkeys = CONFIG->allKeys().filter("RegisteredCerts/"); //Format: "RegisteredCerts/<user>/<key>"
+    for(int i=0; i<pubkeys.length() && !ok; i++){
+      //Decrypt the string with this pubkey - and compare to the outstanding initstrings
+      QString key = DecryptSSLString(encstring, pubkeys[i].section("/",2,50000));
+      if(HASH.contains("SSL_CHECK_STRING/"+key)){
+        //Valid reponse found
+        ok = true;
+        //Remove the initstring from the hash (already used)
+        HASH.remove("SSL_CHECK_STRING/"+key);
+        user = pubkeys[i].section("/",1,1);
+      }
+    }
+  bool isOperator = false;    
+  if(ok){
+    //First check that the user is valid on the system and part of the operator group
+
+    if(user!="root" && user!="toor"){
+      QStringList groups = getUserGroups(user);
+      if(groups.contains("wheel")){ isOperator = true; } //full-access user
+      else if(!groups.contains("operator")){
+        return ""; //user not allowed access if not in either of the wheel/operator groups
+      }
+    }else{ isOperator = true; }
+
+  }
+  if(user.isEmpty()){ ok = false; }
+
+  qDebug() << "User Login Attempt:" << user << " Success:" << ok << " IP:" << host.toString();
+  LogManager::log(LogManager::HOST, QString("User Login Attempt: ")+user+"   Success: "+(ok?"true":"false")+"   IP: "+host.toString() );
+  if(!ok){
+    //invalid login
+    //Bump the fail count for this host
+    bool overlimit = BumpFailCount(host.toString());
+    if(overlimit){ emit BlockHost(host); }
+    return (overlimit ? "REFUSED" : "");
+  }else{
+    //valid login - generate a new token for it
+    ClearHostFail(host.toString());
+    return generateNewToken(isOperator, user);
+  }
 }
 
 // =========================
@@ -286,6 +325,18 @@ bool AuthorizationManager::BumpFailCount(QString host){
 void AuthorizationManager::ClearHostFail(QString host){
   QStringList keys = QStringList(IPFAIL.keys()).filter(host+"::::");
   for(int i=0; i<keys.length(); i++){ IPFAIL.remove(keys[i]); }
+}
+
+QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey){
+  unsigned char decode[4098] = {};
+  RSA *rsa= NULL;
+  BIO *keybio = NULL;
+  keybio = BIO_new_mem_buf(pubkey.toLatin1().data(), -1);
+  if(keybio==NULL){ return ""; }
+  rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
+  bool ok = (-1 != RSA_public_decrypt(encstring.length(), (unsigned char*)(encstring.toLatin1().data()), decode, rsa, RSA_PKCS1_PADDING) );
+  if(!ok){ return ""; }
+  else{ return QString::fromLatin1( (char *)(decode) ).simplified(); }
 }
 
 /*

@@ -20,7 +20,7 @@ public:
 	bool hasFullAccess(QString token); //see if the token is associated with a full-access account
 
 	//SSL Certificate register/revoke/list (should only run if the current token is valid)
-	bool RegisterCertificate(QString token, QSslCertificate cert); //if token is valid, register the given cert for future logins
+	bool RegisterCertificate(QString token, QString pubkey, QString nickname, QString email); //if token is valid, register the given cert for future logins
 	bool RevokeCertificate(QString token, QString key, QString user=""); //user will be the current user if not empty - cannot touch other user's certs without full perms on current session
 	void ListCertificates(QString token, QJsonObject *out);
 
@@ -28,8 +28,13 @@ public:
 
 	// == Token Generation functions
 	QString LoginUP(QHostAddress host, QString user, QString pass); //Login w/ username & password
-	QString LoginUC(QHostAddress host, QString user, QList<QSslCertificate> certs); //Login w/ username & SSL certificate
 	QString LoginService(QHostAddress host, QString service); //Login a particular automated service
+
+	//Stage 1 SSL Login Check: Generation of random string for this user
+	QString GenerateEncCheckString(); 
+	//Stage 2 SSL Login Check: Verify that the returned/encrypted string can be decoded and matches the initial random string
+	QString LoginUC(QHostAddress host, QString encstring); 
+	
 
 private:
 	QHash<QString, QDateTime> HASH;
@@ -49,6 +54,9 @@ private:
 	  else{ return tmp.first(); }
 	}
 	
+	//SSL Decrypt function
+	QString DecryptSSLString(QString encstring, QString pubkey);
+
 	//PAM login/check files
 	bool pam_checkPW(QString user, QString pass);
 	void pam_logFailure(int ret);

@@ -10,7 +10,6 @@
 
 
 // == Simple Process class for running sequential commands ==
-// ==  INTERNAL ONLY - Do not use directly ==
 class DProcess : public QProcess{
 	Q_OBJECT
 public:
@@ -42,7 +41,8 @@ private slots:
 	void cmdFinished(int, QProcess::ExitStatus);
 
 signals:
-	void ProcFinished(QString ID);
+	void ProcFinished(QString); //ID
+	void Finished(QString, int, QString); //ID, retcode, log
 };
 	
 

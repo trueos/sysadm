@@ -37,4 +37,4 @@ INSTALLS += target
 
 QMAKE_LIBDIR = /usr/local/lib/qt5 /usr/local/lib
 INCLUDEPATH += /usr/local/include
-LIBS += -L/usr/local/lib -lpam -lutil
+LIBS += -L/usr/local/lib -lpam -lutil -lssl -lcrypto

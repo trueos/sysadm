@@ -70,8 +70,12 @@ void DProcess::cmdFinished(int ret, QProcess::ExitStatus status){
   proclog.append( this->readAllStandardOutput() );
   //Now run any additional commands
   //qDebug() << "Proc Finished:" << ID << success << proclog;
-  if(success){ startProc(); }//will emit the finished signal as needed if no more commands
-  else{
+  if(success && !cmds.isEmpty()){ startProc(); }
+  else if(success){
+    t_finished = QDateTime::currentDateTime();
+    emit ProcFinished(ID);
+    emit Finished(ID, ret, proclog);
+  }else{
     if(status==QProcess::NormalExit){
       proclog.append("\n[Command Failed: " + QString::number(ret)+" ]");
     }else{
@@ -79,6 +83,7 @@ void DProcess::cmdFinished(int ret, QProcess::ExitStatus status){
     }
     t_finished = QDateTime::currentDateTime();
     emit ProcFinished(ID);
+    emit Finished(ID, ret, proclog);
   }
 }
 

@@ -27,7 +27,6 @@ private:
 	QString SockID, SockAuthToken, SockPeerIP;
 	AuthorizationManager *AUTHSYSTEM;
 	QList<EventWatcher::EVENT_TYPE> ForwardEvents;
-
 	void sendReply(QString msg);
 
 	//Main connection comminucations procedure
