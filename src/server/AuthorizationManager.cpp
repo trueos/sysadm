@@ -211,7 +211,7 @@ QString AuthorizationManager::GenerateEncCheckString(){
 QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
   //Login w/  SSL certificate
   bool ok = false;
-
+  qDebug() << "SSL Auth Attempt";
     //First clean out any old strings/keys
     QStringList pubkeys = QStringList(HASH.keys()).filter("SSL_CHECK_STRING/"); //temporary, re-use variable below
     for(int i=0; i<pubkeys.length(); i++){ 
@@ -226,11 +226,13 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
     //Now re-use the "pubkeys" variable for the public SSL keys
     QString user;
     pubkeys = CONFIG->allKeys().filter("RegisteredCerts/"); //Format: "RegisteredCerts/<user>/<key>"
+    qDebug() << " - Check pubkeys";// << pubkeys;
     for(int i=0; i<pubkeys.length() && !ok; i++){
       //Decrypt the string with this pubkey - and compare to the outstanding initstrings
       QString key = DecryptSSLString(encstring, pubkeys[i].section("/",2,50000));
       if(HASH.contains("SSL_CHECK_STRING/"+key)){
         //Valid reponse found
+	qDebug() << " - Found Valid Key";
         ok = true;
         //Remove the initstring from the hash (already used)
         HASH.remove("SSL_CHECK_STRING/"+key);
@@ -239,8 +241,8 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
     }
   bool isOperator = false;    
   if(ok){
+    qDebug() << "Check user groups";
     //First check that the user is valid on the system and part of the operator group
-
     if(user!="root" && user!="toor"){
       QStringList groups = getUserGroups(user);
       if(groups.contains("wheel")){ isOperator = true; } //full-access user
@@ -328,13 +330,18 @@ void AuthorizationManager::ClearHostFail(QString host){
 }
 
 QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey){
+  qDebug() << "Decrypt String:" << "Length:" << encstring.length() << encstring;
   unsigned char decode[4098] = {};
   RSA *rsa= NULL;
   BIO *keybio = NULL;
+  qDebug() << " - Generate keybio";
   keybio = BIO_new_mem_buf(pubkey.toLatin1().data(), -1);
   if(keybio==NULL){ return ""; }
+  qDebug() << " - Read pubkey";
   rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
+  qDebug() << " - Decrypt string";
   bool ok = (-1 != RSA_public_decrypt(encstring.length(), (unsigned char*)(encstring.toLatin1().data()), decode, rsa, RSA_PKCS1_PADDING) );
+  qDebug() <<" - Success:" << ok;
   if(!ok){ return ""; }
   else{ return QString::fromLatin1( (char *)(decode) ).simplified(); }
 }

@@ -146,13 +146,13 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	  
     //Now check the body of the message and do what it needs
 if(out.in_struct.namesp.toLower() == "rpc"){
-	if(out.in_struct.name.startsWith("auth")){
-	  //Now perform authentication based on type of auth given
-	  //Note: This sets/changes the current SockAuthToken
-	  AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
-	  if(DEBUG){ qDebug() << "Authenticate Peer:" << SOCKET->peerAddress().toString(); }
-	  //Now do the auth
-	  if(out.in_struct.name=="auth" && out.in_struct.args.isObject() ){
+  if(out.in_struct.name.startsWith("auth")){
+    //Now perform authentication based on type of auth given
+    //Note: This sets/changes the current SockAuthToken
+    AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
+    if(DEBUG){ qDebug() << "Authenticate Peer:" << SOCKET->peerAddress().toString(); }
+    //Now do the auth
+    if(out.in_struct.name=="auth" && out.in_struct.args.isObject() ){
 	    //username/[password/cert] authentication
 	    QString user, pass;
 	    if(out.in_struct.args.toObject().contains("username")){ user = JsonValueToString(out.in_struct.args.toObject().value("username"));  }
@@ -160,21 +160,24 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 	    
 	      //Use the given password
 	      SockAuthToken = AUTHSYSTEM->LoginUP(host, user, pass);
-    }else if(out.in_struct.name=="auth_ssl" && out.in_struct.args.isObject() ){
-	    if(!out.in_struct.args.toObject().contains("encrypted_string")){
+    }else if(out.in_struct.name=="auth_ssl"){
+      if(out.in_struct.args.isObject() && out.in_struct.args.toObject().contains("encrypted_string")){
+        //Stage 2: Check the returned encrypted/string
+	SockAuthToken = AUTHSYSTEM->LoginUC(host, JsonValueToString(out.in_struct.args.toObject().value("encrypted_string")) );
+      }else{
         //Stage 1: Send the client a random string to encrypt with their SSL key
         QString key = AUTHSYSTEM->GenerateEncCheckString();
         QJsonObject obj; obj.insert("test_string", key);
-        out.CODE = RestOutputStruct::PARTIALCONTENT;
-      }else{
-        //Stage 2: Check the returned encrypted/string
-	      SockAuthToken = AUTHSYSTEM->LoginUC(host, JsonValueToString(out.in_struct.args.toObject().value("encrypted_string")) );
-	    }
-	  }else if(out.in_struct.name == "auth_token" && out.in_struct.args.isObject()){
-	    SockAuthToken = JsonValueToString(out.in_struct.args.toObject().value("token"));
-	  }else if(out.in_struct.name == "auth_clear"){
-	    return; //don't send a return message after clearing an auth (already done)
-	  }
+	out.out_args = obj;
+        out.CODE = RestOutputStruct::OK;
+	this->sendReply(out.assembleMessage());
+	return;
+      }
+    }else if(out.in_struct.name == "auth_token" && out.in_struct.args.isObject()){
+       SockAuthToken = JsonValueToString(out.in_struct.args.toObject().value("token"));
+    }else if(out.in_struct.name == "auth_clear"){
+       return; //don't send a return message after clearing an auth (already done)
+    }
 	  
 	  //Now check the auth and respond appropriately
 	  if(AUTHSYSTEM->checkAuth(SockAuthToken)){
