@@ -24,7 +24,7 @@ class LogManager{
 public:
 	//Enumeration of common log files (will automatically use proper file)
 	// === ADD NEW FILE SUPPORT  HERE ===
-	enum LOG_FILE {HOST, DISPATCH, EV_DISPATCH, EV_LP};
+	enum LOG_FILE {HOST, DISPATCH, EV_DISPATCH, EV_LP, EV_STATE};
 	//Conversion function for flag->path
 	static QString flagToPath(LogManager::LOG_FILE flag){
 	  QString filepath;
@@ -32,6 +32,7 @@ public:
 	  else if(flag==DISPATCH){ filepath.append("dispatcher"); }
 	  else if(flag==EV_DISPATCH){ filepath.append("events-dispatcher"); }
 	  else if(flag==EV_LP){ filepath.append("events-lifepreserver"); }
+	  else if(flag==EV_STATE){ filepath.append("events-state"); }
 	  else{ return ""; } //invalid file given
 	  //Now add the datestamp to the filename - so logs are saved/pruned daily
 	  filepath.append("-%1.log"); 

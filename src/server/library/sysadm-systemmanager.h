@@ -24,6 +24,8 @@ public:
 	static QJsonObject setSysctl(QJsonObject);
 	static QJsonObject sysctlList();
 	static QJsonObject systemInfo();
+	static QJsonObject systemReboot();
+	static QJsonObject systemHalt();
 };
 	
 } //end of pcbsd namespace

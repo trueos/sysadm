@@ -20,7 +20,7 @@ Every beadm class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listbes", "renamebe", "activatebe", "createbe"                                            |
+| action                          |               | supported actions include "listbes", "renamebe", "activatebe", "createbe", "destroybe", "mountbe", and "umountbe"    |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -233,6 +233,154 @@ To specify another, inactive boot environment, also include "clonefrom" to speci
     "createbe": {
       "clonefrom": "green",
       "newbe": "red"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: destroybe, beadm
+
+.. _Destroy a Boot Environment:
+
+Destroy a Boot Environment
+==========================
+
+The "destroybe" action destroys the specified "target" boot environment and forcefully unmounts it.
+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/beadm
+ {
+   "target" : "red",
+   "action" : "destroybe"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "action" : "destroybe",
+      "target" : "red"
+   },
+   "name" : "beadm",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "destroybe": {
+      "target": "red"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ } 
+ 
+.. index:: mountbe, beadm
+
+.. _Mount a Boot Environment:
+
+Mount a Boot Environment
+========================
+
+The "mountbe" action mounts the specified boot environment. Use the optional "mountpoint" argument to specify the mount point.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/beadm
+ {
+   "mountpoint" : "/tmp/mounteddir/",
+   "action" : "mountbe",
+   "be" : "green"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "name" : "beadm",
+   "args" : {
+      "mountpoint" : "/tmp/mounteddir/",
+      "be" : "green",
+      "action" : "mountbe"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "mountbe": {
+      "be": "green",
+      "mountpoint": "/tmp/mountdir"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: umountbe, beadm
+
+.. _Unmount a Boot Environment:
+
+Unmount a Boot Environment
+==========================
+
+The "umountbe" action forcibly unmounts the specified boot environment, even if it is in use.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/beadm
+ {
+   "action" : "umountbe",
+   "be" : "green"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "beadm",
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "be" : "green",
+      "action" : "umountbe"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "umountbe": {
+      "be": "green"
     }
   },
   "id": "fooid",

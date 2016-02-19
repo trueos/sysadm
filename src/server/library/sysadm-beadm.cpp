@@ -50,7 +50,7 @@ QJsonObject BEADM::listBEs() {
 
 // Rename the specified source BE to a a new target BE name
 
-QJsonObject BEADM::renameBE(QJsonObject jsin) {
+  QJsonObject BEADM::renameBE(QJsonObject jsin) {
   QJsonObject retObject;
   
   QStringList keys = jsin.keys();
@@ -79,7 +79,7 @@ QJsonObject BEADM::renameBE(QJsonObject jsin) {
 
 // Activate the given BeName for the next boot
 
-QJsonObject BEADM::activateBE(QJsonObject jsin) {
+  QJsonObject BEADM::activateBE(QJsonObject jsin) {
 	QJsonObject retObject;
 
 	QStringList keys = jsin.keys();
@@ -109,7 +109,7 @@ QJsonObject BEADM::activateBE(QJsonObject jsin) {
 
 // createbe  (optional flag -e for cloning from an inactive BE) : Create a new Boot environment
 
-QJsonObject BEADM::createBE(QJsonObject jsin) {
+  QJsonObject BEADM::createBE(QJsonObject jsin) {
 	QJsonObject retObject;
 
 	QStringList keys = jsin.keys();
@@ -146,7 +146,7 @@ QJsonObject BEADM::createBE(QJsonObject jsin) {
 
 // Destroy the given boot environment and unmount it immediately withour confirmation
 
-QJsonObject BEADM::destroyBE(QJsonObject jsin) {
+  QJsonObject BEADM::destroyBE(QJsonObject jsin) {
 	QJsonObject retObject;
 
 	QStringList keys = jsin.keys();
@@ -172,4 +172,70 @@ QJsonObject BEADM::destroyBE(QJsonObject jsin) {
 
   retObject.insert("target", target);
   return retObject;
+  }
+
+// Mount a boot environment in a temporary directory / Also give the option to specifically tell it where to mount the BE
+
+  QJsonObject BEADM::mountBE(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("be") ) {
+	retObject.insert("error", "Missing required key(s) 'be'");
+	return retObject;
+  }
+
+  // Get the key values
+
+  QString be = jsin.value("be").toString();
+  QString mountpoint;
+  if (keys.contains("mountpoint") ) {
+    mountpoint = jsin.value("mountpoint").toString();
+  }	
+
+  QStringList output = General::RunCommand("beadm mount "+ be + " " + mountpoint).split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("ERROR") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+    if ( output.at(i).indexOf("Mounted successfully") != -1) {
+      retObject.insert("mountpoint", output.at(i).section("\'",1,1));
+    }
+  }
+  retObject.insert("be", be);
+
+  return retObject;
+ }
+ 
+ //  Unmount the given boot environment immediately.  Confirmation should be done through the client.
+
+  QJsonObject BEADM::umountBE(QJsonObject jsin) {
+	QJsonObject retObject;
+
+	QStringList keys = jsin.keys();
+	if (! keys.contains("be") ) {
+		retObject.insert("error", "Missing required key(s) 'be'");
+		return retObject;
 }
+
+  // Get the key values
+
+  QString be = jsin.value("be").toString();
+
+
+  QStringList output = General::RunCommand("beadm umount -f "+ be).split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("ERROR") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("be", be);
+  return retObject;
+  }
