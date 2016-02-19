@@ -331,7 +331,9 @@ void AuthorizationManager::ClearHostFail(QString host){
 
 QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey){
   //Convert from the base64 string back to a byte array
-  QByteArray enc = QByteArray::fromBase64(encstring.toLatin1());
+  QByteArray enc;
+    enc.append(encstring);
+  enc = QByteArray::fromBase64(enc);
   qDebug() << "Decrypt String:" << "Length:" << enc.length() << enc;
   qDebug() << " - Base64:" << encstring;
   unsigned char decode[4098] = {};
