@@ -4,6 +4,7 @@
 // Written by: Ken Moore <ken@pcbsd.org> July 2015
 // =================================
 #include "WebServer.h"
+#include "globals.h"
 
 #define DEBUG 0
 
@@ -105,8 +106,7 @@ bool WebServer::allowConnection(QHostAddress addr){
   if(!CONFIG->contains(key) ){ return true; } //not in the list
   //Address on the list - see if the timeout has expired 
   QDateTime dt = CONFIG->value(key,QDateTime()).toDateTime();
-  int minblock = CONFIG->value("blacklist/RefuseMinutes",60).toInt();
-  if(dt.addSecs(minblock*60) < QDateTime::currentDateTime()){
+  if(dt.addSecs(BlackList_BlockMinutes*60) < QDateTime::currentDateTime()){
     //This entry has timed out - go ahead and allow it
     CONFIG->remove(key); //make the next connection check for this IP faster again
     return true;

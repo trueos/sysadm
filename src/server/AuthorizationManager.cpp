@@ -30,9 +30,10 @@
 #define TIMEOUTSECS 900 // (15 minutes) time before a token becomes invalid
 #define AUTHCHARS QString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
 #define TOKENLENGTH 20
+
 // -- Connection failure limitations
-#define AUTHFAILLIMIT 5 //number of sequential failures before IP is blocked for a time
-#define FAILOVERMINS 10 //after this many minutes without a new login attempt the failure count will reset
+//#define AUTHFAILLIMIT 5 //number of sequential failures before IP is blocked for a time
+//#define FAILOVERMINS 10 //after this many minutes without a new login attempt the failure count will reset
 
 AuthorizationManager::AuthorizationManager() : QObject(){
   HASH.clear();
@@ -315,13 +316,13 @@ bool AuthorizationManager::BumpFailCount(QString host){
   if(!keys.isEmpty()){
     //Take the existing key/value and put a new one in (this limits the filter to 1 value maximum)
     QDateTime last = IPFAIL.take(keys[0]);
-    if(last.addSecs(FAILOVERMINS*60) > QDateTime::currentDateTime() ){
+    if(last.addSecs(BlackList_AuthFailResetMinutes*60) > QDateTime::currentDateTime() ){
      fails = keys[0].section("::::",1,1).toInt();
     }
   }
   fails++;
   IPFAIL.insert(host+"::::"+QString::number(fails), QDateTime::currentDateTime() );
-  return (fails>=AUTHFAILLIMIT);	
+  return (fails>=BlackList_AuthFailsToBlock);	
 }
 
 void AuthorizationManager::ClearHostFail(QString host){

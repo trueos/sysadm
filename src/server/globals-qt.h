@@ -39,6 +39,7 @@
 #include <QThread>
 #include <QFileSystemWatcher>
 #include <QQueue>
+#include <QRegExp>
 
 #include <QList>
 #include <QHash>

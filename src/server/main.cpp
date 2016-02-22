@@ -10,13 +10,21 @@
 
 #include "WebServer.h"
 
+#define CONFFILE "/usr/local/etc/sysadm.conf"
+#define SETTINGSFILE "/usr/local/etc/.sysadm-internal.ini"
+
 #define DEBUG 0
 
 //Create any global classes
-QSettings *CONFIG = new QSettings("/usr/local/etc/sysadm.conf", QSettings::IniFormat);
+QSettings *CONFIG = new QSettings(SETTINGSFILE, QSettings::IniFormat);
 EventWatcher *EVENTS = new EventWatcher();
 Dispatcher *DISPATCHER = new Dispatcher();
 bool WS_MODE = false;
+
+//Set the defail values for the global config variables
+int BlackList_BlockMinutes = 60;
+int BlackList_AuthFailsToBlock = 5;
+int BlackList_AuthFailResetMinutes = 10;
 
 //Create the default logfile
 QFile logfile;
@@ -45,6 +53,15 @@ void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
   if(!txt.endsWith("\n")){ out << "\n"; }
 }
 
+inline QString ReadFile(QString path){
+  QFile file(path);
+  if( !file.open(QIODevice::ReadOnly) ){ return ""; }
+  QTextStream in(&file);
+  QString str = in.readAll();
+  file.close();
+  return str;
+}
+
 int main( int argc, char ** argv )
 {
     QCoreApplication a(argc, argv);
@@ -54,18 +71,59 @@ int main( int argc, char ** argv )
       return 1;
     }
 
-    
     //Evaluate input arguments
-    bool websocket = false;
+    bool websocket = true;
     quint16 port = 0;
     for(int i=1; i<argc; i++){
-      if( QString(argv[i])=="-ws" ){ websocket = true; WS_MODE = true;}
+      if( QString(argv[i])=="-rest" ){ websocket = false;}
       else if( QString(argv[i])=="-p" && (i+1<argc) ){ i++; port = QString(argv[i]).toUInt(); }
     }
-    if(port==0){
-      if(websocket){ port = WSPORTNUMBER; }
-      else{ port = PORTNUMBER; }
+    WS_MODE = websocket; //set the global variable too
+    
+    //Now load the config file
+    QStringList conf = ReadFile(CONFFILE).split("\n");
+    if(!conf.filter("[internal]").isEmpty()){
+      //Older QSettings file - move it to the new location
+      if(QFile::exists(SETTINGSFILE)){ QFile::remove(SETTINGSFILE); } //remove the new/empty settings file
+      QFile::rename(CONFFILE, SETTINGSFILE);
+      CONFIG->sync(); //re-sync settings structure
+      conf.clear(); //No config yet
     }
+    //Load the settings from the config file
+    // - port number
+    if(port==0){
+      if(websocket){ 
+	int index = conf.indexOf(QRegExp("PORT=*",Qt::CaseSensitive,QRegExp::Wildcard));
+	bool ok = false;
+	if(index>=0){ port = conf[index].section("=",1,1).toInt(&ok); }
+	if(port<=0 || !ok){ port = WSPORTNUMBER;  }
+      }else{
+	int index = conf.indexOf(QRegExp("PORT_REST=*",Qt::CaseSensitive,QRegExp::Wildcard));
+	bool ok = false;
+	if(index>=0){ port = conf[index].section("=",1,1).toInt(&ok); }
+	if(port<=0 || !ok){ port = PORTNUMBER;  }	      
+      }
+    }
+    // - Blacklist options
+    QRegExp rg = QRegExp("BLACKLIST_BLOCK_MINUTES=*",Qt::CaseSensitive,QRegExp::Wildcard);
+    if(!conf.filter(rg).isEmpty()){
+      bool ok = false;
+      int tmp = conf.filter(rg).first().section("=",1,1).simplified().toInt(&ok);
+      if(ok){ BlackList_BlockMinutes = tmp; }
+    }
+    rg = QRegExp("BLACKLIST_AUTH_FAIL_LIMIT=*",Qt::CaseSensitive,QRegExp::Wildcard);
+    if(!conf.filter(rg).isEmpty()){
+      bool ok = false;
+      int tmp = conf.filter(rg).first().section("=",1,1).simplified().toInt(&ok);
+      if(ok){ BlackList_AuthFailsToBlock = tmp; }
+    }
+    rg = QRegExp("BLACKLIST_AUTH_FAIL_RESET_MINUTES=*",Qt::CaseSensitive,QRegExp::Wildcard);
+    if(!conf.filter(rg).isEmpty()){
+      bool ok = false;
+      int tmp = conf.filter(rg).first().section("=",1,1).simplified().toInt(&ok);
+      if(ok){ BlackList_AuthFailResetMinutes = tmp; }
+    }
+    
     //Setup the log file
     LogManager::checkLogDir(); //ensure the logging directory exists
     if(!websocket){ logfile.setFileName("/var/log/sysadm-server-tcp.log"); }

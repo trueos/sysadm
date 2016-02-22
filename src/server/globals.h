@@ -23,4 +23,9 @@ extern Dispatcher *DISPATCHER;
 #define WSPORTNUMBER 12150 	// WebSocket server default port
 #define PORTNUMBER 12151		// TCP server default port
 
+//Config file settings for this instance of the server
+extern int BlackList_BlockMinutes;
+extern int BlackList_AuthFailsToBlock;
+extern int BlackList_AuthFailResetMinutes;
+
 #endif
