@@ -53,6 +53,9 @@
 #define SSLCERTFILE "/usr/local/etc/sysadm/restserver.crt"
 #define SSLKEYFILE "/usr/local/etc/sysadm/restserver.key"
 
+#define SSLCERTFILEWS "/usr/local/etc/sysadm/wsserver.crt"
+#define SSLKEYFILEWS "/usr/local/etc/sysadm/wsserver.key"
+
 // Server Settings defines
 #define DISPATCH_QUEUE "/usr/local/etc/sysadm/dispatch_queue"
 
