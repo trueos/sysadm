@@ -109,27 +109,29 @@ void Dispatcher::stop(){
 }
 
 //Overloaded Main Calling Functions (single command, or multiple in-order commands)
-void Dispatcher::queueProcess(QString ID, QString cmd){
-  queueProcess(NO_QUEUE, ID, QStringList() << cmd);
+DProcess* Dispatcher::queueProcess(QString ID, QString cmd){
+  return queueProcess(NO_QUEUE, ID, QStringList() << cmd);
 }
-void Dispatcher::queueProcess(QString ID, QStringList cmds){
-  queueProcess(NO_QUEUE, ID, cmds);	
+DProcess* Dispatcher::queueProcess(QString ID, QStringList cmds){
+  return queueProcess(NO_QUEUE, ID, cmds);	
 }
-void Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QString cmd){
-  queueProcess(queue, ID, QStringList() << cmd);
+DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QString cmd){
+  return queueProcess(queue, ID, QStringList() << cmd);
 }
-void Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QStringList cmds){
+DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QStringList cmds){
   //This is the primary queueProcess() function - all the overloads end up here to do the actual work
   //For multi-threading, need to emit a signal/slot for this action (object creations need to be in same thread as parent)
   qDebug() << "Queue Process:" << queue << ID << cmds;
-  emit mkProcs(queue, ID, cmds);
+  DProcess *P = createProcess(ID, cmds);
+  emit mkProcs(queue, P);
+  return P;
 }
 
 // === PRIVATE ===
 //Simplification routine for setting up a process
 DProcess* Dispatcher::createProcess(QString ID, QStringList cmds){
-  DProcess* P = new DProcess();
-    P->moveToThread(this->thread());
+  DProcess *P = new DProcess();
+    //P->moveToThread(this->thread());
     P->cmds = cmds;
     P->ID = ID;
     connect(P, SIGNAL(ProcFinished(QString)), this, SLOT(ProcFinished(QString)) );
@@ -137,9 +139,10 @@ DProcess* Dispatcher::createProcess(QString ID, QStringList cmds){
 }
 
 // === PRIVATE SLOTS ===
-void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, QString ID, QStringList cmds){
+void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, DProcess *P){
   //qDebug() << " - Create Process:" << queue << ID << cmds;
-  DProcess *P = createProcess(ID, cmds);
+  //DProcess *P = createProcess(ID, cmds);
+  P->moveToThread(this->thread());
   QList<DProcess*> list;
   if(!HASH.contains(queue)){ HASH.insert(queue, list); } //insert an empty list
   HASH[queue] << P; //add this proc to the end of the list

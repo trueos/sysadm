@@ -61,10 +61,10 @@ public slots:
 	void stop(); //save any currently-unrun processes for next time
 
 	//Main Calling Functions (single command, or multiple in-order commands)
-	void queueProcess(QString ID, QString cmd); //uses NO_QUEUE
-	void queueProcess(QString ID, QStringList cmds); //uses NO_QUEUE
-	void queueProcess(Dispatcher::PROC_QUEUE, QString ID, QString cmd);
-	void queueProcess(Dispatcher::PROC_QUEUE, QString ID, QStringList cmds);
+	DProcess* queueProcess(QString ID, QString cmd); //uses NO_QUEUE
+	DProcess* queueProcess(QString ID, QStringList cmds); //uses NO_QUEUE
+	DProcess* queueProcess(Dispatcher::PROC_QUEUE, QString ID, QString cmd);
+	DProcess* queueProcess(Dispatcher::PROC_QUEUE, QString ID, QStringList cmds);
 
 private:
 	// Queue file
@@ -77,7 +77,7 @@ private:
 	DProcess* createProcess(QString ID, QStringList cmds);
 
 private slots:
-	void mkProcs(Dispatcher::PROC_QUEUE, QString ID, QStringList cmds);
+	void mkProcs(Dispatcher::PROC_QUEUE, DProcess *P);
 	void ProcFinished(QString ID);
 	void CheckQueues();
 
@@ -87,7 +87,7 @@ signals:
 	void DispatchStarting(QString ID);
 
 	//Signals for private usage
-	void mkprocs(Dispatcher::PROC_QUEUE, QString ID, QStringList cmds);
+	void mkprocs(Dispatcher::PROC_QUEUE, DProcess*);
 	
 };
 
