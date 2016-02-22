@@ -19,7 +19,7 @@ The systemmanager class is used to retrieve information about the system. Every 
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "procinfo", "killproc", "batteryinfo",         |
-|                                 |               | "externalmounts", "systemmanager", "sysctllist", and "setsysctl"                                                     |
+|                                 |               | "externalmounts", "systemmanager", "sysctllist", "setsysctl", "halt", and "reboot"                                   |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -719,6 +719,98 @@ The "setsysctl" action sets the specified setable sysctl to the specified value.
       "response": "security.jail.mount_devfs_allowed: 1 -> 0",
       "sysctl": "security.jail.mount_devfs_allowed",
       "value": "0"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: halt, systemmanager
+
+.. _Halt the System:
+
+Halt the System
+===============
+
+The "halt" action shuts down the system.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/systemmanager
+ {
+   "action" : "halt"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "action" : "halt"
+   },
+   "name" : "systemmanager",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "halt": {
+      "response": "true"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+.. index:: reboot, systemmanager
+
+.. _Reboot the System:
+
+Reboot the System
+=================
+
+The "reboot" action reboots the system.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/systemmanager
+ {
+   "action" : "reboot"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "action" : "reboot"
+   },
+   "name" : "systemmanager",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "reboot": {
+      "response": "true"
     }
   },
   "id": "fooid",
