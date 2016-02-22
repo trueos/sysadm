@@ -1,25 +1,25 @@
 #!/bin/sh
 # $FreeBSD$
 
-# PROVIDE: sysadm-restserver
+# PROVIDE: sysadm-rest
 # REQUIRE: LOGIN cleanvar
 # KEYWORD: shutdown
 
 #
 # Add the following lines to /etc/rc.conf to enable sysadm:
-# sysadmr_restserver_enable (bool):		Set to "NO" by default.
+# sysadmr_rest_enable (bool):	Set to "NO" by default.
 #				Set it to "YES" to enable sysadm
 
 . /etc/rc.subr
 
-name="sysadm_restserver"
-rcvar=sysadm_restserver_enable
+name="sysadm_rest"
+rcvar=sysadm_rest_enable
 
-start_cmd="sysadm_restserver_start"
-stop_cmd="sysadm_restserver_stop"
+start_cmd="sysadm_rest_start"
+stop_cmd="sysadm_rest_stop"
 flags=""
 
-[ -z "$sysadm_restserver_enable" ] && sysadm_restserver_enable="NO"
+[ -z "$sysadm_rest_enable" ] && sysadm_rest_enable="NO"
 
 load_rc_config $name
 
@@ -34,17 +34,17 @@ ssl_keygen()
 	-subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
 }
 
-sysadm_restserver_stop()
+sysadm_rest_stop()
 {
   if [ -e "/var/run/sysadm-rest.pid" ] ; then
     pkill -9 -F /var/run/sysadm-rest.pid >/dev/null 2>/dev/null
   fi
 }
 
-sysadm_restserver_start()
+sysadm_rest_start()
 {
   export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
-  sysadm_restserver_stop
+  sysadm_rest_stop
   ssl_keygen
   echo "Starting sysadm (REST)..."
   command="/usr/local/bin/sysadm-server"
