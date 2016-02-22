@@ -81,6 +81,7 @@ bool AuthorizationManager::hasFullAccess(QString token){
 bool AuthorizationManager::RegisterCertificate(QString token, QString pubkey, QString nickname, QString email){
   if(!checkAuth(token)){ return false; }
   QString user = hashID(token).section("::::",2,2); //get the user name from the currently-valid token
+  //NOTE: The public key should be a base64 encoded string
   CONFIG->setValue("RegisteredCerts/"+user+"/"+pubkey, "Nickname: "+nickname+", Email: "+email);
   return true;
 }
@@ -227,13 +228,13 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
     //Now re-use the "pubkeys" variable for the public SSL keys
     QString user;
     pubkeys = CONFIG->allKeys().filter("RegisteredCerts/"); //Format: "RegisteredCerts/<user>/<key>"
-    qDebug() << " - Check pubkeys";// << pubkeys;
+    //qDebug() << " - Check pubkeys";// << pubkeys;
     for(int i=0; i<pubkeys.length() && !ok; i++){
       //Decrypt the string with this pubkey - and compare to the outstanding initstrings
       QString key = DecryptSSLString(encstring, pubkeys[i].section("/",2,50000));
       if(HASH.contains("SSL_CHECK_STRING/"+key)){
         //Valid reponse found
-	qDebug() << " - Found Valid Key";
+	//qDebug() << " - Found Valid Key";
         ok = true;
         //Remove the initstring from the hash (already used)
         HASH.remove("SSL_CHECK_STRING/"+key);
@@ -331,17 +332,21 @@ void AuthorizationManager::ClearHostFail(QString host){
 }
 
 QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey){
-  //Convert from the base64 string back to a byte array
+  //Convert from the base64 string back into byte array
   QByteArray enc;
     enc.append(encstring);
   enc = QByteArray::fromBase64(enc);
+  QByteArray pkey;
+    pkey.append(pubkey);
+  pkey = QByteArray::fromBase64(pkey);
+  //Now star the SSL routine
   qDebug() << "Decrypt String:" << "Length:" << enc.length() << enc;
   qDebug() << " - Base64:" << encstring;
   unsigned char decode[4098] = {};
   RSA *rsa= NULL;
   BIO *keybio = NULL;
   qDebug() << " - Generate keybio";
-  keybio = BIO_new_mem_buf(pubkey.toLatin1().data(), -1);
+  keybio = BIO_new_mem_buf(pkey.data(), -1);
   if(keybio==NULL){ return ""; }
   qDebug() << " - Read pubkey";
   rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);

@@ -49,7 +49,7 @@
 #include <QtDebug>
 
 // SSL Version/File defines
-#define SSLVERSION QSsl::TlsV1_0
+#define SSLVERSION QSsl::TlsV1_0OrLater
 #define SSLCERTFILE "/usr/local/etc/sysadm/restserver.crt"
 #define SSLKEYFILE "/usr/local/etc/sysadm/restserver.key"
 
