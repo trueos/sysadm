@@ -17,7 +17,7 @@ rcvar=sysadm_enable
 
 start_cmd="sysadm_start"
 stop_cmd="sysadm_stop"
-flags="-ws"
+flags=""
 
 [ -z "$sysadm_enable" ] && sysadm_enable="NO"
 

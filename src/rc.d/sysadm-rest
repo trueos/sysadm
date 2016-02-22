@@ -17,7 +17,7 @@ rcvar=sysadm_rest_enable
 
 start_cmd="sysadm_rest_start"
 stop_cmd="sysadm_rest_stop"
-flags=""
+flags="-rest"
 
 [ -z "$sysadm_rest_enable" ] && sysadm_rest_enable="NO"
 
