@@ -11,7 +11,17 @@
 // === PUBLIC ===
 EventWatcher::EventWatcher(){
   qRegisterMetaType<EventWatcher::EVENT_TYPE>("EventWatcher::EVENT_TYPE");
-	
+  //Only put non-thread-specific stuff here
+  starting = true;
+  oldhostname = sysadm::General::RunCommand("hostname").simplified();
+  
+}
+
+EventWatcher::~EventWatcher(){
+}
+
+void EventWatcher::start(){
+  //Make sure that any new timer/etc are setup here (multi-thread issues)
   starting = true;
   watcher = new QFileSystemWatcher(this);
   filechecktimer = new QTimer(this);
@@ -20,24 +30,17 @@ EventWatcher::EventWatcher(){
   connect(watcher, SIGNAL(fileChanged(const QString&)), this, SLOT(WatcherUpdate(const QString&)) );
   connect(watcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(WatcherUpdate(const QString&)) );
   connect(filechecktimer, SIGNAL(timeout()), this, SLOT( CheckLogFiles()) );
-
-  oldhostname = sysadm::General::RunCommand("hostname").simplified();
   syschecktimer = new QTimer(this);
   syschecktimer->setSingleShot(false);
   syschecktimer->setInterval(900000); //15 minute checks
   connect(syschecktimer, SIGNAL(timeout()), this, SLOT( CheckSystemState()) );
-}
-
-EventWatcher::~EventWatcher(){
-}
-
-void EventWatcher::start(){
-  starting = true;
   // - Life Preserver Events
   WatcherUpdate(LPLOG); //load it initially (will also add it to the watcher);
   WatcherUpdate(LPERRLOG); //load it initially (will also add it to the watcher);
   
   filechecktimer->start();
+  syschecktimer->start();
+  QTimer::singleShot(0, this, SLOT(CheckSystemState()) );
   starting = false;
 }
 
