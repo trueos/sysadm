@@ -1,25 +1,25 @@
 #!/bin/sh
 # $FreeBSD$
 
-# PROVIDE: sysadm_websocket
+# PROVIDE: sysadm
 # REQUIRE: LOGIN cleanvar
 # KEYWORD: shutdown
 
 #
 # Add the following lines to /etc/rc.conf to enable sysadm:
-# sysadm_websocket_enable (bool):		Set to "NO" by default.
+# sysadm_enable (bool):				Set to "NO" by default.
 #						Set it to "YES" to enable sysadm
 
 . /etc/rc.subr
 
-name="sysadm_websocket"
-rcvar=sysadm_websocket_enable
+name="sysadm"
+rcvar=sysadm_enable
 
-start_cmd="sysadm_websocket_start"
-stop_cmd="sysadm_websocket_stop"
+start_cmd="sysadm_start"
+stop_cmd="sysadm_stop"
 flags="-ws"
 
-[ -z "$sysadm_websocket_enable" ] && sysadm_websocket_enable="NO"
+[ -z "$sysadm_enable" ] && sysadm_enable="NO"
 
 load_rc_config $name
 
@@ -34,22 +34,22 @@ ssl_keygen()
 	-subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
 }
 
-sysadm_websocket_stop()
+sysadm_stop()
 {
-  if [ -e "/var/run/sysadm-websocket.pid" ] ; then
-    pkill -9 -F /var/run/sysadm-websocket.pid >/dev/null 2>/dev/null
+  if [ -e "/var/run/sysadm.pid" ] ; then
+    pkill -9 -F /var/run/sysadm.pid >/dev/null 2>/dev/null
   fi
 }
 
-sysadm_websocket_start()
+sysadm_start()
 {
   export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
-  sysadm_websocket_stop
+  sysadm_stop
   ssl_keygen
-  echo "Starting sysadm (WebSocket)..."
+  echo "Starting sysadm..."
   command="/usr/local/bin/sysadm-server"
-  daemon -p /var/run/sysadm-websocket.pid $command $flags >/dev/null 2>/dev/null
-  chmod 744 /var/run/sysadm-websocket.pid >/dev/null 2>/dev/null
+  daemon -p /var/run/sysadm.pid $command $flags >/dev/null 2>/dev/null
+  chmod 744 /var/run/sysadm.pid >/dev/null 2>/dev/null
 }
 
 run_rc_command "$1"
