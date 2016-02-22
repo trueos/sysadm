@@ -386,7 +386,17 @@ system boot, the jail ID (only applies to running jails), whether or not the jai
 Jail Settings
 =============
 
-The "getjailsettings" action lists all of the settings that apply to the specified jail. This is equivalent to running :command:`iocage get all <jail>`.
+The "getjailsettings" action lists settings that apply to the specified jail. This action supports 4 modes:
+
+* specify a property and a jail
+
+* specify a property and *-r* for all downloaded releases
+
+* specify *all* properties for the specified jail
+
+* specify the jail
+
+Here is an example of specifying the property and the jail:
 
 **REST Request**
 
@@ -394,127 +404,9 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
 
  PUT /sysadm/iocage
  {
-   "jail" : "testjail",
-   "action" : "getjailsettings"
- }
-
-**REST Response**
-
-.. code-block:: json
-
- {
-    "args": {
-        "getjailsettings": {
-            "testjail": {
-                "allow_chflags": "0",
-                "allow_mount": "0",
-                "allow_mount_devfs": "0",
-                "allow_mount_nullfs": "0",
-                "allow_mount_procfs": "0",
-                "allow_mount_tmpfs": "0",
-                "allow_mount_zfs": "0",
-                "allow_quotas": "0",
-                "allow_raw_sockets": "0",
-                "allow_set_hostname": "1",
-                "allow_socket_af": "0",
-                "allow_sysvipc": "0",
-                "boot": "off",
-                "bpf": "off",
-                "branch": "-",
-                "children_max": "0",
-                "coredumpsize": "off",
-                "count": "1",
-                "cpuset": "off",
-                "cputime": "off",
-                "datasize": "off",
-                "defaultrouter": "none",
-                "defaultrouter6": "none",
-                "devfs_ruleset": "4",
-                "dhcp": "off",
-                "enforce_statfs": "2",
-                "exec_clean": "1",
-                "exec_fib": "0",
-                "exec_jail_user": "root",
-                "exec_poststart": "/usr/bin/true",
-                "exec_poststop": "/usr/bin/true",
-                "exec_prestart": "/usr/bin/true",
-                "exec_prestop": "/usr/bin/true",
-                "exec_start": "/bin/sh /etc/rc",
-                "exec_stop": "/bin/sh /etc/rc.shutdown",
-                "exec_system_jail_user": "0",
-                "exec_system_user": "root",
-                "exec_timeout": "60",
-                "ftpdir": "-",
-                "ftpfiles": "-",
-                "ftphost": "-",
-                "ftplocaldir": "-",
-                "gitlocation": "https",
-                "hack88": "0",
-                "host_domainname": "none",
-                "host_hostname": "4bb3f929-c6bf-11e5-bbe9-fcaa14deb15d",
-                "host_hostuuid": "4bb3f929-c6bf-11e5-bbe9-fcaa14deb15d",
-                "hostid": "4145fbb8-c5b6-11e5-9f2f-fcaa14deb15d",
-                "interfaces": "vnet0",
-                "ip4": "new",
-                "ip4_addr": "none",
-                "ip4_autoend": "none",
-                "ip4_autostart": "none",
-                "ip4_autosubnet": "none",
-                "ip4_saddrsel": "1",
-                "ip6": "new",
-                "ip6_addr": "none",
-                "ip6_saddrsel": "1",
-                "istemplate": "no",
-                "jail_zfs": "off",
-                "jail_zfs_dataset": "iocage/jails/4ba5d76b-c6bf-11e5-bbe9-fcaa14deb15d/data",
-                "jail_zfs_mountpoint": "none",
-                "last_started": "none",
-                "login_flags": "-f root",
-                "maxproc": "off",
-                "memorylocked": "off",
-                "memoryuse": "8G",
-                "mount_devfs": "1",
-                "mount_fdescfs": "1",
-                "mount_linprocfs": "0",
-                "mount_procfs": "0",
-                "msgqqueued": "off",
-                "msgqsize": "off",
-                "nmsgq": "off",
-                "notes": "none",
-                "nsemop": "off",
-                "nshm": "off",
-                "nthr": "off",
-                "openfiles": "off",
-                "owner": "root",
-                "pcpu": "off",
-                "pkglist": "none",
-                "priority": "99",
-                "pseudoterminals": "off",
-                "release": "10.2-RELEASE",
-                "resolver": "none",
-                "rlimits": "off",
-                "securelevel": "2",
-                "shmsize": "off",
-                "stacksize": "off",
-                "start": "-",
-                "stop_timeout": "30",
-                "swapuse": "off",
-                "sync_stat": "-",
-                "sync_target": "none",
-                "sync_tgt_zpool": "none",
-                "tag": "testjail",
-                "template": "-",
-                "type": "basejail",
-                "vmemoryuse": "off",
-                "vnet": "off",
-                "vnet0_mac": "none",
-                "vnet1_mac": "none",
-                "vnet2_mac": "none",
-                "vnet3_mac": "none",
-                "wallclock": "off"
-            }
-        }
-    }
+   "jail" : "test",
+   "action" : "getjailsettings",
+   "prop" : "vnet"
  }
 
 **WebSocket Request**
@@ -522,23 +414,119 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
 .. code-block:: json
 
  {
-   "args" : {
-      "jail" : "testjail",
-      "action" : "getjailsettings"
-   },
-   "id" : "fooid",
    "name" : "iocage",
-   "namespace" : "sysadm"
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "args" : {
+      "prop" : "vnet",
+      "action" : "getjailsettings",
+      "jail" : "test"
+   }
  }
 
-**WebSocket Response**
+**Response**
 
 .. code-block:: json
 
  {
   "args": {
     "getjailsettings": {
-      "testjail": {
+      "test": {
+        "vnet": "off"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+Here is an example of using *-r* and a specifed property:
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "switches" : "-r",
+   "prop" : "vnet",
+   "action" : "getjailsettings"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "iocage",
+   "namespace" : "sysadm",
+   "args" : {
+      "prop" : "vnet",
+      "action" : "getjailsettings",
+      "switches" : "-r"
+   },
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "getjailsettings": {
+      "9b8e1033-d065-11e5-8209-d05099728dbf": {
+        "TAG": "test",
+        "vnet": "off"
+      },
+      "b67065a9-cfb9-11e5-8209-d05099728dbf": {
+        "TAG": "2016-02-09@23:47:04",
+        "vnet": "off"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+An example of specifying either *all* and a jail, or just specifying the jail, as both modes produce identical outputs:
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iocage
+ {
+   "jail" : "test",
+   "action" : "getjailsettings",
+   "prop" : "all"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "iocage",
+   "namespace" : "sysadm",
+   "args" : {
+      "jail" : "test",
+      "action" : "getjailsettings",
+      "prop" : "all"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "getjailsettings": {
+      "test": {
         "allow_chflags": "0",
         "allow_mount": "0",
         "allow_mount_devfs": "0",
@@ -551,15 +539,19 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
         "allow_set_hostname": "1",
         "allow_socket_af": "0",
         "allow_sysvipc": "0",
+        "available": "83.4G",
         "boot": "off",
         "bpf": "off",
         "branch": "-",
         "children_max": "0",
+        "compression": "lz4",
+        "compressratio": "2.27x",
         "coredumpsize": "off",
         "count": "1",
         "cpuset": "off",
         "cputime": "off",
         "datasize": "off",
+        "dedup": "off",
         "defaultrouter": "none",
         "defaultrouter6": "none",
         "devfs_ruleset": "4",
@@ -584,9 +576,9 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
         "gitlocation": "https",
         "hack88": "0",
         "host_domainname": "none",
-        "host_hostname": "4bb3f929-c6bf-11e5-bbe9-fcaa14deb15d",
-        "host_hostuuid": "4bb3f929-c6bf-11e5-bbe9-fcaa14deb15d",
-        "hostid": "4145fbb8-c5b6-11e5-9f2f-fcaa14deb15d",
+        "host_hostname": "9b8e1033-d065-11e5-8209-d05099728dbf",
+        "host_hostuuid": "9b8e1033-d065-11e5-8209-d05099728dbf",
+        "hostid": "a60db2df-3c0e-11e5-8986-d05099728dbf",
         "interfaces": "vnet0",
         "ip4": "new",
         "ip4_addr": "none",
@@ -599,9 +591,9 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
         "ip6_saddrsel": "1",
         "istemplate": "no",
         "jail_zfs": "off",
-        "jail_zfs_dataset": "iocage/jails/4ba5d76b-c6bf-11e5-bbe9-fcaa14deb15d/data",
+        "jail_zfs_dataset": "iocage/jails/9b7f1420-d065-11e5-8209-d05099728dbf/data",
         "jail_zfs_mountpoint": "none",
-        "last_started": "none",
+        "last_started": "2016-02-10_20",
         "login_flags": "-f root",
         "maxproc": "off",
         "memorylocked": "off",
@@ -610,6 +602,7 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
         "mount_fdescfs": "1",
         "mount_linprocfs": "0",
         "mount_procfs": "0",
+        "mountpoint": "/iocage/jails/9b8e1033-d065-11e5-8209-d05099728dbf",
         "msgqqueued": "off",
         "msgqsize": "off",
         "nmsgq": "off",
@@ -618,12 +611,15 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
         "nshm": "off",
         "nthr": "off",
         "openfiles": "off",
+        "origin": "-",
         "owner": "root",
         "pcpu": "off",
         "pkglist": "none",
         "priority": "99",
         "pseudoterminals": "off",
+        "quota": "none",
         "release": "10.2-RELEASE",
+        "reservation": "none",
         "resolver": "none",
         "rlimits": "off",
         "securelevel": "2",
@@ -635,9 +631,10 @@ The "getjailsettings" action lists all of the settings that apply to the specifi
         "sync_stat": "-",
         "sync_target": "none",
         "sync_tgt_zpool": "none",
-        "tag": "testjail",
+        "tag": "test",
         "template": "-",
         "type": "basejail",
+        "used": "1.76M",
         "vmemoryuse": "off",
         "vnet": "off",
         "vnet0_mac": "none",

@@ -330,7 +330,12 @@ void AuthorizationManager::ClearHostFail(QString host){
 }
 
 QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey){
-  qDebug() << "Decrypt String:" << "Length:" << encstring.length() << encstring;
+  //Convert from the base64 string back to a byte array
+  QByteArray enc;
+    enc.append(encstring);
+  enc = QByteArray::fromBase64(enc);
+  qDebug() << "Decrypt String:" << "Length:" << enc.length() << enc;
+  qDebug() << " - Base64:" << encstring;
   unsigned char decode[4098] = {};
   RSA *rsa= NULL;
   BIO *keybio = NULL;
@@ -340,10 +345,10 @@ QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey
   qDebug() << " - Read pubkey";
   rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
   qDebug() << " - Decrypt string";
-  bool ok = (-1 != RSA_public_decrypt(encstring.length(), (unsigned char*)(encstring.toLatin1().data()), decode, rsa, RSA_PKCS1_PADDING) );
+  bool ok = (-1 != RSA_public_decrypt(enc.length(), (unsigned char*)(enc.data()), decode, rsa, RSA_PKCS1_PADDING) );
   qDebug() <<" - Success:" << ok;
   if(!ok){ return ""; }
-  else{ return QString::fromLatin1( (char *)(decode) ).simplified(); }
+  else{ return QString::fromLatin1( (char*)(decode) ); }
 }
 
 /*
