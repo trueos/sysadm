@@ -10,4 +10,7 @@ SUBDIRS+= server
 rcd.path = /usr/local/etc/rc.d/
 rcd.extra = cp rc.d/* $(INSTALL_ROOT)/usr/local/etc/rc.d/
 
-INSTALLS += rcd
+conf.path = /usr/local/etc/
+conf.extra = cp conf/sysadm.conf ${INSTALL_ROOT}/usr/local/etc/sysadm.conf.dist
+
+INSTALLS += rcd conf

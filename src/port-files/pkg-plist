@@ -1,3 +1,4 @@
 bin/sysadm-server
+etc/sysadm.conf.dist
 etc/rc.d/sysadm
 etc/rc.d/sysadm-rest
