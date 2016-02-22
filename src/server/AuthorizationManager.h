@@ -55,7 +55,7 @@ private:
 	}
 	
 	//SSL Decrypt function
-	QString DecryptSSLString(QString encstring, QString pubkey);
+	bool CheckSSLString(QString encstring, QString pubkey, QString realstring);
 
 	//PAM login/check files
 	bool pam_checkPW(QString user, QString pass);
