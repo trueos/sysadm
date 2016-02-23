@@ -11,7 +11,7 @@
 #include "WebServer.h"
 
 #define CONFFILE "/usr/local/etc/sysadm.conf"
-#define SETTINGSFILE "/usr/local/etc/.sysadm-internal.ini"
+#define SETTINGSFILE "/var/db/sysadm.ini"
 
 #define DEBUG 0
 
