@@ -47,12 +47,14 @@ void EventWatcher::start(){
 EventWatcher::EVENT_TYPE EventWatcher::typeFromString(QString typ){
   if(typ=="dispatcher"){ return DISPATCHER; }
   else if(typ=="life-preserver"){ return LIFEPRESERVER; }
+  else if(typ=="system-state"){ return SYSSTATE; }
   else{ return BADEVENT; }
 }
 
 QString EventWatcher::typeToString(EventWatcher::EVENT_TYPE typ){
   if(typ==DISPATCHER){ return "dispatcher"; }
   else if(typ==LIFEPRESERVER){ return "life-preserver"; }
+  else if(typ==SYSSTATE){ return "system-state"; }
   else{ return ""; }
 }
 
@@ -384,6 +386,6 @@ void EventWatcher::CheckSystemState(){
 
   // Log and send out event
   LogManager::log(LogManager::EV_STATE, obj);
-  emit NewEvent(STATE, obj);
+  emit NewEvent(SYSSTATE, obj);
 }
 

@@ -17,7 +17,7 @@ class EventWatcher : public QObject{
 	Q_OBJECT
 public:
 	//Add more event types here as needed
-	enum EVENT_TYPE{ BADEVENT, DISPATCHER, LIFEPRESERVER, STATE};
+	enum EVENT_TYPE{ BADEVENT, DISPATCHER, LIFEPRESERVER, SYSSTATE};
 	
 	EventWatcher();
 	~EventWatcher();
