@@ -134,7 +134,7 @@ do
 
   # Create the makesums / distinfo file
   cd "${portsdir}/$tdir"
-  make makesum
+  make makesum PORTSDIR=${portsdir}
   if [ $? -ne 0 ] ; then
     echo "Failed makesum"
     exit 1
