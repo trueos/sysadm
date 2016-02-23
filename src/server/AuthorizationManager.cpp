@@ -29,7 +29,7 @@
 // -- token management
 #define TIMEOUTSECS 900 // (15 minutes) time before a token becomes invalid
 #define AUTHCHARS QString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
-#define TOKENLENGTH 20
+#define TOKENLENGTH 40
 
 // -- Connection failure limitations
 //#define AUTHFAILLIMIT 5 //number of sequential failures before IP is blocked for a time
@@ -213,7 +213,7 @@ QString AuthorizationManager::GenerateEncCheckString(){
 QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
   //Login w/  SSL certificate
   bool ok = false;
-  qDebug() << "SSL Auth Attempt";
+  //qDebug() << "SSL Auth Attempt";
     //First clean out any old strings/keys
     QStringList pubkeys = QStringList(HASH.keys()).filter("SSL_CHECK_STRING/"); //temporary, re-use variable below
     for(int i=0; i<pubkeys.length(); i++){ 
@@ -231,7 +231,7 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
     //qDebug() << " - Check pubkeys";// << pubkeys;
     for(int i=0; i<pubkeys.length() && !ok; i++){
       //Decrypt the string with this pubkey - and compare to the outstanding initstrings
-      QString key = DecryptSSLString(encstring, pubkeys[i].section("/",2,50000));
+      QString key = DecryptSSLString(encstring, pubkeys[i].section("/",2,-1));
       if(HASH.contains("SSL_CHECK_STRING/"+key)){
         //Valid reponse found
 	//qDebug() << " - Found Valid Key";
@@ -243,7 +243,7 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
     }
   bool isOperator = false;    
   if(ok){
-    qDebug() << "Check user groups";
+    //qDebug() << "Check user groups";
     //First check that the user is valid on the system and part of the operator group
     if(user!="root" && user!="toor"){
       QStringList groups = getUserGroups(user);
@@ -339,20 +339,23 @@ QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey
   QByteArray pkey;
     pkey.append(pubkey);
   pkey = QByteArray::fromBase64(pkey);
-  //Now star the SSL routine
-  qDebug() << "Decrypt String:" << "Length:" << enc.length() << enc;
-  qDebug() << " - Base64:" << encstring;
+  //Now start the SSL routine
+  /*qDebug() << "Decrypt String:" << "Length:" << enc.length() << enc;
+  qDebug() << " - Base64:" << encstring << "Length:" << encstring.length();
+  qDebug() << " - pubkey (base64):" << pubkey << "Length:" << pubkey.length();
+  qDebug() << " - pubkey:" << pkey << "Length:" << pkey.length();*/
   unsigned char decode[4098] = {};
   RSA *rsa= NULL;
   BIO *keybio = NULL;
-  qDebug() << " - Generate keybio";
+  //qDebug() << " - Generate keybio";
   keybio = BIO_new_mem_buf(pkey.data(), -1);
   if(keybio==NULL){ return ""; }
-  qDebug() << " - Read pubkey";
+  //qDebug() << " - Read pubkey";
   rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
-  qDebug() << " - Decrypt string";
+  if(rsa==NULL){ qDebug() << " - Invalid RSA key!!"; return ""; }
+  //qDebug() << " - Decrypt string";
   bool ok = (-1 != RSA_public_decrypt(enc.length(), (unsigned char*)(enc.data()), decode, rsa, RSA_PKCS1_PADDING) );
-  qDebug() <<" - Success:" << ok;
+  //qDebug() <<" - Success:" << ok;
   if(!ok){ return ""; }
   else{ return QString::fromLatin1( (char*)(decode) ); }
 }
