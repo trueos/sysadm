@@ -29,9 +29,7 @@
 // -- token management
 #define TIMEOUTSECS 900 // (15 minutes) time before a token becomes invalid
 #define AUTHCHARS QString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
-#define TOKENLENGTH 128
-
-#define DEBUG 1
+#define TOKENLENGTH 20
 
 // -- Connection failure limitations
 //#define AUTHFAILLIMIT 5 //number of sequential failures before IP is blocked for a time
@@ -208,7 +206,6 @@ QString AuthorizationManager::GenerateEncCheckString(){
     //insert this new key into the hash for later
     HASH.insert("SSL_CHECK_STRING/"+key, QDateTime::currentDateTime().addSecs(30) ); //only keep a key "alive" for 30 seconds
   }
-  if(DEBUG){ qDebug() << "SSL Check String Generated:" << key; }
   return key;
 }
 
@@ -231,16 +228,17 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
     //Now re-use the "pubkeys" variable for the public SSL keys
     QString user;
     pubkeys = CONFIG->allKeys().filter("RegisteredCerts/"); //Format: "RegisteredCerts/<user>/<key>"
-    QStringList kkeys = HASH.keys().filter("SSL_CHECK_STRING/");
     //qDebug() << " - Check pubkeys";// << pubkeys;
     for(int i=0; i<pubkeys.length() && !ok; i++){
       //Decrypt the string with this pubkey - and compare to the outstanding initstrings
-      for(int j=0; j<kkeys.length() && !ok; j++){
-        ok = CheckSSLString(encstring, pubkeys[i].section("/",2,-1), kkeys[j].section("/",1,-1));
-	if(ok){ 
-	  HASH.remove(kkeys[j]);
-	  user = pubkeys[i].section("/",1,1);
-	}
+      QString key = DecryptSSLString(encstring, pubkeys[i].section("/",2,50000));
+      if(HASH.contains("SSL_CHECK_STRING/"+key)){
+        //Valid reponse found
+	//qDebug() << " - Found Valid Key";
+        ok = true;
+        //Remove the initstring from the hash (already used)
+        HASH.remove("SSL_CHECK_STRING/"+key);
+        user = pubkeys[i].section("/",1,1);
       }
     }
   bool isOperator = false;    
@@ -333,23 +331,18 @@ void AuthorizationManager::ClearHostFail(QString host){
   for(int i=0; i<keys.length(); i++){ IPFAIL.remove(keys[i]); }
 }
 
-bool AuthorizationManager::CheckSSLString(QString encstring, QString pubkey, QString realstring){
+QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey){
   //Convert from the base64 string back into byte array
   QByteArray enc;
     enc.append(encstring);
-    qDebug() << "Enc byte length:" << enc.length() << "ENC:" << enc;
   enc = QByteArray::fromBase64(enc);
-    qDebug() <<" Non-Base64:" << enc;
   QByteArray pkey;
     pkey.append(pubkey);
   pkey = QByteArray::fromBase64(pkey);
-  QByteArray rkey;
-    rkey.append(realstring);
-  qDebug() << "Public Key:" << pkey;
-  //Now start the SSL routine
-  qDebug() << "Decrypt String:" << "Length:" << QString(enc).length() << QString(enc);
-  qDebug() << " - Base64:" << encstring << "Length:" << encstring.length();
-  //unsigned char decode[20000] = {};
+  //Now star the SSL routine
+  qDebug() << "Decrypt String:" << "Length:" << enc.length() << enc;
+  qDebug() << " - Base64:" << encstring;
+  unsigned char decode[4098] = {};
   RSA *rsa= NULL;
   BIO *keybio = NULL;
   qDebug() << " - Generate keybio";
@@ -357,17 +350,11 @@ bool AuthorizationManager::CheckSSLString(QString encstring, QString pubkey, QSt
   if(keybio==NULL){ return ""; }
   qDebug() << " - Read pubkey";
   rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
-  if(rsa==NULL){ qDebug() << " - Error generating RSA key"; return false; }
-  //Now get the real hash of the realstring
-  unsigned char *sign = (unsigned char*)(enc.data());
-  unsigned int signLen = 256;
-  QByteArray hash = QCryptographicHash::hash(rkey, QCryptographicHash::Sha256);
-  qDebug() << "Verify key";
-  bool ok = (1==RSA_verify(NID_sha256, (unsigned char*)(hash.data()), SHA256_DIGEST_LENGTH, sign, signLen, rsa) );
-  /*qDebug() << " - Decrypt string";
-  bool ok = (-1 != RSA_public_decrypt(RSA_size(rsa)-11, (unsigned char*)(enc.data()), decode, rsa, RSA_PKCS1_PADDING) );*/
+  qDebug() << " - Decrypt string";
+  bool ok = (-1 != RSA_public_decrypt(enc.length(), (unsigned char*)(enc.data()), decode, rsa, RSA_PKCS1_PADDING) );
   qDebug() <<" - Success:" << ok;
-  return ok;
+  if(!ok){ return ""; }
+  else{ return QString::fromLatin1( (char*)(decode) ); }
 }
 
 /*
