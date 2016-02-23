@@ -354,10 +354,9 @@ QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey
   rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
   if(rsa==NULL){ qDebug() << " - Invalid RSA key!!"; return ""; }
   //qDebug() << " - Decrypt string";
-  bool ok = (-1 != RSA_public_decrypt(enc.length(), (unsigned char*)(enc.data()), decode, rsa, RSA_PKCS1_PADDING) );
-  //qDebug() <<" - Success:" << ok;
-  if(!ok){ return ""; }
-  else{ return QString::fromLatin1( (char*)(decode) ); }
+  int len = RSA_public_decrypt(enc.length(), (unsigned char*)(enc.data()), decode, rsa, RSA_PKCS1_PADDING);
+  if(len<0){ return ""; }
+  else{ return QString( QByteArray( (char*)(decode), len) ); }
 }
 
 /*
