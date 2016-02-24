@@ -48,7 +48,7 @@ sysadm_start()
   ssl_keygen
   echo "Starting sysadm..."
   command="/usr/local/bin/sysadm-server"
-  daemon -p /var/run/sysadm.pid $command $flags >/dev/null 2>/dev/null
+  daemon -r -p /var/run/sysadm.pid $command $flags >/dev/null 2>/dev/null
   chmod 744 /var/run/sysadm.pid >/dev/null 2>/dev/null
 }
 
