@@ -44,8 +44,10 @@ AuthorizationManager::~AuthorizationManager(){
 
 // == Token Interaction functions ==
 void AuthorizationManager::clearAuth(QString token){
+  if(token.isEmpty() || token.length() < TOKENLENGTH){ return; } //not a valid token
   //clear an authorization token
   QString id = hashID(token);
+  qDebug() << "Clear Auth:" << id;
   if(!id.isEmpty()){ HASH.remove(id); }
 }
 
@@ -78,7 +80,7 @@ bool AuthorizationManager::RegisterCertificate(QString token, QString pubkey, QS
   if(!checkAuth(token)){ return false; }
   QString user = hashID(token).section("::::",2,2); //get the user name from the currently-valid token
   //NOTE: The public key should be a base64 encoded string
-  CONFIG->setValue("RegisteredCerts/"+user+"/"+pubkey, "[nickname]"+nickname+"[email]"+email+"[registertime]"+QDateTime::currentDateTime().toString(Qt::ISODate) );
+  CONFIG->setValue("RegisteredCerts/"+user+"/"+pubkey, "Nickname: "+nickname+"\nEmail: "+email+"\nDate Registered: "+QDateTime::currentDateTime().toString(Qt::ISODate) );
   return true;
 }
 
@@ -101,10 +103,12 @@ void AuthorizationManager::ListCertificates(QString token, QJsonObject *out){
   if( hasFullAccess(token) ){ 
     //Read all user's certs
     keys = CONFIG->allKeys().filter("RegisteredCerts/");
+    //qDebug() << "Found SSL Keys to List:" << keys;
   }else{
     //Only list certs for current user
     QString cuser = hashID(token).section("::::",2,2);
     keys = CONFIG->allKeys().filter("RegisteredCerts/"+cuser+"/");
+    //qDebug() << "Found SSL Keys to List:" << keys;
   }
   keys.sort();
   //Now put the known keys into the output structure arranged by username/key
@@ -116,19 +120,7 @@ void AuthorizationManager::ListCertificates(QString token, QJsonObject *out){
     }
     QString info = CONFIG->value(keys[i]).toString();
     QString key = keys[i].section("/",2,-1);//just in case the key has additional "/" in it
-    int start = info.indexOf("[",0);
-    while(start>=0){
-      int end = info.indexOf("]",start);
-      if(end<start){ break; } //no more found
-      QString var = info.mid(start+1, end-start-2);
-      //Now find the next starting point, and everything between there is the value
-      start = info.indexOf("[",end);
-      QString val;
-      if(start<0){ val = info.mid(end+1,-1); } //eveything left
-      else{ val = info.mid(end+1, start-end-2); } //everything between these two sections
-      user.insert(key+"/"+var, val);
-    }
-    if(user.isEmpty() && !info.isEmpty()){ user.insert(key,info); } //old-style information?
+    user.insert(key,info);
   }
   if(!user.isEmpty() && !username.isEmpty()){ out->insert(username, user); }
 }
@@ -297,6 +289,7 @@ QString AuthorizationManager::generateNewToken(bool isOp, QString user){
     //unique token created - add it to the hash with the current time (+timeout)
     QString id = tok + "::::"+(isOp ? "operator" : "user")+"::::"+user; //append operator status to auth key
     HASH.insert(id, QDateTime::currentDateTime().addSecs(TIMEOUTSECS) );
+    qDebug() << "Current HASH Contents:" << HASH.keys();
   }
   return tok;
 }
