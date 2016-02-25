@@ -31,10 +31,6 @@
 #define AUTHCHARS QString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
 #define TOKENLENGTH 40
 
-// -- Connection failure limitations
-//#define AUTHFAILLIMIT 5 //number of sequential failures before IP is blocked for a time
-//#define FAILOVERMINS 10 //after this many minutes without a new login attempt the failure count will reset
-
 AuthorizationManager::AuthorizationManager() : QObject(){
   HASH.clear();
   IPFAIL.clear();
@@ -82,7 +78,7 @@ bool AuthorizationManager::RegisterCertificate(QString token, QString pubkey, QS
   if(!checkAuth(token)){ return false; }
   QString user = hashID(token).section("::::",2,2); //get the user name from the currently-valid token
   //NOTE: The public key should be a base64 encoded string
-  CONFIG->setValue("RegisteredCerts/"+user+"/"+pubkey, "Nickname: "+nickname+", Email: "+email);
+  CONFIG->setValue("RegisteredCerts/"+user+"/"+pubkey, "[nickname]"+nickname+"[email]"+email+"[registertime]"+QDateTime::currentDateTime().toString(Qt::ISODate) );
   return true;
 }
 
@@ -118,7 +114,21 @@ void AuthorizationManager::ListCertificates(QString token, QJsonObject *out){
       if(!user.isEmpty()){ out->insert(username, user); user = QJsonObject(); } //save the current info to the output
       username = keys[i].section("/",1,1); //save the new username for later
     }
-    user.insert(keys[i].section("/",2,3000), CONFIG->value(keys[i]).toString() ); //just in case the key has additional "/" in it
+    QString info = CONFIG->value(keys[i]).toString();
+    QString key = keys[i].section("/",2,-1);//just in case the key has additional "/" in it
+    int start = info.indexOf("[",0);
+    while(start>=0){
+      int end = info.indexOf("]",start);
+      if(end<start){ break; } //no more found
+      QString var = info.mid(start+1, end-start-2);
+      //Now find the next starting point, and everything between there is the value
+      start = info.indexOf("[",end);
+      QString val;
+      if(start<0){ val = info.mid(end+1,-1); } //eveything left
+      else{ val = info.mid(end+1, start-end-2); } //everything between these two sections
+      user.insert(key+"/"+var, val);
+    }
+    if(user.isEmpty() && !info.isEmpty()){ user.insert(key,info); } //old-style information?
   }
   if(!user.isEmpty() && !username.isEmpty()){ out->insert(username, user); }
 }
