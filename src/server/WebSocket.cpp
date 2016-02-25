@@ -54,11 +54,11 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
 
 WebSocket::~WebSocket(){
   //qDebug() << "SOCKET Destroyed";
-  if(SOCKET!=0){
+  if(SOCKET!=0 && SOCKET->isValid()){
     SOCKET->close();
     delete SOCKET;
   }
-  if(TSOCKET!=0){
+  if(TSOCKET!=0 && TSOCKET->isValid()){
     TSOCKET->close();
     delete TSOCKET;
   }
@@ -128,8 +128,8 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
   RestOutputStruct out;
     out.in_struct = REQ;
   QHostAddress host;
-    if(SOCKET!=0){ host = SOCKET->peerAddress(); }
-    else if(TSOCKET!=0){ host = TSOCKET->peerAddress(); }
+    if(SOCKET!=0 && SOCKET->isValid()){ host = SOCKET->peerAddress(); }
+    else if(TSOCKET!=0 && TSOCKET->isValid()){ host = TSOCKET->peerAddress(); }
   if(!REQ.VERB.isEmpty() && REQ.VERB != "GET" && REQ.VERB!="POST" && REQ.VERB!="PUT"){
     //Non-supported request (at the moment) - return an error message
     out.CODE = RestOutputStruct::BADREQUEST;
@@ -150,7 +150,7 @@ if(out.in_struct.namesp.toLower() == "rpc"){
     //Now perform authentication based on type of auth given
     //Note: This sets/changes the current SockAuthToken
     AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
-    if(DEBUG){ qDebug() << "Authenticate Peer:" << SOCKET->peerAddress().toString(); }
+    if(DEBUG){ qDebug() << "Authenticate Peer:" << host; }
     //Now do the auth
     if(out.in_struct.name=="auth" && out.in_struct.args.isObject() ){
 	    //username/[password/cert] authentication
@@ -265,7 +265,7 @@ if(out.in_struct.namesp.toLower() == "rpc"){
   }
   //Return any information
   this->sendReply(out.assembleMessage());
-  if(out.CODE == RestOutputStruct::FORBIDDEN && SOCKET!=0){
+  if(out.CODE == RestOutputStruct::FORBIDDEN && SOCKET!=0 && SOCKET->isValid()){
     SOCKET->close(QWebSocketProtocol::CloseCodeNormal, "Too Many Authorization Failures - Try again later");
   }
 }
@@ -303,11 +303,11 @@ QStringList WebSocket::JsonArrayToStringList(QJsonArray array){
 //       PRIVATE SLOTS
 // =====================
 void WebSocket::checkIdle(){
-  if(SOCKET !=0){
+  if(SOCKET !=0 && SOCKET->isValid()){
     LogManager::log(LogManager::HOST,"Connection Idle: "+SockPeerIP);
     SOCKET->close(); //timeout - close the connection to make way for others
   }
-  if(TSOCKET !=0){
+  else if(TSOCKET !=0 && TSOCKET->isValid() ){
     LogManager::log(LogManager::HOST,"Connection Idle: "+SockPeerIP);
     TSOCKET->close(); //timeout - close the connection to make way for others
   }

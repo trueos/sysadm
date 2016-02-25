@@ -91,7 +91,7 @@ void DProcess::cmdFinished(int ret, QProcess::ExitStatus status){
 // Dispatcher Class
 // ================================
 Dispatcher::Dispatcher(){
-  connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, QString, QStringList)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, QString, QStringList)) );
+  connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, DProcess*)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)) );
 }
 
 Dispatcher::~Dispatcher(){
