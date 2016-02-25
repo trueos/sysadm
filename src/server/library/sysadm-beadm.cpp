@@ -32,8 +32,8 @@ QJsonObject BEADM::listBEs() {
     QString beActive = line.section(" ", 1, 1);
     QString beMount = line.section(" ", 2, 2);
     QString beSpace = line.section(" ", 3, 3);
-    QString beDate = line.section(" ", 4, 4);
-    QString beNick = line.section(" ", 5, 5);
+    QString beDate = line.section(" ", 4, 5);
+    QString beNick = line.section(" ", 6, 6);
 
     QJsonObject vals;
     vals.insert("active", beActive);
