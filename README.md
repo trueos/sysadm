@@ -41,11 +41,11 @@ Qt5 Websockets (pkg install qt5-websockets)
 
 ```
 (For WebSockets - Required for SysAdm Client)
-% sudo sysrc -f /etc/rc.conf sysadm_websocket_enable="YES"
+% sudo sysrc -f /etc/rc.conf sysadm_enable="YES"
 % sudo service sysadm-websocket start
 
 (Optional for REST)
-% sudo sysrc -f /etc/rc.conf sysadm_restserver_enable="YES"
+% sudo sysrc -f /etc/rc.conf sysadm_rest_enable="YES"
 % sudo service sysadm-restserver start
 ```
 
