@@ -18,7 +18,8 @@
 Official repo for PC-BSD's sysadm middleware WebSocket & REST server
 
 This middleware acts as the core for controlling a PC-BSD or FreeBSD <br />
-system either locally or remotely via WebSockets or REST.
+system either locally or remotely via WebSockets or REST. It is also the <br />
+server component to [PC-BSD's SysAdm GUI client](https://github.com/pcbsd/sysadm-ui-qt).
 
 ### Required Qt Modules
 
