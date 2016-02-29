@@ -10,13 +10,11 @@
 // Iohyve Fetch is done
 void WebSocket::slotIohyveFetchDone(QString id, int retcode, QString log)
 {
-
-
+  //qDebug() << "Fetch Done" << id << retcode << log;
 }
 
 // Iohyve Fetch has output to read
 void WebSocket::slotIohyveFetchProcessOutput(QString output)
 {
-
-
+  //qDebug() << "Fetch Do" << output;
 }
