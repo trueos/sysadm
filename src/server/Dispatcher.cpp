@@ -14,6 +14,7 @@ DProcess::DProcess(QObject *parent) : QProcess(parent){
     //Setup the process
     this->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
     this->setProcessChannelMode(QProcess::MergedChannels);
+    connect(this, SIGNAL(readyRead()), this, SLOT(updateLog()) );
 }
 
 DProcess::~DProcess(){
@@ -87,6 +88,9 @@ void DProcess::cmdFinished(int ret, QProcess::ExitStatus status){
   }
 }
 
+void DProcess::updateLog(){
+  emit ProcessOutput(getProcLog());
+}
 // ================================
 // Dispatcher Class
 // ================================
