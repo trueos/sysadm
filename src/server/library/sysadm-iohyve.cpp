@@ -61,6 +61,7 @@ QJsonObject Iohyve::fetchISO(QJsonObject jsin, DProcess *returnproc) {
 
   // Queue the fetch action
   returnproc = DISPATCHER->queueProcess(ID, "iohyve fetch " + url);
+  qDebug() << "returnproc" << returnproc;
 
   // Return some details to user that the action was queued
   retObject.insert("command", "iohyve fetch " + url);
