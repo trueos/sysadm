@@ -7,6 +7,7 @@
 
 #include "globals.h"
 
+
 // ================================
 //  DProcess Class (Internal)
 // ================================
@@ -95,6 +96,7 @@ void DProcess::updateLog(){
 // Dispatcher Class
 // ================================
 Dispatcher::Dispatcher(){
+  qRegisterMetaType<Dispatcher::PROC_QUEUE>("Dispatcher::PROC_QUEUE");
   connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, DProcess*)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)) );
 }
 
@@ -127,8 +129,8 @@ DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QSt
   //For multi-threading, need to emit a signal/slot for this action (object creations need to be in same thread as parent)
   qDebug() << "Queue Process:" << queue << ID << cmds;
   DProcess *P = createProcess(ID, cmds);
-  connect(this, SIGNAL(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)) );
-  emit mkProcs(queue, P);
+  //connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, DProcess*)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)) );
+  emit mkprocs(queue, P);
   return P;
 }
 
