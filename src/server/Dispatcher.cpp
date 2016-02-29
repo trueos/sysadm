@@ -41,7 +41,7 @@ void DProcess::startProc(){
     connect(this, SIGNAL(error(QProcess::ProcessError)), this, SLOT(cmdError(QProcess::ProcessError)) );
   } 
   proclog.append("[Running Command: "+cmd+" ]");
-  qDebug() << "Proc Starting:" << ID << cmd;
+  //qDebug() << "Proc Starting:" << ID << cmd;
   this->start(cmd);
 }
 
@@ -146,15 +146,12 @@ DProcess* Dispatcher::createProcess(QString ID, QStringList cmds){
 
 // === PRIVATE SLOTS ===
 void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, DProcess *P){
-  qDebug() << "mkProcs()"; 
-  //DProcess *P = createProcess(ID, cmds);
+  //qDebug() << "mkProcs()"; 
   //P->moveToThread(this->thread());
   connect(P, SIGNAL(ProcFinished(QString)), this, SLOT(ProcFinished(QString)) );
   QList<DProcess*> list;
   if(!HASH.contains(queue)){ HASH.insert(queue, list); } //insert an empty list
   HASH[queue] << P; //add this proc to the end of the list
-  //if(queue==NO_QUEUE || HASH[queue].length()==1){ P->startProc(); } //go ahead and start it now	
-  //QTimer::singleShot(20,this, SLOT(CheckQueues()) );
   CheckQueues();
 }
 
