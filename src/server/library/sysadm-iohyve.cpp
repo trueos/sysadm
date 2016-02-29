@@ -44,7 +44,7 @@ QJsonObject Iohyve::createGuest(QJsonObject jsin) {
 }
 
 // Queue the fetch of an ISO
-QJsonObject Iohyve::fetchISO(QJsonObject jsin) {
+QJsonObject Iohyve::fetchISO(QJsonObject jsin, DProcess *returnproc) {
   QJsonObject retObject;
 
   QStringList keys = jsin.keys();
@@ -60,7 +60,7 @@ QJsonObject Iohyve::fetchISO(QJsonObject jsin) {
   QString ID = QUuid::createUuid().toString();
 
   // Queue the fetch action
-  DISPATCHER->queueProcess(ID, "iohyve fetch " + url);
+  returnproc = DISPATCHER->queueProcess(ID, "iohyve fetch " + url);
 
   // Return some details to user that the action was queued
   retObject.insert("command", "iohyve fetch " + url);

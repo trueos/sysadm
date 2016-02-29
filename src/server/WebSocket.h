@@ -79,6 +79,10 @@ private slots:
 	void nowEncrypted(); //the socket/connection is now encrypted
 	void peerError(const QSslError&); //peerVerifyError() signal
 	void SslError(const QList<QSslError>&); //sslErrors() signal
+
+	// Library Slots
+	void slotIohyveFetchDone(QString, int, QString);
+	void slotIohyveFetchReadyRead();
 	
 public slots:
 	void EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue = QJsonValue() );

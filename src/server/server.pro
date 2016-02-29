@@ -19,6 +19,7 @@ SOURCES	+= main.cpp \
 		WebServer.cpp \
 		WebSocket.cpp \
 		WebBackend.cpp \
+		WebBackendSlots.cpp \
 		syscache-client.cpp \
 		AuthorizationManager.cpp \
 		EventWatcher.cpp \
