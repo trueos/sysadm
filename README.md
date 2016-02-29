@@ -18,7 +18,8 @@
 Official repo for PC-BSD's sysadm middleware WebSocket & REST server
 
 This middleware acts as the core for controlling a PC-BSD or FreeBSD <br />
-system either locally or remotely via WebSockets or REST.
+system either locally or remotely via WebSockets or REST. It is also the <br />
+server component to [PC-BSD's SysAdm GUI client](https://github.com/pcbsd/sysadm-ui-qt).
 
 ### Required Qt Modules
 
@@ -41,12 +42,12 @@ Qt5 Websockets (pkg install qt5-websockets)
 
 ```
 (For WebSockets - Required for SysAdm Client)
-% sudo sysrc -f /etc/rc.conf sysadm_websocket_enable="YES"
-% sudo service sysadm-websocket start
+% sudo sysrc -f /etc/rc.conf sysadm_enable="YES"
+% sudo service sysadm start
 
 (Optional for REST)
-% sudo sysrc -f /etc/rc.conf sysadm_restserver_enable="YES"
-% sudo service sysadm-restserver start
+% sudo sysrc -f /etc/rc.conf sysadm_rest_enable="YES"
+% sudo service sysadm-rest start
 ```
 
 ### API Documentation
