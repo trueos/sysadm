@@ -39,9 +39,13 @@ private:
 private slots:
 	void cmdError(QProcess::ProcessError);
 	void cmdFinished(int, QProcess::ExitStatus);
+	void updateLog(); //readyRead() signal
+
 
 signals:
 	void ProcFinished(QString); //ID
+	//Generic signals for subsystem usage (no direct proc access later)
+	void ProcessOutput(QString);
 	void Finished(QString, int, QString); //ID, retcode, log
 };
 	
