@@ -82,7 +82,7 @@ private slots:
 
 	// Library Slots
 	void slotIohyveFetchDone(QString, int, QString);
-	void slotIohyveFetchReadyRead();
+	void slotIohyveFetchProcessOutput(QString);
 	
 public slots:
 	void EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue = QJsonValue() );
