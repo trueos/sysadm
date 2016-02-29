@@ -47,7 +47,7 @@ void AuthorizationManager::clearAuth(QString token){
   if(token.isEmpty() || token.length() < TOKENLENGTH){ return; } //not a valid token
   //clear an authorization token
   QString id = hashID(token);
-  qDebug() << "Clear Auth:" << id;
+  //qDebug() << "Clear Auth:" << id;
   if(!id.isEmpty()){ HASH.remove(id); }
 }
 
@@ -289,7 +289,7 @@ QString AuthorizationManager::generateNewToken(bool isOp, QString user){
     //unique token created - add it to the hash with the current time (+timeout)
     QString id = tok + "::::"+(isOp ? "operator" : "user")+"::::"+user; //append operator status to auth key
     HASH.insert(id, QDateTime::currentDateTime().addSecs(TIMEOUTSECS) );
-    qDebug() << "Current HASH Contents:" << HASH.keys();
+    //qDebug() << "Current HASH Contents:" << HASH.keys();
   }
   return tok;
 }

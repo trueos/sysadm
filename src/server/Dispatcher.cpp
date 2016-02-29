@@ -41,7 +41,7 @@ void DProcess::startProc(){
     connect(this, SIGNAL(error(QProcess::ProcessError)), this, SLOT(cmdError(QProcess::ProcessError)) );
   } 
   proclog.append("[Running Command: "+cmd+" ]");
-  //qDebug() << "Proc Starting:" << ID << cmd;
+  qDebug() << "Proc Starting:" << ID << cmd;
   this->start(cmd);
 }
 
@@ -138,18 +138,18 @@ DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QSt
 //Simplification routine for setting up a process
 DProcess* Dispatcher::createProcess(QString ID, QStringList cmds){
   DProcess *P = new DProcess();
-    //P->moveToThread(this->thread());
+    P->moveToThread(this->thread());
     P->cmds = cmds;
     P->ID = ID;
-    connect(P, SIGNAL(ProcFinished(QString)), this, SLOT(ProcFinished(QString)) );
   return P;
 }
 
 // === PRIVATE SLOTS ===
 void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, DProcess *P){
-  //qDebug() << " - Create Process:" << queue << ID << cmds;
+  qDebug() << "mkProcs()"; 
   //DProcess *P = createProcess(ID, cmds);
-  P->moveToThread(this->thread());
+  //P->moveToThread(this->thread());
+  connect(P, SIGNAL(ProcFinished(QString)), this, SLOT(ProcFinished(QString)) );
   QList<DProcess*> list;
   if(!HASH.contains(queue)){ HASH.insert(queue, list); } //insert an empty list
   HASH[queue] << P; //add this proc to the end of the list
@@ -208,8 +208,10 @@ for(int i=0; i<enum_length; i++){
 	    j--;
 	  }else{
 	    //Need to start this one - has not run yet
+	    qDebug() << "Call Start Proc:" << list[j]->ID;
 	    emit DispatchStarting(list[j]->ID);
-	    QTimer::singleShot(0,list[j], SLOT(startProc()) );
+	    list[j]->startProc();
+	    //QTimer::singleShot(0,list[j], SLOT(startProc()) );
 	  }
 	}
       } //end loop over list
