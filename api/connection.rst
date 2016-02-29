@@ -13,10 +13,6 @@ Add some links to docs on websockets and json....
 Authentication
 ==============
 
-Describe how to authenticate to websockets via Local / Remote, local connections do not need username / password...
-
-
-
 Once a websocket connection is made to the server, the client needs to use the authentication class to authenticate itself to obtain access to the sysadm service. Every authentciation class
 request contains the following parameters:
 
@@ -39,6 +35,7 @@ request contains the following parameters:
 
 
 Several methods are available for authentication. Here is an example of a login using a username and password:
+(Note: When connecting to the localhost, the password field may be left empty for non-root user access).
 
 **WebSocket Request**
 
@@ -69,6 +66,50 @@ Here is an example of using token authentication, where the token is invalidated
           }
   }
 
+Here is an example of using a pre-registered SSL certificate to request authentication:
+(Note: This is a two step process with only a 30 seconds window of validity, so this is best left up to automated systems rather than direct user requests).
+
+**WebSocket Request (Stage 1 - Initial Request)**
+
+.. code-block:: json
+
+  {
+  "namespace" : "rpc",
+  "name" : "auth_ssl",
+  "id" : "sampleID",
+  "args" : ""
+  }
+..  
+**WebSocket Reply (Stage 1)**
+
+.. code-block:: json
+
+  {
+    "args": {
+        "test_string" : "<some random plaintext string of letters/numbers>"
+    },
+    "id": "sampleID",
+    "name": "response",
+    "namespace": "rpc"
+  }
+..
+
+On receipt of the test_string, the user-side client must encrypt that string with the desired SSL certificate/key combination, then return that encrypted string back to the server (Stage 2) within 30 seconds of the initial stage 1 reply. The encrypted string should also be base64-encoded before insertion into the stage 2 JSON request to ensure accurate transport back to the server.
+
+**WebSocket Request (Stage 2 - Return encoded string)**
+
+.. code-block:: json
+
+  {
+  "namespace" : "rpc",
+  "name" : "auth_ssl",
+  "id" : "sampleID",
+  "args" : {
+        "encrypted_string" : "<base64-encoded string>"
+    }
+  }
+.. 
+  
 A successful authentication will provide a reply similar to this:
 
 **WebSocket Reply**
