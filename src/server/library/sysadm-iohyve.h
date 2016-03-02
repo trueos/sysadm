@@ -20,6 +20,7 @@ public:
 	static QJsonObject installGuest(QJsonObject);
 	static QJsonObject isSetup();
 	static QJsonObject listVMs();
+	static QJsonArray listISOs();
 	static QJsonObject renameISO(QJsonObject);
 	static QJsonObject rmISO(QJsonObject);
 	static QJsonObject setupIohyve(QJsonObject);

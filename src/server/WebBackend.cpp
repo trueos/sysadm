@@ -584,42 +584,46 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("create", sysadm::Iohyve::createGuest(in_args.toObject()));
       }
-      if(act=="listvms"){
+      else if(act=="listvms"){
 	ok = true;
         out->insert("listvms", sysadm::Iohyve::listVMs());
       }
-      if(act=="fetchiso"){
+      else if(act=="listisos"){
+        ok = true;
+	out->insert("listisos", sysadm::Iohyve::listISOs());
+      }
+      else if(act=="fetchiso"){
 	ok = true;
 	DProcess fetchproc;
         out->insert("fetchiso", sysadm::Iohyve::fetchISO(in_args.toObject(), &fetchproc));
 	connect(&fetchproc, SIGNAL(ProcessOutput(QString)), this, SLOT(slotIohyveFetchProcessOutput(QString)) );
 	connect(&fetchproc, SIGNAL(Finished(QString, int, QString)), this, SLOT(slotIohyveFetchDone(QString, int, QString)) );
       }
-      if(act=="install"){
+      else if(act=="install"){
 	ok = true;
         out->insert("install", sysadm::Iohyve::installGuest(in_args.toObject()));
       }
-      if(act=="issetup"){
+      else if(act=="issetup"){
 	ok = true;
         out->insert("issetup", sysadm::Iohyve::isSetup());
       }
-      if(act=="renameiso"){
+      else if(act=="renameiso"){
 	ok = true;
         out->insert("renameiso", sysadm::Iohyve::renameISO(in_args.toObject()));
       }
-      if(act=="rmiso"){
+      else if(act=="rmiso"){
 	ok = true;
         out->insert("rmiso", sysadm::Iohyve::rmISO(in_args.toObject()));
       }
-      if(act=="setup"){
+      else if(act=="setup"){
 	ok = true;
         out->insert("setup", sysadm::Iohyve::setupIohyve(in_args.toObject()));
       }
-      if(act=="start"){
+      else if(act=="start"){
 	ok = true;
         out->insert("start", sysadm::Iohyve::startGuest(in_args.toObject()));
       }
-      if(act=="stop"){
+      else if(act=="stop"){
 	ok = true;
         out->insert("stop", sysadm::Iohyve::stopGuest(in_args.toObject()));
       }

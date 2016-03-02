@@ -143,6 +143,18 @@ QJsonObject Iohyve::listVMs() {
   return retObject;
 }
 
+// List the ISOs on the box
+QJsonArray Iohyve::listISOs(){
+  QJsonArray arr;
+  QStringList output = General::RunCommand("iohyve isolist").split("\n");
+  for(int i=1; i<output.length(); i++){ //first line is headers
+    if(output[i].isEmpty()){ continue; }
+    arr.append(output[i]);
+  }
+  return arr;
+  
+}
+
 // Rename an ISO file
 QJsonObject Iohyve::renameISO(QJsonObject jsin) {
   QJsonObject retObject;
