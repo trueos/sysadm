@@ -236,15 +236,16 @@ bool General::setConfFileValue(QString fileName, QString oldKey, QString newKey,
 QString General::sysctl(QString var){
    char result[1000];
    size_t len = sizeof(result);
-   sysctlbyname(var.toLocal8Bit(), result, &len, NULL, 0);
+   if(0!=sysctlbyname(var.toLocal8Bit(), result, &len, NULL, 0)){ return ""; }
    result[len] = '\0';
-   return QString(result);
+   //qDebug() << "Sysctl:" << var << len << result;
+   return QString(QByteArray(result,len));
 }
 
 //Retrieve a number-based sysctl
 long long General::sysctlAsInt(QString var){
    long long result = 0;
    size_t len = sizeof(result);
-   sysctlbyname(var.toLocal8Bit(), &result, &len, NULL, 0);
+   if(0!=sysctlbyname(var.toLocal8Bit(), &result, &len, NULL, 0) ){ return 0; }
    return result;
 }
