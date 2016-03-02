@@ -54,8 +54,6 @@ bool DProcess::isDone(){
 }
 
 QString DProcess::getProcLog(){
-  //First update the internal log as needed
-  proclog.append( this->readAllStandardOutput() );
   //Now return the current version of the log
   return proclog;
 }
@@ -90,7 +88,8 @@ void DProcess::cmdFinished(int ret, QProcess::ExitStatus status){
 }
 
 void DProcess::updateLog(){
-  emit ProcessOutput(getProcLog());
+  proclog.append( this->readAllStandardOutput() );
+  emit ProcessOutput(proclog);
 }
 // ================================
 // Dispatcher Class
