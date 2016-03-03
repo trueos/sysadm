@@ -21,7 +21,7 @@ Every iohyve class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listvms", "fetchiso", "listisos", "renameiso", "rmiso", "setup",  "issetup", "create",    |
-|                                 |               | "install", "start", "stop", "delete", "adddisk", "listdisks", "resizedisk", and "deletedisk"                         |
+|                                 |               | "install", "start", "stop", "delete", "adddisk", "listdisks", "resizedisk", "deletedisk", and "version"              |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -835,6 +835,52 @@ The "deletedisk" action removes the specified disk from the specified VM.
     "deletedisk": {
       "disk": "disk1",
       "name": "bsdguest"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+ .. index:: version, iohyve
+
+.. _List Version:
+
+List Version
+============
+
+The "version" action displays the iohyve version.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "version"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "version"
+   },
+   "id" : "fooid",
+   "name" : "iohyve"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "version": {
+      "version": "iohyve v0.7.3 2016/01/08 Bear in a Datacenter Edition"
     }
   },
   "id": "fooid",
