@@ -220,7 +220,135 @@ revoke a certificate belonging to another user.
 .. note:: if the current user has full administrative access, "list_ssl_certs" will return the registered certificates for all users on the system. Otherwise, it will only return the
    certificates for the current user. Similarly, "revoke_ssl_cert" may be used to remove certificates registered to other users only if the current user/connection has full administrative
    access; otherwise, it may only be used to manage the current user's certificates.
+   
+.. index:: dispatcher, events   
 
+.. _Dispatcher Subsystem:
+
+Dispatcher Subsystem
+====================
+
+The dispatcher subsystem is designed for running external  utilities or scripts in an asynchronous fashion. Any connected client may  receive notifications about dispatcher processes through
+the events  system, but only users in the *wheel* group have the authority to directly  submit new jobs for the dispatcher. 
+
+.. note:: other subsystems may also use the dispatcher for long-running processes in the background,  and these subsystems may allow non-wheel group users to perform these tasks as necessary.
+
+A "dispatcher" query contains the following parameters:
+
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Value**     | **Description**                                                                                                      |
+|                                 |               |                                                                                                                      |
++=================================+===============+======================================================================================================================+
+| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| name                            | dispatcher    |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| namespace                       | events        |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| action                          |               | "run" is used to submit process commands                                                                             |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+
+The user needs to first subscribe to "dispatcher" event notifications.
+
+Dispatcher events have the following syntax:
+
+**Websocket Request**
+
+.. code-block:: json   
+
+ {
+  "namespace" : "events",
+  "name" : "dispatcher",
+  "id" : "",
+  "args" : {
+        "cmd_list" : ["/bin/echo something"],
+        "log" : "[Running Command: /bin/echo something ]something\n",
+        "proc_id" : "procID",
+        "success" : "true",
+        "time_finished" : "2016-02-02T13:45:13",
+        "time_started" : "2016-02-02T13:45:13"
+  }
+ }
+
+Any user within the *wheel* group can use the "run" action to submit a new job to the dispatcher:
+
+**REST Request**
+
+.. code-block:: json   
+
+ PUT /rpc/dispatcher
+ {
+   "action" : "run",
+   "procID2" : [
+      "echo chainCmd1",
+      "echo chainCmd2"
+   ],
+   "procID1" : "echo sample1"
+ }
+
+**REST Response**
+
+.. code-block:: json   
+
+ {
+    "args": {
+        "started": [
+            "procID1",
+            "procID2"
+        ]
+    }
+ }
+
+**WebSocket Request**
+
+.. code-block:: json   
+
+ {
+   "name" : "dispatcher",
+   "namespace" : "rpc",
+   "id" : "fooid",
+   "args" : {
+      "procID1" : "echo sample1",
+      "procID2" : [
+         "echo chainCmd1",
+         "echo chainCmd2"
+      ],
+      "action" : "run"
+   }
+ }
+
+**WebSocket Response**
+
+.. code-block:: json   
+
+ {
+  "args": {
+    "started": [
+      "procID1",
+      "procID2"
+    ]
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "rpc"
+ } 
+ 
+When submitting a job to the dispatcher, keep the following points in mind:
+
+* Process commands are not the same as shell commands. A dispatcher process command uses the syntax "<binary/utility> <list of arguments>", similar to a simple shell  command. However,
+  complex shell operations with pipes or test statements will not function properly within a dispatcher process.
+
+* There are two types of jobs: a single string entry for simple commands, and an array of strings for a chain of commands. A chain of commands is treated as a single process, and the
+  commands are run sequentially until either a command fails (returns non-0 or the process crashes), or until there are no more commands to run.
+
+* A chain of commands is useful for multi-step operations but is not considered a replacement for a good shell script on the server.
+ 
+.. index:: query, rpc
+   
 .. _Server Subsystems:
 
 Server Subsystems
