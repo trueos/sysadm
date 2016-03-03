@@ -15,6 +15,7 @@ namespace sysadm{
 
 class Iohyve{
 public:
+	static QJsonObject addDisk(QJsonObject);
 	static QJsonObject createGuest(QJsonObject);
 	static QJsonObject deleteGuest(QJsonObject);
 	static QJsonObject fetchISO(QJsonObject, DProcess *);

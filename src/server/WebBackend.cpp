@@ -581,6 +581,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
       //qDebug() << " - iohyve action:" << act;
+      if(act=="adddisk"){
+	ok = true;
+        out->insert("adddisk", sysadm::Iohyve::addDisk(in_args.toObject()));
+      }
       if(act=="create"){
 	ok = true;
         out->insert("create", sysadm::Iohyve::createGuest(in_args.toObject()));

@@ -14,6 +14,40 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Add a new disk for a VM
+QJsonObject Iohyve::addDisk(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") || ! keys.contains("size") ) {
+    retObject.insert("error", "Missing required key(s) 'name', 'size'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+  QString size = jsin.value("size").toString();
+  QString pool = jsin.value("pool").toString();
+
+  QStringList output = General::RunCommand("iohyve add " + name + " " + size + " " + pool).split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("cannot create") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  QJsonObject vm;
+  vm.insert("size", size);
+  if ( ! pool.isEmpty() )
+   vm.insert("pool", pool);
+  retObject.insert(name, vm);
+
+  return retObject;
+}
+
 // Create a new guest VM
 QJsonObject Iohyve::createGuest(QJsonObject jsin) {
   QJsonObject retObject;
