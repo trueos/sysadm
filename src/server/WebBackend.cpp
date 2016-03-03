@@ -593,6 +593,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("delete", sysadm::Iohyve::deleteGuest(in_args.toObject()));
       }
+      if(act=="deletedisk"){
+	ok = true;
+        out->insert("deletedisk", sysadm::Iohyve::deleteDisk(in_args.toObject()));
+      }
       else if(act=="listdisks"){
 	ok = true;
         out->insert("listdisks", sysadm::Iohyve::listDisks(in_args.toObject()));

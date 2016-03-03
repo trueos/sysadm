@@ -77,6 +77,46 @@ QJsonObject Iohyve::createGuest(QJsonObject jsin) {
   return retObject;
 }
 
+// Delete a guest disk
+QJsonObject Iohyve::deleteDisk(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") || !keys.contains("disk") ) {
+    retObject.insert("error", "Missing required key(s) 'name/disk'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+  QString disk = jsin.value("disk").toString();
+
+  // Can't remove disk0
+  if ( disk == "disk0" ) {
+    retObject.insert("error", "disk0 cannot be removed!");
+    return retObject;
+  }
+
+  // Remove the disk now
+  QStringList output = General::RunCommand("iohyve remove " + name + " " + disk).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This doesn't work, iohyve doesn't return error message right now
+    if ( output.at(i).indexOf("No such guest") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+    if ( output.at(i).indexOf("Not") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("name", name);
+  retObject.insert("disk", disk);
+  return retObject;
+}
+
 // Delete a guest
 QJsonObject Iohyve::deleteGuest(QJsonObject jsin) {
   QJsonObject retObject;
