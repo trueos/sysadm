@@ -1,11 +1,11 @@
-.. _network:
+.. _zfs:
 
-network
-*******
+zfs
+***
 
-The network class is used to manage and retrieve information from Ethernet and wireless network devices.
+The zfs class is used to manage and retrieve information about ZFS pools.
 
-Every network class request contains the following parameters:
+Every zfs class request contains the following parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
@@ -14,35 +14,36 @@ Every network class request contains the following parameters:
 | id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | network       |                                                                                                                      |
+| name                            | zfs           |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "list-devices"                                                                             |
+| action                          |               | supported actions include "list_pools"                                                                               |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
 The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
 
-.. index:: list-devices, network
+.. index:: list_pools, zfs
 
-.. _List Devices:
+.. _List Pools:
 
-List Devices
-============
+List Pools
+==========
 
-The "list-devices" action lists information about currently recognized network devices. For each network device, the response includes the device's MAC address, description, IPv4 address,
-IPv6 address, whether or not the device is active, whether or not the device is configured using DHCP, whether or not the device is wireless, its subnet mask, and its current status.
+The "list_pools" action lists pool information. For each ZFS pool, the response includes the pool name, the amount of space that has been physically allocated, whether or not an alternate
+root has been defined, capacity (percent used), the deduplication ratio, amount of uninitialized space (expandsz, which usually applies to LUNs), percentage of fragmentation, amount of free
+space, pool health, and total size. This action is the equivalent of running :command:`zpool list` from the command line.
 
 **REST Request**
 
 .. code-block:: json
 
- PUT /sysadm/network
+ PUT /sysadm/zfs
  {
-    "action" : "list-devices"
+   "action" : "list_pools"
  }
 
 **WebSocket Request**
@@ -50,12 +51,12 @@ IPv6 address, whether or not the device is active, whether or not the device is 
 .. code-block:: json
 
  {
-    "namespace" : "sysadm",
-    "args" : {
-       "action" : "list-devices"
-    },
-    "id" : "fooid",
-    "name" : "network"
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "list_pools"
+   },
+   "name" : "zfs",
+   "id" : "fooid"
  }
 
 **Response**
@@ -63,31 +64,20 @@ IPv6 address, whether or not the device is active, whether or not the device is 
 .. code-block:: json
 
  {
-   "args": {
-     "lo0": {
-       "MAC": "00:00:00:00:00:00",
-       "description": "",
-       "ipv4": "127.0.0.1",
-       "ipv6": "::1",
-       "is_active": "true",
-       "is_dhcp": "false",
-       "is_wireless": "false",
-       "netmask": "255.0.0.0",
-       "status": "no carrier"
-     },
-     "re0": {
-       "MAC": "fc:aa:14:77:a0:8d",
-       "description": "RealTek 8168/8111 B/C/CP/D/DP/E/F/G PCIe Gigabit Ethernet",
-       "ipv4": "192.168.1.130",
-       "ipv6": "fe80::feaa:14ff:fe77:a08d%re0",
-       "is_active": "true",
-       "is_dhcp": "true",
-       "is_wireless": "false",
-       "netmask": "255.255.255.0",
-       "status": "active"
-     }
-   },
-   "id": "fooid",
-   "name": "response",
-   "namespace": "sysadm"
+  "args": {
+    "tank": {
+      "alloc": "71.8G",
+      "altroot": "-",
+      "cap": "32%",
+      "dedup": "1.00x",
+      "expandsz": "-",
+      "frag": "18%",
+      "free": "148G",
+      "health": "ONLINE",
+      "size": "220G"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
  }

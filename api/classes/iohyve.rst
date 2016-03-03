@@ -20,8 +20,8 @@ Every iohyve class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms", "fetchiso", "renameiso", "rmiso", "setup",  "issetup", "create",  "install",    |
-|                                 |               | "start", "stop"                                                                                                      |
+| action                          |               | supported actions include "listvms", "fetchiso", "listisos", "renameiso", "rmiso", "setup",  "issetup", "create",    |
+|                                 |               | "install", "start", "stop"                                                                                           |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -142,6 +142,52 @@ The "fetchiso" action is used to retrieve the installation ISO. It is used with 
       "comment": "Task Queued",
       "queueid": "{b3a8b980-a564-4ff8-86a2-1971bd4f58d1}"
     }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: listisos, iohyve
+
+.. _List ISOs:
+
+List ISOs
+=========
+
+The "listisos" action lists all the known ISO files which iohyve can use.
+
+**REST Request**
+
+.. code-block:: json
+ 
+ PUT /sysadm/iohyve
+ {
+   "action" : "listisos"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+ 
+ {
+   "name" : "iohyve",
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "action" : "listisos"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+ 
+ {
+  "args": {
+    "listisos": [
+      "TRUEOS10.2-RELEASE-08-19-2015-x64-netinstall.iso"
+    ]
   },
   "id": "fooid",
   "name": "response",
