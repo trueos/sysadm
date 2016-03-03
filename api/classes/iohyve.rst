@@ -744,7 +744,7 @@ The "listdisks" action lists the disks connected to the specified VM.
 Resize a Disk
 =============
 
-The "resizedisk" action resizes the specified disk in the specified VM to the new specified size.
+The "resizedisk" action **increases** the specified disk in the specified VM. The new specified size must be larger than the current size.
 
 **REST Request**
 
