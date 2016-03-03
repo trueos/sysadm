@@ -21,7 +21,7 @@ Every iohyve class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listvms", "fetchiso", "listisos", "renameiso", "rmiso", "setup",  "issetup", "create",    |
-|                                 |               | "install", "start", "stop"                                                                                           |
+|                                 |               | "install", "start", "stop", and "delete"                                                                             |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -581,6 +581,54 @@ The "stop" action stops the specified VM.
  {
   "args": {
     "stop": {
+      "name": "bsdguest"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: delete, iohyve
+
+.. _Delete a VM:
+
+Delete a VM
+===========
+
+The "delete" action deletes the specified iohyve guest.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "delete",
+   "name" : "bsdguest"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "action" : "delete",
+      "name" : "bsdguest"
+   },
+   "name" : "iohyve"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "delete": {
       "name": "bsdguest"
     }
   },
