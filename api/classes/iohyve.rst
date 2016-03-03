@@ -21,7 +21,7 @@ Every iohyve class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listvms", "fetchiso", "listisos", "renameiso", "rmiso", "setup",  "issetup", "create",    |
-|                                 |               | "install", "start", "stop", "delete", "adddisk", "listdisks", and "deletedisk"                                       |
+|                                 |               | "install", "start", "stop", "delete", "adddisk", "listdisks", "resizedisk", and "deletedisk"                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -737,7 +737,61 @@ The "listdisks" action lists the disks connected to the specified VM.
   "namespace": "sysadm"
  }
  
- .. index:: deletedisk, iohyve
+.. index:: resizedisk, iohyve
+
+.. _Resize a Disk:
+
+Resize a Disk
+=============
+
+The "resizedisk" action resizes the specified disk in the specified VM to the new specified size.
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/iohyve
+ {
+   "disk" : "disk0",
+   "name" : "bsdguest",
+   "action" : "resizedisk",
+   "size" : "20G"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "name" : "iohyve",
+   "id" : "fooid",
+   "args" : {
+      "size" : "20G",
+      "action" : "resizedisk",
+      "disk" : "disk0",
+      "name" : "bsdguest"
+   },
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "resizedisk": {
+      "disk": "disk0",
+      "name": "bsdguest",
+      "size": "20G"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: deletedisk, iohyve
 
 .. _Delete a Disk:
 
