@@ -14,6 +14,40 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+// Add a new disk for a VM
+QJsonObject Iohyve::addDisk(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") || ! keys.contains("size") ) {
+    retObject.insert("error", "Missing required key(s) 'name', 'size'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+  QString size = jsin.value("size").toString();
+  QString pool = jsin.value("pool").toString();
+
+  QStringList output = General::RunCommand("iohyve add " + name + " " + size + " " + pool).split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("cannot create") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  QJsonObject vm;
+  vm.insert("size", size);
+  if ( ! pool.isEmpty() )
+   vm.insert("pool", pool);
+  retObject.insert(name, vm);
+
+  return retObject;
+}
+
 // Create a new guest VM
 QJsonObject Iohyve::createGuest(QJsonObject jsin) {
   QJsonObject retObject;
@@ -40,6 +74,75 @@ QJsonObject Iohyve::createGuest(QJsonObject jsin) {
   // Return some details to user that the action was queued
   retObject.insert("name", name);
   retObject.insert("size", size);
+  return retObject;
+}
+
+// Delete a guest disk
+QJsonObject Iohyve::deleteDisk(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") || !keys.contains("disk") ) {
+    retObject.insert("error", "Missing required key(s) 'name/disk'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+  QString disk = jsin.value("disk").toString();
+
+  // Can't remove disk0
+  if ( disk == "disk0" ) {
+    retObject.insert("error", "disk0 cannot be removed!");
+    return retObject;
+  }
+
+  // Remove the disk now
+  QStringList output = General::RunCommand("iohyve remove " + name + " " + disk).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This doesn't work, iohyve doesn't return error message right now
+    if ( output.at(i).indexOf("No such guest") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+    if ( output.at(i).indexOf("Not") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("name", name);
+  retObject.insert("disk", disk);
+  return retObject;
+}
+
+// Delete a guest
+QJsonObject Iohyve::deleteGuest(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  // Do the stop right now
+  QStringList output = General::RunCommand("iohyve delete " + name).split("\n");
+  qDebug() << output;
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This doesn't work, iohyve doesn't return error message right now
+    if ( output.at(i).indexOf("No such guest") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("name", name);
   return retObject;
 }
 
@@ -113,6 +216,41 @@ QJsonObject Iohyve::isSetup() {
   return retObject;
 }
 
+// List the disks for a VM
+QJsonObject Iohyve::listDisks(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  QStringList output = General::RunCommand("iohyve disks " + name).split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("Listing") != -1 )
+      continue;
+    if ( output.at(i).indexOf("diskN") != -1 )
+      continue;
+
+    if ( output.at(i).isEmpty() )
+      break;
+
+    QJsonObject vm;
+    QString line = output.at(i).simplified();
+    QString disk = line.section(" ", 0, 0);
+    QString size = line.section(" ", 1, 1);
+    retObject.insert(disk, size);
+  }
+
+  return retObject;
+}
+
 // List the VMs on the box
 QJsonObject Iohyve::listVMs() {
   QJsonObject retObject;
@@ -179,6 +317,42 @@ QJsonObject Iohyve::renameISO(QJsonObject jsin) {
 
   retObject.insert("source", source);
   retObject.insert("target", target);
+  return retObject;
+}
+
+// Resize a guest disk
+QJsonObject Iohyve::resizeDisk(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") || !keys.contains("disk") || !keys.contains("size") ) {
+    retObject.insert("error", "Missing required key(s) 'name/disk/size'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+  QString disk = jsin.value("disk").toString();
+  QString size = jsin.value("size").toString();
+
+  // Resize the disk now
+  QStringList output = General::RunCommand("iohyve resize " + name + " " + disk + " " + size).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This doesn't work, iohyve doesn't return error message right now
+    if ( output.at(i).indexOf("Please stop") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+    if ( output.at(i).indexOf("Not a valid") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("name", name);
+  retObject.insert("disk", disk);
+  retObject.insert("size", size);
   return retObject;
 }
 
@@ -303,3 +477,12 @@ QJsonObject Iohyve::stopGuest(QJsonObject jsin) {
   retObject.insert("name", name);
   return retObject;
 }
+
+// List the version of iohyve
+QJsonObject Iohyve::version() {
+  QJsonObject retObject;
+  QString output = General::RunCommand("iohyve version").simplified();
+  retObject.insert("version", output);
+  return retObject;
+}
+

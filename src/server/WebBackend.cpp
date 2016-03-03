@@ -581,9 +581,25 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
       //qDebug() << " - iohyve action:" << act;
+      if(act=="adddisk"){
+	ok = true;
+        out->insert("adddisk", sysadm::Iohyve::addDisk(in_args.toObject()));
+      }
       if(act=="create"){
 	ok = true;
         out->insert("create", sysadm::Iohyve::createGuest(in_args.toObject()));
+      }
+      if(act=="delete"){
+	ok = true;
+        out->insert("delete", sysadm::Iohyve::deleteGuest(in_args.toObject()));
+      }
+      if(act=="deletedisk"){
+	ok = true;
+        out->insert("deletedisk", sysadm::Iohyve::deleteDisk(in_args.toObject()));
+      }
+      else if(act=="listdisks"){
+	ok = true;
+        out->insert("listdisks", sysadm::Iohyve::listDisks(in_args.toObject()));
       }
       else if(act=="listvms"){
 	ok = true;
@@ -614,6 +630,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("rmiso", sysadm::Iohyve::rmISO(in_args.toObject()));
       }
+      else if(act=="resizedisk"){
+	ok = true;
+        out->insert("resizedisk", sysadm::Iohyve::resizeDisk(in_args.toObject()));
+      }
       else if(act=="setup"){
 	ok = true;
         out->insert("setup", sysadm::Iohyve::setupIohyve(in_args.toObject()));
@@ -625,6 +645,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
       else if(act=="stop"){
 	ok = true;
         out->insert("stop", sysadm::Iohyve::stopGuest(in_args.toObject()));
+      }
+      else if(act=="version"){
+	ok = true;
+        out->insert("version", sysadm::Iohyve::version());
       }
       //qDebug() << " - iohyve action finished:" << act << ok;
     } //end of "action" key usage
