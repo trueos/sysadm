@@ -26,6 +26,7 @@ public:
 	static QJsonArray listISOs();
 	static QJsonObject listVMs();
 	static QJsonObject renameISO(QJsonObject);
+	static QJsonObject resizeDisk(QJsonObject);
 	static QJsonObject rmISO(QJsonObject);
 	static QJsonObject setupIohyve(QJsonObject);
 	static QJsonObject startGuest(QJsonObject);

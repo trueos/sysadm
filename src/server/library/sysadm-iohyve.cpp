@@ -322,6 +322,42 @@ QJsonObject Iohyve::renameISO(QJsonObject jsin) {
   return retObject;
 }
 
+// Resize a guest disk
+QJsonObject Iohyve::resizeDisk(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") || !keys.contains("disk") || !keys.contains("size") ) {
+    retObject.insert("error", "Missing required key(s) 'name/disk/size'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+  QString disk = jsin.value("disk").toString();
+  QString size = jsin.value("size").toString();
+
+  // Resize the disk now
+  QStringList output = General::RunCommand("iohyve resize " + name + " " + disk + " " + size).split("\n");
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This doesn't work, iohyve doesn't return error message right now
+    if ( output.at(i).indexOf("Please stop") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+    if ( output.at(i).indexOf("Not a valid") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("name", name);
+  retObject.insert("disk", disk);
+  retObject.insert("size", size);
+  return retObject;
+}
+
 // Remove an ISO file
 QJsonObject Iohyve::rmISO(QJsonObject jsin) {
   QJsonObject retObject;
