@@ -21,7 +21,7 @@ Every iohyve class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listvms", "fetchiso", "listisos", "renameiso", "rmiso", "setup",  "issetup", "create",    |
-|                                 |               | "install", "start", "stop", and "delete"                                                                             |
+|                                 |               | "install", "start", "stop", "delete", "adddisk"                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -630,6 +630,58 @@ The "delete" action deletes the specified iohyve guest.
   "args": {
     "delete": {
       "name": "bsdguest"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+ .. index:: adddisk, iohyve
+
+.. _Add a Disk:
+
+Add a Disk
+==========
+
+The "adddisk" action adds and creates a disk for a VM.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "name" : "bsdguest",
+   "action" : "adddisk",
+   "size" : "10G"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "size" : "10G",
+      "name" : "bsdguest",
+      "action" : "adddisk"
+   },
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "name" : "iohyve"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "adddisk": {
+      "bsdguest": {
+        "size": "10G"
+      }
     }
   },
   "id": "fooid",
