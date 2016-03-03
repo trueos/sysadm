@@ -80,6 +80,11 @@ private:
 
 	//Simplification routine for setting up a process
 	DProcess* createProcess(QString ID, QStringList cmds);
+	QJsonObject CreateDispatcherEventNotification(QString, QJsonObject);
+
+	// Functions to do parsing out dispatcher queued tasks
+	// Please keep these sorted
+	QJsonObject parseIohyveFetchOutput(QString outputLog);
 
 private slots:
 	void mkProcs(Dispatcher::PROC_QUEUE, DProcess *P);

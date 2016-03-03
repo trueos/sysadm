@@ -13,8 +13,7 @@ HEADERS	+= globals.h globals-qt.h \
 		SslServer.h \
 		EventWatcher.h \
 		LogManager.h \
-		Dispatcher.h \
-		DispatcherParsing.h
+		Dispatcher.h
 		
 SOURCES	+= main.cpp \
 		WebServer.cpp \
@@ -25,7 +24,8 @@ SOURCES	+= main.cpp \
 		AuthorizationManager.cpp \
 		EventWatcher.cpp \
 		LogManager.cpp \
-		Dispatcher.cpp
+		Dispatcher.cpp \
+		DispatcherParsing.cpp
 
 #Now pull in the the subsystem library classes and such
 include("library/library.pri");

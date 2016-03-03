@@ -1,18 +1,16 @@
 // ===============================
-//  PC-BSD REST API Server
+// PC-BSD REST API Server
 // Available under the 3-clause BSD License
 // Written by: Ken Moore <ken@pcbsd.org> 2015-2016
 // =================================
-// These static classes are for defining custom Dispatcher/Event notifications
+// These classes are for defining custom Dispatcher/Event notifications
 //  for individual subsystems
 //=================================
-#ifndef _PCBSD_SYSADM_DISPATCH_SUBSYSTEM_FILTER_SYSTEM_H
-#define _PCBSD_SYSADM_DISPATCH_SUBSYSTEM_FILTER_SYSTEM_H
-
 #include "globals-qt.h"
 #include "EventWatcher.h"
+#include "Dispatcher.h"
 
-static QJsonObject CreateDispatcherEventNotification(QString ID, QJsonObject log){
+QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObject log){
   //key outputs - need to set these if an event is going to be sent out
   QJsonObject args; //any arguments to send out
   QString namesp, name; //the namespace/name of the subsystem used
@@ -35,7 +33,8 @@ static QJsonObject CreateDispatcherEventNotification(QString ID, QJsonObject log
 	args.insert("state","finished");
       }else{ 
 	args.insert("state","running");
-	args.insert("progress", cLog.section("\n",-1, QString::SectionSkipEmpty)); //send the last line of the fetch
+	args.insert("progress", parseIohyveFetchOutput(cLog));
+	//args.insert("progress", cLog.section("\n",-1, QString::SectionSkipEmpty)); //send the last line of the fetch
       }
     }
 	  
@@ -47,5 +46,9 @@ static QJsonObject CreateDispatcherEventNotification(QString ID, QJsonObject log
   return args;
 }
 
-
-#endif
+QJsonObject Dispatcher::parseIohyveFetchOutput(QString output)
+{
+  qDebug() << "Parsing iohyve log" << output.section("\n", -1, QString::SectionSkipEmpty);
+  QJsonObject ret;
+  return ret;
+}
