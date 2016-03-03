@@ -43,6 +43,35 @@ QJsonObject Iohyve::createGuest(QJsonObject jsin) {
   return retObject;
 }
 
+// Delete a guest
+QJsonObject Iohyve::deleteGuest(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  // Do the stop right now
+  QStringList output = General::RunCommand("iohyve delete " + name).split("\n");
+  qDebug() << output;
+  for ( int i = 0; i < output.size(); i++)
+  {
+    // This doesn't work, iohyve doesn't return error message right now
+    if ( output.at(i).indexOf("No such guest") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
+  }
+
+  retObject.insert("name", name);
+  return retObject;
+}
+
 // Queue the fetch of an ISO
 QJsonObject Iohyve::fetchISO(QJsonObject jsin, DProcess *returnproc) {
   QJsonObject retObject;
