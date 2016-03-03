@@ -159,6 +159,67 @@ To clear a pre-saved authentication token, such as signing out, use this request
   "id" : "sampleID",
   "args" : "junk argument"
   }
+  
+.. _SSL Certificate Management:
+
+SSL Certificate Management
+==========================
+
+Several actions are available for managing the SSL certificates used for authentication.
+
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Value**     | **Description**                                                                                                      |
+|                                 |               |                                                                                                                      |
++=================================+===============+======================================================================================================================+
+| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| name                            | sysadm        |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| namespace                       | settings      |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| action                          |               | supported actions include "list_ssl_certs", "register_ssl_cert", and "revoke_ssl_cert"                               |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+
+The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
+
+.. index:: list_ssl_certs, settings
+
+.. _List SSL Certificates:
+
+List SSL Certificates
+---------------------
+
+The "list_ssl_certificates" action lists the known and registered certificates. For each certificate, the response includes the username, public key, and the text of the certificate.
+
+.. index:: register_ssl_cert, settings
+
+.. _Register a SSL Certificate:
+
+Register a SSL Certificate
+--------------------------
+
+The "register_ssl_certificate" action registers the specified certificate on the server. Once registered, that user is allowed to authenticate without a password as long as that same
+certificate is loaded in any future connections. When using this action, The "pub_key" needs to match the public key of one of the certificates currently loaded into the server/client
+connection.
+
+.. index:: revoke_ssl_cert, settings
+
+.. _Revoke a SSL Certificate:
+
+Revoke a SSL Certificate
+------------------------
+
+The "revoke_ssl_certificate" action revokes a currently registered certificate so that it can no longer be used for authentication. The "pub_key" must be specified and must match one of the
+keys given by the "list_ssl_certs" action, but does not need to match any currently loaded certificates. The "user" is optional and allows a connection with full administrative privileges to
+revoke a certificate belonging to another user.
+
+.. note:: if the current user has full administrative access, "list_ssl_certs" will return the registered certificates for all users on the system. Otherwise, it will only return the
+   certificates for the current user. Similarly, "revoke_ssl_cert" may be used to remove certificates registered to other users only if the current user/connection has full administrative
+   access; otherwise, it may only be used to manage the current user's certificates.
 
 .. _Server Subsystems:
 
