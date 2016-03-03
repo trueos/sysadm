@@ -580,6 +580,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      //qDebug() << " - iohyve action:" << act;
       if(act=="create"){
 	ok = true;
         out->insert("create", sysadm::Iohyve::createGuest(in_args.toObject()));
@@ -627,6 +628,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("stop", sysadm::Iohyve::stopGuest(in_args.toObject()));
       }
+      //qDebug() << " - iohyve action finished:" << act << ok;
     } //end of "action" key usage
 
     //If nothing done - return the proper code

@@ -156,14 +156,15 @@ void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, DProcess *P){
 
 void Dispatcher::ProcFinished(QString ID){
   //Find the process with this ID and close it down (with proper events)
-  //qDebug() << " - Got Proc Finished Signal:" << ID;
-  bool found = false;
+  qDebug() << " - Got Proc Finished Signal:" << ID;
+  /*bool found = false;
   for(int i=0; i<enum_length && !found; i++){
     Dispatcher::PROC_QUEUE queue = static_cast<Dispatcher::PROC_QUEUE>(i);
     if(HASH.contains(queue)){
       QList<DProcess*> list = HASH[queue];
       for(int l=0; l<list.length() && !found; l++){
         if(list[l]->ID==ID){ 
+	  qDebug() << "Delete Proc on Finished:" << list[l]->ID;
 	  QJsonObject obj;
 	  obj.insert("log",list[l]->getProcLog());
 	  obj.insert("success", list[l]->success ? "true" : "false" );
@@ -175,15 +176,17 @@ void Dispatcher::ProcFinished(QString ID){
 	  list.takeAt(l)->deleteLater();
 	  LogManager::log(LogManager::DISPATCH, obj);
 	  found = true;
+	  l--;
 	}
       } //end loop over queue list
     }
-  }//end loop over queue enumeration
+  }//end loop over queue enumeration*/
   QTimer::singleShot(20,this, SLOT(CheckQueues()) );
 }
 
 void Dispatcher::CheckQueues(){
-for(int i=0; i<enum_length; i++){
+  qDebug() << " - Check Queues";
+  for(int i=0; i<enum_length; i++){
     PROC_QUEUE queue = static_cast<PROC_QUEUE>(i);
     if(HASH.contains(queue)){
       QList<DProcess*> list = HASH[queue];
@@ -191,6 +194,7 @@ for(int i=0; i<enum_length; i++){
 	if(j>0 && queue!=NO_QUEUE){ break; } //done with this - only first item in these queues should run at a time
 	if( !list[j]->isRunning() ){
 	  if(list[j]->isDone() ){
+	    qDebug() << "Delete Proc:" << list[j]->ID;
 	    QJsonObject obj;
 	    obj.insert("log",list[j]->getProcLog());
 	    obj.insert("success", list[j]->success ? "true" : "false" );
