@@ -143,6 +143,42 @@ QJsonObject Iohyve::isSetup() {
   return retObject;
 }
 
+// List the disks for a VM
+QJsonObject Iohyve::listDisks(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  QStringList output = General::RunCommand("iohyve disks " + name).split("\n");
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("Listing") != -1 )
+      continue;
+    if ( output.at(i).indexOf("diskN") != -1 )
+      continue;
+
+    if ( output.at(i).isEmpty() )
+      break;
+
+    QJsonObject vm;
+    QString line = output.at(i).simplified();
+    QString disk = line.section(" ", 0, 0);
+    QString size = line.section(" ", 1, 1);
+    retObject.insert(disk, size);
+  }
+
+  return retObject;
+}
+
+
 // List the VMs on the box
 QJsonObject Iohyve::listVMs() {
   QJsonObject retObject;

@@ -20,8 +20,9 @@ public:
 	static QJsonObject fetchISO(QJsonObject, DProcess *);
 	static QJsonObject installGuest(QJsonObject);
 	static QJsonObject isSetup();
-	static QJsonObject listVMs();
+	static QJsonObject listDisks(QJsonObject);
 	static QJsonArray listISOs();
+	static QJsonObject listVMs();
 	static QJsonObject renameISO(QJsonObject);
 	static QJsonObject rmISO(QJsonObject);
 	static QJsonObject setupIohyve(QJsonObject);
