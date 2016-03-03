@@ -5,6 +5,8 @@
 // =================================
 #include "Dispatcher.h"
 
+#include "DispatcherParsing.h"
+
 #include "globals.h"
 
 
@@ -13,6 +15,11 @@
 // ================================
 DProcess::DProcess(QObject *parent) : QProcess(parent){
     //Setup the process
+    bool notify = false;
+    uptimer = new QTimer(this);
+      uptimer->setSingleShot(true);
+      uptimer->setInterval(1000); //1 second intervals
+    connect(uptimer, SIGNAL(timeout()), this, SLOT(emitUpdate()) );
     this->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
     this->setProcessChannelMode(QProcess::MergedChannels);
     connect(this, SIGNAL(readyRead()), this, SLOT(updateLog()) );
@@ -25,24 +32,30 @@ DProcess::~DProcess(){
 }
   
 void DProcess::startProc(){
+  cmds.removeAll(""); //make sure no empty commands
   if(cmds.isEmpty()){ 
-    t_finished = QDateTime::currentDateTime();
-    emit ProcFinished(ID); 
+    proclog.insert("state","finished");
+    proclog.insert("time_finished", QDateTime::currentDateTime().toString(Qt::ISODate));
+    proclog.remove("current_cmd");
+    emit ProcFinished(ID, proclog);
     return; 
   }
-  QString cmd = cmds.takeFirst();
+  cCmd = cmds.takeFirst();
   success = false; //not finished yet
-  if(!proclog.isEmpty()){ proclog.append("\n"); }
-  else{ //first cmd started
-    t_started = QDateTime::currentDateTime();
-    rawcmds = cmds; rawcmds.prepend(cmd);
+  if(proclog.isEmpty()){
+    //first cmd started
+    proclog.insert("time_started", QDateTime::currentDateTime().toString(Qt::ISODate));
+    proclog.insert("cmd_list",QJsonArray::fromStringList(cmds));
+    proclog.insert("process_id",ID);
+    proclog.insert("state","running");
+    //rawcmds = cmds; rawcmds.prepend(cCmd);
     //setup internal connections
     connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(cmdFinished(int, QProcess::ExitStatus)) );
     connect(this, SIGNAL(error(QProcess::ProcessError)), this, SLOT(cmdError(QProcess::ProcessError)) );
-  } 
-  proclog.append("[Running Command: "+cmd+" ]");
+  }
+  proclog.insert("current_cmd",cCmd);
   //qDebug() << "Proc Starting:" << ID << cmd;
-  this->start(cmd);
+  this->start(cCmd);
 }
 
 bool DProcess::isRunning(){
@@ -53,7 +66,7 @@ bool DProcess::isDone(){
   return (!this->isRunning() && !proclog.isEmpty());
 }
 
-QString DProcess::getProcLog(){
+QJsonObject DProcess::getProcLog(){
   //Now return the current version of the log
   return proclog;
 }
@@ -64,33 +77,35 @@ void DProcess::cmdError(QProcess::ProcessError err){
 }
 
 void DProcess::cmdFinished(int ret, QProcess::ExitStatus status){
+  if(uptimer->isActive()){ uptimer->stop(); } //use the finished signal instead
   //determine success/failure
   success = (status==QProcess::NormalExit && ret==0);
   //update the log before starting another command
-  proclog.append( this->readAllStandardOutput() );
+  proclog.insert(cCmd, proclog.value(cCmd).toString().append(this->readAllStandardOutput()) );
+  proclog.insert("return_codes/"+cCmd, QString::number(ret));
+  
   //Now run any additional commands
   //qDebug() << "Proc Finished:" << ID << success << proclog;
-  if(success && !cmds.isEmpty()){ startProc(); }
-  else if(success){
-    t_finished = QDateTime::currentDateTime();
-    emit ProcFinished(ID);
-    emit Finished(ID, ret, proclog);
+  if(success && !cmds.isEmpty()){ 
+    emit ProcUpdate(ID, proclog);
+    startProc();
   }else{
-    if(status==QProcess::NormalExit){
-      proclog.append("\n[Command Failed: " + QString::number(ret)+" ]");
-    }else{
-      proclog.append("\n[Command Failed: Process Crashed ]");
-    }
-    t_finished = QDateTime::currentDateTime();
-    emit ProcFinished(ID);
-    emit Finished(ID, ret, proclog);
+    proclog.insert("state","finished");
+    proclog.remove("current_cmd");
+    proclog.insert("time_finished", QDateTime::currentDateTime().toString(Qt::ISODate));
+    emit ProcFinished(ID, proclog);
   }
 }
 
 void DProcess::updateLog(){
-  proclog.append( this->readAllStandardOutput() );
-  emit ProcessOutput(proclog);
+  proclog.insert(cCmd, proclog.value(cCmd).toString().append(this->readAllStandardOutput()) );
+  if(!uptimer->isActive()){ uptimer->start(); }
 }
+
+void DProcess::emitUpdate(){
+  emit ProcUpdate(ID, proclog);
+}
+
 // ================================
 // Dispatcher Class
 // ================================
@@ -147,46 +162,39 @@ DProcess* Dispatcher::createProcess(QString ID, QStringList cmds){
 void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, DProcess *P){
   //qDebug() << "mkProcs()"; 
   //P->moveToThread(this->thread());
-  connect(P, SIGNAL(ProcFinished(QString)), this, SLOT(ProcFinished(QString)) );
+  connect(P, SIGNAL(ProcFinished(QString, QJsonObject)), this, SLOT(ProcFinished(QString, QJsonObject)) );
+  connect(P, SIGNAL(ProcUpdate(QString, QJsonObject)), this, SLOT(ProcUpdated(QString, QJsonObject)) );
   QList<DProcess*> list;
   if(!HASH.contains(queue)){ HASH.insert(queue, list); } //insert an empty list
   HASH[queue] << P; //add this proc to the end of the list
   CheckQueues();
 }
 
-void Dispatcher::ProcFinished(QString ID){
+void Dispatcher::ProcFinished(QString ID, QJsonObject log){
   //Find the process with this ID and close it down (with proper events)
   qDebug() << " - Got Proc Finished Signal:" << ID;
-  /*bool found = false;
-  for(int i=0; i<enum_length && !found; i++){
-    Dispatcher::PROC_QUEUE queue = static_cast<Dispatcher::PROC_QUEUE>(i);
-    if(HASH.contains(queue)){
-      QList<DProcess*> list = HASH[queue];
-      for(int l=0; l<list.length() && !found; l++){
-        if(list[l]->ID==ID){ 
-	  qDebug() << "Delete Proc on Finished:" << list[l]->ID;
-	  QJsonObject obj;
-	  obj.insert("log",list[l]->getProcLog());
-	  obj.insert("success", list[l]->success ? "true" : "false" );
-	  obj.insert("proc_id", ID);
-	  obj.insert("cmd_list", QJsonArray::fromStringList( list[l]->rawcmds ) );
-	  obj.insert("time_started", list[l]->t_started.toString(Qt::ISODate) );
-	  obj.insert("time_finished", list[l]->t_finished.toString(Qt::ISODate) );
-	  emit DispatchFinished(obj);
-	  list.takeAt(l)->deleteLater();
-	  LogManager::log(LogManager::DISPATCH, obj);
-	  found = true;
-	  l--;
-	}
-      } //end loop over queue list
-    }
-  }//end loop over queue enumeration*/
+  LogManager::log(LogManager::DISPATCH, log);
+  //First emit any subsystem-specific event, falling back on the raw log
+  QJsonObject ev = CreateDispatcherEventNotification(ID,log);
+  if(!ev.isEmpty()){
+    emit DispatchEvent(ev);
+  }else{
+    emit DispatchEvent(log);
+  }
+
   QTimer::singleShot(20,this, SLOT(CheckQueues()) );
 }
 
+void Dispatcher::ProcUpdated(QString ID, QJsonObject log){
+  //See if this needs to generate an event
+  QJsonObject ev = CreateDispatcherEventNotification(ID,log);
+  if(!ev.isEmpty()){
+    emit DispatchEvent(ev);
+  }
+}
+
 void Dispatcher::CheckQueues(){
-  qDebug() << " - Check Queues";
-  for(int i=0; i<enum_length; i++){
+for(int i=0; i<enum_length; i++){
     PROC_QUEUE queue = static_cast<PROC_QUEUE>(i);
     if(HASH.contains(queue)){
       QList<DProcess*> list = HASH[queue];
@@ -194,16 +202,6 @@ void Dispatcher::CheckQueues(){
 	if(j>0 && queue!=NO_QUEUE){ break; } //done with this - only first item in these queues should run at a time
 	if( !list[j]->isRunning() ){
 	  if(list[j]->isDone() ){
-	    qDebug() << "Delete Proc:" << list[j]->ID;
-	    QJsonObject obj;
-	    obj.insert("log",list[j]->getProcLog());
-	    obj.insert("success", list[j]->success ? "true" : "false" );
-	    obj.insert("proc_id", list[j]->ID);
-	    obj.insert("cmd_list", QJsonArray::fromStringList( list[j]->rawcmds ) );
-	    obj.insert("time_started", list[j]->t_started.toString(Qt::ISODate) );
-	    obj.insert("time_finished", list[j]->t_finished.toString(Qt::ISODate) );
-	    emit DispatchFinished(obj);
-	    LogManager::log(LogManager::DISPATCH, obj);
 	    list.takeAt(j)->deleteLater();
 	    j--;
 	  }else{

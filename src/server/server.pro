@@ -13,7 +13,8 @@ HEADERS	+= globals.h globals-qt.h \
 		SslServer.h \
 		EventWatcher.h \
 		LogManager.h \
-		Dispatcher.h
+		Dispatcher.h \
+		DispatcherParsing.h
 		
 SOURCES	+= main.cpp \
 		WebServer.cpp \

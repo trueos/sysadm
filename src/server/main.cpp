@@ -140,7 +140,7 @@ int main( int argc, char ** argv )
       qInstallMessageHandler(MessageOutput);
       
     //Connect the background classes
-    QObject::connect(DISPATCHER, SIGNAL(DispatchFinished(QJsonObject)), EVENTS, SLOT(DispatchFinished(QJsonObject)) );
+    QObject::connect(DISPATCHER, SIGNAL(DispatchEvent(QJsonObject)), EVENTS, SLOT(DispatchEvent(QJsonObject)) );
     QObject::connect(DISPATCHER, SIGNAL(DispatchStarting(QString)), EVENTS, SLOT(DispatchStarting(QString)) );
       
     //Create the daemon

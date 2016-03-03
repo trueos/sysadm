@@ -595,10 +595,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
       }
       else if(act=="fetchiso"){
 	ok = true;
-	DProcess fetchproc;
-        out->insert("fetchiso", sysadm::Iohyve::fetchISO(in_args.toObject(), &fetchproc));
-	connect(&fetchproc, SIGNAL(ProcessOutput(QString)), this, SLOT(slotIohyveFetchProcessOutput(QString)) );
-	connect(&fetchproc, SIGNAL(Finished(QString, int, QString)), this, SLOT(slotIohyveFetchDone(QString, int, QString)) );
+	//DProcess fetchproc;
+        out->insert("fetchiso", sysadm::Iohyve::fetchISO(in_args.toObject()));
       }
       else if(act=="install"){
 	ok = true;

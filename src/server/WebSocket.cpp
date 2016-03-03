@@ -393,8 +393,9 @@ void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
 //       PUBLIC SLOTS
 // ======================
 void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QJsonValue msg){
-  qDebug() << "Got Socket Event Update:" << msg;
+  //qDebug() << "Got Socket Event Update:" << msg;
   if(msg.isNull()){ msg = EVENTS->lastEvent(evtype); }
+  if(msg.isNull()){ return; } //nothing to send
   if( !ForwardEvents.contains(evtype) ){ return; }
   RestOutputStruct out;
     out.CODE = RestOutputStruct::OK;

@@ -111,13 +111,13 @@ void EventWatcher::DispatchStarting(QString ID){
   obj.insert("process_id", ID);
   obj.insert("state", "running");
   LogManager::log(LogManager::EV_DISPATCH, obj);
-  qDebug() << "Got Dispatch starting: sending event...";
+  //qDebug() << "Got Dispatch starting: sending event...";
   emit NewEvent(DISPATCHER, obj);
 }
 
-void EventWatcher::DispatchFinished(QJsonObject obj){
+void EventWatcher::DispatchEvent(QJsonObject obj){
   LogManager::log(LogManager::EV_DISPATCH, obj);
-  qDebug() << "Got Dispatch Finished: sending event...";
+  //qDebug() << "Got Dispatch Finished: sending event...";
   emit NewEvent(DISPATCHER, obj);	
 }
 

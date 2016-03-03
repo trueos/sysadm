@@ -21,11 +21,11 @@ public:
 
 	//output variables for logging purposes
 	bool success;
-	QDateTime t_started, t_finished;
-	QStringList rawcmds; //copy of cmds at start of process
+	//QDateTime t_started, t_finished;
+	// QStringList rawcmds; //copy of cmds at start of process
 
 	//Get the current process log (can be run during/after the process runs)
-	QString getProcLog();
+	QJsonObject getProcLog();
 	//Process Status
 	bool isRunning();
 	bool isDone();
@@ -34,19 +34,20 @@ public slots:
 	void startProc();
 
 private:
-	QString proclog;
+	QString cCmd;
+	QJsonObject proclog;
+	QTimer *uptimer;
 
 private slots:
 	void cmdError(QProcess::ProcessError);
 	void cmdFinished(int, QProcess::ExitStatus);
 	void updateLog(); //readyRead() signal
-
+	void emitUpdate();
 
 signals:
-	void ProcFinished(QString); //ID
+	void ProcFinished(QString, QJsonObject); // ID / log
 	//Generic signals for subsystem usage (no direct proc access later)
-	void ProcessOutput(QString);
-	void Finished(QString, int, QString); //ID, retcode, log
+	void ProcUpdate(QString, QJsonObject); // ID/log
 };
 	
 
@@ -82,12 +83,13 @@ private:
 
 private slots:
 	void mkProcs(Dispatcher::PROC_QUEUE, DProcess *P);
-	void ProcFinished(QString ID);
+	void ProcFinished(QString ID, QJsonObject log);
+	void ProcUpdated(QString ID, QJsonObject log);
 	void CheckQueues();
 
 signals:
 	//Main signals
-	void DispatchFinished(QJsonObject obj); //obj is the data associated with the process
+	void DispatchEvent(QJsonObject obj); //obj is the data associated with the process
 	void DispatchStarting(QString ID);
 
 	//Signals for private usage
