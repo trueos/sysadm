@@ -70,6 +70,7 @@ private:
 	
 private slots:
 	void checkIdle(); //see if the currently-connected client is idle
+	void checkAuth(); //see if the currently-connected client has authed yet
 	void SocketClosing();
 
 	//Currently connected socket signal/slot connections

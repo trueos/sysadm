@@ -14,7 +14,6 @@ EventWatcher::EventWatcher(){
   //Only put non-thread-specific stuff here
   starting = true;
   oldhostname = sysadm::General::RunCommand("hostname").simplified();
-  
 }
 
 EventWatcher::~EventWatcher(){
@@ -111,12 +110,14 @@ void EventWatcher::DispatchStarting(QString ID){
   QJsonObject obj;
   obj.insert("process_id", ID);
   obj.insert("state", "running");
-  LogManager::log(LogManager::EV_DISPATCH, obj);	
+  LogManager::log(LogManager::EV_DISPATCH, obj);
+  qDebug() << "Got Dispatch starting: sending event...";
   emit NewEvent(DISPATCHER, obj);
 }
 
 void EventWatcher::DispatchFinished(QJsonObject obj){
   LogManager::log(LogManager::EV_DISPATCH, obj);
+  qDebug() << "Got Dispatch Finished: sending event...";
   emit NewEvent(DISPATCHER, obj);	
 }
 

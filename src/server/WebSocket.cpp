@@ -26,7 +26,9 @@ WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
   connect(SOCKET, SIGNAL(textMessageReceived(const QString&)), this, SLOT(EvaluateMessage(const QString&)) );
   connect(SOCKET, SIGNAL(binaryMessageReceived(const QByteArray&)), this, SLOT(EvaluateMessage(const QByteArray&)) );
   connect(SOCKET, SIGNAL(aboutToClose()), this, SLOT(SocketClosing()) );
+  connect(EVENTS, SIGNAL(NewEvent(EventWatcher::EVENT_TYPE, QJsonValue)), this, SLOT(EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue)) );
   idletimer->start();
+  QTimer::singleShot(30000, this, SLOT(checkAuth()));
 }
 
 WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
@@ -46,10 +48,12 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
   connect(TSOCKET, SIGNAL(encrypted()), this, SLOT(nowEncrypted()) );
   connect(TSOCKET, SIGNAL(peerVerifyError(const QSslError &)), this, SLOT(peerError(const QSslError &)) );
   connect(TSOCKET, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(SslError(const QList<QSslError> &)) );
+  connect(EVENTS, SIGNAL(NewEvent(EventWatcher::EVENT_TYPE, QJsonValue)), this, SLOT(EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue)) );
   //qDebug() << " - Starting Server Encryption Handshake";
    TSOCKET->startServerEncryption();
   //qDebug() << " - Socket Encrypted:" << TSOCKET->isEncrypted();
   idletimer->start();
+  QTimer::singleShot(30000, this, SLOT(checkAuth()));
 }
 
 WebSocket::~WebSocket(){
@@ -125,6 +129,7 @@ void WebSocket::EvaluateREST(QString msg){
 }
 
 void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
+  //qDebug() << "Evaluate Request:" << REQ.namesp << REQ.name << REQ.args;
   RestOutputStruct out;
     out.in_struct = REQ;
   QHostAddress host;
@@ -210,12 +215,13 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 	}
 	    	
 }else if(out.in_struct.namesp.toLower() == "events"){
+	//qDebug() << "Got Event subsytem request" << out.in_struct.args;
           if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
 	    //Pre-set any output fields
             QJsonObject outargs;	
 	    //Assemble the list of input events
 	    QStringList evlist;
-	    if(out.in_struct.args.isObject()){ evlist << JsonValueToString(out.in_struct.args); }
+	    if(out.in_struct.args.isString()){ evlist << JsonValueToString(out.in_struct.args); }
 	    else if(out.in_struct.args.isArray()){ evlist = JsonArrayToStringList(out.in_struct.args.toArray()); }
 	    //Now subscribe/unsubscribe to these events
 	    int sub = -1; //bad input
@@ -225,6 +231,7 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 	    if(sub>=0 && !evlist.isEmpty() ){
 	      for(int i=0; i<evlist.length(); i++){
 	        EventWatcher::EVENT_TYPE type = EventWatcher::typeFromString(evlist[i]);
+		qDebug() << " - type:" << type;
 		if(type==EventWatcher::BADEVENT){ continue; }
 		outargs.insert(out.in_struct.name,QJsonValue(evlist[i]));
 		if(sub==1){ 
@@ -313,6 +320,13 @@ void WebSocket::checkIdle(){
   }
 }
 
+void WebSocket::checkAuth(){
+  if(!AUTHSYSTEM->checkAuth(SockAuthToken)){
+    //Still not authorized - disconnect
+    checkIdle();
+  }
+}
+
 void WebSocket::SocketClosing(){
   LogManager::log(LogManager::HOST,"Connection Closing: "+SockPeerIP);
   if(idletimer->isActive()){ 
@@ -379,16 +393,16 @@ void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
 //       PUBLIC SLOTS
 // ======================
 void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QJsonValue msg){
+  qDebug() << "Got Socket Event Update:" << msg;
   if(msg.isNull()){ msg = EVENTS->lastEvent(evtype); }
-  //qDebug() << "Socket Status Update:" << msg;
-  if(!ForwardEvents.contains(evtype)){ return; }
+  if( !ForwardEvents.contains(evtype) ){ return; }
   RestOutputStruct out;
     out.CODE = RestOutputStruct::OK;
     out.in_struct.namesp = "events";
     out.out_args = msg;
     out.Header << "Content-Type: text/json; charset=utf-8"; //REST header info
     out.in_struct.name = EventWatcher::typeToString(evtype);
-  
+  qDebug() << "Send Event:" << out.assembleMessage();
   //Now send the message back through the socket
   this->sendReply(out.assembleMessage());
 }
