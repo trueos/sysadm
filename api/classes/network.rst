@@ -30,8 +30,8 @@ The rest of this section provides examples of the available *actions* for each t
 
 .. _List Devices:
 
-List VMs
-========
+List Devices
+============
 
 The "list-devices" action lists information about currently recognized network devices. For each network device, the response includes the device's MAC address, description, IPv4 address,
 IPv6 address, whether or not the device is active, whether or not the device is configured using DHCP, whether or not the device is wireless, its subnet mask, and its current status.
