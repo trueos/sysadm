@@ -21,7 +21,7 @@ Every iohyve class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listvms", "fetchiso", "listisos", "renameiso", "rmiso", "setup",  "issetup", "create",    |
-|                                 |               | "install", "start", "stop", "delete", "adddisk"                                                                      |
+|                                 |               | "install", "start", "stop", "delete", "adddisk", and "listdisks"                                                     |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -637,7 +637,7 @@ The "delete" action deletes the specified iohyve guest.
   "namespace": "sysadm"
  }
  
- .. index:: adddisk, iohyve
+.. index:: adddisk, iohyve
 
 .. _Add a Disk:
 
@@ -682,6 +682,54 @@ The "adddisk" action adds and creates a disk for a VM.
       "bsdguest": {
         "size": "10G"
       }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: listdisks, iohyve
+
+.. _List Disks:
+
+List Disks
+==========
+
+The "listdisks" action lists the disks connected to the specified VM.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "name" : "bsdguest",
+   "action" : "listdisks"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "listdisks",
+      "name" : "bsdguest"
+   },
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "name" : "iohyve"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "listdisks": {
+      "disk0": "10G"
     }
   },
   "id": "fooid",
