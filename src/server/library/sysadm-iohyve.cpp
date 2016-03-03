@@ -252,7 +252,6 @@ QJsonObject Iohyve::listDisks(QJsonObject jsin) {
   return retObject;
 }
 
-
 // List the VMs on the box
 QJsonObject Iohyve::listVMs() {
   QJsonObject retObject;
@@ -479,3 +478,12 @@ QJsonObject Iohyve::stopGuest(QJsonObject jsin) {
   retObject.insert("name", name);
   return retObject;
 }
+
+// List the version of iohyve
+QJsonObject Iohyve::version() {
+  QJsonObject retObject;
+  QString output = General::RunCommand("iohyve version").simplified();
+  retObject.insert("version", output);
+  return retObject;
+}
+

@@ -648,6 +648,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("stop", sysadm::Iohyve::stopGuest(in_args.toObject()));
       }
+      else if(act=="version"){
+	ok = true;
+        out->insert("version", sysadm::Iohyve::version());
+      }
       //qDebug() << " - iohyve action finished:" << act << ok;
     } //end of "action" key usage
 

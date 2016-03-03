@@ -31,6 +31,7 @@ public:
 	static QJsonObject setupIohyve(QJsonObject);
 	static QJsonObject startGuest(QJsonObject);
 	static QJsonObject stopGuest(QJsonObject);
+	static QJsonObject version();
 
 };
 	
