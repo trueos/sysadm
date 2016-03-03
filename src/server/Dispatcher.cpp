@@ -172,7 +172,7 @@ void Dispatcher::ProcFinished(QString ID){
 	  obj.insert("time_started", list[l]->t_started.toString(Qt::ISODate) );
 	  obj.insert("time_finished", list[l]->t_finished.toString(Qt::ISODate) );
 	  emit DispatchFinished(obj);
-	  delete list.takeAt(l);
+	  list.takeAt(l)->deleteLater();
 	  LogManager::log(LogManager::DISPATCH, obj);
 	  found = true;
 	}
@@ -200,7 +200,7 @@ for(int i=0; i<enum_length; i++){
 	    obj.insert("time_finished", list[j]->t_finished.toString(Qt::ISODate) );
 	    emit DispatchFinished(obj);
 	    LogManager::log(LogManager::DISPATCH, obj);
-	    delete list.takeAt(j);
+	    list.takeAt(j)->deleteLater();
 	    j--;
 	  }else{
 	    //Need to start this one - has not run yet
