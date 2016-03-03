@@ -21,7 +21,7 @@ Every iohyve class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listvms", "fetchiso", "listisos", "renameiso", "rmiso", "setup",  "issetup", "create",    |
-|                                 |               | "install", "start", "stop", "delete", "adddisk", and "listdisks"                                                     |
+|                                 |               | "install", "start", "stop", "delete", "adddisk", "listdisks", and "deletedisk"                                       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -730,6 +730,57 @@ The "listdisks" action lists the disks connected to the specified VM.
   "args": {
     "listdisks": {
       "disk0": "10G"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+ .. index:: deletedisk, iohyve
+
+.. _Delete a Disk:
+
+Delete a Disk
+=============
+
+The "deletedisk" action removes the specified disk from the specified VM.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "disk" : "disk1",
+   "name" : "bsdguest",
+   "action" : "deletedisk"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "name" : "iohyve",
+   "args" : {
+      "name" : "bsdguest",
+      "action" : "deletedisk",
+      "disk" : "disk1"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "deletedisk": {
+      "disk": "disk1",
+      "name": "bsdguest"
     }
   },
   "id": "fooid",
