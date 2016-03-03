@@ -37,6 +37,7 @@ ssl_keygen()
 sysadm_stop()
 {
   if [ -e "/var/run/sysadm.pid" ] ; then
+    pkill -9 -F /var/run/sysadm-daemon.pid >/dev/null 2>/dev/null
     pkill -9 -F /var/run/sysadm.pid >/dev/null 2>/dev/null
   fi
 }
@@ -48,7 +49,7 @@ sysadm_start()
   ssl_keygen
   echo "Starting sysadm..."
   command="/usr/local/bin/sysadm-server"
-  daemon -r -p /var/run/sysadm.pid $command $flags >/dev/null 2>/dev/null
+  daemon -r -P /var/run/sysadm-daemon.pid -p /var/run/sysadm.pid $command $flags >/dev/null 2>/dev/null
   chmod 744 /var/run/sysadm.pid >/dev/null 2>/dev/null
 }
 
