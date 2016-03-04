@@ -38,8 +38,6 @@ void DProcess::startProc(){
     emit ProcFinished(ID, proclog);
     return; 
   }
-  cCmd = cmds.takeFirst();
-  success = false; //not finished yet
   if(proclog.isEmpty()){
     //first cmd started
     proclog.insert("time_started", QDateTime::currentDateTime().toString(Qt::ISODate));
@@ -51,6 +49,8 @@ void DProcess::startProc(){
     connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(cmdFinished(int, QProcess::ExitStatus)) );
     connect(this, SIGNAL(error(QProcess::ProcessError)), this, SLOT(cmdError(QProcess::ProcessError)) );
   }
+  cCmd = cmds.takeFirst();
+  success = false; //not finished yet
   proclog.insert("current_cmd",cCmd);
   //qDebug() << "Proc Starting:" << ID << cmd;
   this->start(cCmd);
@@ -139,7 +139,7 @@ DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QSt
 DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QStringList cmds){
   //This is the primary queueProcess() function - all the overloads end up here to do the actual work
   //For multi-threading, need to emit a signal/slot for this action (object creations need to be in same thread as parent)
-  qDebug() << "Queue Process:" << queue << ID << cmds;
+  //qDebug() << "Queue Process:" << queue << ID << cmds;
   DProcess *P = createProcess(ID, cmds);
   //connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, DProcess*)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)) );
   emit mkprocs(queue, P);
@@ -170,7 +170,7 @@ void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, DProcess *P){
 
 void Dispatcher::ProcFinished(QString ID, QJsonObject log){
   //Find the process with this ID and close it down (with proper events)
-  qDebug() << " - Got Proc Finished Signal:" << ID;
+  //qDebug() << " - Got Proc Finished Signal:" << ID;
   LogManager::log(LogManager::DISPATCH, log);
   //First emit any subsystem-specific event, falling back on the raw log
   QJsonObject ev = CreateDispatcherEventNotification(ID,log);
@@ -204,7 +204,7 @@ for(int i=0; i<enum_length; i++){
 	    j--;
 	  }else{
 	    //Need to start this one - has not run yet
-	    qDebug() << "Call Start Proc:" << list[j]->ID;
+	    //qDebug() << "Call Start Proc:" << list[j]->ID;
 	    emit DispatchStarting(list[j]->ID);
 	    list[j]->startProc();
 	    //QTimer::singleShot(0,list[j], SLOT(startProc()) );

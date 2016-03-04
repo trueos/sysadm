@@ -17,11 +17,16 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
   //Quick flags/simplifications for use later
   QString cCmd, cLog; //Current command/log for that command (might be a chain of commands)
   cCmd = log.value("current_cmd").toString(); //This is usually empty if the proc finished
-  if(!cCmd.isEmpty()){ cLog = log.value(cCmd).toString(); }
-  bool isFinished = log.contains("return_codes/"+cCmd) || cCmd.isEmpty();
+  if(cCmd.isEmpty()){ cCmd = log.value("cmd_list").toArray().last().toString(); }
+  cLog = log.value(cCmd).toString();
+  bool isFinished = (log.value("state").toString()=="finished");
   qDebug() << "Check Dispatcher Event:";
   qDebug() << " - RAW LOG:" << log;
   qDebug() << "cCmd:" << cCmd << "cLog:" << cLog << "isFinished:" << isFinished;
+  //Add the generic process values
+  args.insert("state",isFinished ? "finished" : "running");
+  args.insert("process_details", log); //full process log array here
+  
   //Now parse the notification based on the dispatch ID or current command
   //NOTE: There might be a random string on the end of the ID (to accomodate similar process calls)
   if(ID.startsWith("sysadm_iohyve")){
@@ -29,13 +34,7 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
     //Now perform additional cmd/system based filtering
     if(ID.section("::",0,0)=="sysadm_iohyve_fetch" || cCmd.startsWith("iohyve fetch ")){
       //Do some parsing of the log
-      if(isFinished){ 
-	args.insert("state","finished");
-      }else{ 
-	args.insert("state","running");
-	args.insert("progress", parseIohyveFetchOutput(cLog));
-	//args.insert("progress", cLog.section("\n",-1, QString::SectionSkipEmpty)); //send the last line of the fetch
-      }
+      parseIohyveFetchOutput(cLog,&args);
     }
 	  
   }
@@ -46,9 +45,15 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
   return args;
 }
 
-QJsonObject Dispatcher::parseIohyveFetchOutput(QString output)
-{
-  qDebug() << "Parsing iohyve log" << output.section("\n", -1, QString::SectionSkipEmpty);
-  QJsonObject ret;
-  return ret;
+void Dispatcher::parseIohyveFetchOutput(QString outputLog, QJsonObject *out){
+  QStringList lines = outputLog.split("\n", QString::SkipEmptyParts);
+  if(lines.isEmpty()){ return; } //nothing to report
+  for(int i=lines.length()-1; i>=0; i--){
+    qDebug() << "Parsing iohyve fetch line:" << lines[i];
+    if(!lines[i].contains("% of ")){ continue; }
+    out->insert("filename", lines[i].section("\t",0,0) );
+    out->insert("percent_done",lines[i].section("\t",1,1) );
+    out->insert("download_rate",lines[i].section("\t",2,-1) );
+    break;
+  }
 }
