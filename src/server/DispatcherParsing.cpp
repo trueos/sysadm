@@ -46,6 +46,7 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
 }
 
 void Dispatcher::parseIohyveFetchOutput(QString outputLog, QJsonObject *out){
+  //Note: this is the standard parsing for a "fetch" call
   QStringList lines = outputLog.split("\n", QString::SkipEmptyParts);
   if(lines.isEmpty()){ return; } //nothing to report
   for(int i=lines.length()-1; i>=0; i--){
