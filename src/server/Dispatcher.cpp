@@ -20,7 +20,7 @@ DProcess::DProcess(QObject *parent) : QProcess(parent){
     connect(uptimer, SIGNAL(timeout()), this, SLOT(emitUpdate()) );
     this->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
     this->setProcessChannelMode(QProcess::MergedChannels);
-    connect(this, SIGNAL(readyRead()), this, SLOT(updateLog()) );
+    connect(this, SIGNAL(readyReadStandardOutput()), this, SLOT(updateLog()) );
 }
 
 DProcess::~DProcess(){

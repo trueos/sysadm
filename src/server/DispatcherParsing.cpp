@@ -20,9 +20,9 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
   if(cCmd.isEmpty()){ cCmd = log.value("cmd_list").toArray().last().toString(); }
   cLog = log.value(cCmd).toString();
   bool isFinished = (log.value("state").toString()=="finished");
-  qDebug() << "Check Dispatcher Event:";
-  qDebug() << " - RAW LOG:" << log;
-  qDebug() << "cCmd:" << cCmd << "cLog:" << cLog << "isFinished:" << isFinished;
+  //qDebug() << "Check Dispatcher Event:";
+  //qDebug() << " - RAW LOG:" << log;
+  //qDebug() << "cCmd:" << cCmd << "cLog:" << cLog << "isFinished:" << isFinished;
   //Add the generic process values
   args.insert("state",isFinished ? "finished" : "running");
   args.insert("process_details", log); //full process log array here
@@ -51,7 +51,7 @@ void Dispatcher::parseIohyveFetchOutput(QString outputLog, QJsonObject *out){
   if(lines.isEmpty()){ return; } //nothing to report
   for(int i=lines.length()-1; i>=0; i--){
     qDebug() << "Parsing iohyve fetch line:" << lines[i];
-    if(!lines[i].contains("% of ")){ continue; }
+    if(!lines[i].contains("% of ") && !lines[i].endsWith(" Bps") ){ continue; }
     out->insert("filename", lines[i].section("\t",0,0) );
     out->insert("percent_done",lines[i].section("\t",1,1) );
     out->insert("download_rate",lines[i].section("\t",2,-1) );
