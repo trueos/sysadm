@@ -361,16 +361,47 @@ void WebSocket::EvaluateMessage(const QString &msg){
   //qDebug() << " - Done with Text Message";
 }
 
+void WebSocket::ParseIncoming(){
+  bool found = false;
+
+  // Check if we have a complete JSON request waiting to be parsed
+  QString JsonRequest;
+  for ( int i = 0; i<incomingbuffer.size(); i++) {
+    JsonRequest = incomingbuffer;
+    JsonRequest.truncate(i);
+    if ( !QJsonDocument::fromBinaryData(JsonRequest.toLocal8Bit()).isNull() )
+    {
+      // We have what looks like a valid JSON request, lets parse it now
+      //qDebug() << "TCP Message" << JsonRequest;
+      EvaluateREST(JsonRequest);
+      incomingbuffer.remove(0, i);
+      found = true;
+      break;
+    }
+  }
+
+  // If the buffer is larger than 128000 chars and no valid JSON somebody
+  // is screwing with us, lets clear the buffer
+  if ( ! found && incomingbuffer.size() > 128000 ) {
+    incomingbuffer="";
+    return;
+  }
+
+  // If we found a valid JSON request, but still have data, check for
+  // a second request waiting in the buffer
+  if ( found && incomingbuffer.size() > 2 )
+    ParseIncoming();
+}
+
 void WebSocket::EvaluateTcpMessage(){
   //Need to read the data from the Tcp socket and turn it into a string
   //qDebug() << "New TCP Message:";
   if(idletimer->isActive()){ idletimer->stop(); }
-  QString msg = QString(TSOCKET->readAll());
-  for(int i=0; i<5 && !msg.endsWith("}"); i++){
-    usleep(10000); //10ms
-    msg.append( QString(TSOCKET->readAll()) );
-  }
-  EvaluateREST(msg );
+  incomingbuffer.append(QString(TSOCKET->read(128000)));
+
+  // Check for JSON in this incoming data
+  ParseIncoming();
+
   idletimer->start(); 
   //qDebug() << " - Done with TCP Message";	
 }

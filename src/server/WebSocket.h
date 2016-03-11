@@ -29,6 +29,10 @@ private:
 	QList<EventWatcher::EVENT_TYPE> ForwardEvents;
 	void sendReply(QString msg);
 
+	// Where we store incoming Tcp data
+	QString incomingbuffer;
+	void ParseIncoming();
+
 	//Main connection comminucations procedure
 	void EvaluateREST(QString); //Text -> Rest/JSON struct
 	void EvaluateRequest(const RestInputStruct&); // Parse Rest/JSON (does auth/events)
