@@ -80,7 +80,8 @@ QString NetDevice::ipv6AsString(){
       addrs = addrs->ifa_next;
     }
   }
-  free(addrs);
+  // Causes crash in some cases
+  //free(addrs);
   if(sadd==0){ qDebug() << "No socket address found"; return ""; }
   //Now get the IPv6 address in string form
   char straddr[INET6_ADDRSTRLEN];
