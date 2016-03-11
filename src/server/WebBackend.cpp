@@ -99,7 +99,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     AvailableSubsystems(IN.fullaccess, &avail);
     if(!avail.contains(namesp+"/"+name)){ return RestOutputStruct::NOTFOUND; }
   }
-  qDebug() << "Evaluate Backend Request:" << namesp << name;
+  //qDebug() << "Evaluate Backend Request:" << namesp << name;
   //Go through and forward this request to the appropriate sub-system
   if(namesp=="sysadm" && name=="settings"){
     return EvaluateSysadmSettingsRequest(IN.args, out);

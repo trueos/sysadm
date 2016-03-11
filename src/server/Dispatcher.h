@@ -84,7 +84,7 @@ private:
 
 	// Functions to do parsing out dispatcher queued tasks
 	// Please keep these sorted
-	QJsonObject parseIohyveFetchOutput(QString outputLog);
+	void parseIohyveFetchOutput(QString outputLog, QJsonObject *out);
 
 private slots:
 	void mkProcs(Dispatcher::PROC_QUEUE, DProcess *P);
