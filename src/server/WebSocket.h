@@ -27,7 +27,6 @@ private:
 	QString SockID, SockAuthToken, SockPeerIP;
 	AuthorizationManager *AUTHSYSTEM;
 	QList<EventWatcher::EVENT_TYPE> ForwardEvents;
-	void sendReply(QString msg);
 
 	// Where we store incoming Tcp data
 	QString incomingbuffer;
@@ -73,6 +72,7 @@ private:
 	RestOutputStruct::ExitCode EvaluateSysadmZfsRequest(const QJsonValue in_args, QJsonObject *out);
 	
 private slots:
+	void sendReply(QString msg);
 	void checkIdle(); //see if the currently-connected client is idle
 	void checkAuth(); //see if the currently-connected client has authed yet
 	void SocketClosing();
@@ -96,6 +96,7 @@ public slots:
 
 signals:
 	void SocketClosed(QString); //ID
+	void SendMessage(QString); //Internal - connected to sendReply(QString)
 };
 
 #endif

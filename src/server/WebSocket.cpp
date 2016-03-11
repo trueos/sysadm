@@ -27,6 +27,7 @@ WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
   connect(SOCKET, SIGNAL(binaryMessageReceived(const QByteArray&)), this, SLOT(EvaluateMessage(const QByteArray&)) );
   connect(SOCKET, SIGNAL(aboutToClose()), this, SLOT(SocketClosing()) );
   connect(EVENTS, SIGNAL(NewEvent(EventWatcher::EVENT_TYPE, QJsonValue)), this, SLOT(EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue)) );
+  connect(this, SIGNAL(SendMessage(QString)), this, SLOT(sendReply(QString)) );
   idletimer->start();
   QTimer::singleShot(30000, this, SLOT(checkAuth()));
 }
@@ -49,6 +50,7 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
   connect(TSOCKET, SIGNAL(peerVerifyError(const QSslError &)), this, SLOT(peerError(const QSslError &)) );
   connect(TSOCKET, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(SslError(const QList<QSslError> &)) );
   connect(EVENTS, SIGNAL(NewEvent(EventWatcher::EVENT_TYPE, QJsonValue)), this, SLOT(EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue)) );
+  connect(this, SIGNAL(SendMessage(QString)), this, SLOT(sendReply(QString)) );
   //qDebug() << " - Starting Server Encryption Handshake";
    TSOCKET->startServerEncryption();
   //qDebug() << " - Socket Encrypted:" << TSOCKET->isEncrypted();
@@ -271,9 +273,12 @@ if(out.in_struct.namesp.toLower() == "rpc"){
     }
   }
   //Return any information
-  this->sendReply(out.assembleMessage());
+  
   if(out.CODE == RestOutputStruct::FORBIDDEN && SOCKET!=0 && SOCKET->isValid()){
+    this->sendReply(out.assembleMessage());
     SOCKET->close(QWebSocketProtocol::CloseCodeNormal, "Too Many Authorization Failures - Try again later");
+  }else{
+    this->emit SendMessage(out.assembleMessage());	  
   }
 }
 
