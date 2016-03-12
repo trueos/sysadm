@@ -29,7 +29,7 @@ QJsonObject Iohyve::addDisk(QJsonObject jsin) {
   QString size = jsin.value("size").toString();
   QString pool = jsin.value("pool").toString();
 
-  QStringList output = General::RunCommand("iohyve add " + name + " " + size + " " + pool).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "add" << name << size << pool).split("\n");
 
   for ( int i = 0; i < output.size(); i++)
   {
@@ -62,7 +62,7 @@ QJsonObject Iohyve::createGuest(QJsonObject jsin) {
   QString name = jsin.value("name").toString();
   QString size = jsin.value("size").toString();
 
-  QStringList output = General::RunCommand("iohyve create " + name + " " + size).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "create" <<  name << size).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
     if ( output.at(i).indexOf("cannot create") != -1 ) {
@@ -98,7 +98,7 @@ QJsonObject Iohyve::deleteDisk(QJsonObject jsin) {
   }
 
   // Remove the disk now
-  QStringList output = General::RunCommand("iohyve remove " + name + " " + disk).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "remove" << name << disk).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
     // This doesn't work, iohyve doesn't return error message right now
@@ -131,7 +131,7 @@ QJsonObject Iohyve::deleteGuest(QJsonObject jsin) {
   QString name = jsin.value("name").toString();
 
   // Do the stop right now
-  QStringList output = General::RunCommand("iohyve delete " + name).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "delete" << name).split("\n");
   qDebug() << output;
   for ( int i = 0; i < output.size(); i++)
   {
@@ -186,7 +186,7 @@ QJsonObject Iohyve::installGuest(QJsonObject jsin) {
   QString name = jsin.value("name").toString();
   QString iso = jsin.value("iso").toString();
 
-  QStringList output = General::RunCommand("iohyve install " + name + " " + iso).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "install" << name << iso).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
     if ( output.at(i).indexOf("Could not open") != -1 ) {
@@ -229,7 +229,7 @@ QJsonObject Iohyve::listDisks(QJsonObject jsin) {
   // Get the key values
   QString name = jsin.value("name").toString();
 
-  QStringList output = General::RunCommand("iohyve disks " + name).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "disks" << name).split("\n");
 
   for ( int i = 0; i < output.size(); i++)
   {
@@ -255,7 +255,7 @@ QJsonObject Iohyve::listDisks(QJsonObject jsin) {
 QJsonObject Iohyve::listVMs() {
   QJsonObject retObject;
 
-  QStringList output = General::RunCommand("iohyve list").split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "list").split("\n");
 
   for ( int i = 0; i < output.size(); i++)
   {
@@ -283,7 +283,7 @@ QJsonObject Iohyve::listVMs() {
 // List the ISOs on the box
 QJsonArray Iohyve::listISOs(){
   QJsonArray arr;
-  QStringList output = General::RunCommand("iohyve isolist").split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "isolist").split("\n");
   for(int i=1; i<output.length(); i++){ //first line is headers
     if(output[i].isEmpty()){ continue; }
     arr.append(output[i]);
@@ -306,7 +306,7 @@ QJsonObject Iohyve::renameISO(QJsonObject jsin) {
   QString source = jsin.value("source").toString();
   QString target = jsin.value("target").toString();
 
-  QStringList output = General::RunCommand("iohyve renameiso " + source + " " + target).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "renameiso" << source << target).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
     if ( output.at(i).indexOf("cannot open") != -1 ) {
@@ -336,7 +336,7 @@ QJsonObject Iohyve::resizeDisk(QJsonObject jsin) {
   QString size = jsin.value("size").toString();
 
   // Resize the disk now
-  QStringList output = General::RunCommand("iohyve resize " + name + " " + disk + " " + size).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "resize" << name << disk << size).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
     // This doesn't work, iohyve doesn't return error message right now
@@ -369,7 +369,7 @@ QJsonObject Iohyve::rmISO(QJsonObject jsin) {
   // Get the key values
   QString target = jsin.value("target").toString();
 
-  QStringList output = General::RunCommand("iohyve rmiso " + target).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "rmiso" << target).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
     if ( output.at(i).indexOf("cannot open") != -1 ) {
@@ -402,7 +402,7 @@ QJsonObject Iohyve::setupIohyve(QJsonObject jsin) {
   }
 
   // Do the setup right now
-  QStringList output = General::RunCommand("iohyve setup pool=" + pool + " kmod=1 net=" + nic).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "setup" << "pool=" + pool << "kmod=1" << "net=" + nic).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
     if ( output.at(i).indexOf("cannot create") != -1 ) {
@@ -430,7 +430,7 @@ QJsonObject Iohyve::startGuest(QJsonObject jsin) {
   QString name = jsin.value("name").toString();
 
   // Do the setup right now
-  QStringList output = General::RunCommand("iohyve start " + name).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "start" << name).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
     if ( output.at(i).indexOf("Not a valid") != -1 ) {
@@ -464,7 +464,7 @@ QJsonObject Iohyve::stopGuest(QJsonObject jsin) {
   }
 
   // Do the stop right now
-  QStringList output = General::RunCommand("iohyve " + stoparg + " " + name).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << stoparg << name).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
     // This doesn't work, iohyve doesn't return error message right now
@@ -481,7 +481,7 @@ QJsonObject Iohyve::stopGuest(QJsonObject jsin) {
 // List the version of iohyve
 QJsonObject Iohyve::version() {
   QJsonObject retObject;
-  QString output = General::RunCommand("iohyve version").simplified();
+  QString output = General::RunCommand("iohyve", QStringList() << "version").simplified();
   retObject.insert("version", output);
   return retObject;
 }
