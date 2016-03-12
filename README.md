@@ -56,6 +56,10 @@ https://api.pcbsd.org
 
 ### Contributing new API calls
 
+SysAdm is written using the Qt toolkit, which has excellent [reference documentation](http://doc.qt.io/qt-5/classes.html).
+
+All Qt Core classes (I.E. non-gui) can be used in SysAdm server.
+
 Adding new API calls to the middleware is very straight-forward, simply <br />
 add a new function which accepts JSON in, and returns JSON, then connect <br />
 it to the backend.
