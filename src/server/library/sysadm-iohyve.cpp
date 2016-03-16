@@ -98,7 +98,7 @@ QJsonObject Iohyve::deleteDisk(QJsonObject jsin) {
   }
 
   // Remove the disk now
-  QStringList output = General::RunCommand("iohyve", QStringList() << "remove" << name << disk).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "remove" << "-f" << name << disk).split("\n");
   for ( int i = 0; i < output.size(); i++)
   {
     // This doesn't work, iohyve doesn't return error message right now
@@ -131,7 +131,7 @@ QJsonObject Iohyve::deleteGuest(QJsonObject jsin) {
   QString name = jsin.value("name").toString();
 
   // Do the stop right now
-  QStringList output = General::RunCommand("iohyve", QStringList() << "delete" << name).split("\n");
+  QStringList output = General::RunCommand("iohyve", QStringList() << "delete" << "-f" << name).split("\n");
   qDebug() << output;
   for ( int i = 0; i < output.size(); i++)
   {
