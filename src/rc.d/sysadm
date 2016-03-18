@@ -36,9 +36,11 @@ ssl_keygen()
 
 sysadm_stop()
 {
-  if [ -e "/var/run/sysadm.pid" ] ; then
+  if [ -e "/var/run/sysadm.pid" -o -e "/var/run/sysadm-daemon.pid" ] ; then
     pkill -9 -F /var/run/sysadm-daemon.pid >/dev/null 2>/dev/null
     pkill -9 -F /var/run/sysadm.pid >/dev/null 2>/dev/null
+    rm /var/run/sysadm-daemon.pid 2>/dev/null
+    rm /var/run/sysadm.pid 2>/dev/null
   fi
 }
 
