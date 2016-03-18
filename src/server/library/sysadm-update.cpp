@@ -17,10 +17,14 @@ using namespace sysadm;
 // Return a list of updates available
 QJsonObject Update::checkUpdates() {
   QJsonObject retObject;
-
+  if(QFile::exists("/tmp/.rebootrequired")){
+    retObject.insert("status","rebootrequired");
+    return retObject;
+  }
+	
   QStringList output = General::RunCommand("pc-updatemanager check").split("\n");
   QString nameval;
-
+  int pnum=1;
   for ( int i = 0; i < output.size(); i++)
   {
      if ( output.at(i).indexOf("Your system is up to date!") != -1 )
@@ -56,7 +60,8 @@ QJsonObject Update::checkUpdates() {
          itemvals.insert("date", output.at(i+3).section(" ", 1, 1));
        if ( output.size() > ( i + 4) )
          itemvals.insert("size", output.at(i+4).section(" ", 1, 1));
-       retObject.insert("patch", itemvals);
+       retObject.insert("patch"+QString::number(pnum), itemvals);
+       pnum++;
      }
      if ( output.at(i).indexOf("TYPE: PKGUPDATE") != -1 ) {
        QJsonObject itemvals;
