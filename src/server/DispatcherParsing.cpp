@@ -29,6 +29,7 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
   
   //Now parse the notification based on the dispatch ID or current command
   //NOTE: There might be a random string on the end of the ID (to accomodate similar process calls)
+  // == sysadm/iohyve ==
   if(ID.startsWith("sysadm_iohyve")){
     namesp = "sysadm"; name="iohyve";
     //Now perform additional cmd/system based filtering
@@ -36,7 +37,12 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
       //Do some parsing of the log
       parseIohyveFetchOutput(cLog,&args);
     }
-	  
+    
+  // == sysadm/update ==
+  }else if(ID.startsWith("sysadm_update")){
+    namesp = "sysadm"; name="update";
+    //No special parsing here: the pc-updatemanager output should be available as-is
+    args.insert("update_log",cLog);
   }
 	
   //Now assemble the output as needed

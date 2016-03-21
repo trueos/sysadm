@@ -21,7 +21,13 @@ QJsonObject Update::checkUpdates() {
     retObject.insert("status","rebootrequired");
     return retObject;
   }
-	
+  if(QFile::exists("/tmp/.updateInProgress")){
+    //See if the process is actually running
+    if( 0==General::RunCommand("pgrep -F /tmp/.updateInProgress") ){
+      retObject.insert("status","updaterunning");
+      return retObject;
+    }
+  }
   QStringList output = General::RunCommand("pc-updatemanager check").split("\n");
   QString nameval;
   int pnum=1;
@@ -148,7 +154,7 @@ QJsonObject Update::startUpdate(QJsonObject jsin) {
   QString ID = QUuid::createUuid().toString();
 
   // Queue the update action
-  DISPATCHER->queueProcess(ID, "pc-updatemanager " + flags);
+  DISPATCHER->queueProcess("sysadm_update_runupdates::"+ID, "pc-updatemanager " + flags);
 
   // Return some details to user that the action was queued
   retObject.insert("command", "pc-updatemanger " + flags);
