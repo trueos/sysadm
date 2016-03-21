@@ -339,20 +339,32 @@ void EventWatcher::CheckSystemState(){
   }
   obj.insert("hostname",oldhostname);
 
-  // Next check zpools
-  QStringList output = sysadm::General::RunCommand("zpool list -H").split("\n");
-  for ( int i = 0; i < output.size(); i++)
-  {
-    line = output.at(i).simplified();
+  //Next Check zpools  
+  QStringList info = sysadm::General::RunCommand(ok, "zpool list").split("\n");
+  if(ok && info.length()>1){ //first line is headers
+      //Line Format (3/2/16): Name/Size/Alloc/Free/Expandsz/Frag/Cap/Dedup/Health/Altroot
+    for(int i=1; i<info.length(); i++){
+	if(info[i].isEmpty()){ continue; }
+	info[i].replace("\t"," ");
+          QString pool = info[i].section(" ",0,0,QString::SectionSkipEmpty);
+	  QString total = info[i].section(" ",1,1,QString::SectionSkipEmpty);
+	  QString used = info[i].section(" ",2,2,QString::SectionSkipEmpty);
+	  QString free = info[i].section(" ",3,3,QString::SectionSkipEmpty);
+	  QString expandsz = info[i].section(" ",4,4,QString::SectionSkipEmpty);
+	  QString frag = info[i].section(" ",5,5,QString::SectionSkipEmpty).replace("%","");
+	  QString cap = info[i].section(" ",6,6,QString::SectionSkipEmpty).replace("%","");
+	  QString dedup = info[i].section(" ",7,7,QString::SectionSkipEmpty);
+	  QString health = info[i].section(" ",8,8,QString::SectionSkipEmpty);
+	  QString altroot = info[i].section(" ",9,9,QString::SectionSkipEmpty);
 
     // Get the individual elements
-    QString pool = line.section(" ", 0, 0);
+    /*QString pool = line.section(" ", 0, 0);
     QString total = line.section(" ", 1, 1);
     QString used = line.section(" ", 2, 2);
     QString free = line.section(" ", 3, 3);
     QString frag = line.section(" ", 5, 5).replace("%", "");
     QString cap = line.section(" ", 6, 6).replace("%", "");
-    QString health = line.section(" ", 8, 8);
+    QString health = line.section(" ", 8, 8);*/
 
     // If the health is bad, we need to notify
     if ( health != "ONLINE" )
@@ -378,7 +390,8 @@ void EventWatcher::CheckSystemState(){
     zstats.insert("health", health);
     zpool.insert(pool, zstats);
     obj.insert("zpools", zpool );
-  }
+  } //end loop over zpool list lines
+  }//end check for valid zpool output
 
   // Priority 0-10
   obj.insert("priority", DisplayPriority(priority) );
