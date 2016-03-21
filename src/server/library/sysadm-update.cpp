@@ -17,7 +17,7 @@ using namespace sysadm;
 // Return a list of updates available
 QJsonObject Update::checkUpdates() {
   QJsonObject retObject;
-  if(QFile::exists("/tmp/.rebootrequired")){
+  if(QFile::exists("/tmp/.rebootRequired")){
     retObject.insert("status","rebootrequired");
     return retObject;
   }
@@ -29,15 +29,12 @@ QJsonObject Update::checkUpdates() {
     }
   }
   QStringList output = General::RunCommand("pc-updatemanager check").split("\n");
+  output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
+  qDebug() << "pc-updatemanager checks:" << output;
   QString nameval;
   int pnum=1;
   for ( int i = 0; i < output.size(); i++)
   {
-     if ( output.at(i).indexOf("Your system is up to date!") != -1 )
-     {
-       retObject.insert("status", "noupdates");
-       return retObject;
-     }
      if ( output.at(i).indexOf("NAME: ") != -1 )
        nameval = output.at(i).section(" ", 1, 1);
 
@@ -75,9 +72,12 @@ QJsonObject Update::checkUpdates() {
        retObject.insert("packageupdate", itemvals);
      }
   }
-
-  // Update status that we have updates
-  retObject.insert("status", "updatesavailable");
+  if(retObject.isEmpty()){
+    retObject.insert("status", "noupdates");
+  }else{
+    // Update status that we have updates
+    retObject.insert("status", "updatesavailable");
+  }
   return retObject;
 }
 

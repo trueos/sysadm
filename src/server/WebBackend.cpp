@@ -467,10 +467,14 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
       if(act=="checkupdates"){
 	ok = true;
         out->insert("checkupdates", sysadm::Update::checkUpdates());
-      }
-      if(act=="listbranches"){
+	      
+      }else if(act=="listbranches"){
 	ok = true;
         out->insert("listbranches", sysadm::Update::listBranches());
+	      
+      }else if(act=="startupdate"){
+	ok = true;
+	out->insert("startupdate", sysadm::Update::startUpdate(in_args.toObject()) );
       }
 
     } //end of "action" key usage
