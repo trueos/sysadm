@@ -65,6 +65,7 @@ space, pool health, and total size. This action is the equivalent of running :co
 
  {
   "args": {
+   "list_pools" : {
     "tank": {
       "alloc": "71.8G",
       "altroot": "-",
@@ -76,6 +77,7 @@ space, pool health, and total size. This action is the equivalent of running :co
       "health": "ONLINE",
       "size": "220G"
     }
+   }
   },
   "id": "fooid",
   "name": "response",
