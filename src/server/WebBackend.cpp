@@ -17,9 +17,9 @@
 #include "library/sysadm-network.h"
 #include "library/sysadm-systemmanager.h"
 #include "library/sysadm-update.h"
+#include "library/sysadm-zfs.h"
 
 #include "syscache-client.h"
-//#include "dispatcher-client.h"
 
 #define DEBUG 0
 #define SCLISTDELIM QString("::::") //SysCache List Delimiter
@@ -672,27 +672,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmZfsRequest(const QJsonValue 
   if(!in_args.isObject() || !in_args.toObject().contains("action") ){ return RestOutputStruct::BADREQUEST; }
   QString act = in_args.toObject().value("action").toString();
   if(act=="list_pools"){
-    bool ok = false;
-    QStringList info = sysadm::General::RunCommand(ok, "zpool list").split("\n");
-    if(ok && info.length()>1){ //first line is headers
-      //Line Format (3/2/16): Name/Size/Alloc/Free/Expandsz/Frag/Cap/Dedup/Health/Altroot
-      for(int i=1; i<info.length(); i++){
-	if(info[i].isEmpty()){ continue; }
-	info[i].replace("\t"," ");
-        QString name = info[i].section(" ",0,0,QString::SectionSkipEmpty);
-	QJsonObject obj;
-	  obj.insert("size",info[i].section(" ",1,1,QString::SectionSkipEmpty) );
-	  obj.insert("alloc",info[i].section(" ",2,2,QString::SectionSkipEmpty) );
-	  obj.insert("free",info[i].section(" ",3,3,QString::SectionSkipEmpty) );
-	  obj.insert("expandsz",info[i].section(" ",4,4,QString::SectionSkipEmpty) );
-	  obj.insert("frag",info[i].section(" ",5,5,QString::SectionSkipEmpty) );
-	  obj.insert("cap",info[i].section(" ",6,6,QString::SectionSkipEmpty) );
-	  obj.insert("dedup",info[i].section(" ",7,7,QString::SectionSkipEmpty) );
-	  obj.insert("health",info[i].section(" ",8,8,QString::SectionSkipEmpty) );
-	  obj.insert("altroot",info[i].section(" ",9,9,QString::SectionSkipEmpty) );
-	out->insert(name,obj);
-      }
-    }
+    QJsonObject pools = sysadm::ZFS::zpool_list();
+    if(!pools.isEmpty()){ out->insert("list_pools",pools); }
   }else{
     //unknown action
     return RestOutputStruct::BADREQUEST;

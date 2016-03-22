@@ -7,6 +7,7 @@
 
 #include "globals.h"
 #include "library/sysadm-general.h"
+#include "library/sysadm-zfs.h"
 
 // === PUBLIC ===
 EventWatcher::EventWatcher(){
@@ -340,49 +341,24 @@ void EventWatcher::CheckSystemState(){
   obj.insert("hostname",oldhostname);
 
   //Next Check zpools  
-  QStringList info = sysadm::General::RunCommand(ok, "zpool list").split("\n");
-  if(ok && info.length()>1){ //first line is headers
-    QJsonObject zpools;
-      //Line Format (3/2/16): Name/Size/Alloc/Free/Expandsz/Frag/Cap/Dedup/Health/Altroot
-    for(int i=1; i<info.length(); i++){
-	if(info[i].isEmpty()){ continue; }
-	info[i].replace("\t"," ");
-          QString pool = info[i].section(" ",0,0,QString::SectionSkipEmpty);
-	  QString total = info[i].section(" ",1,1,QString::SectionSkipEmpty);
-	  QString used = info[i].section(" ",2,2,QString::SectionSkipEmpty);
-	  QString free = info[i].section(" ",3,3,QString::SectionSkipEmpty);
-	  QString expandsz = info[i].section(" ",4,4,QString::SectionSkipEmpty);
-	  QString frag = info[i].section(" ",5,5,QString::SectionSkipEmpty).replace("%","");
-	  QString cap = info[i].section(" ",6,6,QString::SectionSkipEmpty).replace("%","");
-	  QString dedup = info[i].section(" ",7,7,QString::SectionSkipEmpty);
-	  QString health = info[i].section(" ",8,8,QString::SectionSkipEmpty);
-	  QString altroot = info[i].section(" ",9,9,QString::SectionSkipEmpty);
-	
+  QJsonObject zpools = sysadm::ZFS::zpool_list();
+  if(!zpools.isEmpty()){
+    //Scan each pool for any bad indicators
+    QStringList pools = zpools.keys();
+    for(int i=0; i<pools.length() && (priority<9); i++){
       // If the health is bad, we need to notify
-      if ( health != "ONLINE" )
-        if ( priority < 9 )
-          priority = 9;
-
-      // Check the capacity, if over 90% we should warn
-      cap.toInt(&ok);
-      if ( ok ) {
-        if ( cap.toInt() > 90 ) {
-          if ( priority < 9 )
-            priority = 6;
-        }
+      if ( zpools.value(pools[i]).toObject().value("health").toString() != "ONLINE" ){
+        if(priority < 9){ priority = 9; }
       }
-      //Insert the stats for this pool into the object
-      QJsonObject zstats;
-      zstats.insert("size", total);
-      zstats.insert("used", used);
-      zstats.insert("free", free);
-      zstats.insert("frag", frag);
-      zstats.insert("capacity", cap);
-      zstats.insert("health", health);
-      zpools.insert(pool, zstats);
-    } //end loop over zpool list lines
-  obj.insert("zpools", zpools );
-  }//end check for valid zpool output
+      // Check the capacity, if over 90% we should warn
+      bool ok = false;
+      int cap = zpools.value(pools[i]).toObject().value("capacity").toInt(ok);
+      if(ok && cap>90) {
+          if(priority < 6){ priority = 6; }
+      }
+    } //end loop over pools
+    obj.insert("zpools", zpools );
+  }
 
   // Priority 0-10
   obj.insert("priority", DisplayPriority(priority) );

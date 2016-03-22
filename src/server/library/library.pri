@@ -12,7 +12,8 @@ HEADERS	+= 	$${PWD}/sysadm-global.h \
                 $${PWD}/sysadm-servicemanager.h\
                 $${PWD}/sysadm-systemmanager.h\
                 $${PWD}/sysadm-update.h \
-                $${PWD}/sysadm-usermanager.h
+                $${PWD}/sysadm-usermanager.h \
+		$${PWD}/sysadm-zfs.h
 
 SOURCES	+=	$${PWD}/NetDevice.cpp \
                 $${PWD}/sysadm-general.cpp \
@@ -25,5 +26,6 @@ SOURCES	+=	$${PWD}/NetDevice.cpp \
                 $${PWD}/sysadm-servicemanager.cpp \
                 $${PWD}/sysadm-systemmanager.cpp \
                 $${PWD}/sysadm-update.cpp \
-                $${PWD}/sysadm-usermanager.cpp
+                $${PWD}/sysadm-usermanager.cpp \
+		$${PWD}/sysadm-zfs.cpp
 
