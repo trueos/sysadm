@@ -352,7 +352,8 @@ void EventWatcher::CheckSystemState(){
       }
       // Check the capacity, if over 90% we should warn
       bool ok = false;
-      int cap = zpools.value(pools[i]).toObject().value("capacity").toInt(ok);
+      QString capacity = zpools.value(pools[i]).toObject().value("capacity").toString();
+      int cap = capacity.replace("%","").toInt(&ok);
       if(ok && cap>90) {
           if(priority < 6){ priority = 6; }
       }

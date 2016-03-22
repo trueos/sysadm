@@ -24,8 +24,8 @@ QJsonObject ZFS::zpool_list(){
     QString used = info[i].section(" ",2,2,QString::SectionSkipEmpty);
     QString free = info[i].section(" ",3,3,QString::SectionSkipEmpty);
     QString expandsz = info[i].section(" ",4,4,QString::SectionSkipEmpty);
-    QString frag = info[i].section(" ",5,5,QString::SectionSkipEmpty).replace("%","");
-    QString cap = info[i].section(" ",6,6,QString::SectionSkipEmpty).replace("%","");
+    QString frag = info[i].section(" ",5,5,QString::SectionSkipEmpty);
+    QString cap = info[i].section(" ",6,6,QString::SectionSkipEmpty);
     QString dedup = info[i].section(" ",7,7,QString::SectionSkipEmpty);
     QString health = info[i].section(" ",8,8,QString::SectionSkipEmpty);
     QString altroot = info[i].section(" ",9,9,QString::SectionSkipEmpty);
