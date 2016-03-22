@@ -325,7 +325,7 @@ void EventWatcher::CheckSystemState(){
   bool ok;
   int priority = 0;
 
-  qDebug() << "Starting health check";
+  //qDebug() << "Starting health check";
   // Query the system, check how things are running
 
   // First up, get the hostname
@@ -364,10 +364,11 @@ void EventWatcher::CheckSystemState(){
   // Priority 0-10
   obj.insert("priority", DisplayPriority(priority) );
 
-  qDebug() << "Done health check";
+  //qDebug() << "Done health check";
 
   // Log and send out event
   LogManager::log(LogManager::EV_STATE, obj);
+  HASH.insert(SYSSTATE, obj);
   emit NewEvent(SYSSTATE, obj);
 }
 

@@ -233,7 +233,7 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 	    if(sub>=0 && !evlist.isEmpty() ){
 	      for(int i=0; i<evlist.length(); i++){
 	        EventWatcher::EVENT_TYPE type = EventWatcher::typeFromString(evlist[i]);
-		qDebug() << " - type:" << type;
+		//qDebug() << " - type:" << type;
 		if(type==EventWatcher::BADEVENT){ continue; }
 		outargs.insert(out.in_struct.name,QJsonValue(evlist[i]));
 		if(sub==1){ 
