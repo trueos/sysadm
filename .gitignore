@@ -58,3 +58,5 @@ src/server/WebBackend.o
 src/server/WebServer.o
 src/server/WebSocket.o
 tests/node_modules/
+*.o
+*/moc_*
