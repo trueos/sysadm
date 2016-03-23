@@ -441,5 +441,5 @@ void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QJsonValue msg){
     out.in_struct.name = EventWatcher::typeToString(evtype);
   qDebug() << "Send Event:" << out.assembleMessage();
   //Now send the message back through the socket
-  this->sendReply(out.assembleMessage());
+  this->emit SendMessage(out.assembleMessage());
 }
