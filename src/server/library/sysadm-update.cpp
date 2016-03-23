@@ -23,7 +23,8 @@ QJsonObject Update::checkUpdates() {
   }
   if(QFile::exists("/tmp/.updateInProgress")){
     //See if the process is actually running
-    if( 0==General::RunCommand("pgrep -F /tmp/.updateInProgress") ){
+    if( General::RunQuickCommand("pgrep -F /tmp/.updateInProgress") ){
+      //Success if return code == 0
       retObject.insert("status","updaterunning");
       return retObject;
     }
