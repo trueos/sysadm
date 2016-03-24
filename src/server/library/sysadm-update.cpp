@@ -10,28 +10,50 @@
 #include "sysadm-global.h"
 #include "globals.h"
 
+#define UP_PIDFILE "/tmp/.updateInProgress"
+#define UP_RBFILE "/tmp/.rebootRequired"
+#define UP_UPFILE "/tmp/.updatesAvailable"
+
 using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
 // Return a list of updates available
-QJsonObject Update::checkUpdates() {
+QJsonObject Update::checkUpdates(bool fast) {
+  //NOTE: The "fast" option should only be used for automated/timed checks (to prevent doing this long check too frequently)
   QJsonObject retObject;
-  if(QFile::exists("/tmp/.rebootRequired")){
-    retObject.insert("status","rebootrequired");
+	
+  //Quick check to ensure the tool is available
+  if(!QFile::exists("/usr/local/bin/pc-updatemanager")){ 
     return retObject;
   }
-  if(QFile::exists("/tmp/.updateInProgress")){
+  //Check if the system is waiting to reboot
+  if(QFile::exists(UP_RBFILE)){
+    retObject.insert("status","rebootrequired");
+    if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //ensure the next fast update does a full check
+    return retObject;
+  }
+  //Check if an update is currently running
+  if(QFile::exists(UP_PIDFILE)){
     //See if the process is actually running
-    if( General::RunQuickCommand("pgrep -F /tmp/.updateInProgress") ){
+    if( General::RunQuickCommand(QString("pgrep -F ")+UP_PIDFILE) ){
       //Success if return code == 0
       retObject.insert("status","updaterunning");
+      if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //ensure the next fast update does a full check
       return retObject;
     }
   }
-  QStringList output = General::RunCommand("pc-updatemanager check").split("\n");
-  output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
-  qDebug() << "pc-updatemanager checks:" << output;
+  //Get the list of deatils from the update checks (fast/full)
+  QStringList output;
+  if(fast && QFile::exists(UP_UPFILE) && (QFileInfo(UP_UPFILE).lastModified().addSecs(43200)<QDateTime::currentDateTime()) ){
+    //Note: The "fast" check will only be used if the last full check was less than 12 hours earlier.
+    output = General::readTextFile(UP_UPFILE);
+  }else{
+    output = General::RunCommand("pc-updatemanager check").split("\n");
+    output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
+    General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
+  }
+  //qDebug() << "pc-updatemanager checks:" << output;
   QString nameval;
   int pnum=1;
   for ( int i = 0; i < output.size(); i++)

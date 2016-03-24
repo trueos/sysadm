@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "library/sysadm-general.h"
 #include "library/sysadm-zfs.h"
+#include "library/sysadm-update.h"
 
 // === PUBLIC ===
 EventWatcher::EventWatcher(){
@@ -361,6 +362,11 @@ void EventWatcher::CheckSystemState(){
     obj.insert("zpools", zpools );
   }
 
+  //Next Check for Updates
+  QJsonObject updates = sysadm::Update::checkUpdates(true); //do the "fast" version of updates
+  if(!updates.isEmpty()){
+    obj.insert("updates",updates);
+  }
   // Priority 0-10
   obj.insert("priority", DisplayPriority(priority) );
 

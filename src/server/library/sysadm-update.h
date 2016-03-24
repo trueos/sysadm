@@ -14,7 +14,7 @@ namespace sysadm{
 
 class Update{
 public:
-	static QJsonObject checkUpdates();
+	static QJsonObject checkUpdates(bool fast = false);
 	static QJsonObject listBranches();
 	static QJsonObject startUpdate(QJsonObject);
 };
