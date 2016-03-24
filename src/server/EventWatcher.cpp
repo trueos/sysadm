@@ -349,13 +349,16 @@ void EventWatcher::CheckSystemState(){
     for(int i=0; i<pools.length() && (priority<9); i++){
       // If the health is bad, we need to notify
       if ( zpools.value(pools[i]).toObject().value("health").toString() != "ONLINE" ){
+	zpools.value(pools[i]).toObject().insert("priority", DisplayPriority(9));
         if(priority < 9){ priority = 9; }
+	continue; //don't bother with the capacity check
       }
       // Check the capacity, if over 90% we should warn
       bool ok = false;
       QString capacity = zpools.value(pools[i]).toObject().value("capacity").toString();
       int cap = capacity.replace("%","").toInt(&ok);
       if(ok && cap>90) {
+	  zpools.value(pools[i]).toObject().insert("priority", DisplayPriority(6));
           if(priority < 6){ priority = 6; }
       }
     } //end loop over pools
@@ -365,6 +368,11 @@ void EventWatcher::CheckSystemState(){
   //Next Check for Updates
   QJsonObject updates = sysadm::Update::checkUpdates(true); //do the "fast" version of updates
   if(!updates.isEmpty()){
+    if(updates.value("status").toString()!="noupdates"){
+      int tmp = 2;
+      if(updates.value("status").toString()=="rebootrequired"){ tmp = 9; } //user input required
+      if(priority<tmp){priority = tmp;} //bump up the priority to the top of the "Information" range (updates available/running)
+    }
     obj.insert("updates",updates);
   }
   // Priority 0-10
