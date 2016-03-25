@@ -146,6 +146,42 @@ QJsonObject Iohyve::deleteGuest(QJsonObject jsin) {
   return retObject;
 }
 
+// Get all the properties for a guest
+QJsonObject Iohyve::getProps(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  QStringList output = General::RunCommand("iohyve", QStringList() << "getall" << name).split("\n");
+
+  QJsonObject props;
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("Getting ") != -1 )
+      continue;
+
+    if ( output.at(i).isEmpty() )
+      break;
+
+    QString line = output.at(i).simplified();
+    QString prop = line.section(" ", 0, 0);
+    QString val = line.section(" ", 1, 1);
+    props.insert(prop, val);
+  }
+
+  retObject.insert(name, props);
+  return retObject;
+}
+
+
 // Queue the fetch of an ISO
 QJsonObject Iohyve::fetchISO(QJsonObject jsin) {
   QJsonObject retObject;
@@ -415,6 +451,55 @@ QJsonObject Iohyve::setupIohyve(QJsonObject jsin) {
   retObject.insert("nic", nic);
   return retObject;
 }
+
+// Set properties
+QJsonObject Iohyve::setProp(QJsonObject jsin) {
+  QJsonObject retObject;
+  QJsonObject props;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  // Load the supplied settings
+  QStringList settings;
+  QStringList values;
+
+  for ( int i = 0; i < keys.size(); i++)
+  {
+    if ( keys.at(i) == "name" )
+      continue;
+    if ( keys.at(i) == "action" )
+      continue;
+   
+    settings << keys.at(i);
+    values << jsin.value(keys.at(i)).toString();
+    props.insert(keys.at(i), jsin.value(keys.at(i)).toString());
+  }
+
+  if ( settings.isEmpty() ) {
+    retObject.insert("error", "No settings supplied!");
+    return retObject;
+  }
+
+  QStringList setargs;
+  setargs << "set" << name;
+  for ( int i = 0; i < settings.size(); i++)
+  {
+    setargs << settings.at(i) + "=" + values.at(i);
+  }
+
+  // Set it now
+  QString output = General::RunCommand("iohyve", setargs);
+  retObject.insert(name, props);
+  return retObject;
+}
+
 
 // Start a guest
 QJsonObject Iohyve::startGuest(QJsonObject jsin) {
