@@ -615,8 +615,11 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
       }
       else if(act=="fetchiso"){
 	ok = true;
-	//DProcess fetchproc;
         out->insert("fetchiso", sysadm::Iohyve::fetchISO(in_args.toObject()));
+      }
+      else if(act=="getprops"){
+	ok = true;
+        out->insert("getprops", sysadm::Iohyve::getProps(in_args.toObject()));
       }
       else if(act=="install"){
 	ok = true;

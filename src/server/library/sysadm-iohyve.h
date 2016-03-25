@@ -20,6 +20,7 @@ public:
 	static QJsonObject deleteDisk(QJsonObject);
 	static QJsonObject deleteGuest(QJsonObject);
 	static QJsonObject fetchISO(QJsonObject);
+	static QJsonObject getProps(QJsonObject);
 	static QJsonObject installGuest(QJsonObject);
 	static QJsonObject isSetup();
 	static QJsonObject listDisks(QJsonObject);

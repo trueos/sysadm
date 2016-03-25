@@ -146,6 +146,42 @@ QJsonObject Iohyve::deleteGuest(QJsonObject jsin) {
   return retObject;
 }
 
+// Get all the properties for a guest
+QJsonObject Iohyve::getProps(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("name") ) {
+    retObject.insert("error", "Missing required key 'name'");
+    return retObject;
+  }
+
+  // Get the key values
+  QString name = jsin.value("name").toString();
+
+  QStringList output = General::RunCommand("iohyve", QStringList() << "getall" << name).split("\n");
+
+  QJsonObject props;
+
+  for ( int i = 0; i < output.size(); i++)
+  {
+    if ( output.at(i).indexOf("Getting ") != -1 )
+      continue;
+
+    if ( output.at(i).isEmpty() )
+      break;
+
+    QString line = output.at(i).simplified();
+    QString prop = line.section(" ", 0, 0);
+    QString val = line.section(" ", 1, 1);
+    props.insert(prop, val);
+  }
+
+  retObject.insert(name, props);
+  return retObject;
+}
+
+
 // Queue the fetch of an ISO
 QJsonObject Iohyve::fetchISO(QJsonObject jsin) {
   QJsonObject retObject;
