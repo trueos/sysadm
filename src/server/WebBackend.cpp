@@ -624,11 +624,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
       }
       else if(act=="fetchiso"){
 	ok = true;
+	//DProcess fetchproc;
         out->insert("fetchiso", sysadm::Iohyve::fetchISO(in_args.toObject()));
-      }
-      else if(act=="getprops"){
-	ok = true;
-        out->insert("getprops", sysadm::Iohyve::getProps(in_args.toObject()));
       }
       else if(act=="install"){
 	ok = true;
@@ -649,10 +646,6 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
       else if(act=="resizedisk"){
 	ok = true;
         out->insert("resizedisk", sysadm::Iohyve::resizeDisk(in_args.toObject()));
-      }
-      else if(act=="setprop"){
-	ok = true;
-        out->insert("setprop", sysadm::Iohyve::setProp(in_args.toObject()));
       }
       else if(act=="setup"){
 	ok = true;
@@ -712,10 +705,17 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     if(in_args.toObject().value("pkg_origins").isString()){ pkgs << in_args.toObject().value("pkg_origins").toString(); }
     else if(in_args.toObject().value("pkg_origins").isArray()){ pkgs = JsonArrayToStringList(in_args.toObject().value("pkg_origins").toArray()); }
   }
+  //OPTIONAL: "category" (only used if "pkg_origins" is not specified)
+  QString cat;
+  if(in_args.toObject().contains("category")){ cat = in_args.toObject().value("category").toString(); }
+  //OPTIONAL:  "result"
+  bool fullresults = true; 
+  if(in_args.toObject().contains("result")){ fullresults = (in_args.toObject().value("result").toString()=="full"); }
   //Parse 
   if(act=="pkg_info"){
-    QJsonObject info = sysadm::PKG::pkg_info(pkgs, repo);
-    if(!pkgs.isEmpty()){ out->insert("pkg_info",info); }
+    QJsonObject info = sysadm::PKG::pkg_info(pkgs, repo, cat, fullresults);
+    if(!info.isEmpty()){ out->insert("pkg_info",info); }
+    else{ return RestOutputStruct::NOCONTENT; }
   }else{
     //unknown action
     return RestOutputStruct::BADREQUEST;

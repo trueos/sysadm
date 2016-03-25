@@ -18,7 +18,7 @@ namespace sysadm{
 
 class PKG{
 public:
-	static QJsonObject pkg_info(QStringList origins, QString repo);
+	static QJsonObject pkg_info(QStringList origins, QString repo, QString category = "", bool fullresults = true);
 };
 	
 } //end of sysadm namespace
