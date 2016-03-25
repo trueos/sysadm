@@ -62,7 +62,7 @@ inline QStringList requires_from_ids(QStringList ids){
 // =================
 //  MAIN FUNCTIONS
 // =================
-QJsonObject PKG::pkg_info(QStringList origins, QString repo){
+QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, bool fullresults){
   QJsonObject retObj;
   QString dbname;
   if(repo=="local"){  dbname= "/var/db/pkg/local.sqlite"; }
@@ -97,7 +97,8 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo){
   //Now do all the pkg info, one pkg origin at a time
   origins.removeAll("");
     QString q_string = "SELECT * FROM packages";
-    if(!origins.isEmpty()){ q_string.append(" WHERE origin = '"+origins.join("' OR origon = '")+"'"); }
+    if(!origins.isEmpty()){ q_string.append(" WHERE origin = '"+origins.join("' OR origin = '")+"'"); }
+    else if(!category.isEmpty()){ q_string.append(" WHERE origin LIKE '"+category+"/%'"); }
   QSqlQuery query(q_string);
     while(query.next()){
 	QString id = query.value("id").toString(); //need this pkg id for later
@@ -114,6 +115,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo){
 	  //include the annotations as base-level fields as well
 	  info.insert( anno_from_id(q2.value("tag_id").toString()), anno_from_id(q2.value("value_id").toString()) );
       }
+      if(!fullresults){ retObj.insert(origin,info); continue; } //skip the rest of the info queries
       //OPTIONS
       QSqlQuery q3("SELECT option_id, value FROM pkg_option WHERE package_id = '"+id+"'");
       QJsonObject options;

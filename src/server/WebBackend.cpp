@@ -705,9 +705,15 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     if(in_args.toObject().value("pkg_origins").isString()){ pkgs << in_args.toObject().value("pkg_origins").toString(); }
     else if(in_args.toObject().value("pkg_origins").isArray()){ pkgs = JsonArrayToStringList(in_args.toObject().value("pkg_origins").toArray()); }
   }
+  //OPTIONAL: "category" (only used if "pkg_origins" is not specified)
+  QString cat;
+  if(in_args.toObject().contains("category")){ cat = in_args.toObject().value("category").toString(); }
+  //OPTIONAL:  "result"
+  bool fullresults = true; 
+  if(in_args.toObject().contains("result")){ fullresults = (in_args.toObject().value("result").toString()=="full"); }
   //Parse 
   if(act=="pkg_info"){
-    QJsonObject info = sysadm::PKG::pkg_info(pkgs, repo);
+    QJsonObject info = sysadm::PKG::pkg_info(pkgs, repo, cat, fullresults);
     if(!info.isEmpty()){ out->insert("pkg_info",info); }
     else{ return RestOutputStruct::NOCONTENT; }
   }else{
