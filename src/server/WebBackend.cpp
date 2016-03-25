@@ -641,6 +641,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 	ok = true;
         out->insert("resizedisk", sysadm::Iohyve::resizeDisk(in_args.toObject()));
       }
+      else if(act=="setprop"){
+	ok = true;
+        out->insert("setprop", sysadm::Iohyve::setProp(in_args.toObject()));
+      }
       else if(act=="setup"){
 	ok = true;
         out->insert("setup", sysadm::Iohyve::setupIohyve(in_args.toObject()));

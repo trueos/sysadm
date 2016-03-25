@@ -30,6 +30,7 @@ public:
 	static QJsonObject resizeDisk(QJsonObject);
 	static QJsonObject rmISO(QJsonObject);
 	static QJsonObject setupIohyve(QJsonObject);
+	static QJsonObject setProp(QJsonObject);
 	static QJsonObject startGuest(QJsonObject);
 	static QJsonObject stopGuest(QJsonObject);
 	static QJsonObject version();
