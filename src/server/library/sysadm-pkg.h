@@ -20,8 +20,8 @@ class PKG{
 public:
 	static QJsonObject pkg_info(QStringList origins, QString repo, QString category = "", bool fullresults = true);
 	static QStringList pkg_search(QString repo, QString searchterm, QString category = "");
-	static QJsonObject list_categories(QString repo);
-	static QJsonObject list_repos();
+	static QJsonArray list_categories(QString repo);
+	static QJsonArray list_repos();
 };
 	
 } //end of sysadm namespace

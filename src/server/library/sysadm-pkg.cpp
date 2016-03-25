@@ -79,9 +79,9 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
     //new database needs to be loaded
     qDebug() << "New DB Connection";
     DB = QSqlDatabase::addDatabase("QSQLITE");
-    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
+    /*DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
     DB.setHostName("localhost");
-    DB.setDatabaseName(dbname);
+    DB.setDatabaseName(dbname);*/
   }
   if(DB.databaseName()!=dbname){
     if(DB.isOpen()){ DB.close(); }
@@ -204,9 +204,9 @@ QStringList PKG::pkg_search(QString repo, QString searchterm, QString category){
     //new database needs to be loaded
     qDebug() << "New DB Connection";
     DB = QSqlDatabase::addDatabase("QSQLITE");
-    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
+    /*DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
     DB.setHostName("localhost");
-    DB.setDatabaseName(dbname);
+    DB.setDatabaseName(dbname);*/
   }
   if(DB.databaseName()!=dbname){
     if(DB.isOpen()){ DB.close(); }
@@ -247,10 +247,56 @@ QStringList PKG::pkg_search(QString repo, QString searchterm, QString category){
   return found;
 }
 
-QJsonObject PKG::list_categories(QString repo){
-  return QJsonObject();
+QJsonArray PKG::list_categories(QString repo){
+  QString dbname = getRepoFile(repo);
+  //qDebug() << "Database:" << dbname;// << conn;
+   //Open the local database
+  QSqlDatabase DB;
+  if(QSqlDatabase::contains()){
+    //database already loaded
+    qDebug() << "Existing DB Connection";
+    DB = QSqlDatabase::database();
+  }else{
+    //new database needs to be loaded
+    qDebug() << "New DB Connection";
+    DB = QSqlDatabase::addDatabase("QSQLITE");
+    /*DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
+    DB.setHostName("localhost");
+    DB.setDatabaseName(dbname);*/
+  }
+  if(DB.databaseName()!=dbname){
+    if(DB.isOpen()){ DB.close(); }
+    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
+    DB.setHostName("localhost");
+    DB.setDatabaseName(dbname);
+  }
+  qDebug() << "Open Database:" << DB.databaseName() << dbname;
+    if( !DB.open() ){ 
+	//qDebug() << " - could not be opened"; 
+	return QJsonArray(); 
+    } 
+  QString q_string = "SELECT name FROM categories";
+    QSqlQuery query(q_string);
+    QStringList found;
+    while(query.next()){
+	found << query.value("name").toString(); //need the origin for later
+    }
+    if(!found.isEmpty()){ return QJsonArray::fromStringList(found); }
+    else{ return QJsonArray(); }
 }
 
-QJsonObject PKG::list_repos(){
-  return QJsonObject();
+QJsonArray PKG::list_repos(){
+  QString dbdir = "/var/db/pkg/repo-%1.sqlite";
+  QDir confdir("/usr/local/etc/pkg/repos");
+    QStringList confs = confdir.entryList(QStringList() << "*.conf", QDir::Files);
+  QStringList found;
+  found << "local"; //There is always a local database (for installed pkgs)
+  for(int i=0; i<confs.length(); i++){
+    QStringList repoinfo = General::readTextFile(confdir.absoluteFilePath(confs[i])).join("\n").split("}");
+    for(int j=0; j<repoinfo.length(); j++){
+      QString repo = repoinfo[j].section(":",0,0);
+      if(QFile::exists(dbdir.arg(repo))){ found << repo; }
+    }
+  }
+  return QJsonArray::fromStringList(found);
 }

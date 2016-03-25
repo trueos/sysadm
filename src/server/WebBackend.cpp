@@ -702,23 +702,23 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
   //OPTIONAL: "category" (only used if "pkg_origins" is not specified)
   QString cat;
   if(in_args.toObject().contains("category")){ cat = in_args.toObject().value("category").toString(); }
-  
-  //Parse 
+  //OPTIONAL: "pkg_origins" (defaults to everything for listing functions)
+  QStringList pkgs;
+  if(in_args.toObject().contains("pkg_origins")){
+    if(in_args.toObject().value("pkg_origins").isString()){ pkgs << in_args.toObject().value("pkg_origins").toString(); }
+    else if(in_args.toObject().value("pkg_origins").isArray()){ pkgs = JsonArrayToStringList(in_args.toObject().value("pkg_origins").toArray()); }
+  }
+    
+  //Parse  the action and perform accordingly
   if(act=="pkg_info"){
-    //OPTIONAL: "pkg_origins" (defaults to everything for listing functions)
-    QStringList pkgs;
-    if(in_args.toObject().contains("pkg_origins")){
-      if(in_args.toObject().value("pkg_origins").isString()){ pkgs << in_args.toObject().value("pkg_origins").toString(); }
-      else if(in_args.toObject().value("pkg_origins").isArray()){ pkgs = JsonArrayToStringList(in_args.toObject().value("pkg_origins").toArray()); }
-    }
     //OPTIONAL:  "result"
-    bool fullresults = true; 
+    bool fullresults = false; 
     if(in_args.toObject().contains("result")){ fullresults = (in_args.toObject().value("result").toString()=="full"); }
+    
     //Now run the info fetch routine
     QJsonObject info = sysadm::PKG::pkg_info(pkgs, repo, cat, fullresults);
     if(!info.isEmpty()){ out->insert("pkg_info",info); }
     else{ return RestOutputStruct::NOCONTENT; }
-    
     
   }else if(act=="pkg_search"){
     //REQUIRED
@@ -732,6 +732,17 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     }else{
       return RestOutputStruct::NOCONTENT;
     }
+    
+  }else if(act=="list_categories"){
+    QJsonArray cats = sysadm::PKG::list_categories(repo);
+    if(!cats.isEmpty()){ out->insert("list_categories", cats); }
+    else{ return RestOutputStruct::NOCONTENT; }
+    
+  }else if(act=="list_repos"){
+    QJsonArray repos = sysadm::PKG::list_repos();
+    if(!repos.isEmpty()){ out->insert("list_repos", repos); }
+    else{ return RestOutputStruct::NOCONTENT; }
+    
   }else{
     //unknown action
     return RestOutputStruct::BADREQUEST;
