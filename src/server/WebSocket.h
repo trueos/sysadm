@@ -70,6 +70,8 @@ private:
 	RestOutputStruct::ExitCode EvaluateSysadmUpdateRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm ZFS API
 	RestOutputStruct::ExitCode EvaluateSysadmZfsRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- sysadm PKG API
+	RestOutputStruct::ExitCode EvaluateSysadmPkgRequest(const QJsonValue in_args, QJsonObject *out);
 	
 private slots:
 	void sendReply(QString msg);

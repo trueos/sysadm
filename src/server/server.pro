@@ -2,7 +2,7 @@ TEMPLATE	= app
 LANGUAGE	= C++
 
 CONFIG	+= qt warn_off release
-QT = core network websockets concurrent
+QT = core network websockets concurrent sql
 
 HEADERS	+= globals.h globals-qt.h \
 		WebServer.h \

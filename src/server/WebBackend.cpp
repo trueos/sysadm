@@ -18,6 +18,7 @@
 #include "library/sysadm-systemmanager.h"
 #include "library/sysadm-update.h"
 #include "library/sysadm-zfs.h"
+#include "library/sysadm-pkg.h"
 
 #include "syscache-client.h"
 
@@ -67,8 +68,14 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
     out->insert("sysadm/iohyve", "read/write");
   }
   
+  // - zfs
   if(QFile::exists("/sbin/zfs") && QFile::exists("/sbin/zpool")){
     out->insert("sysadm/zfs", allaccess ? "read/write" : "read");
+  }
+  
+  // - pkg
+  if(QFile::exists("/usr/local/sbin/pkg")){
+    out->insert("sysadm/pkg", "read/write");
   }
   
   // - Generic system information
@@ -123,6 +130,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmUpdateRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="zfs"){
     return EvaluateSysadmZfsRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="pkg"){
+    return EvaluateSysadmPkgRequest(IN.args, out);
   }else{
     return RestOutputStruct::BADREQUEST;
   }
@@ -674,6 +683,32 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmZfsRequest(const QJsonValue 
   if(act=="list_pools"){
     QJsonObject pools = sysadm::ZFS::zpool_list();
     if(!pools.isEmpty()){ out->insert("list_pools",pools); }
+  }else{
+    //unknown action
+    return RestOutputStruct::BADREQUEST;
+  }
+  
+  return RestOutputStruct::OK;
+}
+
+// ==== SYSADM PKG API ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue in_args, QJsonObject *out){
+  if(!in_args.isObject() || !in_args.toObject().contains("action") ){ return RestOutputStruct::BADREQUEST; }
+  //REQUIRED: "action"
+  QString act = in_args.toObject().value("action").toString();
+  //OPTIONAL: "repo" (uses local repo database by default)
+  QString repo = "local";
+  if(in_args.toObject().contains("repo")){ repo = in_args.toObject().value("repo").toString(); }
+  //OPTIONAL: "pkg_origins" (defaults to everything for listing functions)
+  QStringList pkgs;
+  if(in_args.toObject().contains("pkg_origins")){
+    if(in_args.toObject().value("pkg_origins").isString()){ pkgs << in_args.toObject().value("pkg_origins").toString(); }
+    else if(in_args.toObject().value("pkg_origins").isArray()){ pkgs = JsonArrayToStringList(in_args.toObject().value("pkg_origins").toArray()); }
+  }
+  //Parse 
+  if(act=="pkg_info"){
+    QJsonObject info = sysadm::PKG::pkg_info(pkgs, repo);
+    if(!pkgs.isEmpty()){ out->insert("pkg_info",info); }
   }else{
     //unknown action
     return RestOutputStruct::BADREQUEST;
