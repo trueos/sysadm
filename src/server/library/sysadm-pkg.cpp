@@ -58,16 +58,16 @@ inline QStringList requires_from_ids(QStringList ids){
   while(q.next()){ out << q.value("require").toString(); }
   return out;
 }
-
+inline QString getRepoFile(QString repo){
+  if(repo=="local"){  return "/var/db/pkg/local.sqlite"; }
+  else{ return ("/var/db/pkg/repo-"+repo+".sqlite"); }	
+}
 // =================
 //  MAIN FUNCTIONS
 // =================
 QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, bool fullresults){
   QJsonObject retObj;
-  QString dbname;
-  if(repo=="local"){  dbname= "/var/db/pkg/local.sqlite"; }
-  else{ dbname= "/var/db/pkg/repo-"+repo+".sqlite"; }
-  //QString conn = dbname; conn.replace("/","_");
+  QString dbname = getRepoFile(repo);
   //qDebug() << "Database:" << dbname;// << conn;
    //Open the local database
   QSqlDatabase DB;
@@ -188,4 +188,69 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
   } //end loop over pkg matches
   DB.close();
   return retObj;
+}
+
+QStringList PKG::pkg_search(QString repo, QString searchterm, QString category){
+  QStringList found;
+  QString dbname = getRepoFile(repo);
+  //qDebug() << "Database:" << dbname;// << conn;
+   //Open the local database
+  QSqlDatabase DB;
+  if(QSqlDatabase::contains()){
+    //database already loaded
+    qDebug() << "Existing DB Connection";
+    DB = QSqlDatabase::database();
+  }else{
+    //new database needs to be loaded
+    qDebug() << "New DB Connection";
+    DB = QSqlDatabase::addDatabase("QSQLITE");
+    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
+    DB.setHostName("localhost");
+    DB.setDatabaseName(dbname);
+  }
+  if(DB.databaseName()!=dbname){
+    if(DB.isOpen()){ DB.close(); }
+    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
+    DB.setHostName("localhost");
+    DB.setDatabaseName(dbname);
+  }
+  qDebug() << "Open Database:" << DB.databaseName() << dbname;
+    if( !DB.open() ){ 
+	//qDebug() << " - could not be opened"; 
+	return found; 
+    } 
+  QString q_string = "SELECT origin FROM packages WHERE name LIKE '"+searchterm+"%'";
+    if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
+    QSqlQuery query(q_string);
+    while(query.next()){
+	found << query.value("origin").toString(); //need the origin for later
+    }
+  if(found.isEmpty()){
+    //Expand the search to comments
+    q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+searchterm+"%'";
+    if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
+    QSqlQuery q2(q_string);
+    while(q2.next()){
+	found << q2.value("origin").toString(); //need the origin for later
+    }
+  }
+  if(found.isEmpty()){
+    //Expand the search to full descriptions
+    q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+searchterm+"%'";
+    if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
+    QSqlQuery q2(q_string);
+    while(q2.next()){
+	found << q2.value("origin").toString(); //need the origin for later
+    }
+  }
+  DB.close();
+  return found;
+}
+
+QJsonObject PKG::list_categories(QString repo){
+  return QJsonObject();
+}
+
+QJsonObject PKG::list_repos(){
+  return QJsonObject();
 }

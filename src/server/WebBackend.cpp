@@ -699,23 +699,39 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
   //OPTIONAL: "repo" (uses local repo database by default)
   QString repo = "local";
   if(in_args.toObject().contains("repo")){ repo = in_args.toObject().value("repo").toString(); }
-  //OPTIONAL: "pkg_origins" (defaults to everything for listing functions)
-  QStringList pkgs;
-  if(in_args.toObject().contains("pkg_origins")){
-    if(in_args.toObject().value("pkg_origins").isString()){ pkgs << in_args.toObject().value("pkg_origins").toString(); }
-    else if(in_args.toObject().value("pkg_origins").isArray()){ pkgs = JsonArrayToStringList(in_args.toObject().value("pkg_origins").toArray()); }
-  }
   //OPTIONAL: "category" (only used if "pkg_origins" is not specified)
   QString cat;
   if(in_args.toObject().contains("category")){ cat = in_args.toObject().value("category").toString(); }
-  //OPTIONAL:  "result"
-  bool fullresults = true; 
-  if(in_args.toObject().contains("result")){ fullresults = (in_args.toObject().value("result").toString()=="full"); }
+  
   //Parse 
   if(act=="pkg_info"){
+    //OPTIONAL: "pkg_origins" (defaults to everything for listing functions)
+    QStringList pkgs;
+    if(in_args.toObject().contains("pkg_origins")){
+      if(in_args.toObject().value("pkg_origins").isString()){ pkgs << in_args.toObject().value("pkg_origins").toString(); }
+      else if(in_args.toObject().value("pkg_origins").isArray()){ pkgs = JsonArrayToStringList(in_args.toObject().value("pkg_origins").toArray()); }
+    }
+    //OPTIONAL:  "result"
+    bool fullresults = true; 
+    if(in_args.toObject().contains("result")){ fullresults = (in_args.toObject().value("result").toString()=="full"); }
+    //Now run the info fetch routine
     QJsonObject info = sysadm::PKG::pkg_info(pkgs, repo, cat, fullresults);
     if(!info.isEmpty()){ out->insert("pkg_info",info); }
     else{ return RestOutputStruct::NOCONTENT; }
+    
+    
+  }else if(act=="pkg_search"){
+    //REQUIRED
+    QString srch;
+    if(in_args.toObject().contains("search_term")){ srch  = in_args.toObject().value("search_term").toString(); }
+    if(srch.isEmpty()){ return RestOutputStruct::BADREQUEST; }
+    QStringList pkgs = sysadm::PKG::pkg_search(repo, srch, cat);
+    if(!pkgs.isEmpty()){
+      QJsonObject info = sysadm::PKG::pkg_info(pkgs, repo, cat, false); //always do simple results for a search
+      if(!info.isEmpty()){ out->insert("pkg_search",info); }
+    }else{
+      return RestOutputStruct::NOCONTENT;
+    }
   }else{
     //unknown action
     return RestOutputStruct::BADREQUEST;
