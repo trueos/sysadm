@@ -752,7 +752,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
   }else if(act=="pkg_unlock"){
 	  
   }else if(act=="pkg_update"){
-	  
+    //OPTIONAL: "force" = ["true"/"false"]  (default: "false")
+    bool force = false;
+    if(in_args.toObject().contains("force")){ force = in_args.toObject().value("force").toString()=="true"; }
+    out->insert("pkg_update", sysadm::PKG::pkg_update(force));
   }else if(act=="pkg_check_upgrade"){
     out->insert("pkg_check_upgrade", sysadm::PKG::pkg_check_upgrade());
   }else if(act=="pkg_upgrade"){
