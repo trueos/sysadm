@@ -751,12 +751,12 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     //REQUIRED: "pkg_origins"
     //OPTIONAL: "repo" (pkg will determine the best repo to use if not supplied)
     out->insert("pkg_install", sysadm::PKG::pkg_install(pkgs,repo));
-  /*}else if(act=="pkg_remove" && !pkgs.isEmpty() ){
+  }else if(act=="pkg_remove" && !pkgs.isEmpty() ){
     //REQUIRED: "pkg_origins"
     //OPTIONAL: "recursive"="true" or "false" (default: "true")
     bool recursive = true;
-    if(in_args.toObject().contains("recursive")){ recursive = in_args.toObject().value("recursive").toString()=="false"; }
-    out->insert("pkg_remove", sysadm::PKG::pkg_remove(pkgs, recursive));*/
+    if(in_args.toObject().contains("recursive")){ recursive = in_args.toObject().value("recursive").toString()!="false"; }
+    out->insert("pkg_remove", sysadm::PKG::pkg_remove(pkgs, recursive));
   }else if(act=="pkg_lock" && !pkgs.isEmpty() ){
     //REQUIRED: "pkg_origins"
     out->insert("pkg_lock", sysadm::PKG::pkg_lock(pkgs));	 
