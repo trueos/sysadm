@@ -711,7 +711,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     
   //Parse  the action and perform accordingly
   if(act=="pkg_info"){
-    //OPTIONAL:  "result"
+    //OPTIONAL: "pkg_origins" OR "category"
+    //OPTIONAL: "repo"
+    //OPTIONAL: "result" = "full" or "simple" (Default: "simple")
     bool fullresults = false; 
     if(in_args.toObject().contains("result")){ fullresults = (in_args.toObject().value("result").toString()=="full"); }
     
@@ -720,10 +722,11 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     if(!info.isEmpty()){ out->insert("pkg_info",info); }
     else{ return RestOutputStruct::NOCONTENT; }
     
-  }else if(act=="pkg_search"){
-    //REQUIRED
-    QString srch;
-    if(in_args.toObject().contains("search_term")){ srch  = in_args.toObject().value("search_term").toString(); }
+  }else if(act=="pkg_search" && in_args.toObject().contains("search_term")){
+    //REQUIRED: "search_term" (string to search for)
+    //OPTIONAL: "repo"
+    //OPTIONAL: "category"
+    QString srch = in_args.toObject().value("search_term").toString();
     if(srch.isEmpty()){ return RestOutputStruct::BADREQUEST; }
     QStringList pkgs = sysadm::PKG::pkg_search(repo, srch, cat);
     if(!pkgs.isEmpty()){
@@ -734,6 +737,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     }
     
   }else if(act=="list_categories"){
+    //OPTIONAL: "repo"
     QJsonArray cats = sysadm::PKG::list_categories(repo);
     if(!cats.isEmpty()){ out->insert("list_categories", cats); }
     else{ return RestOutputStruct::NOCONTENT; }
@@ -745,10 +749,14 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     
   }else if(act=="pkg_install" && !pkgs.isEmpty() ){
     //REQUIRED: "pkg_origins"
-	  
-  }else if(act=="pkg_remove" && !pkgs.isEmpty() ){
+    //OPTIONAL: "repo" (pkg will determine the best repo to use if not supplied)
+    out->insert("pkg_install", sysadm::PKG::pkg_install(pkgs,repo));
+  /*}else if(act=="pkg_remove" && !pkgs.isEmpty() ){
     //REQUIRED: "pkg_origins"
-	  
+    //OPTIONAL: "recursive"="true" or "false" (default: "true")
+    bool recursive = true;
+    if(in_args.toObject().contains("recursive")){ recursive = in_args.toObject().value("recursive").toString()=="false"; }
+    out->insert("pkg_remove", sysadm::PKG::pkg_remove(pkgs, recursive));*/
   }else if(act=="pkg_lock" && !pkgs.isEmpty() ){
     //REQUIRED: "pkg_origins"
     out->insert("pkg_lock", sysadm::PKG::pkg_lock(pkgs));	 
