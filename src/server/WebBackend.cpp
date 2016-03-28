@@ -743,14 +743,18 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     if(!repos.isEmpty()){ out->insert("list_repos", repos); }
     else{ return RestOutputStruct::NOCONTENT; }
     
-  }else if(act=="pkg_install"){
-  
-  }else if(act=="pkg_remove"){
+  }else if(act=="pkg_install" && !pkgs.isEmpty() ){
+    //REQUIRED: "pkg_origins"
 	  
-  }else if(act=="pkg_lock"){
+  }else if(act=="pkg_remove" && !pkgs.isEmpty() ){
+    //REQUIRED: "pkg_origins"
 	  
-  }else if(act=="pkg_unlock"){
-	  
+  }else if(act=="pkg_lock" && !pkgs.isEmpty() ){
+    //REQUIRED: "pkg_origins"
+    out->insert("pkg_lock", sysadm::PKG::pkg_lock(pkgs));	 
+  }else if(act=="pkg_unlock" && !pkgs.isEmpty() ){
+    //REQUIRED: "pkg_origins"
+    out->insert("pkg_unlock", sysadm::PKG::pkg_unlock(pkgs));	  
   }else if(act=="pkg_update"){
     //OPTIONAL: "force" = ["true"/"false"]  (default: "false")
     bool force = false;
