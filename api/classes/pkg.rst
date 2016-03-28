@@ -21,7 +21,7 @@ Every pkg class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit", "pkg_upgrade",     |
-|                                 |               | "pkg_check_upgrade", "pkg_update", "pkg_lock", "pkg_unlock                                                           |
+|                                 |               | "pkg_check_upgrade", "pkg_update", "pkg_lock", "pkg_unlock", "pkg_install"                                           |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -835,6 +835,60 @@ Both actions return any information as a dispatcher event. Refer to the :ref:`Di
     "pkg_unlock": {
       "proc_cmd": "pkg unlock -y misc/pcbsd-base",
       "proc_id": "sysadm_pkg_unlock-{d1771b41-c1ca-480a-a3ce-42d4eddbfae8}",
+      "status": "pending"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: pkg_install, pkg
+
+.. _Install Packages:
+
+Install Packages
+================
+
+The "pkg_install" action installs the specified "pkg_origins" on the system. When using "pkg_origins", specify either a single package origin string or an array of package origins.
+Unless the "repo" is specified, :command:`pkg` will automatically determine the repository. The install messages will be returned as a dispatcher event. Refer to the
+:ref:`Dispatcher Subsystem` for instructions on how to subscribe to and query dispatcher events.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/pkg
+ {
+   "pkg_origins" : "games/angband",
+   "action" : "pkg_install",
+   "repo" : "pcbsd-major"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "name" : "pkg",
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "action" : "pkg_install",
+      "pkg_origins" : "games/angband",
+      "repo" : "pcbsd-major"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "pkg_install": {
+      "proc_cmd": "pkg install -y --repository \"pcbsd-major\" games/angband",
+      "proc_id": "sysadm_pkg_install-{ae444472-47df-4a65-91eb-013cc82ce4ad}",
       "status": "pending"
     }
   },
