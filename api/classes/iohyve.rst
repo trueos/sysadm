@@ -21,7 +21,8 @@ Every iohyve class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listvms", "fetchiso", "listisos", "renameiso", "rmiso", "setup",  "issetup", "create",    |
-|                                 |               | "install", "start", "stop", "delete", "adddisk", "listdisks", "resizedisk", "deletedisk", "version", and "getprops"  |
+|                                 |               | "install", "start", "stop", "delete", "adddisk", "listdisks", "resizedisk", "deletedisk", "version", "getprops",     |
+|                                 |               | and "setprop"                                                                                                        |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -943,6 +944,59 @@ The "getprops" action lists the properties for the specified guest.
         "ram": "256M",
         "size": "10G",
         "tap": "tap0"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: setprop, iohyve
+
+.. _Set Guest Properties:
+
+Set Guest Properties
+=====================
+
+The "setprop" action can be used to modify the properties for the specified guest. For each property, specify its name and desired value. Use "getprops" to see the current properties
+and values for the guest.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "ram" : "512M",
+   "name" : "bsdguest",
+   "action" : "setprop"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "args" : {
+      "ram" : "512M",
+      "name" : "bsdguest",
+      "action" : "setprop"
+   },
+   "name" : "iohyve"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "setprop": {
+      "bsdguest": {
+        "ram": "512M"
       }
     }
   },
