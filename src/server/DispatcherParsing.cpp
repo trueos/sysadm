@@ -53,7 +53,7 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
     args.insert("action", ID.section("-",0,0).section("_",1,-1) ); //so the client/user can tell which type of pkg action this is for
     if(ID.section("-",0,0)=="sysadm_pkg_check_upgrade"){
       if(isFinished){
-	bool hasupdates = !cLog.section("\n",-1,QString::SectionSkipEmpty).contains("packages are up to date");
+	bool hasupdates = !cLog.contains("Your packages are up to date.");
 	args.insert("updates_available", hasupdates ? "true" : "false");
       }
       
