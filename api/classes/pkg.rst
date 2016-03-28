@@ -21,7 +21,7 @@ Every pkg class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit", "pkg_upgrade",     |
-|                                 |               | "pkg_check_upgrade"                                                                                                  |
+|                                 |               | "pkg_check_upgrade", "pkg_update"                                                                                    |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -641,7 +641,7 @@ instructions on how to subscribe to and query dispatcher events.
   "namespace": "sysadm"
  }
  
-.. index:: pkg_check, pkg
+.. index:: pkg_check_upgrade, pkg
 
 .. _Check Packages:
 
@@ -682,6 +682,59 @@ instructions on how to subscribe to and query dispatcher events.
     "pkg_check_upgrade": {
       "proc_cmd": "pkg upgrade -n",
       "proc_id": "sysadm_pkg_check_upgrade-{c5e9d9a1-7c49-4a70-9d7c-4a84277c83b0}",
+      "status": "pending"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: pkg_update, pkg
+
+.. _Update Package Database:
+
+Update Package Database
+=======================
+
+The "pkg_update" action instructs :command:`pkg` to update its databases. This action is typically not required.  It returns any information as a dispatcher event. Refer to the
+:ref:`Dispatcher Subsystem` for instructions on how to subscribe to and query dispatcher events.
+
+If you include "force" = "true", it forces :command:`pkg` to completely resync all of its databases with all known repositories which may take some time.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/pkg
+ {
+   "force" : "true",
+   "action" : "pkg_update"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "pkg",
+   "namespace" : "sysadm",
+   "args" : {
+      "force" : "true",
+      "action" : "pkg_update"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "pkg_update": {
+      "proc_cmd": "pkg update -f",
+      "proc_id": "sysadm_pkg_update-{8d65bbc5-fefc-4f34-8743-167e61a54c4c}",
       "status": "pending"
     }
   },
