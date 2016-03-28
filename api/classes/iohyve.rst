@@ -21,7 +21,7 @@ Every iohyve class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "listvms", "fetchiso", "listisos", "renameiso", "rmiso", "setup",  "issetup", "create",    |
-|                                 |               | "install", "start", "stop", "delete", "adddisk", "listdisks", "resizedisk", "deletedisk", and "version"              |
+|                                 |               | "install", "start", "stop", "delete", "adddisk", "listdisks", "resizedisk", "deletedisk", "version", and "getprops"  |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -881,6 +881,69 @@ The "version" action displays the iohyve version.
   "args": {
     "version": {
       "version": "iohyve v0.7.3 2016/01/08 Bear in a Datacenter Edition"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: getprops, iohyve
+
+.. _List Guest Properties:
+
+List Guest Properties
+=====================
+
+The "getprops" action lists the properties for the specified guest.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/iohyve
+ {
+   "action" : "getprops",
+   "name" : "bsdguest"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "args" : {
+      "name" : "bsdguest",
+      "action" : "getprops"
+   },
+   "name" : "iohyve"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "getprops": {
+      "bsdguest": {
+        "autogrub": "\\n",
+        "bargs": "-A_-H_-P",
+        "boot": "0",
+        "con": "nmdm0",
+        "cpu": "1",
+        "description": "Tue",
+        "install": "no",
+        "loader": "bhyveload",
+        "name": "bsdguest",
+        "os": "default",
+        "persist": "1",
+        "ram": "256M",
+        "size": "10G",
+        "tap": "tap0"
+      }
     }
   },
   "id": "fooid",
