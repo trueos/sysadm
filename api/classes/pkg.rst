@@ -20,7 +20,7 @@ Every pkg class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos"                                  |
+| action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit"                     |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -233,7 +233,7 @@ The "pkg_search" action searches the package database for pkgs which match the g
 
 .. code-block:: json
 
-PUT /sysadm/pkg
+ PUT /sysadm/pkg
  {
    "repo" : "pcbsd-major",
    "category" : "www",
@@ -401,8 +401,7 @@ PUT /sysadm/pkg
 List Categories
 ===============
 
-The "list_categories" action lists all the known categories within the specified repository or, if no repository is specified, the local repository. Note that just because a category is
-listed, it does not mean that any packages exist within that category.
+The "list_categories" action lists all the known, non-empty categories within the specified repository or, if no repository is specified, the local repository.
 
 **REST Request**
 
@@ -535,6 +534,57 @@ action are valid as the optional "repo" argument for the other pkg API actions.
       "local",
       "pcbsd-major"
     ]
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: pkg_audit, pkg
+
+.. _Audit Packages:
+
+Audit Packages
+==============
+
+The "pkg_audit" action performs an audit of all installed packages and reports any packages with known vulnerabilities as well as other packages which are impacted by those vulnerabilities. 
+
+.. note:: the vulnerability information will be returned as a dispatcher event as this action just queues up the results of the :command:`pkg` operation. This is due to a limitation of
+   :command:`pkg`, as it only supports one process call at a time. Refer to the :ref:`Dispatcher Subsystem` for instructions on how to subscribe to and query dispatcher events.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/pkg
+ {
+   "action" : "pkg_audit"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "pkg_audit"
+   },
+   "name" : "pkg",
+   "id" : "fooid",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "pkg_audit": {
+      "proc_cmd": "pkg audit -qr",
+      "proc_id": "sysadm_pkg_audit-{257cc46b-9178-4990-810a-12416ddfad79}",
+      "status": "pending"
+    }
   },
   "id": "fooid",
   "name": "response",
