@@ -99,6 +99,7 @@ signals:
 
 	//Signals for private usage
 	void mkprocs(Dispatcher::PROC_QUEUE, DProcess*);
+	void checkProcs();
 	
 };
 

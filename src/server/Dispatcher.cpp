@@ -109,7 +109,7 @@ void DProcess::emitUpdate(){
 // ================================
 Dispatcher::Dispatcher(){
   qRegisterMetaType<Dispatcher::PROC_QUEUE>("Dispatcher::PROC_QUEUE");
-  connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, DProcess*)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)) );
+  //connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, DProcess*)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)) );
 }
 
 Dispatcher::~Dispatcher(){
@@ -117,6 +117,9 @@ Dispatcher::~Dispatcher(){
 }
 
 void Dispatcher::start(QString queuefile){
+  //Setup connections here (in case it was moved to different thread after creation)
+  connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, DProcess*)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)) );
+  connect(this, SIGNAL(checkProcs()), this, SLOT(checkQueues()) );
   //load any previously-unrun processes
   // TO DO
 }
@@ -141,7 +144,6 @@ DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QSt
   //For multi-threading, need to emit a signal/slot for this action (object creations need to be in same thread as parent)
   //qDebug() << "Queue Process:" << queue << ID << cmds;
   DProcess *P = createProcess(ID, cmds);
-  //connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, DProcess*)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)) );
   emit mkprocs(queue, P);
   return P;
 }
@@ -165,7 +167,7 @@ void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, DProcess *P){
   QList<DProcess*> list;
   if(!HASH.contains(queue)){ HASH.insert(queue, list); } //insert an empty list
   HASH[queue] << P; //add this proc to the end of the list
-  CheckQueues();
+  emit checkProcs();
 }
 
 void Dispatcher::ProcFinished(QString ID, QJsonObject log){
@@ -180,7 +182,7 @@ void Dispatcher::ProcFinished(QString ID, QJsonObject log){
     emit DispatchEvent(log);
   }
 
-  QTimer::singleShot(20,this, SLOT(CheckQueues()) );
+  emit checkProcs();
 }
 
 void Dispatcher::ProcUpdated(QString ID, QJsonObject log){
