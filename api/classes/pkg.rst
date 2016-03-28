@@ -20,7 +20,8 @@ Every pkg class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit", "pkg_upgrade"      |
+| action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit", "pkg_upgrade",     |
+|                                 |               | "pkg_check_upgrade"                                                                                                  |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -632,6 +633,55 @@ instructions on how to subscribe to and query dispatcher events.
     "pkg_upgrade": {
       "proc_cmd": "pkg upgrade -y",
       "proc_id": "sysadm_pkg_upgrade-{19ace7c9-0d83-4a0d-9249-0b56cb105762}",
+      "status": "pending"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: pkg_check, pkg
+
+.. _Check Packages:
+
+Check Packages
+==============
+
+The "pkg_check_upgrade" action checks to see if there are any package updates available and returns that information as a dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for
+instructions on how to subscribe to and query dispatcher events.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/pkg
+ {
+   "action" : "pkg_check_upgrade"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "pkg_check_upgrade"
+   },
+   "namespace" : "sysadm",
+   "name" : "pkg",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "pkg_check_upgrade": {
+      "proc_cmd": "pkg upgrade -n",
+      "proc_id": "sysadm_pkg_check_upgrade-{c5e9d9a1-7c49-4a70-9d7c-4a84277c83b0}",
       "status": "pending"
     }
   },
