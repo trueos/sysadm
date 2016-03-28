@@ -20,7 +20,7 @@ Every pkg class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit"                     |
+| action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit", "pkg_upgrade"      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -583,6 +583,55 @@ The "pkg_audit" action performs an audit of all installed packages and reports a
     "pkg_audit": {
       "proc_cmd": "pkg audit -qr",
       "proc_id": "sysadm_pkg_audit-{257cc46b-9178-4990-810a-12416ddfad79}",
+      "status": "pending"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: pkg_upgrade, pkg
+
+.. _Upgrade Packages:
+
+Upgrade Packages
+================
+
+The "pkg_upgrade" action upgrades all currently installed packages. The messages from the upgrade will be returned as a dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for
+instructions on how to subscribe to and query dispatcher events.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/pkg
+ {
+   "action" : "pkg_upgrade"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "pkg_upgrade"
+   },
+   "name" : "pkg",
+   "namespace" : "sysadm",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "pkg_upgrade": {
+      "proc_cmd": "pkg upgrade -y",
+      "proc_id": "sysadm_pkg_upgrade-{19ace7c9-0d83-4a0d-9249-0b56cb105762}",
       "status": "pending"
     }
   },
