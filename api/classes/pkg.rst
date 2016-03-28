@@ -21,7 +21,7 @@ Every pkg class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit", "pkg_upgrade",     |
-|                                 |               | "pkg_check_upgrade", "pkg_update"                                                                                    |
+|                                 |               | "pkg_check_upgrade", "pkg_update", "pkg_lock", "pkg_unlock                                                           |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -735,6 +735,106 @@ If you include "force" = "true", it forces :command:`pkg` to completely resync a
     "pkg_update": {
       "proc_cmd": "pkg update -f",
       "proc_id": "sysadm_pkg_update-{8d65bbc5-fefc-4f34-8743-167e61a54c4c}",
+      "status": "pending"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: pkg_lock, pkg_unlock, pkg
+
+.. _Lock/Unlock Packages:
+
+Lock/Unlock Packages
+====================
+
+The "pkg_lock" action locks the specified "pkg_origins" so that it will be skipped during a package upgrade and remain at its current version. When using "pkg_origins", specify either a 
+single package origin string or an array of package origins.
+
+The "pkg_unlock" action unlocks the previously locked "pkg_origins" so that it is no longer skipped during a package upgrade. 
+
+Both actions return any information as a dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for instructions on how to subscribe to and query dispatcher events.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/pkg
+ {
+   "pkg_origins" : [
+      "misc/pcbsd-base"
+   ],
+   "action" : "pkg_lock"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "namespace" : "sysadm",
+   "id" : "fooid",
+   "name" : "pkg",
+   "args" : {
+      "pkg_origins" : [
+         "misc/pcbsd-base"
+      ],
+      "action" : "pkg_lock"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "pkg_lock": {
+      "proc_cmd": "pkg lock -y misc/pcbsd-base",
+      "proc_id": "sysadm_pkg_lock-{352f7f66-d036-4c16-8978-67950957bf22}",
+      "status": "pending"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/pkg
+ {
+   "action" : "pkg_unlock",
+   "pkg_origins" : "misc/pcbsd-base"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "args" : {
+      "action" : "pkg_unlock",
+      "pkg_origins" : "misc/pcbsd-base"
+   },
+   "name" : "pkg",
+   "namespace" : "sysadm"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "pkg_unlock": {
+      "proc_cmd": "pkg unlock -y misc/pcbsd-base",
+      "proc_id": "sysadm_pkg_unlock-{d1771b41-c1ca-480a-a3ce-42d4eddbfae8}",
       "status": "pending"
     }
   },
