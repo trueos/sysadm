@@ -20,7 +20,7 @@ Every pkg class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "pkg_info"                                                                                 |
+| action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos"                                  |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -210,6 +210,331 @@ not specified, information for all installed packages will be listed.
         "www": "http://lumina-desktop.org"
       }
     }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+ .. index:: pkg_search, pkg
+
+.. _Search Packages:
+
+Search Packages
+===============
+
+The "pkg_search" action searches the package database for pkgs which match the given "search_term" (required). These parameters are optional:
+
+* **"repo"**: may be used to specifiy searching the specified repository. If not specified, the local package database is searched.
+
+* **"category"**: may be used to restrict searches to the specified package category.
+
+**REST Request**
+
+.. code-block:: json
+
+PUT /sysadm/pkg
+ {
+   "repo" : "pcbsd-major",
+   "category" : "www",
+   "action" : "pkg_search",
+   "search_term" : "fire"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "name" : "pkg",
+   "args" : {
+      "action" : "pkg_search",
+      "search_term" : "fire",
+      "category" : "www",
+      "repo" : "pcbsd-major"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "pkg_search": {
+      "www/firefox": {
+        "arch": "FreeBSD:11:amd64",
+        "cksum": "cc72c379afbd66d152cf06b7d2a14ada413f338071ecb9b084899c94d39f951e",
+        "comment": "Web browser based on the browser portion of Mozilla",
+        "cpe": "cpe:2.3:a:mozilla:firefox:45.0:::::freebsd11:x64:1",
+        "dep_formula": "",
+        "desc": "Mozilla Firefox is a free and open source web browser descended from the\nMozilla Application Suite. It is small, fast and easy to use, and offers\nmany advanced features:\n\n o Popup Blocking\n o Tabbed Browsing\n o Live Bookmarks (ie. RSS)\n o Extensions\n o Themes\n o FastFind\n o Improved Security\n\nWWW: http://www.mozilla.com/firefox",
+        "flatsize": "96435169",
+        "icon": "\\\\\\\"http://www.pcbsd.org/appcafe/icons/www_firefox.png\\\\\\\"",
+        "id": "12147",
+        "licenselogic": "1",
+        "maintainer": "gecko@FreeBSD.org",
+        "manifestdigest": "2$0$hcbb9x7urbs9nw1e44chw9bwxn339983b6q9mixxdn5ghdwuh9ny",
+        "name": "firefox",
+        "no_provide_shlib": "yes",
+        "olddigest": "",
+        "origin": "www/firefox",
+        "osversion": "",
+        "path": "All/firefox-45.0_1,1.txz",
+        "pkg_format_version": "",
+        "pkgsize": "39935776",
+        "prefix": "/usr/local",
+        "screen1": "\\\\\\\"http://www.pcbsd.org/appcafe/screenshots/www/firefox/screen1.png\\\\\\\"",
+        "screen2": "\\\\\\\"http://www.pcbsd.org/appcafe/screenshots/www/firefox/screen2.png\\\\\\\"",
+        "version": "45.0_1,1",
+        "www": "http://www.mozilla.com/firefox"
+      },
+      "www/firefox-esr": {
+        "arch": "FreeBSD:11:amd64",
+        "cksum": "811545c4da089b52db54ddee04af2ea8c439eb12e708f478b09141cdcca7aec5",
+        "comment": "Web browser based on the browser portion of Mozilla",
+        "cpe": "cpe:2.3:a:mozilla:firefox_esr:38.7.0:::::freebsd11:x64",
+        "dep_formula": "",
+        "desc": "Mozilla Firefox is a free and open source web browser descended from the\nMozilla Application Suite. It is small, fast and easy to use, and offers\nmany advanced features:\n\n o Popup Blocking\n o Tabbed Browsing\n o Live Bookmarks (ie. RSS)\n o Extensions\n o Themes\n o FastFind\n o Improved Security\n\nWWW: http://www.mozilla.com/firefox",
+        "flatsize": "86940998",
+        "icon": "\\\\\\\"http://www.pcbsd.org/appcafe/icons/www_firefox-esr.png\\\\\\\"",
+        "id": "656",
+        "licenselogic": "1",
+        "maintainer": "gecko@FreeBSD.org",
+        "manifestdigest": "2$0$km1kyyxoae47gyhp9gx7wz7pcnsn6jnc8yxgpz63iyynaxi7ia8y",
+        "name": "firefox-esr",
+        "no_provide_shlib": "yes",
+        "olddigest": "",
+        "origin": "www/firefox-esr",
+        "osversion": "",
+        "path": "All/firefox-esr-38.7.0,1.txz",
+        "pkg_format_version": "",
+        "pkgsize": "36352676",
+        "prefix": "/usr/local",
+        "version": "38.7.0,1",
+        "www": "http://www.mozilla.com/firefox"
+      },
+      "www/firefox-esr-i18n": {
+        "arch": "FreeBSD:11:*",
+        "cksum": "c389f2960fa77548435e0b905b3ef6ddb48957b76c2d8346de1f9f97dd7b23ca",
+        "comment": "Localized interface for Firefox",
+        "dep_formula": "",
+        "desc": "Language packs for Firefox\n\nWWW: http://www.mozilla.org/projects/l10n/",
+        "flatsize": "102671800",
+        "id": "17350",
+        "licenselogic": "1",
+        "maintainer": "gecko@FreeBSD.org",
+        "manifestdigest": "2$0$wzmx16rcynpdej5eckeg6c8w8z6r7oha86cmjfth4pnfu9iojdmb",
+        "name": "firefox-esr-i18n",
+        "olddigest": "",
+        "origin": "www/firefox-esr-i18n",
+        "osversion": "",
+        "path": "All/firefox-esr-i18n-38.7.0.txz",
+        "pkg_format_version": "",
+        "pkgsize": "10449532",
+        "prefix": "/usr/local",
+        "version": "38.7.0",
+        "www": "http://www.mozilla.org/projects/l10n/"
+      },
+      "www/firefox-i18n": {
+        "arch": "FreeBSD:11:*",
+        "cksum": "11ca74215bb2c9032a316692b02d4b675cc2102b0e6c9c9f79e85cb6a292e689",
+        "comment": "Localized interface for Firefox",
+        "dep_formula": "",
+        "desc": "Language packs for Firefox\n\nWWW: http://www.mozilla.org/projects/l10n/",
+        "flatsize": "107852121",
+        "id": "11462",
+        "licenselogic": "1",
+        "maintainer": "gecko@FreeBSD.org",
+        "manifestdigest": "2$0$hozjo4sqt3kn4rqak7hfr4zubt3yahigcnhmbwad7xtuqt1qxntb",
+        "name": "firefox-i18n",
+        "olddigest": "",
+        "origin": "www/firefox-i18n",
+        "osversion": "",
+        "path": "All/firefox-i18n-45.0.txz",
+        "pkg_format_version": "",
+        "pkgsize": "10295024",
+        "prefix": "/usr/local",
+        "version": "45.0",
+        "www": "http://www.mozilla.org/projects/l10n/"
+      },
+      "www/firefox-pulse": {
+        "arch": "FreeBSD:11:amd64",
+        "cksum": "76bcc4096c378a647c4517ab8fac64d3ecbf2c08a1e47ab0eb9061d95d86c195",
+        "comment": "Web browser based on the browser portion of Mozilla",
+        "cpe": "cpe:2.3:a:mozilla:firefox:45.0:::::freebsd11:x64:1",
+        "dep_formula": "",
+        "desc": "Mozilla Firefox is a free and open source web browser descended from the\nMozilla Application Suite. It is small, fast and easy to use, and offers\nmany advanced features:\n\n o Popup Blocking\n o Tabbed Browsing\n o Live Bookmarks (ie. RSS)\n o Extensions\n o Themes\n o FastFind\n o Improved Security\n\nWWW: http://www.mozilla.com/firefox",
+        "flatsize": "96438909",
+        "icon": "\\\\\\\"http://www.pcbsd.org/appcafe/icons/www_firefox-pulse.png\\\\\\\"",
+        "id": "5534",
+        "licenselogic": "1",
+        "maintainer": "gecko@FreeBSD.org",
+        "manifestdigest": "2$0$8mb8qqmcqu3ja8uy4x9nqgyeennjemumrb1q6ugyege76i4rdefb",
+        "name": "firefox-pulse",
+        "no_provide_shlib": "yes",
+        "olddigest": "",
+        "origin": "www/firefox-pulse",
+        "osversion": "",
+        "path": "All/firefox-pulse-45.0_1,1.txz",
+        "pkg_format_version": "",
+        "pkgsize": "39959876",
+        "prefix": "/usr/local",
+        "screen1": "\\\\\\\"http://www.pcbsd.org/appcafe/screenshots/www/firefox/screen1.png\\\\\\\"",
+        "screen2": "\\\\\\\"http://www.pcbsd.org/appcafe/screenshots/www/firefox/screen2.png\\\\\\\"",
+        "version": "45.0_1,1",
+        "www": "http://www.mozilla.com/firefox"
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+
+.. index:: list_categories, pkg
+
+.. _List Categories:
+
+List Categories
+===============
+
+The "list_categories" action lists all the known categories within the specified repository or, if no repository is specified, the local repository. Note that just because a category is
+listed, it does not mean that any packages exist within that category.
+
+**REST Request**
+
+.. code-block:: json
+ 
+ PUT /sysadm/pkg
+ {
+   "repo" : "local",
+   "action" : "list_categories"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+ 
+ {
+   "id" : "fooid",
+   "args" : {
+      "action" : "list_categories",
+      "repo" : "local"
+   },
+   "namespace" : "sysadm",
+   "name" : "pkg"
+ }
+
+**Response**
+
+.. code-block:: json
+ 
+ {
+  "args": {
+    "list_categories": [
+      "ports-mgmt",
+      "x11",
+      "gnome",
+      "textproc",
+      "devel",
+      "python",
+      "misc",
+      "print",
+      "graphics",
+      "security",
+      "x11-fonts",
+      "lang",
+      "ipv6",
+      "perl5",
+      "converters",
+      "math",
+      "x11-toolkits",
+      "sysutils",
+      "dns",
+      "net",
+      "accessibility",
+      "databases",
+      "shells",
+      "x11-themes",
+      "multimedia",
+      "audio",
+      "www",
+      "ftp",
+      "net-im",
+      "archivers",
+      "comms",
+      "java",
+      "deskutils",
+      "kde",
+      "mail",
+      "editors",
+      "emulators",
+      "games",
+      "irc",
+      "japanese",
+      "news",
+      "x11-servers",
+      "tk",
+      "net-mgmt",
+      "ruby",
+      "x11-drivers",
+      "x11-wm",
+      "x11-clocks",
+      "kld",
+      "tcl",
+      "enlightenment",
+      "linux"
+    ]
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+.. index:: list_repos, pkg
+
+.. _List Repositories:
+
+List Repositories
+=================
+
+The "list_repositories" action scan the package repository configuration files and returns the names of the available repositories. All of the repositories returned by this
+action are valid as the optional "repo" argument for the other pkg API actions.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/pkg
+ {
+   "action" : "list_repos"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "name" : "pkg",
+   "args" : {
+      "action" : "list_repos"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "list_repos": [
+      "local",
+      "pcbsd-major"
+    ]
   },
   "id": "fooid",
   "name": "response",
