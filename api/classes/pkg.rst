@@ -34,8 +34,17 @@ The rest of this section provides examples of the available *actions* for each t
 Package Information
 ===================
 
-The "pkg_info" action reads the pkg database directly and returns any relevant information. The "repo" is optional as it defaults to "local". The "pkg_origins" is also optional; if it is
-not specified, information for all installed packages will be listed.
+The "pkg_info" action reads the pkg database directly and returns any relevant information. The following arguments are optional:
+
+* **"repo"**: unless specified, defaults to the local package repository.
+
+* **"pkg_origins"**: unless specified, information for all installed packages will be listed.
+
+* **"category"**: limits the results to packages within the specified category.
+
+* **"result"**: may be set to anything other than "full" to restrict the information output to just the basic/simple information. This will not include sub-categories of information such as
+  "dependencies","requires","depends", or "options". For example, a request that specifies *{"action":"pkg_info","category":"x11","result":"simple"}* will result in a basic listing of all
+  the packages within the "x11" category.
 
 **REST Request**
 
