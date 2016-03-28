@@ -756,7 +756,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
   }else if(act=="pkg_check_upgrade"){
 	  
   }else if(act=="pkg_upgrade"){
-	  
+    out->insert("pkg_upgrade", sysadm::PKG::pkg_upgrade());
   }else if(act=="pkg_audit"){
     out->insert("pkg_audit", sysadm::PKG::pkg_audit());
   }else{
