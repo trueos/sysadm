@@ -228,10 +228,65 @@ revoke a certificate belonging to another user.
 Dispatcher Subsystem
 ====================
 
-The dispatcher subsystem is designed for running external  utilities or scripts in an asynchronous fashion. Any connected client may  receive notifications about dispatcher processes through
-the events  system, but only users in the *wheel* group have the authority to directly  submit new jobs for the dispatcher. 
+The dispatcher subsystem is designed for running external utilities or scripts in an asynchronous fashion. Any connected client can subscribe to per-connection event notifications about
+dispatcher processes through the events system, but only users in the *wheel* group have the authority to directly submit new jobs for the dispatcher. 
 
 .. note:: other subsystems may also use the dispatcher for long-running processes in the background,  and these subsystems may allow non-wheel group users to perform these tasks as necessary.
+
+The user needs to first subscribe to "dispatcher" event notifications:
+
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Value**     | **Description**                                                                                                      |
+|                                 |               |                                                                                                                      |
++=================================+===============+======================================================================================================================+
+| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| name                            | subscribe     | use the desired action                                                                                               |
+|                                 | unsubscribe   |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| namespace                       | events        |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| args                            | dispatcher    |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+
+For example, to subscribe to dispatcher events:
+
+.. code-block:: json
+
+  {
+  "namespace" : "events",
+  "name" : "subscribe",
+  "id" : "sampleID",
+  "args" : ["dispatcher"]
+  }
+
+To unsubscribe from dispatcher events:
+  
+.. code-block:: json
+
+  {
+  "namespace" : "events",
+  "name" : "unsubscribe",
+  "id" : "sampleID",
+  "args" : ["dispatcher"]
+  }
+
+This response indicates that a dispatcher event occurred:
+
+.. code-block:: json
+
+  {
+  "namespace" : "events",
+  "name" : "event",
+  "id" : "",
+  "args" : {
+    "name" : "dispatcher",
+    "args" : "<message"
+    }
+  }
 
 A "dispatcher" query contains the following parameters:
 
@@ -251,8 +306,6 @@ A "dispatcher" query contains the following parameters:
 | action                          |               | "run" is used to submit process commands                                                                             |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-
-The user needs to first subscribe to "dispatcher" event notifications.
 
 Dispatcher events have the following syntax:
 
