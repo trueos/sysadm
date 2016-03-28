@@ -743,6 +743,22 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     if(!repos.isEmpty()){ out->insert("list_repos", repos); }
     else{ return RestOutputStruct::NOCONTENT; }
     
+  }else if(act=="pkg_install"){
+  
+  }else if(act=="pkg_remove"){
+	  
+  }else if(act=="pkg_lock"){
+	  
+  }else if(act=="pkg_unlock"){
+	  
+  }else if(act=="pkg_update"){
+	  
+  }else if(act=="pkg_check_upgrade"){
+	  
+  }else if(act=="pkg_upgrade"){
+	  
+  }else if(act=="pkg_audit"){
+    out->insert("pkg_audit", sysadm::PKG::pkg_audit());
   }else{
     //unknown action
     return RestOutputStruct::BADREQUEST;

@@ -50,13 +50,28 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
     namesp = "sysadm"; name="pkg";
     //most pkg commands have no special parsing the pkg output should be available as-is
     args.insert("pkg_log",cLog);
-    args.insert("action", ID.section("-",0,0).section("_pkg_",-1) ); //so the client/user can tell which type of pkg action this is for
+    args.insert("action", ID.section("-",0,0).section("_",1,-1) ); //so the client/user can tell which type of pkg action this is for
     if(ID.section("-",0,0)=="sysadm_pkg_check_upgrade"){
       if(isFinished){
 	bool hasupdates = !cLog.section("\n",-1,QString::SectionSkipEmpty).contains("packages are up to date");
 	args.insert("updates_available", hasupdates ? "true" : "false");
       }
+      
+    }else if(ID.section("-",0,0)=="sysadm_pkg_audit" && isFinished){
+      QStringList info = cLog.split("\n");
+      QStringList vuln, effects;
+      for(int i=0; i<info.length(); i++){
+        if(info[i].startsWith("Packages that depend on ")){
+	  vuln << info[i].section(":",0,0).section(" on ",1,1);
+	  effects << info[i].section(": ",1,-1).split(", ");
+	}
+      }
+      vuln.removeDuplicates(); vuln.removeAll("");
+      effects.removeDuplicates(); effects.removeAll("");
+      args.insert("vulnerable_pkgs",QJsonArray::fromStringList(vuln));
+      args.insert("impacts_pkgs",QJsonArray::fromStringList(effects));
     }
+    
   }
 	
   //Now assemble the output as needed
