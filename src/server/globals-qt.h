@@ -40,6 +40,7 @@
 #include <QFileSystemWatcher>
 #include <QQueue>
 #include <QRegExp>
+#include <QUuid>
 
 #include <QList>
 #include <QHash>

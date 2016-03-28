@@ -226,6 +226,15 @@ QStringList PKG::pkg_search(QString repo, QString searchterm, QString category){
 	found << query.value("origin").toString(); //need the origin for later
     }
   if(found.isEmpty()){
+    //Expand the search to names containing the term
+    q_string = "SELECT origin FROM packages WHERE name LIKE '%"+searchterm+"%'";
+    if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
+    QSqlQuery q2(q_string);
+    while(q2.next()){
+	found << q2.value("origin").toString(); //need the origin for later
+    }
+  }
+  if(found.isEmpty()){
     //Expand the search to comments
     q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
@@ -275,11 +284,22 @@ QJsonArray PKG::list_categories(QString repo){
 	//qDebug() << " - could not be opened"; 
 	return QJsonArray(); 
     } 
+  //Get all the pkg origins for this repo
+  QStringList origins;
+    QSqlQuery q_o("SELECT origin FROM packages");
+    while(q_o.next()){
+	origins << q_o.value("origin").toString(); //need the origin for later
+    }
+  //Now get all the categories
   QString q_string = "SELECT name FROM categories";
     QSqlQuery query(q_string);
     QStringList found;
     while(query.next()){
 	found << query.value("name").toString(); //need the origin for later
+    }
+    //Now check all the categories to ensure that pkgs exist within it
+    for(int i=0; i<found.length(); i++){
+      if(origins.filter(found[i]+"/").isEmpty()){ found.removeAt(i); i--; }
     }
     if(!found.isEmpty()){ return QJsonArray::fromStringList(found); }
     else{ return QJsonArray(); }
@@ -299,4 +319,129 @@ QJsonArray PKG::list_repos(){
     }
   }
   return QJsonArray::fromStringList(found);
+}
+
+//=================
+//pkg modification routines (dispatcher events for notifications)
+//=================
+QJsonObject PKG::pkg_install(QStringList origins, QString repo){
+  //Generate the command to run
+  QString cmd = "pkg install -y %1";
+  if(!repo.isEmpty() && repo!="local"){ cmd = cmd.arg("--repository \""+repo+"\" %1"); }
+  cmd = cmd.arg( origins.join(" ") );
+  //Now kick off the dispatcher process (within the pkg queue - since only one pkg process can run at a time)
+  QString ID = "sysadm_pkg_install-"+QUuid::createUuid().toString(); //create a random tag for the process
+  DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, ID, cmd);
+  //Now return the info about the process
+  QJsonObject obj;
+    obj.insert("status", "pending");
+    obj.insert("proc_cmd",cmd);
+    obj.insert("proc_id",ID);
+  return obj;
+}
+
+QJsonObject PKG::pkg_remove(QStringList origins, bool recursive){
+  //Generate the command to run
+  QString cmd = "pkg delete -y %1";
+  if(recursive){ cmd = cmd.arg("-R %1"); } //also remove all packages which depend on these pkgs
+  cmd = cmd.arg( origins.join(" ") );
+  //Now kick off the dispatcher process (within the pkg queue - since only one pkg process can run at a time)
+  QString ID = "sysadm_pkg_remove-"+QUuid::createUuid().toString(); //create a random tag for the process
+  DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, ID, cmd);
+  //Now return the info about the process
+  QJsonObject obj;
+    obj.insert("status", "pending");
+    obj.insert("proc_cmd",cmd);
+    obj.insert("proc_id",ID);
+  return obj;	
+}
+
+QJsonObject PKG::pkg_lock(QStringList origins){
+  //Generate the command to run
+  QString cmd = "pkg lock -y %1";
+  cmd = cmd.arg( origins.join(" ") );
+  //Now kick off the dispatcher process (within the pkg queue - since only one pkg process can run at a time)
+  QString ID = "sysadm_pkg_lock-"+QUuid::createUuid().toString(); //create a random tag for the process
+  DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, ID, cmd);
+  //Now return the info about the process
+  QJsonObject obj;
+    obj.insert("status", "pending");
+    obj.insert("proc_cmd",cmd);
+    obj.insert("proc_id",ID);
+  return obj;	
+}
+
+QJsonObject PKG::pkg_unlock(QStringList origins){
+  //Generate the command to run
+  QString cmd = "pkg unlock -y %1";
+  cmd = cmd.arg( origins.join(" ") );
+  //Now kick off the dispatcher process (within the pkg queue - since only one pkg process can run at a time)
+  QString ID = "sysadm_pkg_unlock-"+QUuid::createUuid().toString(); //create a random tag for the process
+  DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, ID, cmd);
+  //Now return the info about the process
+  QJsonObject obj;
+    obj.insert("status", "pending");
+    obj.insert("proc_cmd",cmd);
+    obj.insert("proc_id",ID);
+  return obj;		
+}
+
+//==================
+//pkg administration routines
+//==================
+QJsonObject PKG::pkg_update(bool force){
+  //Generate the command to run
+  QString cmd = "pkg update";
+  if(force){ cmd.append(" -f"); }
+  //Now kick off the dispatcher process (within the pkg queue - since only one pkg process can run at a time)
+  QString ID = "sysadm_pkg_update-"+QUuid::createUuid().toString(); //create a random tag for the process
+  DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, ID, cmd);
+  //Now return the info about the process
+  QJsonObject obj;
+    obj.insert("status", "pending");
+    obj.insert("proc_cmd",cmd);
+    obj.insert("proc_id",ID);
+  return obj;	
+}
+
+QJsonObject PKG::pkg_check_upgrade(){
+  //Generate the command to run
+  QString cmd = "pkg upgrade -n";
+  //Now kick off the dispatcher process (within the pkg queue - since only one pkg process can run at a time)
+  QString ID = "sysadm_pkg_check_upgrade-"+QUuid::createUuid().toString(); //create a random tag for the process
+  DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, ID, cmd);
+  //Now return the info about the process
+  QJsonObject obj;
+    obj.insert("status", "pending");
+    obj.insert("proc_cmd",cmd);
+    obj.insert("proc_id",ID);
+  return obj;	
+}
+
+QJsonObject PKG::pkg_upgrade(){
+  //Generate the command to run
+  QString cmd = "pkg upgrade -y";
+  //Now kick off the dispatcher process (within the pkg queue - since only one pkg process can run at a time)
+  QString ID = "sysadm_pkg_upgrade-"+QUuid::createUuid().toString(); //create a random tag for the process
+  DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, ID, cmd);
+  //Now return the info about the process
+  QJsonObject obj;
+    obj.insert("status", "pending");
+    obj.insert("proc_cmd",cmd);
+    obj.insert("proc_id",ID);
+  return obj;
+}
+
+QJsonObject PKG::pkg_audit(){
+  //Generate the command to run
+  QString cmd = "pkg audit -qr";
+  //Now kick off the dispatcher process (within the pkg queue - since only one pkg process can run at a time)
+  QString ID = "sysadm_pkg_audit-"+QUuid::createUuid().toString(); //create a random tag for the process
+  DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, ID, cmd);
+  //Now return the info about the process
+  QJsonObject obj;
+    obj.insert("status", "pending");
+    obj.insert("proc_cmd",cmd);
+    obj.insert("proc_id",ID);
+  return obj;	
 }

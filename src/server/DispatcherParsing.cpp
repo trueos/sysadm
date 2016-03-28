@@ -43,6 +43,20 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
     namesp = "sysadm"; name="update";
     //No special parsing here: the pc-updatemanager output should be available as-is
     args.insert("update_log",cLog);
+	  
+	  
+  // == sysadm/pkg ==
+  }else if(ID.startsWith("sysadm_pkg")){
+    namesp = "sysadm"; name="pkg";
+    //most pkg commands have no special parsing the pkg output should be available as-is
+    args.insert("pkg_log",cLog);
+    args.insert("action", ID.section("-",0,0).section("_pkg_",-1) ); //so the client/user can tell which type of pkg action this is for
+    if(ID.section("-",0,0)=="sysadm_pkg_check_upgrade"){
+      if(isFinished){
+	bool hasupdates = !cLog.section("\n",-1,QString::SectionSkipEmpty).contains("packages are up to date");
+	args.insert("updates_available", hasupdates ? "true" : "false");
+      }
+    }
   }
 	
   //Now assemble the output as needed
