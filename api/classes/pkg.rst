@@ -21,7 +21,7 @@ Every pkg class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit", "pkg_upgrade",     |
-|                                 |               | "pkg_check_upgrade", "pkg_update", "pkg_lock", "pkg_unlock", "pkg_install"                                           |
+|                                 |               | "pkg_check_upgrade", "pkg_update", "pkg_lock", "pkg_unlock", "pkg_install", and "pkg_remove"                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -889,6 +889,63 @@ Unless the "repo" is specified, :command:`pkg` will automatically determine the 
     "pkg_install": {
       "proc_cmd": "pkg install -y --repository \"pcbsd-major\" games/angband",
       "proc_id": "sysadm_pkg_install-{ae444472-47df-4a65-91eb-013cc82ce4ad}",
+      "status": "pending"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: pkg_remove, pkg
+
+.. _Uninstall Packages:
+
+Uninstall Packages
+==================
+
+The "pkg_remove" action uninstalls the specified "pkg_origins" from the system. When using "pkg_origins", specify either a single package origin string or an array of package origins.
+
+The optional "recursive" argument can be set to "true" or "false". The default is "true", which means that other packages which depend on this package will also be removed so that there are
+no broken dependencies.
+
+The uninstall messages will be returned as a dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for instructions on how to subscribe to and query dispatcher events.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/pkg
+ {
+   "recursive" : "false",
+   "action" : "pkg_remove",
+   "pkg_origins" : "games/angband"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id" : "fooid",
+   "name" : "pkg",
+   "namespace" : "sysadm",
+   "args" : {
+      "action" : "pkg_remove",
+      "recursive" : "false",
+      "pkg_origins" : "games/angband"
+   }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "pkg_remove": {
+      "proc_cmd": "pkg delete -y games/angband",
+      "proc_id": "sysadm_pkg_remove-{2aa844aa-f6a8-4e8f-ae71-b56af735ccb8}",
       "status": "pending"
     }
   },
