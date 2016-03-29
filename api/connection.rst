@@ -231,9 +231,11 @@ Dispatcher Subsystem
 The dispatcher subsystem is designed for running external utilities or scripts in an asynchronous fashion. Any connected client can subscribe to per-connection event notifications about
 dispatcher processes through the events system, but only users in the *wheel* group have the authority to directly submit new jobs for the dispatcher. 
 
-.. note:: other subsystems may also use the dispatcher for long-running processes in the background,  and these subsystems may allow non-wheel group users to perform these tasks as necessary.
+.. note:: other subsystems may also use the dispatcher for long-running processes in the background,  and these subsystems may allow non-wheel group users to perform these tasks as
+   necessary. Also, the events namespace does not really translate over to REST which was not designed for asyncronous events. For this reason, only Websocket examples are used in this
+   section.
 
-The user needs to first subscribe to "dispatcher" event notifications:
+The format of "dispatcher" event requests is as follows:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
@@ -263,7 +265,8 @@ For example, to subscribe to dispatcher events:
   "args" : ["dispatcher"]
   }
 
-To unsubscribe from dispatcher events:
+Once subscribed, the requested events will be received as they are produced. To unsubscribe from event notifications, repeat the request, using "unsubscribe" for the "name". For example,
+to unsubscribe from dispatcher events:
   
 .. code-block:: json
 
