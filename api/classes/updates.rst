@@ -218,3 +218,24 @@ The "startupdate" action starts the specified update. You must specify a "target
   "name": "response",
   "namespace": "sysadm"
  }
+
+**Dispatcher Events System Reply**
+
+.. code-block:: json
+
+ {
+  "namespace" : "events",
+  "name" : "dispatcher",
+  "id" : "none",
+  "args" : {
+    "event_system" : "sysadm"/"update",
+    "state" : "running" OR "finished",
+    "update_log"
+    "process_details" : {
+      "time_started" : <ISO 8601 time date string>,
+      "cmd_list" : [ "<command 1>", "<command 2>"],
+      "process_id" : "<some id string>",
+      "state" : "running"
+      }
+    }
+ }
