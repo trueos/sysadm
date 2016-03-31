@@ -48,6 +48,7 @@ void DProcess::startProc(){
     //setup internal connections
     connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(cmdFinished(int, QProcess::ExitStatus)) );
     connect(this, SIGNAL(error(QProcess::ProcessError)), this, SLOT(cmdError(QProcess::ProcessError)) );
+    this->emit ProcUpdate(ID, proclog);
   }
   cCmd = cmds.takeFirst();
   success = false; //not finished yet

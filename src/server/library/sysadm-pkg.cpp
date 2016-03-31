@@ -122,11 +122,9 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       }
       //ANNOTATIONS
       QSqlQuery q2("SELECT tag_id, value_id FROM pkg_annotation WHERE package_id = '"+id+"'");
-      QStringList tags, vals;
+      QStringList tags, vals; //both the value and the variable are id tags to entries in the annotations table.
       while(q2.next()){
 	  tags << q2.value("tag_id").toString(); vals << q2.value("value_id").toString();
-	  //include the annotations as base-level fields as well
-	  //info.insert( anno_from_id(q2.value("tag_id").toString()), anno_from_id(q2.value("value_id").toString()) );
       }
       if(!tags.isEmpty()){ annotations_from_ids(tags, vals, &info); }
       if(!fullresults){ retObj.insert(origin,info); continue; } //skip the rest of the info queries
