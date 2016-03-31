@@ -14,14 +14,7 @@ using namespace sysadm;
 // ==================
 //  INLINE FUNCTIONS
 // ==================
-//Get Option Name
-inline QString option_from_id(QString id){
-  QSqlQuery q("SELECT option FROM option WHERE option_id = '"+id+"'");
-    while(q.next()){ 
-	return q.value("option").toString();
-    }
-  return ""; //nothing found
-}
+
 //Get Annotation (name/value - both use ID's)
 inline QString anno_from_id(QString id){
   QSqlQuery q("SELECT annotation FROM annotation WHERE annotation_id = '"+id+"'");
@@ -117,9 +110,12 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       }
       if(!fullresults){ retObj.insert(origin,info); continue; } //skip the rest of the info queries
       //OPTIONS
-      QSqlQuery q3("SELECT option_id, value FROM pkg_option WHERE package_id = '"+id+"'");
+      QSqlQuery q3("SELECT value, option FROM pkg_option INNER JOIN option ON pkg_option.option_id = option.option_id WHERE pkg_option.package_id = '"+id+"'");
       QJsonObject options;
-      while(q3.next()){ options.insert(option_from_id(q3.value("option_id").toString()), q3.value("value").toString() ); }
+      while(q3.next()){
+	//for(int r=0; r<q3.record().count(); r++){ qDebug() << "Field:" << q3.record().fieldName(r); qDebug() << "Value:" << q3.record().value(r).toString(); }
+	options.insert(q3.value("option").toString(), q3.value("value").toString());
+      }
       if(!options.isEmpty()){ info.insert("options",options); }
       //DEPENDENCIES
       QSqlQuery q4("SELECT origin FROM deps WHERE package_id = '"+id+"'");
