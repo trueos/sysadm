@@ -14,14 +14,32 @@ using namespace sysadm;
 // ==================
 //  INLINE FUNCTIONS
 // ==================
-
-//Get Annotation (name/value - both use ID's)
-inline QString anno_from_id(QString id){
-  QSqlQuery q("SELECT annotation FROM annotation WHERE annotation_id = '"+id+"'");
+//Get annotation variable/values
+inline void annotations_from_ids(QStringList var_ids, QStringList val_ids, QJsonObject *out){
+  //Note: Both input lists *must* be the same length (one variable for one value)
+  QStringList tot; tot << var_ids << val_ids;
+  tot.removeDuplicates();
+  //QJsonObject ret;
+  int index = -1;
+  QSqlQuery q("SELECT annotation, annotation_id FROM annotation WHERE annotation_id = '"+tot.join("' OR annotation_id = '")+"'");
     while(q.next()){ 
-	return q.value("annotation").toString();
+	//qDebug() << "Got query result:" << q.value("annotation_id").toString() << q.value("annotation").toString();
+	index = var_ids.indexOf(q.value("annotation_id").toString());
+	while(index>=0){ 
+	  var_ids.replace(index, q.value("annotation").toString()); 
+	  index = var_ids.indexOf(q.value("annotation_id").toString());
+	}
+	index = val_ids.indexOf(q.value("annotation_id").toString());
+	while(index>=0){ 
+	  val_ids.replace(index, q.value("annotation").toString()); 
+	  index = val_ids.indexOf(q.value("annotation_id").toString());
+	}
     }
-  return ""; //nothing found
+  //Now go through and add them to the JsonObject in pairs
+  for(int i=0; i<var_ids.length(); i++){
+    qDebug() << "Got Annotation:" << var_ids[i] <<":"<<val_ids[i];
+    out->insert(var_ids[i], val_ids[i]);
+  }
 }
 //Get origin from package_id (for reverse lookups)
 inline QStringList origins_from_package_ids(QStringList ids){
@@ -104,10 +122,13 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       }
       //ANNOTATIONS
       QSqlQuery q2("SELECT tag_id, value_id FROM pkg_annotation WHERE package_id = '"+id+"'");
-      while(q2.next()){ 
+      QStringList tags, vals;
+      while(q2.next()){
+	  tags << q2.value("tag_id").toString(); vals << q2.value("value_id").toString();
 	  //include the annotations as base-level fields as well
-	  info.insert( anno_from_id(q2.value("tag_id").toString()), anno_from_id(q2.value("value_id").toString()) );
+	  //info.insert( anno_from_id(q2.value("tag_id").toString()), anno_from_id(q2.value("value_id").toString()) );
       }
+      if(!tags.isEmpty()){ annotations_from_ids(tags, vals, &retObj); }
       if(!fullresults){ retObj.insert(origin,info); continue; } //skip the rest of the info queries
       //OPTIONS
       QSqlQuery q3("SELECT value, option FROM pkg_option INNER JOIN option ON pkg_option.option_id = option.option_id WHERE pkg_option.package_id = '"+id+"'");
