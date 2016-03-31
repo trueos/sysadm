@@ -128,7 +128,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
 	  //include the annotations as base-level fields as well
 	  //info.insert( anno_from_id(q2.value("tag_id").toString()), anno_from_id(q2.value("value_id").toString()) );
       }
-      if(!tags.isEmpty()){ annotations_from_ids(tags, vals, &retObj); }
+      if(!tags.isEmpty()){ annotations_from_ids(tags, vals, &info); }
       if(!fullresults){ retObj.insert(origin,info); continue; } //skip the rest of the info queries
       //OPTIONS
       QSqlQuery q3("SELECT value, option FROM pkg_option INNER JOIN option ON pkg_option.option_id = option.option_id WHERE pkg_option.package_id = '"+id+"'");
