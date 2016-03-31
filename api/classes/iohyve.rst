@@ -148,7 +148,30 @@ The "fetchiso" action is used to retrieve the installation ISO. It is used with 
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
+**Dispatcher Events System Reply**
+
+.. code-block:: json
+
+ {
+  "namespace" : "events",
+  "name" : "dispatcher",
+  "id" : "none",
+  "args" : {
+    "event_system" : "sysadm"/"iohyve",
+    "state" : "running" OR "finished",
+    "filename",
+    "percent_done",
+    "download_rate",
+    "process_details" : {
+      "time_started" : <ISO 8601 time date string>,
+      "cmd_list" : [ "<command 1>", "<command 2>"],
+      "process_id" : "<some id string>",
+      "state" : "running"
+      }
+   }
+ }
+
 .. index:: listisos, iohyve
 
 .. _List ISOs:
