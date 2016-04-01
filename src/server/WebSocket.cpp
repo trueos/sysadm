@@ -439,7 +439,7 @@ void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QJsonValue msg){
     out.out_args = msg;
     out.Header << "Content-Type: text/json; charset=utf-8"; //REST header info
     out.in_struct.name = EventWatcher::typeToString(evtype);
-  qDebug() << "Send Event:" << out.assembleMessage();
+  //qDebug() << "Send Event:" << out.assembleMessage();
   //Now send the message back through the socket
   this->emit SendMessage(out.assembleMessage());
 }

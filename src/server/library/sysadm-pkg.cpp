@@ -37,7 +37,7 @@ inline void annotations_from_ids(QStringList var_ids, QStringList val_ids, QJson
     }
   //Now go through and add them to the JsonObject in pairs
   for(int i=0; i<var_ids.length(); i++){
-    qDebug() << "Got Annotation:" << var_ids[i] <<":"<<val_ids[i];
+    //qDebug() << "Got Annotation:" << var_ids[i] <<":"<<val_ids[i];
     out->insert(var_ids[i], val_ids[i]);
   }
 }
@@ -85,7 +85,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
   if(QSqlDatabase::contains()){
     //database already loaded
     qDebug() << "Existing DB Connection";
-    DB = QSqlDatabase::database();
+    DB = QSqlDatabase::cloneDatabase(QSqlDatabase::database(), QUuid::createUuid().toString());
   }else{
     //new database needs to be loaded
     qDebug() << "New DB Connection";
@@ -95,7 +95,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
     DB.setDatabaseName(dbname);*/
   }
   if(DB.databaseName()!=dbname){
-    if(DB.isOpen()){ DB.close(); }
+    if(DB.isOpen()){ qDebug() << " - Close DB:" << repo; DB.close(); }
     DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
     DB.setHostName("localhost");
     DB.setDatabaseName(dbname);
@@ -201,6 +201,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
        //Now insert this information into the main object
        retObj.insert(origin,info);
   } //end loop over pkg matches
+  qDebug() << " - Done with DB:" << repo;
   DB.close();
   return retObj;
 }
@@ -279,7 +280,7 @@ QJsonArray PKG::list_categories(QString repo){
   if(QSqlDatabase::contains()){
     //database already loaded
     qDebug() << "Existing DB Connection";
-    DB = QSqlDatabase::database();
+    DB = QSqlDatabase::cloneDatabase(QSqlDatabase::database(), QUuid::createUuid().toString());
   }else{
     //new database needs to be loaded
     qDebug() << "New DB Connection";
