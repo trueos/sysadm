@@ -40,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'PC-BSD API'
-copyright = u'2015, iXsystems'
+project = u'Sysadm Server Handbook'
+copyright = u'2016, iXsystems'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
