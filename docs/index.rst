@@ -12,6 +12,8 @@ Contents:
    :maxdepth: 4
 
    introduction
+   basics
+   manage
 
 Indices and tables
 ==================
