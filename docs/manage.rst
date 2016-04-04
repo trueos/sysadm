@@ -1,12 +1,12 @@
 .. _management:
 
-SysAdm Management
-=================
+SysAdm™ Management
+==================
 
-SysAdm comes with a standard configuration file located at :file:`/usr/local/etc/sysadm.conf.dist`.
+SysAdm™ comes with a standard configuration file located at :file:`/usr/local/etc/sysadm.conf.dist`.
   
 It is possible to edit this file for a custom configuration, but the result will need to be saved as :kbd:`sysadm.conf`.
-Here is the current default settings for SysAdm::
+Here is the current default settings for SysAdm™::
 
   #Sample Configuration file for the sysadm server
 
@@ -27,4 +27,4 @@ This default configuration also has blacklist options, recreated here::
   #   (Note: A successful authorization will always reset the fail counter)
   BLACKLIST_AUTH_FAIL_RESET_MINUTES=10
   
-Please note these default options are subject to change as the SysAdm utility is developed.
+Please note these default options are subject to change as the SysAdm™ utility is developed.
