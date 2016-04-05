@@ -15,8 +15,6 @@ DProcess::DProcess(QObject *parent) : QProcess(parent){
     //Setup the process
     bool notify = false;
     uptimer = new QTimer(this);
-      uptimer->setSingleShot(true);
-      uptimer->setInterval(1000); //1 second intervals
     connect(uptimer, SIGNAL(timeout()), this, SLOT(emitUpdate()) );
     this->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
     this->setProcessChannelMode(QProcess::MergedChannels);
@@ -28,7 +26,19 @@ DProcess::~DProcess(){
     this->terminate();
   }
 }
-  
+
+void DProcess::procReady(){
+  proclog.insert("cmd_list",QJsonArray::fromStringList(cmds));
+  proclog.insert("process_id",ID);
+  proclog.insert("state","pending");	
+  connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(cmdFinished(int, QProcess::ExitStatus)) );
+  connect(this, SIGNAL(error(QProcess::ProcessError)), this, SLOT(cmdError(QProcess::ProcessError)) );
+  this->emit ProcUpdate(ID, proclog);
+      uptimer->setSingleShot(false);
+      uptimer->setInterval(2000); //2 second intervals for "pending" pings
+  uptimer->start();
+}
+
 void DProcess::startProc(){
   cmds.removeAll(""); //make sure no empty commands
   if(cmds.isEmpty()){ 
@@ -40,14 +50,11 @@ void DProcess::startProc(){
   }
   if(proclog.isEmpty()){
     //first cmd started
+    if(uptimer->isActive()){ uptimer->stop(); }
+      uptimer->setSingleShot(true);
+      uptimer->setInterval(1000); //1 second intervals while running
     proclog.insert("time_started", QDateTime::currentDateTime().toString(Qt::ISODate));
-    proclog.insert("cmd_list",QJsonArray::fromStringList(cmds));
-    proclog.insert("process_id",ID);
     proclog.insert("state","running");
-    //rawcmds = cmds; rawcmds.prepend(cCmd);
-    //setup internal connections
-    connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(cmdFinished(int, QProcess::ExitStatus)) );
-    connect(this, SIGNAL(error(QProcess::ProcessError)), this, SLOT(cmdError(QProcess::ProcessError)) );
     this->emit ProcUpdate(ID, proclog);
   }
   cCmd = cmds.takeFirst();
@@ -163,15 +170,14 @@ DProcess* Dispatcher::createProcess(QString ID, QStringList cmds){
 // === PRIVATE SLOTS ===
 void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, DProcess *P){
   //qDebug() << "mkProcs()"; 
-  //P->moveToThread(this->thread());
   QList<DProcess*> list = HASH.value(queue);
   list << P;
   //qDebug() << " - add to queue:" << queue;
   HASH.insert(queue,list); 
   connect(P, SIGNAL(ProcFinished(QString, QJsonObject)), this, SLOT(ProcFinished(QString, QJsonObject)) );
   connect(P, SIGNAL(ProcUpdate(QString, QJsonObject)), this, SLOT(ProcUpdated(QString, QJsonObject)) );
+  P->procReady();
   QTimer::singleShot(30, this, SIGNAL(checkProcs()) );
-  //this->emit checkProcs();
 }
 
 void Dispatcher::ProcFinished(QString ID, QJsonObject log){
@@ -185,9 +191,7 @@ void Dispatcher::ProcFinished(QString ID, QJsonObject log){
   }else{
     emit DispatchEvent(log);
   }
-
   QTimer::singleShot(30, this, SIGNAL(checkProcs()) );
-  //this->emit checkProcs();
 }
 
 void Dispatcher::ProcUpdated(QString ID, QJsonObject log){
@@ -221,7 +225,6 @@ for(int i=0; i<enum_length; i++){
 	    //qDebug() << "Call Start Proc:" << list[j]->ID;
 	    emit DispatchStarting(list[j]->ID);
 	    list[j]->startProc();
-	    //QTimer::singleShot(0,list[j], SLOT(startProc()) );
 	  }
 	}
       } //end loop over list

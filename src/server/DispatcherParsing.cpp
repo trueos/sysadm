@@ -24,7 +24,7 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
   //qDebug() << " - RAW LOG:" << log;
   //qDebug() << "cCmd:" << cCmd << "cLog:" << cLog << "isFinished:" << isFinished;
   //Add the generic process values
-  args.insert("state",isFinished ? "finished" : "running");
+  args.insert("state",log.value("state").toString());
   args.insert("process_details", log); //full process log array here
   
   //Now parse the notification based on the dispatch ID or current command

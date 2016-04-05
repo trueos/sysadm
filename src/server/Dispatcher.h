@@ -31,6 +31,7 @@ public:
 	bool isDone();
 
 public slots:
+	void procReady(); //all the input arguments have been setup - and the proc is ready to be started
 	void startProc();
 
 private:
