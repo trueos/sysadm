@@ -181,7 +181,9 @@ QJsonObject Update::startUpdate(QJsonObject jsin) {
 
   // Queue the update action
   DISPATCHER->queueProcess("sysadm_update_runupdates::"+ID, "pc-updatemanager " + flags);
-
+  
+  if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //ensure the next fast update does a full check
+  
   // Return some details to user that the action was queued
   retObject.insert("command", "pc-updatemanger " + flags);
   retObject.insert("comment", "Task Queued");
