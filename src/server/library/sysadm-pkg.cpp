@@ -73,44 +73,32 @@ inline QString getRepoFile(QString repo){
   if(repo=="local"){  return "/var/db/pkg/local.sqlite"; }
   else{ return ("/var/db/pkg/repo-"+repo+".sqlite"); }	
 }
+inline void checkDB(QString repo){
+  if(!QSqlDatabase::contains(repo)){
+    //First time for this database - set it up
+    QSqlDatabase DB = QSqlDatabase::addDatabase("QSQLITE", repo);
+    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
+    DB.setHostName("localhost");
+    QString path = getRepoFile(repo);
+    DB.setDatabaseName(path); //path to the database file
+    qDebug() << "Created pkg DB connection:" << path << DB.connectionName();
+  }
+}
+
 // =================
 //  MAIN FUNCTIONS
 // =================
 QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, bool fullresults){
   QJsonObject retObj;
-  QString dbname = getRepoFile(repo);
-  //qDebug() << "Database:" << dbname;// << conn;
-   //Open the local database
-  QSqlDatabase DB;
-  if(QSqlDatabase::contains()){
-    //database already loaded
-    qDebug() << "Existing DB Connection";
-    DB = QSqlDatabase::cloneDatabase(QSqlDatabase::database(), QUuid::createUuid().toString());
-  }else{
-    //new database needs to be loaded
-    qDebug() << "New DB Connection";
-    DB = QSqlDatabase::addDatabase("QSQLITE");
-    /*DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
-    DB.setHostName("localhost");
-    DB.setDatabaseName(dbname);*/
-  }
-  if(DB.databaseName()!=dbname){
-    if(DB.isOpen()){ qDebug() << " - Close DB:" << repo; DB.close(); }
-    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
-    DB.setHostName("localhost");
-    DB.setDatabaseName(dbname);
-  }
-  qDebug() << "Open Database:" << DB.databaseName() << dbname;
-    if( !DB.open() ){ 
-	//qDebug() << " - could not be opened"; 
-	return retObj; 
-    } 
+  checkDB(repo); //create if needed
+  QSqlDatabase DB = QSqlDatabase::database(repo);
+  if(!DB.isOpen()){ return retObj; } //could not open DB (file missing?)
   //Now do all the pkg info, one pkg origin at a time
   origins.removeAll("");
     QString q_string = "SELECT * FROM packages";
     if(!origins.isEmpty()){ q_string.append(" WHERE origin = '"+origins.join("' OR origin = '")+"'"); }
     else if(!category.isEmpty()){ q_string.append(" WHERE origin LIKE '"+category+"/%'"); }
-  QSqlQuery query(q_string);
+  QSqlQuery query(q_string, DB);
     while(query.next()){
 	QString id = query.value("id").toString(); //need this pkg id for later
 	QString origin = query.value("origin").toString(); //need the origin for later
@@ -121,7 +109,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
         info.insert(query.record().fieldName(i), query.value(i).toString() ); 
       }
       //ANNOTATIONS
-      QSqlQuery q2("SELECT tag_id, value_id FROM pkg_annotation WHERE package_id = '"+id+"'");
+      QSqlQuery q2("SELECT tag_id, value_id FROM pkg_annotation WHERE package_id = '"+id+"'", DB);
       QStringList tags, vals; //both the value and the variable are id tags to entries in the annotations table.
       while(q2.next()){
 	  tags << q2.value("tag_id").toString(); vals << q2.value("value_id").toString();
@@ -129,7 +117,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       if(!tags.isEmpty()){ annotations_from_ids(tags, vals, &info); }
       if(!fullresults){ retObj.insert(origin,info); continue; } //skip the rest of the info queries
       //OPTIONS
-      QSqlQuery q3("SELECT value, option FROM pkg_option INNER JOIN option ON pkg_option.option_id = option.option_id WHERE pkg_option.package_id = '"+id+"'");
+      QSqlQuery q3("SELECT value, option FROM pkg_option INNER JOIN option ON pkg_option.option_id = option.option_id WHERE pkg_option.package_id = '"+id+"'", DB);
       QJsonObject options;
       while(q3.next()){
 	//for(int r=0; r<q3.record().count(); r++){ qDebug() << "Field:" << q3.record().fieldName(r); qDebug() << "Value:" << q3.record().value(r).toString(); }
@@ -137,107 +125,82 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       }
       if(!options.isEmpty()){ info.insert("options",options); }
       //DEPENDENCIES
-      QSqlQuery q4("SELECT origin FROM deps WHERE package_id = '"+id+"'");
+      QSqlQuery q4("SELECT origin FROM deps WHERE package_id = '"+id+"'", DB);
       QStringList tmpList;
        while(q4.next()){ 
 	  tmpList << q4.value("origin").toString();
       } //end deps query
       if(!tmpList.isEmpty()){ info.insert("dependencies", QJsonArray::fromStringList(tmpList) ); }
       //FILES
-      QSqlQuery q5("SELECT path FROM files WHERE package_id = '"+id+"'");
+      QSqlQuery q5("SELECT path FROM files WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q5.next()){  tmpList << q5.value("path").toString(); }
       if(!tmpList.isEmpty()){ info.insert("files", QJsonArray::fromStringList(tmpList) ); }
       //REVERSE DEPENDENCIES
-      QSqlQuery q6("SELECT package_id FROM deps WHERE origin = '"+origin+"'");
+      QSqlQuery q6("SELECT package_id FROM deps WHERE origin = '"+origin+"'", DB);
       tmpList.clear();
        while(q6.next()){ tmpList << q6.value("package_id").toString(); }
        if(!tmpList.isEmpty()){ info.insert("reverse_dependencies", QJsonArray::fromStringList(origins_from_package_ids(tmpList)) ); }
        //USERS
-      QSqlQuery q7("SELECT user_id FROM pkg_users WHERE package_id = '"+id+"'");
+      QSqlQuery q7("SELECT user_id FROM pkg_users WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q7.next()){ tmpList << q7.value("user_id").toString(); }
        if(!tmpList.isEmpty()){ info.insert("users", QJsonArray::fromStringList(names_from_ids(tmpList, "users")) ); }
        //GROUPS
-      QSqlQuery q8("SELECT group_id FROM pkg_groups WHERE package_id = '"+id+"'");
+      QSqlQuery q8("SELECT group_id FROM pkg_groups WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q8.next()){ tmpList << q8.value("group_id").toString(); }
        if(!tmpList.isEmpty()){ info.insert("groups", QJsonArray::fromStringList(names_from_ids(tmpList, "users")) ); }
        //LICENSES
-      QSqlQuery q9("SELECT license_id FROM pkg_licenses WHERE package_id = '"+id+"'");
+      QSqlQuery q9("SELECT license_id FROM pkg_licenses WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q9.next()){ tmpList << q9.value("license_id").toString(); }
        if(!tmpList.isEmpty()){ info.insert("licenses", QJsonArray::fromStringList(names_from_ids(tmpList, "licenses")) ); }
        //SHARED LIBS (REQUIRED)
-      QSqlQuery q10("SELECT shlib_id FROM pkg_shlibs_required WHERE package_id = '"+id+"'");
+      QSqlQuery q10("SELECT shlib_id FROM pkg_shlibs_required WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q10.next()){ tmpList << q10.value("shlib_id").toString(); }
        if(!tmpList.isEmpty()){ info.insert("shlibs_required", QJsonArray::fromStringList(names_from_ids(tmpList, "shlibs")) ); }
        //SHARED LIBS (PROVIDED)
-      QSqlQuery q11("SELECT shlib_id FROM pkg_shlibs_provided WHERE package_id = '"+id+"'");
+      QSqlQuery q11("SELECT shlib_id FROM pkg_shlibs_provided WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q11.next()){ tmpList << q11.value("shlib_id").toString(); }
        if(!tmpList.isEmpty()){ info.insert("shlibs_provided", QJsonArray::fromStringList(names_from_ids(tmpList, "shlibs")) ); }
        //CONFLICTS
-      QSqlQuery q12("SELECT conflict_id FROM pkg_conflicts WHERE package_id = '"+id+"'");
+      QSqlQuery q12("SELECT conflict_id FROM pkg_conflicts WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q12.next()){ tmpList << q12.value("conflict_id").toString(); }
        if(!tmpList.isEmpty()){ info.insert("conflicts", QJsonArray::fromStringList(origins_from_package_ids(tmpList)) ); }
       //CONFIG FILES
-      QSqlQuery q13("SELECT path FROM config_files WHERE package_id = '"+id+"'");
+      QSqlQuery q13("SELECT path FROM config_files WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q13.next()){  tmpList << q13.value("path").toString(); }
       if(!tmpList.isEmpty()){ info.insert("config_files", QJsonArray::fromStringList(tmpList) ); }
       //PROVIDES
-      QSqlQuery q14("SELECT provide_id FROM pkg_provides WHERE package_id = '"+id+"'");
+      QSqlQuery q14("SELECT provide_id FROM pkg_provides WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q14.next()){ tmpList << q14.value("provide_id").toString(); }
        if(!tmpList.isEmpty()){ info.insert("provides", QJsonArray::fromStringList(provides_from_ids(tmpList)) ); }
       //REQUIRES
-      QSqlQuery q15("SELECT require_id FROM pkg_requires WHERE package_id = '"+id+"'");
+      QSqlQuery q15("SELECT require_id FROM pkg_requires WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q15.next()){ tmpList << q15.value("require_id").toString(); }
        if(!tmpList.isEmpty()){ info.insert("requires", QJsonArray::fromStringList(requires_from_ids(tmpList)) ); }
        //Now insert this information into the main object
        retObj.insert(origin,info);
   } //end loop over pkg matches
-  qDebug() << " - Done with DB:" << repo;
-  DB.close();
   return retObj;
 }
 
 QStringList PKG::pkg_search(QString repo, QString searchterm, QString category){
+  checkDB(repo); //create if needed
+  QSqlDatabase DB = QSqlDatabase::database(repo);
+  if(!DB.isOpen()){ return QStringList(); } //could not open DB (file missing?)
+  
   QStringList found;
-  QString dbname = getRepoFile(repo);
-  //qDebug() << "Database:" << dbname;// << conn;
-   //Open the local database
-  QSqlDatabase DB;
-  if(QSqlDatabase::contains()){
-    //database already loaded
-    qDebug() << "Existing DB Connection";
-    DB = QSqlDatabase::database();
-  }else{
-    //new database needs to be loaded
-    qDebug() << "New DB Connection";
-    DB = QSqlDatabase::addDatabase("QSQLITE");
-    /*DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
-    DB.setHostName("localhost");
-    DB.setDatabaseName(dbname);*/
-  }
-  if(DB.databaseName()!=dbname){
-    if(DB.isOpen()){ DB.close(); }
-    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
-    DB.setHostName("localhost");
-    DB.setDatabaseName(dbname);
-  }
-  qDebug() << "Open Database:" << DB.databaseName() << dbname;
-    if( !DB.open() ){ 
-	//qDebug() << " - could not be opened"; 
-	return found; 
-    } 
   QString q_string = "SELECT origin FROM packages WHERE name LIKE '"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
-    QSqlQuery query(q_string);
+    QSqlQuery query(q_string, DB);
     while(query.next()){
 	found << query.value("origin").toString(); //need the origin for later
     }
@@ -245,7 +208,7 @@ QStringList PKG::pkg_search(QString repo, QString searchterm, QString category){
     //Expand the search to names containing the term
     q_string = "SELECT origin FROM packages WHERE name LIKE '%"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
-    QSqlQuery q2(q_string);
+    QSqlQuery q2(q_string, DB);
     while(q2.next()){
 	found << q2.value("origin").toString(); //need the origin for later
     }
@@ -254,7 +217,7 @@ QStringList PKG::pkg_search(QString repo, QString searchterm, QString category){
     //Expand the search to comments
     q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
-    QSqlQuery q2(q_string);
+    QSqlQuery q2(q_string, DB);
     while(q2.next()){
 	found << q2.value("origin").toString(); //need the origin for later
     }
@@ -263,57 +226,34 @@ QStringList PKG::pkg_search(QString repo, QString searchterm, QString category){
     //Expand the search to full descriptions
     q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
-    QSqlQuery q2(q_string);
+    QSqlQuery q2(q_string, DB);
     while(q2.next()){
 	found << q2.value("origin").toString(); //need the origin for later
     }
   }
-  DB.close();
   return found;
 }
 
 QJsonArray PKG::list_categories(QString repo){
-  QString dbname = getRepoFile(repo);
-  //qDebug() << "Database:" << dbname;// << conn;
-   //Open the local database
-  QSqlDatabase DB;
-  if(QSqlDatabase::contains()){
-    //database already loaded
-    qDebug() << "Existing DB Connection";
-    DB = QSqlDatabase::cloneDatabase(QSqlDatabase::database(), QUuid::createUuid().toString());
-  }else{
-    //new database needs to be loaded
-    qDebug() << "New DB Connection";
-    DB = QSqlDatabase::addDatabase("QSQLITE");
-    /*DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
-    DB.setHostName("localhost");
-    DB.setDatabaseName(dbname);*/
-  }
-  if(DB.databaseName()!=dbname){
-    if(DB.isOpen()){ DB.close(); }
-    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
-    DB.setHostName("localhost");
-    DB.setDatabaseName(dbname);
-  }
-  qDebug() << "Open Database:" << DB.databaseName() << dbname;
-    if( !DB.open() ){ 
-	//qDebug() << " - could not be opened"; 
-	return QJsonArray(); 
-    } 
+  checkDB(repo); //create if needed
+  QSqlDatabase DB = QSqlDatabase::database(repo);
+  if(!DB.isOpen()){ return QJsonArray(); } //could not open DB (file missing?)
+
   //Get all the pkg origins for this repo
   QStringList origins;
-    QSqlQuery q_o("SELECT origin FROM packages");
+    QSqlQuery q_o("SELECT origin FROM packages", DB);
     while(q_o.next()){
 	origins << q_o.value("origin").toString(); //need the origin for later
     }
   //Now get all the categories
   QString q_string = "SELECT name FROM categories";
-    QSqlQuery query(q_string);
+    QSqlQuery query(q_string, DB);
     QStringList found;
     while(query.next()){
 	found << query.value("name").toString(); //need the origin for later
     }
-    //Now check all the categories to ensure that pkgs exist within it
+    
+  //Now check all the categories to ensure that pkgs exist within it
     for(int i=0; i<found.length(); i++){
       if(origins.filter(found[i]+"/").isEmpty()){ found.removeAt(i); i--; }
     }
