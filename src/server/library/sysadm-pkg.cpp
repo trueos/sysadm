@@ -198,12 +198,21 @@ QStringList PKG::pkg_search(QString repo, QString searchterm, QString category){
   if(!DB.isOpen()){ return QStringList(); } //could not open DB (file missing?)
   
   QStringList found;
-  QString q_string = "SELECT origin FROM packages WHERE name LIKE '"+searchterm+"%'";
+  QString q_string = "SELECT origin FROM packages WHERE name = '"+searchterm+"'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
     QSqlQuery query(q_string, DB);
     while(query.next()){
 	found << query.value("origin").toString(); //need the origin for later
     }
+  if(found.isEmpty()){
+    //Expand the search to names containing the term
+    q_string = "SELECT origin FROM packages WHERE name LIKE '"+searchterm+"%'";
+    if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
+    QSqlQuery q2(q_string, DB);
+    while(q2.next()){
+	found << q2.value("origin").toString(); //need the origin for later
+    }
+  }
   if(found.isEmpty()){
     //Expand the search to names containing the term
     q_string = "SELECT origin FROM packages WHERE name LIKE '%"+searchterm+"%'";
