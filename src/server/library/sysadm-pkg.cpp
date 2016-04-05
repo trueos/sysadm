@@ -15,13 +15,12 @@ using namespace sysadm;
 //  INLINE FUNCTIONS
 // ==================
 //Get annotation variable/values
-inline void annotations_from_ids(QStringList var_ids, QStringList val_ids, QJsonObject *out){
+inline void annotations_from_ids(QStringList var_ids, QStringList val_ids, QJsonObject *out, QSqlDatabase DB){
   //Note: Both input lists *must* be the same length (one variable for one value)
   QStringList tot; tot << var_ids << val_ids;
   tot.removeDuplicates();
-  //QJsonObject ret;
   int index = -1;
-  QSqlQuery q("SELECT annotation, annotation_id FROM annotation WHERE annotation_id = '"+tot.join("' OR annotation_id = '")+"'");
+  QSqlQuery q("SELECT annotation, annotation_id FROM annotation WHERE annotation_id = '"+tot.join("' OR annotation_id = '")+"'",DB);
     while(q.next()){ 
 	//qDebug() << "Got query result:" << q.value("annotation_id").toString() << q.value("annotation").toString();
 	index = var_ids.indexOf(q.value("annotation_id").toString());
@@ -42,29 +41,29 @@ inline void annotations_from_ids(QStringList var_ids, QStringList val_ids, QJson
   }
 }
 //Get origin from package_id (for reverse lookups)
-inline QStringList origins_from_package_ids(QStringList ids){
-  QSqlQuery q("SELECT origin FROM packages WHERE id = '"+ids.join("' OR id = '")+"'");
+inline QStringList origins_from_package_ids(QStringList ids, QSqlDatabase DB){
+  QSqlQuery q("SELECT origin FROM packages WHERE id = '"+ids.join("' OR id = '")+"'",DB);
   QStringList out;
   while(q.next()){ out << q.value("origin").toString(); }
   return out;
 }
 //Generic ID's -> Names function (known databases: users, groups, licenses, shlibs, categories )
-inline QStringList names_from_ids(QStringList ids, QString db){
-  QSqlQuery q("SELECT name FROM "+db+" WHERE id = '"+ids.join("' OR id = '")+"'");
+inline QStringList names_from_ids(QStringList ids, QString db, QSqlDatabase DB){
+  QSqlQuery q("SELECT name FROM "+db+" WHERE id = '"+ids.join("' OR id = '")+"'",DB);
   QStringList out;
   while(q.next()){ out << q.value("name").toString(); }
   return out;
 }
 //provide values from ID's
-inline QStringList provides_from_ids(QStringList ids){
-  QSqlQuery q("SELECT provide FROM provides WHERE id = '"+ids.join("' OR id = '")+"'");
+inline QStringList provides_from_ids(QStringList ids, QSqlDatabase DB){
+  QSqlQuery q("SELECT provide FROM provides WHERE id = '"+ids.join("' OR id = '")+"'",DB);
   QStringList out;
   while(q.next()){ out << q.value("provide").toString(); }
   return out;
 }
 //require values from ID's
-inline QStringList requires_from_ids(QStringList ids){
-  QSqlQuery q("SELECT require FROM requires WHERE id = '"+ids.join("' OR id = '")+"'");
+inline QStringList requires_from_ids(QStringList ids, QSqlDatabase DB){
+  QSqlQuery q("SELECT require FROM requires WHERE id = '"+ids.join("' OR id = '")+"'", DB);
   QStringList out;
   while(q.next()){ out << q.value("require").toString(); }
   return out;
@@ -114,7 +113,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       while(q2.next()){
 	  tags << q2.value("tag_id").toString(); vals << q2.value("value_id").toString();
       }
-      if(!tags.isEmpty()){ annotations_from_ids(tags, vals, &info); }
+      if(!tags.isEmpty()){ annotations_from_ids(tags, vals, &info, DB); }
       if(!fullresults){ retObj.insert(origin,info); continue; } //skip the rest of the info queries
       //OPTIONS
       QSqlQuery q3("SELECT value, option FROM pkg_option INNER JOIN option ON pkg_option.option_id = option.option_id WHERE pkg_option.package_id = '"+id+"'", DB);
@@ -140,37 +139,37 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       QSqlQuery q6("SELECT package_id FROM deps WHERE origin = '"+origin+"'", DB);
       tmpList.clear();
        while(q6.next()){ tmpList << q6.value("package_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("reverse_dependencies", QJsonArray::fromStringList(origins_from_package_ids(tmpList)) ); }
+       if(!tmpList.isEmpty()){ info.insert("reverse_dependencies", QJsonArray::fromStringList(origins_from_package_ids(tmpList, DB)) ); }
        //USERS
       QSqlQuery q7("SELECT user_id FROM pkg_users WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q7.next()){ tmpList << q7.value("user_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("users", QJsonArray::fromStringList(names_from_ids(tmpList, "users")) ); }
+       if(!tmpList.isEmpty()){ info.insert("users", QJsonArray::fromStringList(names_from_ids(tmpList, "users", DB)) ); }
        //GROUPS
       QSqlQuery q8("SELECT group_id FROM pkg_groups WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q8.next()){ tmpList << q8.value("group_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("groups", QJsonArray::fromStringList(names_from_ids(tmpList, "users")) ); }
+       if(!tmpList.isEmpty()){ info.insert("groups", QJsonArray::fromStringList(names_from_ids(tmpList, "users", DB)) ); }
        //LICENSES
       QSqlQuery q9("SELECT license_id FROM pkg_licenses WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q9.next()){ tmpList << q9.value("license_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("licenses", QJsonArray::fromStringList(names_from_ids(tmpList, "licenses")) ); }
+       if(!tmpList.isEmpty()){ info.insert("licenses", QJsonArray::fromStringList(names_from_ids(tmpList, "licenses", DB)) ); }
        //SHARED LIBS (REQUIRED)
       QSqlQuery q10("SELECT shlib_id FROM pkg_shlibs_required WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q10.next()){ tmpList << q10.value("shlib_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("shlibs_required", QJsonArray::fromStringList(names_from_ids(tmpList, "shlibs")) ); }
+       if(!tmpList.isEmpty()){ info.insert("shlibs_required", QJsonArray::fromStringList(names_from_ids(tmpList, "shlibs", DB)) ); }
        //SHARED LIBS (PROVIDED)
       QSqlQuery q11("SELECT shlib_id FROM pkg_shlibs_provided WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q11.next()){ tmpList << q11.value("shlib_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("shlibs_provided", QJsonArray::fromStringList(names_from_ids(tmpList, "shlibs")) ); }
+       if(!tmpList.isEmpty()){ info.insert("shlibs_provided", QJsonArray::fromStringList(names_from_ids(tmpList, "shlibs", DB)) ); }
        //CONFLICTS
       QSqlQuery q12("SELECT conflict_id FROM pkg_conflicts WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q12.next()){ tmpList << q12.value("conflict_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("conflicts", QJsonArray::fromStringList(origins_from_package_ids(tmpList)) ); }
+       if(!tmpList.isEmpty()){ info.insert("conflicts", QJsonArray::fromStringList(origins_from_package_ids(tmpList, DB)) ); }
       //CONFIG FILES
       QSqlQuery q13("SELECT path FROM config_files WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
@@ -180,12 +179,12 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       QSqlQuery q14("SELECT provide_id FROM pkg_provides WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q14.next()){ tmpList << q14.value("provide_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("provides", QJsonArray::fromStringList(provides_from_ids(tmpList)) ); }
+       if(!tmpList.isEmpty()){ info.insert("provides", QJsonArray::fromStringList(provides_from_ids(tmpList, DB)) ); }
       //REQUIRES
       QSqlQuery q15("SELECT require_id FROM pkg_requires WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q15.next()){ tmpList << q15.value("require_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("requires", QJsonArray::fromStringList(requires_from_ids(tmpList)) ); }
+       if(!tmpList.isEmpty()){ info.insert("requires", QJsonArray::fromStringList(requires_from_ids(tmpList, DB)) ); }
        //Now insert this information into the main object
        retObj.insert(origin,info);
   } //end loop over pkg matches
