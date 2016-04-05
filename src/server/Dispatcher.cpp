@@ -19,6 +19,8 @@ DProcess::DProcess(QObject *parent) : QProcess(parent){
     this->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
     this->setProcessChannelMode(QProcess::MergedChannels);
     connect(this, SIGNAL(readyReadStandardOutput()), this, SLOT(updateLog()) );
+    connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(cmdFinished(int, QProcess::ExitStatus)) );
+    connect(this, SIGNAL(error(QProcess::ProcessError)), this, SLOT(cmdError(QProcess::ProcessError)) );
 }
 
 DProcess::~DProcess(){
@@ -31,8 +33,6 @@ void DProcess::procReady(){
   proclog.insert("cmd_list",QJsonArray::fromStringList(cmds));
   proclog.insert("process_id",ID);
   proclog.insert("state","pending");	
-  connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(cmdFinished(int, QProcess::ExitStatus)) );
-  connect(this, SIGNAL(error(QProcess::ProcessError)), this, SLOT(cmdError(QProcess::ProcessError)) );
   this->emit ProcUpdate(ID, proclog);
       uptimer->setSingleShot(false);
       uptimer->setInterval(2000); //2 second intervals for "pending" pings
@@ -48,7 +48,7 @@ void DProcess::startProc(){
     emit ProcFinished(ID, proclog);
     return; 
   }
-  if(proclog.isEmpty()){
+  if(proclog.value("state").toString()=="pending"){
     //first cmd started
     if(uptimer->isActive()){ uptimer->stop(); }
       uptimer->setSingleShot(true);
@@ -69,7 +69,7 @@ bool DProcess::isRunning(){
 }
 
 bool DProcess::isDone(){
-  return (!this->isRunning() && !proclog.isEmpty());
+  return (!this->isRunning() && proclog.value("state").toString()=="finished");
 }
 
 QJsonObject DProcess::getProcLog(){

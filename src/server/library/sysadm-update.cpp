@@ -48,7 +48,10 @@ QJsonObject Update::checkUpdates(bool fast) {
   if(fast && QFile::exists(UP_UPFILE) && (QFileInfo(UP_UPFILE).lastModified().addSecs(43200)<QDateTime::currentDateTime()) ){
     //Note: The "fast" check will only be used if the last full check was less than 12 hours earlier.
     output = General::readTextFile(UP_UPFILE);
-  }else{
+  }else if(QFile::exists(UP_UPFILE) && (QFileInfo(UP_UPFILE).lastModified().addSecs(360)<QDateTime::currentDateTime()) ){
+    //Note: This will re-use the previous check if it was less than 1 hour ago (prevent hammering servers from user checks)
+    output = General::readTextFile(UP_UPFILE);
+  }else{	  
     output = General::RunCommand("pc-updatemanager check").split("\n");
     output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
     General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
