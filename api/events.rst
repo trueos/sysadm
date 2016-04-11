@@ -65,7 +65,7 @@ Here is an example reply from the Life Preserver subsystem:
 Dispatcher
 ----------
 
-The Dispatcher subsystem is used by sysadm to process external commands and return specific information from the utility.
+The Dispatcher subsystem is used by SysAdm™ to process external commands and return specific information from the utility.
 This is managed on the server as a separate process, and will not interrupt primary server tasks.
 To subscribe to the Dispatcher subsystem for event updates, use the following:
 
@@ -80,58 +80,67 @@ To subscribe to the Dispatcher subsystem for event updates, use the following:
   "args" : ["dispatcher"]
  }
 
-Dispatcher has two different kinds of websocket messages, general process notifications and specialized subsystem process notifications.
-The general process notifications will appear as follows:
+The Dispatcher event log will display three different states: "pending", "running", and "finished".
+Depending upon the current state, the log can change in some minor but noteworthy ways.
+The following sample logs will reflect the differences between these states:
 
-**Websocket Event Message (Process Starting)**
+**Dispatcher Response: "Pending" state**
 
 .. code-block:: json
 
  {
-  "namespace" : "events",
-  "name" : "dispatcher",
-  "id" : "none",
-  "args" : {
-    "process_id" : "<some id string>", 
-    "state" : "running"
-    }
+ "namespace" : "events",
+ "name" : "dispatcher",
+ "id" : "none",
+ "args" : {
+   "state" : "pending",
+   "cmd_list" : ["<command 1>", "<command 2>"],
+   "process_id" : "<random>"
+   }
  }
 
-..
-  .. code-block:: json
-
-    {
-      "namespace" : "events",
-      "name" : "dispatcher",
-      "id" : "none",
-      "args" : {
-      "time_started" : <ISO 8601 time date string>, 
-      "cmd_list" : [ "<command 1>", "<command 2>"],
-      "process_id" : "<some id string>", 
-      "state" : "running"
-      }
-    }
-
-**Websocket Event Message (Process Complete)**
+**Dispatcher Response: "Running" state**
 
 .. code-block:: json
 
  {
-  "namespace" : "events",
-  "name" : "dispatcher",
-  "id" : "none",
-  "args" : {
-    "time_finished" : <ISO 8601 time date string>,
-    "cmd_list" : [ "<command 1>", "<command 2>"],
-    "process_id" : "<some id string>",
-    "state" : "finished",
-    "return_codes"
-    }
+ "namespace" : "events",
+ "name" : "dispatcher",
+ "id" : "none",
+ "args" : {
+   "state" : "running",
+   "cmd_list" : ["<command 1>", "<command 2>"],
+   "process_id" : "<random>",
+   "time_started" : "<ISO 8601 time date string>",
+   "current_cmd" : "<command 2>",
+   "<command1>" : "<log after running command1>",
+   "<command2>" : "<log for command2>",
+   "return_codes/<command1>" : "<integer return code>"
+   }
  }
 
-Particular classes within sysadm may return information through the Dispatcher events system. These types of messages are slightly different in output format, which is noted here:
+**Dispatcher Response: "Finished" state**
 
-**Websocket Event Message**
+.. code-block:: json
+
+ {
+ "namespace" : "events",
+ "name" : "dispatcher",
+ "id" : "none",
+ "args" : {
+   "state" : "finished",
+   "time_finished" : "<ISO 8601 time date string>",
+   "return_codes" : ["<code 1>", "<code 2>"],
+   "process_id" : "<random>"
+   }
+ }
+
+
+Individual classes such as iohyve will move these dispatcher elements into a "process_details" section.
+Tailored sample responses will be provided in these classes' individual documentation pages.
+A generalized sample is as follows:
+
+**Dispatcher Class Event Message**
 
 .. code-block:: json
 
@@ -140,15 +149,10 @@ Particular classes within sysadm may return information through the Dispatcher e
   "name" : "dispatcher",
   "id" : "none",
   "args" : {
-    "event_system" : <namespace>/<name>,
-    "state" : "running" OR "finished",
-    <Other fields depending on subsystem>
-    "process_details" : {
-      "time_started" : <ISO 8601 time date string>, 
-      "cmd_list" : [ "<command 1>", "<command 2>"],
-      "process_id" : "<some id string>", 
-      "state" : "running"
-      }
+    "event_system" : "<namespace>/<name>",
+    "state" : "<pending/running/finished>",
+    "<field>" : "<Other fields depending on class>",
+    "process_details" : "<pending, running, or finished message as above>"
     }
  }
 
