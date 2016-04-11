@@ -89,18 +89,28 @@ inline void checkDB(QString repo){
 // =================
 QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, bool fullresults){
   QJsonObject retObj;
+  //if(origins.contains("math/R")){ qDebug() << "pkg_info:" << repo << category; }
   checkDB(repo); //create if needed
   QSqlDatabase DB = QSqlDatabase::database(repo);
   if(!DB.isOpen()){ return retObj; } //could not open DB (file missing?)
   //Now do all the pkg info, one pkg origin at a time
   origins.removeAll("");
+  origins.removeDuplicates();
     QString q_string = "SELECT * FROM packages";
-    if(!origins.isEmpty()){ q_string.append(" WHERE origin = '"+origins.join("' OR origin = '")+"'"); }
+    if(!origins.isEmpty()){ 
+      q_string.append(" WHERE origin IN ('"+origins.join("', '")+"')"); 
+      //Also keep the ordering of the origins preserved
+      /*q_string.append(" ORDER BY CASE origins ");
+      for(int i=0; i<origins.length(); i++){ q_string.append("WHEN '"+origins[i]+"' THEN '"+QString::number(i+1)+"' "); }
+      q_string.append("END");*/
+    }
     else if(!category.isEmpty()){ q_string.append(" WHERE origin LIKE '"+category+"/%'"); }
+    //if(origins.contains("math/R")){ qDebug() << "Query:" << q_string; }
   QSqlQuery query(q_string, DB);
     while(query.next()){
 	QString id = query.value("id").toString(); //need this pkg id for later
 	QString origin = query.value("origin").toString(); //need the origin for later
+	//if(origins.contains("math/R")){ qDebug() << "Found origin:" << origin << id; }
       if(id.isEmpty() || origin.isEmpty()){ continue; }
       QJsonObject info;
       //General info
@@ -191,54 +201,75 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
   return retObj;
 }
 
-QStringList PKG::pkg_search(QString repo, QString searchterm, QString category){
+QStringList PKG::pkg_search(QString repo, QString searchterm, QStringList searchexcludes, QString category){
   checkDB(repo); //create if needed
   QSqlDatabase DB = QSqlDatabase::database(repo);
   if(!DB.isOpen()){ return QStringList(); } //could not open DB (file missing?)
   
+  QStringList terms = searchterm.split(" ",QString::SkipEmptyParts);
+  searchexcludes.removeAll("");
   QStringList found;
-  QString q_string = "SELECT origin FROM packages WHERE name = '"+searchterm+"'";
+  QString q_string;
+int numtry = 0;
+while(found.isEmpty() && numtry<2){
+  if(numtry<1 && !searchterm.contains(" ")){ //single-word-search (exact names never have multiple words)
+    q_string = "SELECT origin FROM packages WHERE name = '"+searchterm+"' OR origin LIKE '%/"+searchterm+"'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
+    if(!searchexcludes.isEmpty()){ q_string.append(" AND name NOT LIKE '%"+searchexcludes.join("%' AND name NOT LIKE '%")+"%'"); }
     QSqlQuery query(q_string, DB);
     while(query.next()){
 	found << query.value("origin").toString(); //need the origin for later
     }
-  if(found.isEmpty()){
+  }
+  if(found.length()<10 && numtry<1){
     //Expand the search to names containing the term
     q_string = "SELECT origin FROM packages WHERE name LIKE '"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
+    if(!searchexcludes.isEmpty()){ q_string.append(" AND name NOT LIKE '%"+searchexcludes.join("%' AND name NOT LIKE '%")+"%'"); }
     QSqlQuery q2(q_string, DB);
     while(q2.next()){
 	found << q2.value("origin").toString(); //need the origin for later
     }
   }
-  if(found.isEmpty()){
+  if(found.length()<10 && numtry<1){
     //Expand the search to names containing the term
     q_string = "SELECT origin FROM packages WHERE name LIKE '%"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
+    if(!searchexcludes.isEmpty()){ q_string.append(" AND name NOT LIKE '%"+searchexcludes.join("%' AND name NOT LIKE '%")+"%'"); }
     QSqlQuery q2(q_string, DB);
     while(q2.next()){
 	found << q2.value("origin").toString(); //need the origin for later
     }
   }
-  if(found.isEmpty()){
+  if(found.length()<10){
     //Expand the search to comments
-    q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+searchterm+"%'";
+    if(terms.length()<2){ q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+searchterm+"%'"; }
+    else if(numtry==0){ q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+terms.join("%' AND comment LIKE '%")+"%'"; }
+    else if(numtry==1){ q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+terms.join("%' OR comment LIKE '%")+"%'"; }
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
+    if(!searchexcludes.isEmpty()){ q_string.append(" AND comment NOT LIKE '%"+searchexcludes.join("%' AND comment NOT LIKE '%")+"%'"); }
     QSqlQuery q2(q_string, DB);
     while(q2.next()){
 	found << q2.value("origin").toString(); //need the origin for later
     }
   }
-  if(found.isEmpty()){
+  if(found.length()<10){
     //Expand the search to full descriptions
-    q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+searchterm+"%'";
+    if(terms.length()<2){ q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+searchterm+"%'"; }
+    else if(numtry==0){ q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+terms.join("%' AND desc LIKE '%")+"%'"; }
+    else if(numtry==1){ q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+terms.join("%' OR desc LIKE '%")+"%'"; }
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
+    if(!searchexcludes.isEmpty()){ q_string.append(" AND desc NOT LIKE '%"+searchexcludes.join("%' AND desc NOT LIKE '%")+"%'"); }
     QSqlQuery q2(q_string, DB);
     while(q2.next()){
 	found << q2.value("origin").toString(); //need the origin for later
     }
   }
+  //Now bump the try count
+  numtry++;
+} //end while loop  for number of tries
+  //if(searchterm=="R"){ qDebug()<< "Search:" << searchterm << category << found; }
+  found.removeDuplicates();
   return found;
 }
 

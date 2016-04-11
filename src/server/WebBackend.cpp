@@ -726,11 +726,18 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
     //REQUIRED: "search_term" (string to search for)
     //OPTIONAL: "repo"
     //OPTIONAL: "category"
+    //OPTIONAL: "search_excludes" (array of string or single string);
     QString srch = in_args.toObject().value("search_term").toString();
     if(srch.isEmpty()){ return RestOutputStruct::BADREQUEST; }
-    QStringList pkgs = sysadm::PKG::pkg_search(repo, srch, cat);
+    QStringList exclude;
+    if(in_args.toObject().contains("search_excludes")){
+      if(in_args.toObject().value("search_excludes").isString()){ exclude << in_args.toObject().value("search_excludes").toString(); }
+      else if(in_args.toObject().value("search_excludes").isArray()){ exclude = JsonArrayToStringList( in_args.toObject().value("search_excludes").toArray() ); }
+    }
+    QStringList pkgs = sysadm::PKG::pkg_search(repo, srch, exclude, cat);
     if(!pkgs.isEmpty()){
       QJsonObject info = sysadm::PKG::pkg_info(pkgs, repo, cat, false); //always do simple results for a search
+      info.insert("results_order", QJsonArray::fromStringList(pkgs));
       if(!info.isEmpty()){ out->insert("pkg_search",info); }
     }else{
       return RestOutputStruct::NOCONTENT;

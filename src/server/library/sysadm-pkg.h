@@ -21,7 +21,7 @@ class PKG{
 public:
 	//Information fetch routines
 	static QJsonObject pkg_info(QStringList origins, QString repo, QString category = "", bool fullresults = true);
-	static QStringList pkg_search(QString repo, QString searchterm, QString category = "");
+	static QStringList pkg_search(QString repo, QString searchterm, QStringList searchexcludes, QString category = "");
 	static QJsonArray list_categories(QString repo);
 	static QJsonArray list_repos();
 
