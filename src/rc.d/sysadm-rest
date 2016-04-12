@@ -23,17 +23,6 @@ flags="-rest"
 
 load_rc_config $name
 
-ssl_keygen()
-{
-  if [ ! -d "/usr/local/etc/sysadm" ] ; then
-    mkdir -p /usr/local/etc/sysadm
-  fi
-  openssl req -x509 -nodes -newkey rsa:2048 \
-	-keyout /usr/local/etc/sysadm/restserver.key \
-	-out /usr/local/etc/sysadm/restserver.crt -days 1024 \
-	-subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
-}
-
 sysadm_rest_stop()
 {
   if [ -e "/var/run/sysadm-rest.pid" ] ; then
@@ -46,7 +35,6 @@ sysadm_rest_start()
 {
   export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
   sysadm_rest_stop
-  ssl_keygen
   echo "Starting sysadm (REST)..."
   command="/usr/local/bin/sysadm-server"
   daemon -r -P /var/run/sysadm-rest-daemon.pid -p /var/run/sysadm-rest.pid $command $flags

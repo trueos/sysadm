@@ -30,11 +30,13 @@ SOURCES	+= main.cpp \
 #Now pull in the the subsystem library classes and such
 include("library/library.pri");
 
-TARGET=sysadm-server
+TARGET=sysadm-binary
 target.path=/usr/local/bin
 
+scripts.path=/usr/local/bin/
+scripts.extra=install sysadm-server $(INSTALL_ROOT)/usr/local/bin/
 
-INSTALLS += target
+INSTALLS += target scripts
 
 
 QMAKE_LIBDIR = /usr/local/lib/qt5 /usr/local/lib

@@ -23,17 +23,6 @@ flags=""
 
 load_rc_config $name
 
-ssl_keygen()
-{
-  if [ ! -d "/usr/local/etc/sysadm" ] ; then
-    mkdir -p /usr/local/etc/sysadm
-  fi
-  openssl req -x509 -nodes -newkey rsa:2048 \
-	-keyout /usr/local/etc/sysadm/wsserver.key \
-	-out /usr/local/etc/sysadm/wsserver.crt -days 1024 \
-	-subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
-}
-
 sysadm_stop()
 {
   if [ -e "/var/run/sysadm.pid" -o -e "/var/run/sysadm-daemon.pid" ] ; then
@@ -48,7 +37,6 @@ sysadm_start()
 {
   export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
   sysadm_stop
-  ssl_keygen
   echo "Starting sysadm..."
   command="/usr/local/bin/sysadm-server"
   daemon -r -P /var/run/sysadm-daemon.pid -p /var/run/sysadm.pid $command $flags

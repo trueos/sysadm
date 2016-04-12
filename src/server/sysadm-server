@@ -1,0 +1,24 @@
+#!/bin/sh
+
+ssl_keygen()
+{
+  if [ ! -d "/usr/local/etc/sysadm" ] ; then
+    mkdir -p /usr/local/etc/sysadm
+  fi
+  openssl req -x509 -nodes -newkey rsa:2048 \
+       -keyout /usr/local/etc/sysadm/restserver.key \
+       -out /usr/local/etc/sysadm/restserver.crt -days 1024 \
+       -subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
+}
+
+
+export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
+ssl_keygen
+command="/usr/local/bin/sysadm-binary"
+flags=""
+
+if [ -n "$1" ] ; then
+  flags="$1"
+fi
+
+exec $command $flags

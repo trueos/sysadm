@@ -41,13 +41,13 @@ src/server/moc_WebSocket.cpp
 src/server/moc_WebSocket.o
 src/server/NetDevice.o
 src/server/sysadm-beadm.o
+src/server/sysadm-binary
 src/server/sysadm-firewall.o
 src/server/sysadm-general.o
 src/server/sysadm-iocage.o
 src/server/sysadm-iohyve.o
 src/server/sysadm-lifepreserver.o
 src/server/sysadm-network.o
-src/server/sysadm-server
 src/server/sysadm-servicemanager.o
 src/server/sysadm-systeminfo.o
 src/server/sysadm-systemmanager.o
