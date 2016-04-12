@@ -6,6 +6,7 @@ PC-BSD® API Reference
    :maxdepth: 4
 
    connection
+   events
    classes/index
 
 Indices and tables
