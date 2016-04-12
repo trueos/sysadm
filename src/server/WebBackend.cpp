@@ -20,7 +20,7 @@
 #include "library/sysadm-zfs.h"
 #include "library/sysadm-pkg.h"
 
-#include "syscache-client.h"
+//#include "syscache-client.h"
 
 #define DEBUG 0
 #define SCLISTDELIM QString("::::") //SysCache List Delimiter
@@ -36,9 +36,9 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   out->insert("sysadm/settings","read/write");
 
   // - syscache
-  if(QFile::exists("/var/run/syscache.pipe")){
+  /*if(QFile::exists("/var/run/syscache.pipe")){
     out->insert("rpc/syscache","read"); //no write to syscache - only reads
-  }
+  }*/
 
   // - beadm
   if(QFile::exists("/usr/local/sbin/beadm")){
@@ -122,8 +122,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmLifePreserverRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="network"){
     return EvaluateSysadmNetworkRequest(IN.args, out);
-  }else if(namesp=="rpc" && name=="syscache"){
-    return EvaluateSyscacheRequest(IN.args, out);
+  //}else if(namesp=="rpc" && name=="syscache"){
+    //return EvaluateSyscacheRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="systemmanager"){
     return EvaluateSysadmSystemMgmtRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="update"){
@@ -174,7 +174,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSettingsRequest(const QJsonV
 }
 
 //==== SYSCACHE ====
-RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out){
+/*RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out){
   //syscache only needs a list of sub-commands at the moment (might change later)
   QStringList in_req;
 
@@ -204,7 +204,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue i
     }
   //Return Success
   return RestOutputStruct::OK;
-}
+}*/
 
 //==== DISPATCHER ====
 RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, const QJsonValue in_args, QJsonObject *out){
