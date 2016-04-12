@@ -3,10 +3,17 @@
 Getting Started
 ***************
 
-Some intro text here...
+.. Some intro text here...
 
+Welcome to the SysAdm™ API (application programming interface) documentation handbook!
+SysAdm™ is a complex utility with many integral subsystems and classes, and this handbook will attempt to 
+guide a new user through the initialization, core features, and intricacies of the utility.
 
-Add some links to docs on websockets and json....
+.. Add some links to docs on websockets and json
+
+This handbook will be heavily utilizing the Websocket specification and JSON (JavaScript Object Notation) format.
+For detailed descriptions of these items,
+please refer to their respective websites at http://www.websocket.org and http://json.org/. 
 
 .. _Authentication:
 
@@ -287,7 +294,7 @@ This response indicates that a dispatcher event occurred:
   "id" : "",
   "args" : {
     "name" : "dispatcher",
-    "args" : "<message"
+    "args" : "<message>"
     }
   }
 

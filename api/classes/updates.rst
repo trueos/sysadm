@@ -229,13 +229,15 @@ The "startupdate" action starts the specified update. You must specify a "target
   "id" : "none",
   "args" : {
     "event_system" : "sysadm"/"update",
-    "state" : "running" OR "finished",
+    "state" : "finished",
     "update_log" : "<update log>",
     "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
+      "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
+      "return_codes/<command 1>" : "<code 1>",
+      "return_codes/<command 2>" : "<code 2>",
+      "process_id" : "<random>",
+      "state" : "finished"
       }
     }
  }
