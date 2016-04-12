@@ -224,28 +224,6 @@ The "pkg_info" action reads the pkg database directly and returns any relevant i
   "namespace": "sysadm"
  }
 
-**Dispatcher Events System Reply**
-
-.. code-block:: json
-
- {
-  "namespace" : "events",
-  "name" : "dispatcher",
-  "id" : "none",
-  "args" : {
-    "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
-    "pkg_log" : "<process log>",
-    "action" : "pkg_info",
-    "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
-      "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
-      }
-    }
- } 
-
  .. index:: pkg_search, pkg
 
 .. _Search Packages:
@@ -268,7 +246,8 @@ The "pkg_search" action searches the package database for pkgs which match the g
    "repo" : "pcbsd-major",
    "category" : "www",
    "action" : "pkg_search",
-   "search_term" : "fire"
+   "search_term" : "fire",
+   "search_excludes" : ["<phrase1>", "<phrase2>"]
  }
 
 **WebSocket Request**
@@ -282,6 +261,7 @@ The "pkg_search" action searches the package database for pkgs which match the g
    "args" : {
       "action" : "pkg_search",
       "search_term" : "fire",
+      "search_excludes" : ["<phrase1>", "<phrase2>"],
       "category" : "www",
       "repo" : "pcbsd-major"
    }
@@ -294,6 +274,7 @@ The "pkg_search" action searches the package database for pkgs which match the g
  {
   "args": {
     "pkg_search": {
+      "results_order" : ["www/firefox", "www/firefox-esr", "www/firefox-esr-i18n", "www/firefox-pulse"],
       "www/firefox": {
         "arch": "FreeBSD:11:amd64",
         "cksum": "cc72c379afbd66d152cf06b7d2a14ada413f338071ecb9b084899c94d39f951e",
@@ -424,28 +405,6 @@ The "pkg_search" action searches the package database for pkgs which match the g
   "namespace": "sysadm"
  }
 
-**Dispatcher Events System Reply**
-
-.. code-block:: json
-
- {
-  "namespace" : "events",
-  "name" : "dispatcher",
-  "id" : "none",
-  "args" : {
-    "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
-    "pkg_log": "<process log>",
-    "action" : "pkg_search",
-    "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
-      "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
-      }
-    }
- }  
-
 .. index:: list_categories, pkg
 
 .. _List Categories:
@@ -545,28 +504,6 @@ The "list_categories" action lists all the known, non-empty categories within th
   "namespace": "sysadm"
  }
 
-**Dispatcher Events System Reply**
-
-.. code-block:: json
-
- {
-  "namespace" : "events",
-  "name" : "dispatcher",
-  "id" : "none",
-  "args" : {
-    "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
-    "pkg_log" : "<process log>",
-    "action" : "list_categories",
-    "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
-      "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
-      }
-    }
- }  
- 
 .. index:: list_repos, pkg
 
 .. _List Repositories:
@@ -614,28 +551,6 @@ action are valid as the optional "repo" argument for the other pkg API actions.
   "name": "response",
   "namespace": "sysadm"
  }
-
-**Dispatcher Events System Reply**
-
-.. code-block:: json
-
- {
-  "namespace" : "events",
-  "name" : "dispatcher",
-  "id" : "none",
-  "args" : {
-    "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
-    "pkg_log" : "<process log>",
-    "action" : "list_repos",
-    "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
-      "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
-      }
-    }
- }  
 
 .. index:: pkg_audit, pkg
 
@@ -698,19 +613,19 @@ The "pkg_audit" action performs an audit of all installed packages and reports a
   "id" : "none",
   "args" : {
     "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
+    "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_audit",
-    "vulnerable_pkgs" : ["pkg 1", "pkg 2"],
-    "impacts_pkgs" : ["pkg 1", "pkg 2"],
     "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
+      "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
+      "return_codes/<command 1>" : "<code 1>",
+      "return_codes/<command 2>" : "<code 2>",
+      "process_id" : "<random>",
+      "state" : "finished"
       }
     }
- } 
+ }  
 
 .. index:: pkg_upgrade, pkg
 
@@ -771,14 +686,16 @@ instructions on how to subscribe to and query dispatcher events.
   "id" : "none",
   "args" : {
     "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
+    "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_upgrade",
     "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
+      "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
+      "return_codes/<command 1>" : "<code 1>",
+      "return_codes/<command 2>" : "<code 2>",
+      "process_id" : "<random>",
+      "state" : "finished"
       }
     }
  }  
@@ -842,15 +759,17 @@ instructions on how to subscribe to and query dispatcher events.
   "id" : "none",
   "args" : {
     "event_system" : "sysadm/pkg",
-    "state" : "running" OR "finished",
+    "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_check_upgrade",
     "updates_available" : "true" OR "false",
     "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
+      "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
+      "return_codes/<command 1>" : "<code 1>",
+      "return_codes/<command 2>" : "<code 2>",
+      "process_id" : "<random>",
+      "state" : "finished"
       }
     }
  }
@@ -918,14 +837,16 @@ If you include "force" = "true", it forces :command:`pkg` to completely resync a
   "id" : "none",
   "args" : {
     "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
+    "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_update",
     "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
+      "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
+      "return_codes/<command 1>" : "<code 1>",
+      "return_codes/<command 2>" : "<code 2>",
+      "process_id" : "<random>",
+      "state" : "finished"
       }
     }
  }  
@@ -999,14 +920,16 @@ Both actions return any information as a dispatcher event. Refer to the :ref:`Di
   "id" : "none",
   "args" : {
     "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
+    "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_lock",
     "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
+      "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
+      "return_codes/<command 1>" : "<code 1>",
+      "return_codes/<command 2>" : "<code 2>",
+      "process_id" : "<random>",
+      "state" : "finished"
       }
     }
  } 
@@ -1062,14 +985,16 @@ Both actions return any information as a dispatcher event. Refer to the :ref:`Di
   "id" : "none",
   "args" : {
     "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
+    "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_unlock",
     "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
+      "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
+      "return_codes/<command 1>" : "<code 1>",
+      "return_codes/<command 2>" : "<code 2>",
+      "process_id" : "<random>",
+      "state" : "finished"
       }
     }
  } 
@@ -1138,14 +1063,16 @@ Unless the "repo" is specified, :command:`pkg` will automatically determine the 
   "id" : "none",
   "args" : {
     "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
+    "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_install",
     "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
+      "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
+      "return_codes/<command 1>" : "<code 1>",
+      "return_codes/<command 2>" : "<code 2>",
+      "process_id" : "<random>",
+      "state" : "finished"
       }
     }
  } 
@@ -1217,14 +1144,16 @@ The uninstall messages will be returned as a dispatcher event. Refer to the :ref
   "id" : "none",
   "args" : {
     "event_system" : "sysadm"/"pkg",
-    "state" : "running" OR "finished",
+    "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_remove",
     "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
+      "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
+      "return_codes/<command 1>" : "<code 1>",
+      "return_codes/<command 2>" : "<code 2>",
+      "process_id" : "<random>",
+      "state" : "finished"
       }
     }
  } 

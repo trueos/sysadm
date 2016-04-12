@@ -130,7 +130,9 @@ The following sample logs will reflect the differences between these states:
  "args" : {
    "state" : "finished",
    "time_finished" : "<ISO 8601 time date string>",
-   "return_codes" : ["<code 1>", "<code 2>"],
+   "cmd_list" : ["<command 1>", "<command 2>"],
+   "return_codes/<command 1>" : "<code 1>",
+   "return_codes/<command 2>" : "<code 2>",
    "process_id" : "<random>"
    }
  }

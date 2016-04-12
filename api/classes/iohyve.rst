@@ -159,15 +159,17 @@ The "fetchiso" action is used to retrieve the installation ISO. It is used with 
   "id" : "none",
   "args" : {
     "event_system" : "sysadm"/"iohyve",
-    "state" : "running" OR "finished",
+    "state" : "finished",
     "filename" : "<filename>",
     "percent_done" : "<number>%",
     "download_rate" : "<rate>",
     "process_details" : {
-      "time_started" : "<ISO 8601 time date string>",
+      "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
-      "process_id" : "<some id string>",
-      "state" : "running"
+      "return_codes/<command 1>" : "<code 1>",
+      "return_codes/<command 2>" : "<code 2>",
+      "process_id" : "<random>",
+      "state" : "finished"
       }
    }
  }
