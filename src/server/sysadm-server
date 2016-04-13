@@ -1,4 +1,6 @@
 #!/bin/sh
+# Helper script which auto-gens a new SSL key for each start
+# of the sysadm server
 
 ssl_keygen()
 {
@@ -10,7 +12,6 @@ ssl_keygen()
        -out /usr/local/etc/sysadm/restserver.crt -days 1024 \
        -subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
 }
-
 
 export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
 ssl_keygen
