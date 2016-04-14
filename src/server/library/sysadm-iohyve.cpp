@@ -412,6 +412,10 @@ QJsonObject Iohyve::rmISO(QJsonObject jsin) {
       retObject.insert("error", output.at(i));
       return retObject;
     }
+    if ( output.at(i).indexOf("cannot destroy") != -1 ) {
+      retObject.insert("error", output.at(i));
+      return retObject;
+    }
   }
   retObject.insert("target", target);
   return retObject;
