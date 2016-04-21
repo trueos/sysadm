@@ -1,4 +1,4 @@
-﻿// ===============================
+// ===============================
 //  PC-BSD REST API Server
 // Available under the 3-clause BSD License
 // Written by: Ken Moore <ken@pcbsd.org> DEC 2015
@@ -690,6 +690,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmZfsRequest(const QJsonValue 
   if(keys.contains("action")) {
     QString act = JsonValueToString(in_args.toObject().value("action"));
     if(act=="list_pools"){
+      ok = true;
       QJsonObject pools = sysadm::ZFS::zpool_list();
       if(!pools.isEmpty()){ out->insert("list_pools",pools); }
     }
