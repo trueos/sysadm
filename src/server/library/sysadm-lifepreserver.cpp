@@ -83,6 +83,55 @@ QJsonObject LifePreserver::addReplication(QJsonObject jsin) {
    return values;
 }
 
+// Create a snapshot
+QJsonObject LifePreserver::createSnapshot(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString dataset, snap, comment;
+
+   QStringList keys = jsin.keys();
+   if(! keys.contains("dataset") || ! keys.contains("snap")){
+     retObject.insert("error", "Requires dataset and snap keys");
+     return retObject;
+   }
+
+   // Get the dataset / snap
+   dataset = jsin.value("dataset").toString();
+   snap = jsin.value("snap").toString();
+
+   // Optional snapshot comment
+   if( keys.contains("comment")){
+     comment = jsin.value("comment").toString();
+   }
+
+   // Make sure we have the dataset / snap key(s)
+   if ( dataset.isEmpty() || snap.isEmpty() ) {
+     retObject.insert("error", "Empty dataset or snap keys ");
+     return retObject;
+   }
+
+   QStringList output;
+   output = General::RunCommand("lpreserver", QStringList() << "snapshot" << "create" << dataset << snap << comment).split("\n");
+
+   // Check for any errors
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("ERROR:") != -1 ) {
+       retObject.insert("error", output.at(i));
+       return retObject;
+      }
+   }
+
+   // Got to the end, return the good json
+   QJsonObject values;
+   values.insert("dataset", dataset);
+   values.insert("snap", snap);
+   if ( ! comment.isEmpty() )
+     values.insert("comment", comment);
+
+   return values;
+}
+
+
 // Re-init the LP replication target
 QJsonObject LifePreserver::initReplication(QJsonObject jsin) {
    QJsonObject retObject;

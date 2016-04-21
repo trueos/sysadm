@@ -337,6 +337,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLifePreserverRequest(const Q
 	ok = true;
         out->insert("addreplication", sysadm::LifePreserver::addReplication(in_args.toObject()));
       }
+      if(act=="createsnap"){
+	ok = true;
+        out->insert("createsnap", sysadm::LifePreserver::createSnapshot(in_args.toObject()));
+      }
       if(act=="cronscrub"){
 	ok = true;
         out->insert("cronscrub", sysadm::LifePreserver::scheduleScrub(in_args.toObject()));

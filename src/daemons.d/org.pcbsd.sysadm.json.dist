@@ -1,5 +1,5 @@
 {
-	"Label": "org.pcbsd.sysadm-rest",
+	"Label": "org.pcbsd.sysadm",
 	"Program": "/usr/local/bin/sysadm-server",
 	"RunAtLoad": true
 }

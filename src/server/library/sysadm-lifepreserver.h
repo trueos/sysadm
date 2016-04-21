@@ -15,6 +15,7 @@ namespace sysadm{
 class LifePreserver{
 public:
 	static QJsonObject addReplication(QJsonObject jsin);
+	static QJsonObject createSnapshot(QJsonObject jsin);
 	static QJsonObject initReplication(QJsonObject jsin);
 	static QJsonObject listCron(); 
 	static QJsonObject listReplication();
