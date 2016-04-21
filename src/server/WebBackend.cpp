@@ -682,16 +682,27 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIohyveRequest(const QJsonVal
 
 // ==== SYSADM ZFS API ====
 RestOutputStruct::ExitCode WebSocket::EvaluateSysadmZfsRequest(const QJsonValue in_args, QJsonObject *out){
-  if(!in_args.isObject() || !in_args.toObject().contains("action") ){ return RestOutputStruct::BADREQUEST; }
-  QString act = in_args.toObject().value("action").toString();
-  if(act=="list_pools"){
-    QJsonObject pools = sysadm::ZFS::zpool_list();
-    if(!pools.isEmpty()){ out->insert("list_pools",pools); }
-  }else{
-    //unknown action
+  if( ! in_args.isObject()){
     return RestOutputStruct::BADREQUEST;
   }
-  
+  QStringList keys = in_args.toObject().keys();
+  bool ok = false;
+  if(keys.contains("action")) {
+    QString act = JsonValueToString(in_args.toObject().value("action"));
+    if(act=="list_pools"){
+      QJsonObject pools = sysadm::ZFS::zpool_list();
+      if(!pools.isEmpty()){ out->insert("list_pools",pools); }
+    }
+    else if(act=="datasets"){
+      ok = true;
+      out->insert("datasets", sysadm::ZFS::zfs_list(in_args.toObject()));
+    }
+  } //end of "action" key usage
+
+  //If nothing done - return the proper code
+  if(!ok){
+    return RestOutputStruct::BADREQUEST;
+  }
   return RestOutputStruct::OK;
 }
 

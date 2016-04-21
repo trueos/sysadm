@@ -14,6 +14,7 @@ namespace sysadm{
 class ZFS{
 
 public:
+	static QJsonObject zfs_list(QJsonObject jsin);
 	static QJsonObject zpool_list();
 
 };

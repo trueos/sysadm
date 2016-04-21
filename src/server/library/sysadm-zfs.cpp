@@ -9,6 +9,50 @@
 
 using namespace sysadm;
 
+QJsonObject ZFS::zfs_list(QJsonObject jsin) {
+   QJsonObject retObject;
+   QString zpool;
+
+   QStringList keys = jsin.keys();
+   if(! keys.contains("zpool")){
+     retObject.insert("error", "Requires zpool keys");
+     return retObject;
+   }
+
+   zpool = jsin.value("zpool").toString();
+
+   if ( zpool.isEmpty() ) {
+     retObject.insert("error", "Empty zpool name");
+     return retObject;
+   }
+
+   QString tmp;
+   QStringList output;
+   output = General::RunCommand("zfs", QStringList() << "list" << "-H" << "-r" << zpool).split("\n");
+
+   // Now parse the output
+   for ( int i = 0; i < output.size(); i++)
+   {
+      if ( output.at(i).indexOf("cannot open") != -1 ) {
+       retObject.insert("error", output.at(i));
+       return retObject;
+      }
+
+      // Now assemble your JSON
+      QJsonObject dsetvals;
+      tmp = output.at(i).simplified().section(" ", 0, 0).simplified();
+      if ( tmp.isEmpty() )
+        continue;
+      dsetvals.insert("used", output.at(i).simplified().section(" ", 1, 1) );
+      dsetvals.insert("avail", output.at(i).simplified().section(" ", 2, 2) );
+      dsetvals.insert("refer", output.at(i).simplified().section(" ", 3, 3) );
+      dsetvals.insert("mountpoint", output.at(i).simplified().section(" ", 4, 4) );
+      retObject.insert(tmp, dsetvals);
+   }
+
+   return retObject;
+}
+
 QJsonObject ZFS::zpool_list(){
   QJsonObject zpools;
   bool ok = false;
