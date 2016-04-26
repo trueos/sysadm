@@ -20,7 +20,7 @@ Every lifepreserver class request contains the following parameters:
 | namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "listsnap", "revertsnap", "removesnap",               |
+| action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "createsnap", "listsnap", "revertsnap", "removesnap", |
 |                                 |               | "addreplication", "removereplication", "listreplication", "runreplication", "initreplication", "settings", and       |
 |                                 |               | "savesettings"                                                                                                       |
 |                                 |               |                                                                                                                      |
@@ -249,6 +249,60 @@ The "cronscrub" action is used to schedule a ZFS scrub. This action supports the
     "cronscrub": {
       "frequency": "daily@22",
       "pool": "tank"
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "sysadm"
+ }
+ 
+.. index:: createsnap, Life Preserver
+ 
+.. _Create a Snapshot:
+
+Create a Snapshot
+=================
+
+The "createsnap" action creates a one-time snapshot of the specified dataset.
+
+**REST Request**
+
+.. code-block:: json 
+
+ PUT /sysadm/lifepreserver
+ {
+   "snap" : "mytestsnap",
+   "dataset" : "tank",
+   "comment" : "Testing",
+   "action" : "createsnap"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json 
+
+ {
+   "args" : {
+      "comment" : "Testing",
+      "dataset" : "tank",
+      "action" : "createsnap",
+      "snap" : "mytestsnap"
+   },
+   "name" : "lifepreserver",
+   "namespace" : "sysadm",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json 
+
+ {
+  "args": {
+    "createsnap": {
+      "comment": "Testing",
+      "dataset": "tank",
+      "snap": "mytestsnap"
     }
   },
   "id": "fooid",

@@ -56,6 +56,8 @@ private:
 	RestOutputStruct::ExitCode EvaluateDispatcherRequest(bool allaccess, const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm beadm API
 	RestOutputStruct::ExitCode EvaluateSysadmBEADMRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- sysadm FS API
+	RestOutputStruct::ExitCode EvaluateSysadmFSRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm iocage API
 	RestOutputStruct::ExitCode EvaluateSysadmIocageRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm iohyve API

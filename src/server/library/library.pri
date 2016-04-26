@@ -4,6 +4,7 @@ CONFIG 	+=  c++11
 HEADERS	+= 	$${PWD}/sysadm-global.h \
                 $${PWD}/sysadm-general.h \
                 $${PWD}/sysadm-beadm.h \
+                $${PWD}/sysadm-filesystem.h \
                 $${PWD}/sysadm-iocage.h \
                 $${PWD}/sysadm-iohyve.h \
                 $${PWD}/sysadm-lifepreserver.h \
@@ -19,6 +20,7 @@ HEADERS	+= 	$${PWD}/sysadm-global.h \
 SOURCES	+=	$${PWD}/NetDevice.cpp \
                 $${PWD}/sysadm-general.cpp \
                 $${PWD}/sysadm-beadm.cpp \
+                $${PWD}/sysadm-filesystem.cpp \
                 $${PWD}/sysadm-iocage.cpp \
                 $${PWD}/sysadm-iohyve.cpp \
                 $${PWD}/sysadm-lifepreserver.cpp \

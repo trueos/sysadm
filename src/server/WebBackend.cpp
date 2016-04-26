@@ -11,6 +11,7 @@
 //sysadm library interface classes
 #include "library/sysadm-beadm.h"
 #include "library/sysadm-general.h"
+#include "library/sysadm-filesystem.h"
 #include "library/sysadm-iocage.h"
 #include "library/sysadm-iohyve.h"
 #include "library/sysadm-lifepreserver.h"
@@ -49,6 +50,9 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   // - dispatcher (Internal to server - always available)
   //"read" is the event notifications, "write" is the ability to queue up jobs
   out->insert("rpc/dispatcher", allaccess ? "read/write" : "read");
+
+  // - filesystem
+  out->insert("sysadm/fs","read/write");
 
   // - network
   out->insert("sysadm/network","read/write");
@@ -114,6 +118,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateDispatcherRequest(IN.fullaccess, IN.args, out);
   }else if(namesp=="sysadm" && name=="beadm"){
     return EvaluateSysadmBEADMRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="fs"){
+    return EvaluateSysadmFSRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="iocage"){
     return EvaluateSysadmIocageRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="iohyve"){
@@ -274,6 +280,29 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValu
 	ok = true;
         out->insert("umountbe", sysadm::BEADM::umountBE(in_args.toObject()));
       } 
+    } //end of "action" key usage
+
+    //If nothing done - return the proper code
+    if(!ok){
+      return RestOutputStruct::BADREQUEST;
+    }
+  }else{  // if(in_args.isArray()){
+    return RestOutputStruct::BADREQUEST;
+  }
+  return RestOutputStruct::OK;
+}
+
+//==== SYSADM -- FS ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmFSRequest(const QJsonValue in_args, QJsonObject *out){
+  if(in_args.isObject()){
+    QStringList keys = in_args.toObject().keys();
+    bool ok = false;
+    if(keys.contains("action")){
+      QString act = JsonValueToString(in_args.toObject().value("action")).toLower();
+      if(act=="dirlist"){
+	ok = true;
+        out->insert("dirlist", sysadm::FS::list_dir(in_args.toObject()));
+      }
     } //end of "action" key usage
 
     //If nothing done - return the proper code
