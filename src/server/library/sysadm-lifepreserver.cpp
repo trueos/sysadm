@@ -177,6 +177,7 @@ QJsonObject LifePreserver::listCron() {
    QJsonObject retObject;
 
    QStringList output = General::RunCommand("lpreserver cronsnap list").split("\n");
+   output << General::RunCommand("lpreserver cronscrub list").split("\n");
    QList<QStringList> snaps;
    
    // Parse the output
@@ -592,9 +593,9 @@ QJsonObject LifePreserver::scheduleScrub(QJsonObject jsin) {
 
    QStringList output;
    if ( frequency == "none" )
-     output = General::RunCommand("lpreserver cronscrub " + pool + " stop " + frequency).split("\n");
+     output = General::RunCommand("lpreserver cronscrub stop " + pool +" "+ frequency).split("\n");
    else
-     output = General::RunCommand("lpreserver cronscrub " + pool + " start " + frequency).split("\n");
+     output = General::RunCommand("lpreserver cronscrub start " + pool +" "+ frequency).split("\n");
 
    // Check for any errors
    for ( int i = 0; i < output.size(); i++)
@@ -635,7 +636,7 @@ QJsonObject LifePreserver::scheduleSnapshot(QJsonObject jsin) {
      retObject.insert("error", "Empty pool, frequency and keep keys ");
      return retObject;
    }
-
+  //qDebug() << "LP COMMAND: scheduleSnapshot():" << pool << frequency << keep;
    QStringList output;
    if ( frequency == "none" )
      output = General::RunCommand("lpreserver cronsnap stop " + pool ).split("\n");
