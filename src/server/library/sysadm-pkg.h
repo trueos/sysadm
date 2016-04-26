@@ -36,6 +36,7 @@ public:
 	static QJsonObject pkg_check_upgrade();			//Check for updates to pkgs
 	static QJsonObject pkg_upgrade(); 				//upgrade all pkgs (use sysadm/updates if possible instead)
 	static QJsonObject pkg_audit();					//List details of vulnerable packages
+	static QJsonObject pkg_autoremove();			//Autoremove orphaned packages
 	
 };
 	

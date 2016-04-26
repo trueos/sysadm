@@ -440,3 +440,17 @@ QJsonObject PKG::pkg_audit(){
     obj.insert("proc_id",ID);
   return obj;	
 }
+
+QJsonObject PKG::pkg_autoremove(){
+  //Generate the command to run
+  QString cmd = "pkg autoremove -y";
+  //Now kick off the dispatcher process (within the pkg queue - since only one pkg process can run at a time)
+  QString ID = "sysadm_pkg_autoremove-"+QUuid::createUuid().toString(); //create a random tag for the process
+  DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, ID, cmd);
+  //Now return the info about the process
+  QJsonObject obj;
+    obj.insert("status", "pending");
+    obj.insert("proc_cmd",cmd);
+    obj.insert("proc_id",ID);
+  return obj;	
+}
