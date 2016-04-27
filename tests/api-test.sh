@@ -12,7 +12,8 @@
 # Default values
 DEFUSER="root"
 DEFNAMESPACE="sysadm"
-DEFCLASS="lifepreserver"
+DEFCLASS="logs"
+DEFACTION="{\"action\":\"read_logs\",\"time_format\":\"relative_second\",\"start_time\":\"-3600\"}"
 
 # Set variable to call jsawk utility
 JSAWK="./utils/jsawk -j js24"
@@ -96,10 +97,10 @@ fi
 
 if [ -z "$APITESTPAYLOAD" ] ; then
   echo "Enter the payload json:"
-  echo -e "{ \"action\":\"listcron\" }>\c"
+  echo -e "${DEFACTION}>\c"
   read APITESTPAYLOAD
   if [ -z "$APITESTPAYLOAD" ] ; then
-    APITESTPAYLOAD="{ \"action\":\"listcron\" }"
+    APITESTPAYLOAD=${DEFACTION}
   fi
   echo ""
 fi

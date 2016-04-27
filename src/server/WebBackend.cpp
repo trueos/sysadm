@@ -21,7 +21,6 @@
 #include "library/sysadm-zfs.h"
 #include "library/sysadm-pkg.h"
 
-//#include "syscache-client.h"
 
 #define DEBUG 0
 #define SCLISTDELIM QString("::::") //SysCache List Delimiter
@@ -35,11 +34,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   */
   // - server settings (always available)
   out->insert("sysadm/settings","read/write");
-
-  // - syscache
-  /*if(QFile::exists("/var/run/syscache.pipe")){
-    out->insert("rpc/syscache","read"); //no write to syscache - only reads
-  }*/
+  out->insert("sysadm/logs", allaccess ? "read/write" : "read");
 
   // - beadm
   if(QFile::exists("/usr/local/sbin/beadm")){
@@ -114,6 +109,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   //Go through and forward this request to the appropriate sub-system
   if(namesp=="sysadm" && name=="settings"){
     return EvaluateSysadmSettingsRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="logs"){
+    return EvaluateSysadmLogsRequest(IN.fullaccess, IN.args, out);
   }else if(namesp=="rpc" && name=="dispatcher"){
     return EvaluateDispatcherRequest(IN.fullaccess, IN.args, out);
   }else if(namesp=="sysadm" && name=="beadm"){
@@ -179,38 +176,87 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSettingsRequest(const QJsonV
   else{ return RestOutputStruct::BADREQUEST; }
 }
 
-//==== SYSCACHE ====
-/*RestOutputStruct::ExitCode WebSocket::EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out){
-  //syscache only needs a list of sub-commands at the moment (might change later)
-  QStringList in_req;
+// === sysadm/logs ===
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLogsRequest(bool allaccess, const QJsonValue in_args, QJsonObject *out){
+  if(!in_args.isObject() || !in_args.toObject().contains("action") ){ return RestOutputStruct::BADREQUEST; }
+  QString act = in_args.toObject().value("action").toString().toLower();
+  QJsonObject obj = in_args.toObject();
+  //Determine the type of action to perform
+  if(act=="read_logs"){
+    // OPTIONAL ARGUMENTS:
+    // "logs" : <string or array of strings> Possible Values: "hostinfo", "dispatcher", "events-dispatcher", "events-lifepreserver", "events-state";
+    // "time_format" : "<format>" Possible Values: "time_t_seconds", "epoch_mseconds", "relative_[day/month/second]", "<QDateTime String format>"
+    //  See (http://doc.qt.io/qt-5/qdatetime.html#fromString) for details on the QDateTime String format codes
+    // "start_time" : "<number>" (according to format specified)
+    // "end_time" : "<number>" (according to format specified)
 
-  //Parse the input arguments structure
-  if(in_args.isArray()){ in_req = JsonArrayToStringList(in_args.toArray()); }
-  else if(in_args.isObject()){
-    QStringList keys = in_args.toObject().keys();
-    for(int i=0; i<keys.length(); i++){ in_req << JsonValueToString(in_args.toObject().value(keys[i])); }
-  }else{ return RestOutputStruct::BADREQUEST; }
-
-  //Run the Request (should be one value for each in_req)
-  QStringList values = SysCacheClient::parseInputs(in_req);
-  while(values.length() < in_req.length()){ values << "[ERROR]"; } //ensure lists are same length
-
-  //Format the result
-  for(int i=0; i<values.length(); i++){
-      if(values[i].contains(SCLISTDELIM)){
-	  //This is an array of values from syscache
-	  QStringList vals = values[i].split(SCLISTDELIM);
-	  vals.removeAll("");
-	  QJsonArray arr;
-	    for(int j=0; j<vals.length(); j++){ arr.append(vals[j]); }
-	    out->insert(in_req[i],arr);
-      }else{
-          out->insert(in_req[i],values[i]);
+    //First figure out which logs to read
+    QStringList logs;
+    if(obj.contains("logs")){
+      if(obj.value("logs").isString()){ logs << obj.value("logs").toString(); }
+      else if(obj.value("logs").isArray()){ logs = JsonArrayToStringList(obj.value("logs").toArray()); }
+    }
+    if(logs.isEmpty()){
+      //Use all logs if no particular one(s) are specified
+      logs << "hostinfo" << "dispatcher" << "events-dispatcher" << "events-lifepreserver" << "events-state";
+    }
+    //Get the time range for the logs
+    QString format = obj.value("time_format").toString();
+    QDateTime endtime = QDateTime::currentDateTime();
+    QDateTime starttime = endtime.addSecs( -3600*12); //12 hours back by default
+    if(!format.isEmpty()){
+      QString str_endtime = obj.value("end_time").toString();
+      QString str_starttime = obj.value("start_time").toString();
+      if(!str_endtime.isEmpty()){
+        if(format=="time_t_seconds"){ endtime = QDateTime::fromTime_t(str_endtime.toInt()); }
+        else if(format=="epoch_mseconds"){ endtime = QDateTime::fromMSecsSinceEpoch(str_endtime.toInt()); }
+        else if(format=="relative_day"){ endtime = endtime.addDays( 0-qAbs(str_endtime.toInt()) ); }
+        else if(format=="relative_month"){ endtime = endtime.addMonths( 0-qAbs(str_endtime.toInt()) ); }
+        else if(format=="relative_second"){ endtime = endtime.addSecs( 0-qAbs(str_endtime.toInt()) ); }
+        else{ endtime = QDateTime::fromString(str_endtime, format); }
+      }
+      if(!str_starttime.isEmpty()){
+        if(format=="time_t_seconds"){ starttime = QDateTime::fromTime_t(str_starttime.toInt()); }
+        else if(format=="epoch_mseconds"){ starttime = QDateTime::fromMSecsSinceEpoch(str_starttime.toInt()); }
+        else if(format=="relative_day"){ starttime = endtime.addDays( 0-qAbs(str_starttime.toInt()) ); }
+        else if(format=="relative_month"){ starttime = endtime.addMonths( 0-qAbs(str_starttime.toInt()) ); }
+        else if(format=="relative_second"){ starttime = endtime.addSecs( 0-qAbs(str_starttime.toInt()) ); }
+        else{ starttime = QDateTime::fromString(str_starttime, format); }
       }
     }
+    //Now read/return the logs
+    for(int i=0; i<logs.length(); i++){
+      int log = -1; //this needs to correspond to the LogManager::LOG_FILE enumeration
+      if(logs[i]=="hostinfo"){ log = 0; }
+      else if(logs[i]=="dispatcher"){ log = 1; }
+      else if(logs[i]=="events-dispatcher"){ log = 2; }
+      else if(logs[i]=="events-lifepreserver"){ log = 3; }
+      else if(logs[i]=="events-state"){ log = 4; }
+      
+      if(log>=0){
+	QStringList info = LogManager::readLog( (LogManager::LOG_FILE)(log), starttime, endtime);
+	//REMINDER of format: "[datetime]<message>"
+        if(info.isEmpty()){ continue; } //nothing here
+        QJsonObject lobj;
+        for(int j=0; j<info.length(); j++){
+          if(log>=2){
+	    //event logs - message is JSON data
+            lobj.insert(info[j].section("]",0,0).section("[",1,1), QJsonDocument::fromJson( info[j].section("]",1,-1).toLocal8Bit() ).object() );
+          }else{
+            //Simple text log
+            lobj.insert(info[j].section("]",0,0).section("[",1,1), info[j].section("]",1,-1));
+          }
+        }//end loop over log info
+        out->insert( logs[i], lobj);
+      }
+    }//end loop over log types
+  }else{
+    return RestOutputStruct::BADREQUEST;
+  }
+
   //Return Success
   return RestOutputStruct::OK;
-}*/
+}
 
 //==== DISPATCHER ====
 RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, const QJsonValue in_args, QJsonObject *out){
@@ -218,7 +264,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, 
   if(!in_args.isObject() || !in_args.toObject().contains("action") ){ return RestOutputStruct::BADREQUEST; }
   QString act = in_args.toObject().value("action").toString().toLower();
 
-  //Determing the type of action to perform
+  //Determine the type of action to perform
   if(act=="run"){
     if(!allaccess){ return RestOutputStruct::FORBIDDEN; } //this user does not have permission to queue jobs
     QStringList ids = in_args.toObject().keys();

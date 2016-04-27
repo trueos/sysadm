@@ -17,6 +17,8 @@
 //  HOST: String input/output (simple messages)
 //  DISPATCH: Full log of dispatcher processes output (JSON)
 //===========================================
+// LogFile Format: "[datetimestamp]<message>"
+//===========================================
 #define LOGDIR QString("/var/log/sysadm")
 
 
@@ -24,7 +26,7 @@ class LogManager{
 public:
 	//Enumeration of common log files (will automatically use proper file)
 	// === ADD NEW FILE SUPPORT  HERE ===
-	enum LOG_FILE {HOST, DISPATCH, EV_DISPATCH, EV_LP, EV_STATE};
+	enum LOG_FILE {HOST = 0, DISPATCH, EV_DISPATCH, EV_LP, EV_STATE};
 	//Conversion function for flag->path
 	static QString flagToPath(LogManager::LOG_FILE flag){
 	  QString filepath;

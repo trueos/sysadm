@@ -78,30 +78,36 @@ QStringList LogManager::readLog(QString file, QDateTime starttime, QDateTime end
 
 QStringList LogManager::readLog(LogManager::LOG_FILE file, QDateTime starttime, QDateTime endtime){
   //First get a list of all the various log files which encompass this time range
-  QDir logdir(LOGDIR);
+  //qDebug() << "Try to read log:" << flagToPath(file);
+  QDir logdir(LOGDIR+ (WS_MODE ? "/websocket" : "/restserver") );
   //  - get list of all this type of log
   QStringList files = logdir.entryList(QStringList() << flagToPath(file).arg("*"), QDir::Files, QDir::Name);
   // - filter out the dates we need (earlier first)
   QString tmp = flagToPath(file).arg(starttime.date().toString(Qt::ISODate));
+  //qDebug() << " - Got files:" << files << "Filter:" << tmp;
   while(!files.isEmpty()){
     //Note we can do basic compare due to identical filenames *except* for some numbers near the end
-    if( QString::compare(files[0], tmp)<0 ){ files.removeAt(0); }
+    if( QString::compare(files[0], tmp)<0 && files[0]!=tmp){ files.removeAt(0); }
     else{ break; }
   }
+  //qDebug() << " - After filtering earlier:" << files;
   // - now filter out any later dates than we need
   if(endtime.date() < QDate::currentDate()){
     tmp = flagToPath(file).arg(endtime.date().toString(Qt::ISODate));	  
+    //qDebug() << " - Next Filter:" << tmp;
     while(!files.isEmpty()){
       //Note we can do basic compare due to identical filenames *except* for some numbers near the end
-      if( QString::compare(files.last(), tmp)>0 ){ files.removeAt(files.length()-1); }
+      if( QString::compare(files.last(), tmp)>0 && files.last()!=tmp ){ files.removeAt(files.length()-1); }
       else{ break; }
     }
+    //qDebug() << " - After filter:" << files;
   }
   
   //Now load each file in order (oldest->newest) and filter out the necessary logs
   QStringList logs;
   for(int i=0; i<files.length(); i++){
-    logs << readLog(LOGDIR+"/"+files[i], starttime, endtime);
+    logs << readLog(logdir.filePath(files[i]), starttime, endtime);
   }
+  //qDebug() << "Read Logs:" << logs;
   return logs;
 }

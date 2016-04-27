@@ -50,8 +50,8 @@ private:
 	// -- Individual subsystems
 	// -- Server Settings Modification API
 	RestOutputStruct::ExitCode EvaluateSysadmSettingsRequest(const QJsonValue in_args, QJsonObject *out);
-	// -- rpc syscache API
-	RestOutputStruct::ExitCode EvaluateSyscacheRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- Server Log retrieval system
+	RestOutputStruct::ExitCode EvaluateSysadmLogsRequest(bool allaccess, const QJsonValue in_args, QJsonObject *out);
 	// -- rpc dispatcher API
 	RestOutputStruct::ExitCode EvaluateDispatcherRequest(bool allaccess, const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm beadm API
