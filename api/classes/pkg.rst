@@ -21,7 +21,7 @@ Every pkg class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit", "pkg_upgrade",     |
-|                                 |               | "pkg_check_upgrade", "pkg_update", "pkg_lock", "pkg_unlock", "pkg_install", and "pkg_remove"                         |
+|                                 |               | "pkg_check_upgrade", "pkg_update", "pkg_lock", "pkg_unlock", "pkg_install", "pkg_remove", and "pkg_autoremove"       |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -1157,3 +1157,51 @@ The uninstall messages will be returned as a dispatcher event. Refer to the :ref
       }
     }
  } 
+ 
+.. index:: pkg_autoremove, pkg
+
+.. _Prune Packages:
+
+Prune Packages
+==============
+
+The "pkg_autoremove" action prunes all orphaned packages on the system.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /sysadm/pkg
+ {
+  "action" : "pkg_autoremove"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+  "args" : {
+     "action" : "pkg_autoremove"
+  },
+  "name" : "pkg",
+  "namespace" : "sysadm",
+  "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+ "args": {
+   "pkg_autoremove": {
+     "proc_cmd": "pkg autoremove -y",
+     "proc_id": "sysadm_pkg_autoremove-{19ace7c9-0d83-4a0d-9249-0b56cb105762}",
+     "status": "pending"
+   }
+ },
+ "id": "fooid",
+ "name": "response",
+ "namespace": "sysadm"
+ }
