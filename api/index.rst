@@ -1,4 +1,4 @@
-PC-BSD® API Reference
+SysAdm™ API Reference
 =====================
 
 .. toctree::

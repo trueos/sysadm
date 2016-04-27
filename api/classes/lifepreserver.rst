@@ -197,7 +197,8 @@ The "cronscrub" action is used to schedule a ZFS scrub. This action supports the
 |                                 |                                                                                                                      |
 +---------------------------------+----------------------------------------------------------------------------------------------------------------------+
 | frequency                       | specify when to perform the scrub; possible values are "daily@XX", "weekly@YY@XX", and monthly@ZZ@XX, where "XX" is  |
-|                                 | the hour, "YY" is the day of week ("01" for Monday through "07" for Sunday), "ZZ" is the day of month, and "none" disables scrubs                              |
+|                                 | the hour, "YY" is the day of week ("01" for Monday through "07" for Sunday), "ZZ" is the day of month, and "none"    |
+|                                 | disables scrubs                                                                                                      |
 |                                 |                                                                                                                      |
 +---------------------------------+----------------------------------------------------------------------------------------------------------------------+
 
