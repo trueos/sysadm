@@ -23,7 +23,7 @@
 
 
 #define DEBUG 0
-#define SCLISTDELIM QString("::::") //SysCache List Delimiter
+//#define SCLISTDELIM QString("::::") //SysCache List Delimiter
 RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonObject *out){
   //Probe the various subsystems to see what is available through this server
   //Output format:
@@ -287,8 +287,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, 
     //Return the PENDING result
     LogManager::log(LogManager::HOST, "Client Launched Processes["+SockPeerIP+"]: "+ids.join(",") );
     out->insert("started", QJsonArray::fromStringList(ids));
-  //}else if(act=="read"){
-
+  }else if(act=="list"){
+    QJsonObject info = DISPATCHER->listJobs();
+    out->insert("jobs", info);
   }else{
     return RestOutputStruct::BADREQUEST;
   }

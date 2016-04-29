@@ -30,6 +30,7 @@ DProcess::~DProcess(){
 }
 
 void DProcess::procReady(){
+  rawcmds = cmds;
   proclog.insert("cmd_list",QJsonArray::fromStringList(cmds));
   proclog.insert("process_id",ID);
   proclog.insert("state","pending");	
@@ -123,6 +124,56 @@ Dispatcher::Dispatcher(){
 
 Dispatcher::~Dispatcher(){
 	
+}
+
+QJsonObject Dispatcher::listJobs(){
+  QJsonObject out;
+  for(int i=0; i<enum_length; i++){
+    PROC_QUEUE queue = static_cast<PROC_QUEUE>(i);
+    if(HASH.contains(queue)){
+      QJsonObject obj;
+      QList<DProcess*> list = HASH[queue];
+      for(int j=0; j<list.length(); j++){
+	QJsonObject proc;
+          proc.insert("commands", QJsonArray::fromStringList(list[j]->rawcmds));
+          if(queue!=NO_QUEUE){ proc.insert("queue_position",QString::number(j)); }
+	  if( list[j]->isRunning() ){ proc.insert("state", "running");  }
+	  else if(list[j]->isDone() ){ proc.insert("state", "finished"); }
+	  else{ proc.insert("state","pending"); }
+        obj.insert(list[j]->ID, proc);
+      } //end loop over list
+      QString qname;
+      switch(queue){
+        case NO_QUEUE:
+         qname="no_queue"; break;
+        case PKG_QUEUE:
+         qname="pkg_queue"; break;
+        case IOCAGE_QUEUE:
+         qname="iocage_queue"; break;
+      }
+      out.insert(qname,obj);
+    }
+  } //end loop over queue types	
+  return out;
+}
+
+QJsonObject Dispatcher::killJobs(QStringList ids){
+  QStringList killed;
+  for(int i=0; i<enum_length; i++){
+    PROC_QUEUE queue = static_cast<PROC_QUEUE>(i);
+    if(HASH.contains(queue)){
+      QList<DProcess*> list = HASH[queue];
+      for(int j=0; j<list.length(); j++){
+	if(ids.contains(list[j]->ID)){
+          killed << list[j]->ID;
+          QTimer::singleShot(10, list[j], SLOT(kill())); //10ms buffer
+        }
+      } //end loop over list
+    }
+  } //end loop over queue types
+  QJsonObject obj;
+    obj.insert("killed_jobs", QJsonArray::fromStringList(killed));
+  return obj;
 }
 
 void Dispatcher::start(QString queuefile){
