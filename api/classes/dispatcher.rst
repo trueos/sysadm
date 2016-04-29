@@ -1,11 +1,11 @@
-.. _logs:
+.. _dispatcher:
 
-logs
-****
+dispatcher
+**********
 
-The logs class is used to interact with the log files created by the SysAdm server.
+The dispatcher class is used to spin up external processes on demand, such as a user running a custom system setup script.
 
-Every logs class request contains the following parameters:
+Every dispatcher class request contains the following parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
@@ -14,58 +14,116 @@ Every logs class request contains the following parameters:
 | id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | logs          |                                                                                                                      |
+| name                            | dispatcher    |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | namespace                       | rpc           |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "read_logs"                                                                                |
+| action                          |               | supported actions include "list", "kill"                                                                             |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
 The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
 
-.. index:: read_logs, logs
+.. index:: list, dispatcher
 
-.. _Read Logs:
+.. _List Processes:
 
-Read Logs
-=========
+List Processes
+==============
 
-The "read_logs" action can be used to display log entries. It supports the following optional arguments:
+The "list" action lists all the currently running or pending processes within the dispatcher queues. Possible queues are "no_queue", "pkg_queue", and "iocage_queue".
 
-* **logs:** used to specify an array or string of log type(s). Valid types are "hostinfo", "dispatcher", "events-dispatcher","events-lifepreserver", and "events-state".
+**REST Request**
 
-* **time_format:** used to specify the format for "start_time" and "end_time". Valid Formats are "time_t_seconds", "epoch_mseconds, "relative_[day/month/second]", or a
-  `QDateTime String code <http://doc.qt.io/qt-5/qdatetime.html#fromString>`_.
-  
-* **start_time:** displays log entries that occurred after the time specified using a valid "time_format".
+.. code-block:: json
 
-* **end_time:** displays log entries that occurred before the time specified using a valid "time_format".
+ PUT /rpc/dispatcher
+ {
+   "action" : "list"
+ }
 
-If the "time_format" is not specified, or if the "start_time" or "end_time" are not defined, the end time will be the current date and time and the start time will be 12 hours previous.
-
-If the "logs" argument is missing or empty, then all logs matching the search parameters will be returned.
-
-For example, this input returns all log entries within the last hour:
+**WebSocket Request**
 
 .. code-block:: json
 
  {
- "action" : "read_logs",
- "time_format" : "relative_second",
- "start_time" : "-3600"
+   "args" : {
+      "action" : "list"
+   },
+   "namespace" : "rpc",
+   "name" : "dispatcher",
+   "id" : "fooid"
  }
 
-And will return this format:
+**Response**
 
 .. code-block:: json
 
- "args" : {
-  "<log_file_type>" : {
-    "<date_time_stamp>" : <message>,
-    "<date_timo_stamp2>" : <message>
-  }
+ {
+  "args": {
+    "jobs": {
+      "pkg_queue": {
+        "sysadm_pkg_install-{9c079421-ace9-4b6e-8870-d023b48f4c49}": {
+          "commands": [
+            "pkg install -y --repository \"pcbsd-major\" misc/pcbsd-meta-mate"
+          ],
+          "queue_position": "0",
+          "state": "running"
+        }
+      }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "rpc"
+ }
+ 
+.. index:: kill, dispatcher
+
+.. _Kill Processes:
+
+Kill Processes
+==============
+
+The "kill" action allows a user with full access to cancel pending or running jobs within the dispatcher system.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /rpc/dispatcher
+ {
+   "action" : "kill",
+   "job_id" : "sysadm_pkg_install-{9c079421-ace9-4b6e-8870-d023b48f4c49}"
  }
 
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "kill",
+      "job_id" : "sysadm_pkg_install-{9c079421-ace9-4b6e-8870-d023b48f4c49}"
+   },
+   "namespace" : "rpc",
+   "name" : "dispatcher",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "killed": {
+      "jobs": ["sysadm_pkg_install-{9c079421-ace9-4b6e-8870-d023b48f4c49}"]
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "rpc"
+ }
