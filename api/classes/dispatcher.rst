@@ -20,7 +20,7 @@ Every dispatcher class request contains the following parameters:
 | namespace                       | rpc           |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "list"                                                                                     |
+| action                          |               | supported actions include "list", "kill"                                                                             |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
@@ -73,6 +73,54 @@ The "list" action lists all the currently running or pending processes within th
           "state": "running"
         }
       }
+    }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "rpc"
+ }
+ 
+.. index:: kill, dispatcher
+
+.. _Kill Processes:
+
+Kill Processes
+==============
+
+The "kill" action allows a user with full access to cancel pending or running jobs within the dispatcher system.
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /rpc/dispatcher
+ {
+   "action" : "kill",
+   "job_id" : "sysadm_pkg_install-{9c079421-ace9-4b6e-8870-d023b48f4c49}"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "kill",
+      "job_id" : "sysadm_pkg_install-{9c079421-ace9-4b6e-8870-d023b48f4c49}"
+   },
+   "namespace" : "rpc",
+   "name" : "dispatcher",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "killed": {
+      "jobs": ["sysadm_pkg_install-{9c079421-ace9-4b6e-8870-d023b48f4c49}"]
     }
   },
   "id": "fooid",
