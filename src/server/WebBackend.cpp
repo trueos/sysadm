@@ -290,6 +290,14 @@ RestOutputStruct::ExitCode WebSocket::EvaluateDispatcherRequest(bool allaccess, 
   }else if(act=="list"){
     QJsonObject info = DISPATCHER->listJobs();
     out->insert("jobs", info);
+  }else if(act=="kill" && in_args.toObject().contains("job_id") ){
+    if(!allaccess){ return RestOutputStruct::FORBIDDEN; } //this user does not have permission to modify jobs
+    QStringList ids;
+    QJsonValue val = in_args.toObject().value("job_id");
+    if(val.isArray()){ ids = JsonArrayToStringList(val.toArray()); }
+    else if(val.isString()){ ids << val.toString(); }
+    else{ return RestOutputStruct::BADREQUEST; }
+    out->insert("killed", DISPATCHER->killJobs(ids));
   }else{
     return RestOutputStruct::BADREQUEST;
   }

@@ -172,7 +172,7 @@ QJsonObject Dispatcher::killJobs(QStringList ids){
     }
   } //end loop over queue types
   QJsonObject obj;
-    obj.insert("killed_jobs", QJsonArray::fromStringList(killed));
+    obj.insert("jobs", QJsonArray::fromStringList(killed));
   return obj;
 }
 
