@@ -18,8 +18,29 @@ void LogManager::checkLogDir(){
     QDir dir(logd);
     dir.mkpath(logd);
   }
+  int daysold = CONFIG->value("prune_log_days_old",90); //90 days by default
+  if(daysold>0){
+    LogManager::pruneLogs(QDate::currentDate().addDays(-daysold));
+  }
 }
-	
+
+//Manual prune of logs older than designated date
+void LogManager::pruneLogs(QDate olderthan){
+  QString logd = LOGDIR; //base log dir
+    if(WS_MODE){ logd.append("/websocket"); }
+    else{ logd.append("/restserver"); }
+  QDir dir(logd);
+  QStringList files = dir.entryList(QStringList() << "*.log", QDir::Files, QDir::Name);
+  //qDebug() << " - Got files:" << files << "Filter:" << tmp;
+  for(int i=0; i<files.length(); i++){
+   QDate fdate = QDate::fromString( files[i].section(".log",0,0).section("-",-3,-1), Qt::ISODate);
+    //qDebug() << "Check File Date:" << fdate << olderthan;
+    if( fdate < olderthan && fdate.isValid()){ 
+      dir.remove(files[i]);
+    }
+  }
+}
+
 //Main Log write function (all the overloaded versions end up calling this one)
 void LogManager::log(QString file, QStringList msgs, QDateTime time){
   if(file.isEmpty()){ return; }

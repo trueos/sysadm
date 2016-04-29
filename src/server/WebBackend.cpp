@@ -33,7 +33,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
       }
   */
   // - server settings (always available)
-  out->insert("sysadm/settings","read/write");
+  out->insert("rpc/settings","read/write");
   out->insert("rpc/logs", allaccess ? "read/write" : "read");
 
   // - beadm
@@ -107,7 +107,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   }
   //qDebug() << "Evaluate Backend Request:" << namesp << name;
   //Go through and forward this request to the appropriate sub-system
-  if(namesp=="sysadm" && name=="settings"){
+  if(namesp=="rpc" && name=="settings"){
     return EvaluateSysadmSettingsRequest(IN.args, out);
   }else if(namesp=="rpc" && name=="logs"){
     return EvaluateSysadmLogsRequest(IN.fullaccess, IN.args, out);
@@ -139,13 +139,13 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
 
 }
 
-// === SYSADM SETTINGS ===
+// === SYSADM SSL SETTINGS ===
 RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSettingsRequest(const QJsonValue in_args, QJsonObject *out){
-  qDebug() << "sysadm/settings Request:" << in_args;
+  //qDebug() << "sysadm/settings Request:" << in_args;
   if(!in_args.isObject()){ return RestOutputStruct::BADREQUEST; }
   QJsonObject argsO = in_args.toObject();
   QStringList keys = argsO.keys();
-  qDebug() << " - keys:" << keys;
+  //qDebug() << " - keys:" << keys;
   if(!keys.contains("action")){ return RestOutputStruct::BADREQUEST; }
   QString act = argsO.value("action").toString();
   bool ok = false;

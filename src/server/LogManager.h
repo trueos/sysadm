@@ -42,8 +42,9 @@ public:
 	}
 	
 	//Overall check/create/prune of the log directory (run this occasionally - such as every 24-48 hours)
-	//This move/
 	static void checkLogDir();
+	//Manual prune of logs older than designated date
+	static void pruneLogs(QDate olderthan);
 	
 	// === LOG TO FILE FUNCTIONS ===
 	//The normal log routines (Few versions)
