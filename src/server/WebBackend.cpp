@@ -34,7 +34,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   */
   // - server settings (always available)
   out->insert("sysadm/settings","read/write");
-  out->insert("sysadm/logs", allaccess ? "read/write" : "read");
+  out->insert("rpc/logs", allaccess ? "read/write" : "read");
 
   // - beadm
   if(QFile::exists("/usr/local/sbin/beadm")){
@@ -109,7 +109,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
   //Go through and forward this request to the appropriate sub-system
   if(namesp=="sysadm" && name=="settings"){
     return EvaluateSysadmSettingsRequest(IN.args, out);
-  }else if(namesp=="sysadm" && name=="logs"){
+  }else if(namesp=="rpc" && name=="logs"){
     return EvaluateSysadmLogsRequest(IN.fullaccess, IN.args, out);
   }else if(namesp=="rpc" && name=="dispatcher"){
     return EvaluateDispatcherRequest(IN.fullaccess, IN.args, out);
@@ -125,8 +125,6 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmLifePreserverRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="network"){
     return EvaluateSysadmNetworkRequest(IN.args, out);
-  //}else if(namesp=="rpc" && name=="syscache"){
-    //return EvaluateSyscacheRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="systemmanager"){
     return EvaluateSysadmSystemMgmtRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="update"){
