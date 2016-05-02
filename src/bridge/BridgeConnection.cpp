@@ -18,7 +18,7 @@ BridgeConnection::BridgeConnection(QWebSocket *sock, QString ID){
   idletimer = new QTimer(this);
     idletimer->setInterval(IDLETIMEOUTMINS*60000); //connection timout for idle sockets
     idletimer->setSingleShot(true);
-  connect(idletimer, SIGNAL(timeout()), this, SLOT(checkIdle()) );
+  connect(idletimer, SIGNAL(timeout()), this, SLOT(checkgonintendoIdle()) );
   connect(SOCKET, SIGNAL(textMessageReceived(const QString&)), this, SLOT(EvaluateMessage(const QString&)) );
   connect(SOCKET, SIGNAL(binaryMessageReceived(const QByteArray&)), this, SLOT(EvaluateMessage(const QByteArray&)) );
   connect(SOCKET, SIGNAL(aboutToClose()), this, SLOT(SocketClosing()) );
@@ -42,6 +42,7 @@ void BridgeConnection::forwardMessage(QString msg){
   //qDebug() << "Sending Socket Reply:" << msg;
  if(SOCKET!=0 && SOCKET->isValid()){ SOCKET->sendTextMessage(msg); }
 }
+
 //=======================
 //             PRIVATE
 //=======================

@@ -51,8 +51,7 @@ void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
 int main( int argc, char ** argv )
 {
     //Evaluate input arguments
-    quint16 cport = 12148; //client-side port number
-    quint16 sport = 12149; //server-side port number
+    quint16 port = 12149; //port number
     bool settingchange = false;
     for(int i=1; i<argc; i++){
       if(settingchange){
@@ -62,8 +61,7 @@ int main( int argc, char ** argv )
 	qDebug() << "Changing bridge setting:" << info;
         if(var=="blacklist/blockmins"){ CONFIG->setValue("blacklist_settings/blockmins",val.toInt()); }
       }
-      else if( QString(argv[i])=="-clientport" && (i+1<argc)){ i++; cport = QString(argv[i]).toUInt(); }
-      else if( QString(argv[i])=="-serverport" && (i+1<argc) ){ i++; sport = QString(argv[i]).toUInt(); }
+      else if( (QString(argv[i])=="-port" || QString(argv[i])=="-p") && (i+1<argc)){ i++; port = QString(argv[i]).toUInt(); }
       else if( QString(argv[i])=="-set" && i+1<argc){ settingchange = true; }
     }
     if(settingchange){ return 0; }
@@ -85,26 +83,17 @@ int main( int argc, char ** argv )
       
     //Create the two servers and connect them
     qDebug() << "Starting the PC-BSD sysadm bridge....";
-    BridgeServer cserver;  //client side
-    BridgeServer sserver;  //server side
-      QObject::connect(&cserver, SIGNAL(ForwardMessage(QString, QString)), &sserver, SLOT(SendMessage(QString, QString)) );
-      QObject::connect(&sserver, SIGNAL(ForwardMessage(QString, QString)), &cserver, SLOT(SendMessage(QString, QString)) );
-
+    BridgeServer server;
+      
     //Start the servers
     int ret = 1; //error return value
-    bool badstart = false;
-    badstart = !cserver.startServer(cport);
-    if(badstart){ qDebug() << "Could not start client-side server on port:" << cport; }
-    else{ badstart = !sserver.startServer(sport); }
-    if(badstart){ qDebug() << "Could not start server-side server on port:" << sport; }
+    if(!server.startServer(port)){ qDebug() << "Could not start bridge server on port:" << port; }
     else{
       //Now start the main event loop
       qDebug() << "Bridge Started:" << QDateTime::currentDateTime().toString(Qt::ISODate);
       ret = a.exec();
       qDebug() << "Bridge Stopped:" << QDateTime::currentDateTime().toString(Qt::ISODate);
     }
-    if(cserver.isListening()){ cserver.close(); }
-    if(sserver.isListening()){ sserver.close(); }
 
     //Cleanup any globals
     delete CONFIG;
