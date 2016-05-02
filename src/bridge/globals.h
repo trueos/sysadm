@@ -22,6 +22,8 @@
 #include <QStringList>
 #include <QSettings>
 #include <QTimer>
+#include <QDateTime>
+
 #include <QFile>
 #include <QDir>
 #include <QHash>

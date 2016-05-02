@@ -75,7 +75,6 @@ bool BridgeServer::setupWebSocket(quint16 port){
   //Setup Connections
   connect(this, SIGNAL(newConnection()), this, SLOT(NewSocketConnection()) );
   connect(this, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(NewConnectError(QAbstractSocket::SocketError)) );
-  //  -- websocket specific signals
   connect(this, SIGNAL(closed()), this, SLOT(ServerClosed()) );
   connect(this, SIGNAL(serverError(QWebSocketProtocol::CloseCode)), this, SLOT(ServerError(QWebSocketProtocol::CloseCode)) );
   connect(this, SIGNAL(originAuthenticationRequired(QWebSocketCorsAuthenticator*)), this, SLOT(OriginAuthRequired(QWebSocketCorsAuthenticator*)) );
@@ -125,7 +124,7 @@ void BridgeServer::NewSocketConnection(){
   if(sock==0){ return; } //no new connection
   //qDebug() << "New Socket Connection";	
   connect(sock, SIGNAL(SocketClosed(QString)), this, SLOT(SocketClosed(QString)) );
-  connect(sock, SIGNAL(SocketMessage(QString, QString)), this, SIGNAL(ForwardMessage(QString, QString)) );
+  connect(sock, SIGNAL(SocketMessage(QString, QString)), this, SLOT(SendMessage(QString, QString)) );
   OpenSockets << sock;
 }
 
