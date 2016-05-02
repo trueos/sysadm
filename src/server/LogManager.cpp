@@ -18,9 +18,9 @@ void LogManager::checkLogDir(){
     QDir dir(logd);
     dir.mkpath(logd);
   }
-  int daysold = CONFIG->value("prune_log_days_old",90); //90 days by default
+  int daysold = CONFIG->value("prune_log_days_old",90).toInt(); //90 days by default
   if(daysold>0){
-    LogManager::pruneLogs(QDate::currentDate().addDays(-daysold));
+    LogManager::pruneLogs(QDate::currentDate().addDays(0-daysold));
   }
 }
 

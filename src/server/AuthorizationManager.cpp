@@ -135,26 +135,27 @@ int AuthorizationManager::checkAuthTimeoutSecs(QString token){
 
 // == Token Generation functions
 QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString pass){
-	//Login w/ username & password
+  //Login w/ username & password
   bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) || (host.toString()=="::ffff:127.0.0.1") );
   bool ok = false;
-  //First check that the user is valid on the system and part of the operator group
   bool isOperator = false;
-  if(user!="root" && user!="toor"){
-    QStringList groups = getUserGroups(user);
-    if(groups.contains("wheel")){ isOperator = true; } //full-access user
-    else if(!groups.contains("operator")){
-      return ""; //user not allowed access if not in either of the wheel/operator groups
+  //First check that the user is valid on the system and part of the operator group
+  if( CONFIG->value("auth/allowUserPassAuth",true).toBool() ){
+    if(user!="root" && user!="toor"){
+      QStringList groups = getUserGroups(user);
+      if(groups.contains("wheel")){ isOperator = true; } //full-access user
+      else if(!groups.contains("operator")){
+        return ""; //user not allowed access if not in either of the wheel/operator groups
+      }
+    }else{ isOperator = true; }
+    //qDebug() << "Check username/password" << user << pass << localhost;
+    //Need to run the full username/password through PAM
+    if(!localhost || user=="root" || user=="toor"){
+      ok = pam_checkPW(user,pass);
+    }else{
+      ok = true; //allow local access for users without password
     }
-  }else{ isOperator = true; }
-  //qDebug() << "Check username/password" << user << pass << localhost;
-  //Need to run the full username/password through PAM
-  if(!localhost || user=="root" || user=="toor"){
-    ok = pam_checkPW(user,pass);
-  }else{
-    ok = true; //allow local access for users without password
   }
-
   qDebug() << "User Login Attempt:" << user << " Success:" << ok << " IP:" << host.toString();
   LogManager::log(LogManager::HOST, QString("User Login Attempt: ")+user+"   Success: "+(ok?"true":"false")+"   IP: "+host.toString() );
   if(!ok){ 
@@ -172,13 +173,13 @@ QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString p
 
 QString AuthorizationManager::LoginService(QHostAddress host, QString service){
   bool localhost = ( (host== QHostAddress::LocalHost) || (host== QHostAddress::LocalHostIPv6) || (host.toString()=="::ffff:127.0.0.1") );
-	
+  
   //Login a particular automated service
   qDebug() << "Service Login Attempt:" << service << " Success:" << localhost;
   if(!localhost){ return ""; } //invalid - services must be local for access
   //Check that the service is valid on the system
-  bool isok = false;
-  if(service!="root" && service!="toor" && localhost){
+  bool isok = localhost && CONFIG->value("auth/allowServiceAuth",false).toBool( );
+  if(service!="root" && service!="toor" && isok){
     QStringList groups = getUserGroups(service);
     isok = (groups.contains(service) && !groups.contains("wheel") && !groups.contains("operator"));
   }
