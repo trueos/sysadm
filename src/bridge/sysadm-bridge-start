@@ -1,0 +1,25 @@
+#!/bin/sh
+# Helper script which auto-gens a new SSL key for each start
+# of the sysadm server
+
+ssl_keygen()
+{
+  if [ ! -d "/usr/local/etc/sysadm" ] ; then
+    mkdir -p /usr/local/etc/sysadm
+  fi
+  openssl req -x509 -nodes -newkey rsa:2048 \
+    -keyout /usr/local/etc/sysadm/bridgeserver.key \
+    -out /usr/local/etc/sysadm/bridgeserver.crt -days 1024 \
+    -subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
+}
+
+export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
+ssl_keygen "$1"
+command="/usr/local/bin/sysadm-bridge"
+flags=""
+
+if [ -n "$1" ] ; then
+  flags="$1"
+fi
+
+exec $command $flags

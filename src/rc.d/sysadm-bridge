@@ -1,0 +1,46 @@
+#!/bin/sh
+# $FreeBSD$
+
+# PROVIDE: sysadm-bridge
+# REQUIRE: LOGIN cleanvar
+# KEYWORD: shutdown
+
+#
+# Add the following lines to /etc/rc.conf to enable sysadm:
+# sysadm_bridge_enable (bool):				Set to "NO" by default.
+#						Set it to "YES" to enable sysadm
+
+. /etc/rc.subr
+
+name="sysadm_bridge"
+rcvar=sysadm_bridge_enable
+
+start_cmd="sysadm_bridge_start"
+stop_cmd="sysadm_bridge_stop"
+flags=""
+
+[ -z "$sysadm_bridge_enable" ] && sysadm_bridge_enable="NO"
+
+load_rc_config $name
+
+sysadm_bridge_stop()
+{
+  if [ -e "/var/run/sysadm-bridge.pid" -o -e "/var/run/sysadm-bridge-daemon.pid" ] ; then
+    pkill -9 -F /var/run/sysadm-bridge-daemon.pid >/dev/null 2>/dev/null
+    pkill -9 -F /var/run/sysadm-bridge.pid >/dev/null 2>/dev/null
+    rm /var/run/sysadm-bridge-daemon.pid 2>/dev/null
+    rm /var/run/sysadm-bridge.pid 2>/dev/null
+  fi
+}
+
+sysadm_start()
+{
+  export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
+  sysadm_stop
+  echo "Starting sysadm bridge..."
+  command="/usr/local/bin/sysadm-bridge"
+  daemon -r -P /var/run/sysadm-bridge-daemon.pid -p /var/run/sysadm-bridge.pid $command $flags
+  chmod 744 /var/run/sysadm-bridge.pid >/dev/null 2>/dev/null
+}
+
+run_rc_command "$1"
