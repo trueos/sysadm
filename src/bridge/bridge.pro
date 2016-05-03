@@ -17,10 +17,10 @@ SOURCES	+= main.cpp \
 TARGET=sysadm-bridge
 target.path=/usr/local/bin
 
-#scripts.path=/usr/local/bin/
-#scripts.extra=install sysadm-server $(INSTALL_ROOT)/usr/local/bin/
+scripts.path=/usr/local/bin/
+scripts.extra=install sysadm-bridge-start $(INSTALL_ROOT)/usr/local/bin/
 
-INSTALLS += target
+INSTALLS += target scripts
 
 
 QMAKE_LIBDIR = /usr/local/lib/qt5 /usr/local/lib
