@@ -40,7 +40,7 @@ private slots:
 	//Socket Blacklist function
 	void BlackListConnection(QHostAddress addr);
 
-	// (WebSocket-only) Server signals/slots
+	//Server signals/slots
 	void ServerClosed(); 						//closed() signal
 	void ServerError(QWebSocketProtocol::CloseCode);	//serverError() signal
 	void ConnectError(QAbstractSocket::SocketError);

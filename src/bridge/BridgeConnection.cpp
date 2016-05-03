@@ -78,7 +78,7 @@ QStringList BridgeConnection::JsonArrayToStringList(QJsonArray array){
 void BridgeConnection::InjectMessage(QString msg){
   //See if this message is directed to the bridge itself, or a client
   if(msg.startsWith("{")){
-
+    HandleAPIMessage(msg);
   }else{
     //Need to read the destination off the message first
     int lb = msg.indexOf("\n"); //line break
@@ -94,6 +94,43 @@ void BridgeConnection::InjectMessage(QString msg){
   }
 }
 
+void BridgeConnection::HandleAPIMessage(QString msg){
+  QJsonObject JM = QJsonDocument::fromJson(msg.toLocal8Bit()).object();
+  QJsonObject out;
+  if(JM.isEmpty() || !JM.contains("namespace") || !JM.contains("name") || !JM.contains("args") || !JM.contains("id") ){
+    //invalid inputs - return 
+    out.insert("namespace","error");
+    out.insert("name","error");
+    out.insert("id", JM.contains("id") ? JM.value("id") : "error");
+    out.insert("args", "");
+  }else if( JM.value("name").toString()=="response" ){
+    // - Return messages first (check ID)
+      QString id = JM.value("id").toString();
+      if(id=="sysadm_bridge_request_ident"){
+        serverconn = (JM.value("args").toObject().value("type").toString() == "server");
+      }
+     //no response needed
+  }else{
+    //API Call
+    QString name, namesp, id; 
+    QJsonObject args = JM.value("args").toObject();
+    name = JM.value("name").toString();
+    namesp = JM.value("namespace").toString();
+    out.insert("id", JM.value("id"));
+    out.insert("namespace", namesp);
+    out.insert("name","reponse");
+    QJsonObject outargs;
+    //There is only a short list of API calls the bridge is capable of:
+    if(namesp == "rpc" && name=="identify"){
+      outargs.insert("type","bridge");
+    }else{
+      out.insert("name","error"); //unknown API call
+    }
+    out.insert("args",outargs);
+    SOCKET->sendTextMessage( QJsonDocument(out).toJson(QJsonDocument::Compact) );
+  }
+ 
+}
 // =====================
 //       PRIVATE SLOTS
 // =====================
