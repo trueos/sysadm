@@ -121,8 +121,8 @@ void WebSocket::EvaluateREST(QString msg){
     this->sendReply(out.assembleMessage());
   }else{
     //EvaluateRequest(IN);
-    if(IN.name.startsWith("auth") ){
-      //Keep auth system requests in order
+    if(IN.name.startsWith("auth") || (IN.namesp.toLower()=="rpc" && IN.name.toLower()=="identify") ){
+      //Keep auth/pre-auth system requests in order
       EvaluateRequest(IN);
     }else{
       QtConcurrent::run(this, &WebSocket::EvaluateRequest, IN);
@@ -153,7 +153,12 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	  
     //Now check the body of the message and do what it needs
 if(out.in_struct.namesp.toLower() == "rpc"){
-  if(out.in_struct.name.startsWith("auth")){
+  if(out.in_struct.name == "identify"){
+    QJsonObject obj;
+      obj.insert("type", "server");
+    out.out_args = obj;
+    out.CODE = RestOutputStruct::OK;
+  }else if(out.in_struct.name.startsWith("auth")){
     //Now perform authentication based on type of auth given
     //Note: This sets/changes the current SockAuthToken
     AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
