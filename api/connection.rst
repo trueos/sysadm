@@ -410,7 +410,7 @@ When submitting a job to the dispatcher, keep the following points in mind:
 
 * A chain of commands is useful for multi-step operations but is not considered a replacement for a good shell script on the server.
  
-.. index:: query, rpc
+.. index:: query, identify, rpc
    
 .. _Server Subsystems:
 
@@ -418,7 +418,7 @@ Server Subsystems
 =================
 
 An RPC query can be issued to probe all the known subsystems and return which ones are currently available and what level of read and write access the user has.
-A query contains the following parameters:
+An RPC query contains the following parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
@@ -482,6 +482,58 @@ A query contains the following parameters:
     "rpc/syscache": "read",
     "sysadm/lifepreserver": "read/write",
     "sysadm/network": "read/write"
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "rpc"
+ }
+
+To identify the type of SysAdm system, use an "identify" query. Possible identities are "server", "bridge", and "client".
+
+This type of query contains the following parameters:
+
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| **Parameter**                   | **Value**     | **Description**                                                                                                      |
+|                                 |               |                                                                                                                      |
++=================================+===============+======================================================================================================================+
+| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| name                            | identify      |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| namespace                       | rpc           |                                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+| args                            |               | can be any data                                                                                                      |
+|                                 |               |                                                                                                                      |
++---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /rpc/identify
+ {}
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {},
+   "namespace" : "rpc",
+   "id" : "fooid",
+   "name" : "identify"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "type": "server"
   },
   "id": "fooid",
   "name": "response",
