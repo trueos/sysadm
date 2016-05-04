@@ -16,9 +16,9 @@ BridgeConnection::BridgeConnection(QWebSocket *sock, QString ID){
   SOCKET = sock;
   SockPeerIP = SOCKET->peerAddress().toString();
   idletimer = new QTimer(this);
-    idletimer->setInterval(IDLETIMEOUTMINS*60000); //connection timout for idle sockets
+    idletimer->setInterval(30000); //connection timout for idle sockets
     idletimer->setSingleShot(true);
-  connect(idletimer, SIGNAL(timeout()), this, SLOT(checkgonintendoIdle()) );
+  connect(idletimer, SIGNAL(timeout()), this, SLOT(checkAuth()) );
   connect(SOCKET, SIGNAL(textMessageReceived(const QString&)), this, SLOT(EvaluateMessage(const QString&)) );
   connect(SOCKET, SIGNAL(binaryMessageReceived(const QByteArray&)), this, SLOT(EvaluateMessage(const QByteArray&)) );
   connect(SOCKET, SIGNAL(aboutToClose()), this, SLOT(SocketClosing()) );
@@ -175,13 +175,7 @@ void BridgeConnection::checkAuth(){
 
 void BridgeConnection::SocketClosing(){
   qDebug() << "Connection Closing: " << SockPeerIP;
-  if(idletimer->isActive()){ 
-    //This means the client deliberately closed the connection - not the idle timer
-    //qDebug() << " - Client Closed Connection";
-    idletimer->stop(); 
-  }else{
-    //qDebug() << "idleTimer not running";
-  }
+  if(idletimer->isActive()){ idletimer->stop(); }
   //Stop any current requests
 
   //Reset the pointer
@@ -192,16 +186,12 @@ void BridgeConnection::SocketClosing(){
 
 void BridgeConnection::EvaluateMessage(const QByteArray &msg){
   //qDebug() << "New Binary Message:";
-  if(idletimer->isActive()){ idletimer->stop(); }
-  idletimer->start(); 
   InjectMessage( QString(msg) );
   //qDebug() << " - Done with Binary Message";
 }
 
 void BridgeConnection::EvaluateMessage(const QString &msg){ 
   //qDebug() << "New Text Message:";
-  if(idletimer->isActive()){ idletimer->stop(); }
-  idletimer->start(); 
   InjectMessage(msg); 
   //qDebug() << " - Done with Text Message";
 }
