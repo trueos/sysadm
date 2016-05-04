@@ -13,7 +13,7 @@
 BridgeServer::BridgeServer() : QWebSocketServer("sysadm-bridge", QWebSocketServer::SecureMode){
   //Setup all the various settings
   //AUTH = new AuthorizationManager();
-  //connect(AUTH, SIGNAL(BlockHost(QHostAddress)), this, SLOT(BlackListConnection(QHostAddress)) );
+  connect(AUTHSYSTEM, SIGNAL(BlockHost(QHostAddress)), this, SLOT(BlackListConnection(QHostAddress)) );
 }
 
 BridgeServer::~BridgeServer(){
@@ -92,7 +92,7 @@ bool BridgeServer::allowConnection(QHostAddress addr){
   if(!CONFIG->contains(key) ){ return true; } //not in the list
   //Address on the list - see if the timeout has expired 
   QDateTime dt = CONFIG->value(key,QDateTime()).toDateTime();
-  if(dt.addSecs(CONFIG->value("blacklist_settings/blockmins",60).toInt()*60) < QDateTime::currentDateTime()){
+  if(dt.addSecs(CONFIG->value("blacklist_settings/block_minutes",60).toInt()*60) < QDateTime::currentDateTime()){
     //This entry has timed out - go ahead and allow it
     CONFIG->remove(key); //make the next connection check for this IP faster again
     return true;

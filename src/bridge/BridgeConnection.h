@@ -30,6 +30,7 @@ private:
 
 	void InjectMessage(QString msg);
 	void HandleAPIMessage(QString msg);
+
 private slots:
 	void checkIdle(); //see if the currently-connected client is idle
 	void checkAuth(); //see if the currently-connected client has authed yet

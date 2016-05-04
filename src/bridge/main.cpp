@@ -12,9 +12,9 @@
 
 #define DEBUG 0
 
-//Create any global classes
+//Create any global classes/settings
 QSettings *CONFIG = new QSettings(SETTINGSFILE, QSettings::IniFormat);
-
+AuthorizationManager *AUTHSYSTEM = new AuthorizationManager();
 
 //Set the defail values for the global config variables
 /*int BlackList_BlockMinutes = 60;
@@ -59,7 +59,9 @@ int main( int argc, char ** argv )
 	if(!info.contains("=")){ continue; } //invalid format
 	QString var = info.section("=",0,0); QString val = info.section("=",1,-1);
 	qDebug() << "Changing bridge setting:" << info;
-        if(var=="blacklist/blockmins"){ CONFIG->setValue("blacklist_settings/blockmins",val.toInt()); }
+        if(var=="blacklist/block_minutes"){ CONFIG->setValue("blacklist_settings/block_minutes",val.toInt()); }
+        else if(var=="blacklist/fails_to_block"){ CONFIG->setValue("blacklist_settings/fails_to_block",val.toInt()); }
+        //else if(var=="blacklist_settings/block_minutes"){ CONFIG->setValue("blacklist_settings/block_minutes",val.toInt()); }
       }
       else if( (QString(argv[i])=="-port" || QString(argv[i])=="-p") && (i+1<argc)){ i++; port = QString(argv[i]).toUInt(); }
       else if( QString(argv[i])=="-set" && i+1<argc){ settingchange = true; }
@@ -84,7 +86,7 @@ int main( int argc, char ** argv )
     //Create the two servers and connect them
     qDebug() << "Starting the PC-BSD sysadm bridge....";
     BridgeServer server;
-      
+     
     //Start the servers
     int ret = 1; //error return value
     if(!server.startServer(port)){ qDebug() << "Could not start bridge server on port:" << port; }

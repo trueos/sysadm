@@ -77,7 +77,7 @@ QStringList BridgeConnection::JsonArrayToStringList(QJsonArray array){
 
 void BridgeConnection::InjectMessage(QString msg){
   //See if this message is directed to the bridge itself, or a client
-  if(msg.startsWith("{")){
+  if(msg.startsWith("{") || !AUTHSYSTEM->checkAuth(SockAuthToken) ){
     HandleAPIMessage(msg);
   }else{
     //Need to read the destination off the message first
@@ -119,10 +119,35 @@ void BridgeConnection::HandleAPIMessage(QString msg){
     out.insert("id", JM.value("id"));
     out.insert("namespace", namesp);
     out.insert("name","reponse");
-    QJsonObject outargs;
+    QJsonValue outargs;
     //There is only a short list of API calls the bridge is capable of:
     if(namesp == "rpc" && name=="identify"){
-      outargs.insert("type","bridge");
+      QJsonObject tmp;
+        tmp.insert("type","bridge");
+      outargs = tmp;
+
+    }else if(namesp == "rpc" && name=="auth_ssl"){
+      if(!args.contains("encrypted_string")){
+        //Stage 1 - send a random string to encrypt
+        QString key = AUTHSYSTEM->GenerateEncCheckString();
+        QJsonObject obj; obj.insert("test_string", key);
+	outargs = obj;
+      }else{
+        //Stage 2 - verify returned encrypted string
+        SockAuthToken = AUTHSYSTEM->LoginUC(SOCKET->peerAddress(),args.value("encrypted_string").toString() );
+        if(AUTHSYSTEM->checkAuth(SockAuthToken)){
+          QJsonArray array;
+	    array.append(SockAuthToken);
+	    array.append(AUTHSYSTEM->checkAuthTimeoutSecs(SockAuthToken));
+	  outargs = array;
+        }else{
+          out.insert("name","error");
+          outargs = "unauthorized";
+        }
+      }
+    }else if(AUTHSYSTEM->checkAuth(SockAuthToken)){
+      //Valid auth - a couple more API calls available here
+
     }else{
       out.insert("name","error"); //unknown API call
     }
@@ -142,10 +167,10 @@ void BridgeConnection::checkIdle(){
 }
 
 void BridgeConnection::checkAuth(){
- //if(!AUTHSYSTEM->checkAuth(SockAuthToken)){
+ if(!AUTHSYSTEM->checkAuth(SockAuthToken)){
     //Still not authorized - disconnect
-    //checkIdle();
-  //}
+    checkIdle();
+  }
 }
 
 void BridgeConnection::SocketClosing(){

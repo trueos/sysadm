@@ -6,12 +6,13 @@ QT = core network websockets
 
 HEADERS	+= globals.h \
 		BridgeServer.h \
-		BridgeConnection.h
+		BridgeConnection.h \
+		AuthorizationManager.h
 		
 SOURCES	+= main.cpp \
 		BridgeServer.cpp \
-		BridgeConnection.cpp
-
+		BridgeConnection.cpp \
+		AuthorizationManager.cpp
 
 
 TARGET=sysadm-bridge
@@ -25,4 +26,4 @@ INSTALLS += target scripts
 
 QMAKE_LIBDIR = /usr/local/lib/qt5 /usr/local/lib
 INCLUDEPATH += /usr/local/include
-LIBS += -L/usr/local/lib -lpam -lutil -lssl -lcrypto
+LIBS += -L/usr/local/lib -lutil -lssl -lcrypto
