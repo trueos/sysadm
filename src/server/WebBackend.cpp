@@ -164,6 +164,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSettingsRequest(const QJsonV
   }else if(act=="list_ssl_certs"){
     AUTHSYSTEM->ListCertificates(SockAuthToken, out);
     ok = true; //always works for current user (even if nothing found)
+  }else if(act=="list_ssl_checksums"){
+    AUTHSYSTEM->ListCertificateChecksums(out);
+    ok = true;
   }else if(act=="revoke_ssl_cert" && keys.contains("pub_key") ){
     //Additional arguments: "user" (optional), "pub_key" (String)
     QString user; if(keys.contains("user")){ user = argsO.value("user").toString(); }

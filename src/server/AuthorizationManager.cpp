@@ -7,6 +7,8 @@
 
 #include "globals.h"
 
+#include <QCryptographicHash>
+
 // Stuff for PAM to work
 #include <sys/types.h>
 #include <security/pam_appl.h>
@@ -123,6 +125,22 @@ void AuthorizationManager::ListCertificates(QString token, QJsonObject *out){
     user.insert(key,info);
   }
   if(!user.isEmpty() && !username.isEmpty()){ out->insert(username, user); }
+}
+
+void AuthorizationManager::ListCertificateChecksums(QJsonObject *out){
+ QStringList keys; //Format: "RegisteredCerts/<user>/<key>"
+    //Read all user's certs (since we only need checksums)
+    keys = CONFIG->allKeys().filter("RegisteredCerts/");
+  keys.sort();
+  QJsonArray arr;
+  QCryptographicHash chash(QCryptographicHash::Md5);
+  for(int i=0; i<keys.length(); i++){
+    chash.addData( CONFIG->value(keys[i]).toString().toLocal8Bit() );
+    QByteArray res = chash.result();
+    chash.reset();
+    arr << QString(res);
+  }
+  out->insert("md5_keys", arr);
 }
 
 //Generic functions
