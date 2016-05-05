@@ -37,4 +37,9 @@
 
 #define SETTINGSFILE "/var/db/sysadm-bridge.ini"
 
+#define SYSADM_BRIDGE
+#include "AuthorizationManager.h"
+
 extern QSettings* CONFIG;
+extern AuthorizationManager* AUTHSYSTEM;
+
