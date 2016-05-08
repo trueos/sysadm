@@ -106,7 +106,7 @@ if [ -z "$APITESTPAYLOAD" ] ; then
 fi
 
 # Source our resty functions
-#. ./utils/resty -W "https://127.0.0.1:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${fuser}:${fpass}
+#. ./utils/resty -W "https://45.32.222.81:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${APITESTUSER}:${APITESTPASS}
 
 # Save output to a file in addition to stdout
 #ofile="/tmp/api-response"
@@ -122,7 +122,7 @@ fi
 #echo "" | tee -a $ofile
 #echo "REST Response:" | tee -a $ofile
 #echo "-------------------------------" | tee -a $ofile
-#PUT /${namesp}/${name} "${payload}" -v -k 2>/tmp/.rstErr | tee -a $ofile
+#PUT /${APITESTNAMESPACE}/${APITESTCLASS} "${APITESTPAYLOAD}" -v -k 2>/tmp/.rstErr | tee -a $ofile
 #if [ $? -ne 0 ] ; then
 #  echo "Failed.. Error output:"
 #  cat /tmp/.rstErr
