@@ -409,16 +409,13 @@ When submitting a job to the dispatcher, keep the following points in mind:
   commands are run sequentially until either a command fails (returns non-0 or the process crashes), or until there are no more commands to run.
 
 * A chain of commands is useful for multi-step operations but is not considered a replacement for a good shell script on the server.
- 
-.. index:: query, identify, rpc
-   
+    
 .. _Server Subsystems:
 
 Server Subsystems
 =================
 
-An RPC query can be issued to probe all the known subsystems and return which ones are currently available and what level of read and write access the user has.
-An RPC query contains the following parameters:
+The RPC namespace can be used to get information about SysAdm server subsystems. This namespace supports the following parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
@@ -427,7 +424,7 @@ An RPC query contains the following parameters:
 | id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | query         |                                                                                                                      |
+| name                            |               | supported names are "query", "identify", and "list_ssl_checksums"                                                    |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | namespace                       | rpc           |                                                                                                                      |
@@ -436,6 +433,17 @@ An RPC query contains the following parameters:
 | args                            |               | can be any data                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+
+The rest of this section provides examples of the available *names* for each type of request, along with their responses. 
+
+.. index:: query, rpc
+
+.. _Query Subsystems:
+
+Query Subsystems
+----------------
+
+An RPC query can be issued to probe all the known subsystems and return which ones are currently available and what level of read and write access the user has.
 
 **REST Request**
 
@@ -488,26 +496,14 @@ An RPC query contains the following parameters:
   "namespace": "rpc"
  }
 
-To identify the type of SysAdm system, use an "identify" query. Possible identities are "server", "bridge", and "client".
+.. index:: identify, rpc
 
-This type of query contains the following parameters:
+.. _Identify Subsystem:
 
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                                                                      |
-|                                 |               |                                                                                                                      |
-+=================================+===============+======================================================================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | identify      |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | rpc           |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| args                            |               | can be any data                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
+Identify Subsystem
+------------------
+ 
+To identify the type of SysAdm system, use "identify". Possible identities are "server", "bridge", and "client".
 
 **REST Request**
 
@@ -534,6 +530,52 @@ This type of query contains the following parameters:
  {
   "args": {
     "type": "server"
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "rpc"
+ }
+ 
+.. index:: list_ssl_checksums, rpc
+
+.. _List SSL Checksums:
+
+List SSL Checksums
+------------------
+
+Use "list_ssl_checksums" to list the MD5 checksums of all known SSL keys. 
+
+**REST Request**
+
+.. code-block:: json
+
+ PUT /rpc/settings
+ {
+   "action" : "list_ssl_checksums"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "list_ssl_checksums"
+   },
+   "namespace" : "rpc",
+   "name" : "settings",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "md5_keys": [
+      "0`H\u0013\r*\u00023\u000bc"
+    ]
   },
   "id": "fooid",
   "name": "response",

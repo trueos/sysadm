@@ -106,7 +106,7 @@ if [ -z "$APITESTPAYLOAD" ] ; then
 fi
 
 # Source our resty functions
-. ./utils/resty -W "https://127.0.0.1:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${fuser}:${fpass}
+. ./utils/resty -W "https://127.0.0.1:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${APITESTUSER}:${APITESTPASS}
 
 # Save output to a file in addition to stdout
 ofile="/tmp/api-response"
@@ -130,6 +130,7 @@ fi
 rm $ofile
 rm /tmp/.rstErr
 exit 0;
+
 
 # Now check the response via WebSockets
 export NODE_TLS_REJECT_UNAUTHORIZED=0
