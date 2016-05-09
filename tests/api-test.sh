@@ -12,8 +12,8 @@
 # Default values
 DEFUSER="root"
 DEFNAMESPACE="sysadm"
-DEFCLASS="logs"
-DEFACTION="{\"action\":\"read_logs\",\"time_format\":\"relative_second\",\"start_time\":\"-3600\"}"
+DEFCLASS="systemmanager"
+DEFACTION="{\"action\":\"procinfo\"}"
 
 # Set variable to call jsawk utility
 JSAWK="./utils/jsawk -j js24"
@@ -106,29 +106,30 @@ if [ -z "$APITESTPAYLOAD" ] ; then
 fi
 
 # Source our resty functions
-#. ./utils/resty -W "https://127.0.0.1:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${fuser}:${fpass}
+. ./utils/resty -W "https://127.0.0.1:12151" -H "Accept: application/json" -H "Content-Type: application/json" -u ${fuser}:${fpass}
 
 # Save output to a file in addition to stdout
-#ofile="/tmp/api-response"
-#echo "" > /tmp/api-response
+ofile="/tmp/api-response"
+echo "" > /tmp/api-response
 
 # Check the reply of this REST query
-#echo "" | tee -a $ofile
-#echo "REST Request:" | tee -a $ofile
-#echo "-------------------------------" | tee -a $ofile
-#echo "PUT /${namesp}/${name}" | tee -a $ofile
-#echo "${payload}" | perl -0007 -MJSON -ne'print to_json(from_json($_, {allow_nonref=>1}),{pretty=>1})."\n"' | tee -a $ofile
+echo "" | tee -a $ofile
+echo "REST Request:" | tee -a $ofile
+echo "-------------------------------" | tee -a $ofile
+echo "PUT /${APITESTNAMESPACE}/${APITESTCLASS}" | tee -a $ofile
+echo "${APITESTPAYLOAD}" | perl -0007 -MJSON -ne'print to_json(from_json($_, {allow_nonref=>1}),{pretty=>1})."\n"' | tee -a $ofile
 
-#echo "" | tee -a $ofile
-#echo "REST Response:" | tee -a $ofile
-#echo "-------------------------------" | tee -a $ofile
-#PUT /${namesp}/${name} "${payload}" -v -k 2>/tmp/.rstErr | tee -a $ofile
-#if [ $? -ne 0 ] ; then
-#  echo "Failed.. Error output:"
-#  cat /tmp/.rstErr
-#fi
-#rm $ofile
-#rm /tmp/.rstErr
+echo "" | tee -a $ofile
+echo "REST Response:" | tee -a $ofile
+echo "-------------------------------" | tee -a $ofile
+PUT /${APITESTNAMESPACE}/${APITESTCLASS} "${APITESTPAYLOAD}" -v -k #2>/tmp/.rstErr | tee -a $ofile
+if [ $? -ne 0 ] ; then
+  echo "Failed.. Error output:"
+  cat /tmp/.rstErr
+fi
+rm $ofile
+rm /tmp/.rstErr
+exit 0;
 
 # Now check the response via WebSockets
 export NODE_TLS_REJECT_UNAUTHORIZED=0
