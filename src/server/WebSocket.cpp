@@ -131,7 +131,7 @@ void WebSocket::EvaluateREST(QString msg){
 }
 
 void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
-  //qDebug() << "Evaluate Request:" << REQ.namesp << REQ.name << REQ.args;
+  qDebug() << "Evaluate Request:" << REQ.namesp << REQ.name << REQ.args;
   RestOutputStruct out;
     out.in_struct = REQ;
   QHostAddress host;
@@ -150,7 +150,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
       AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
       SockAuthToken = AUTHSYSTEM->LoginUP(host, out.in_struct.auth.section(":",0,0), out.in_struct.auth.section(":",1,1));
     }
-	  
+  //qDebug() << "Auth Token:" << SockAuthToken;
     //Now check the body of the message and do what it needs
 if(out.in_struct.namesp.toLower() == "rpc"){
   if(out.in_struct.name == "identify"){
@@ -377,19 +377,23 @@ void WebSocket::ParseIncoming(){
   // Check if we have a complete JSON request waiting to be parsed
   QString JsonRequest;
   for ( int i = 0; i<incomingbuffer.size(); i++) {
-    JsonRequest = incomingbuffer;
-    JsonRequest.truncate(i);
-    if ( !QJsonDocument::fromBinaryData(JsonRequest.toLocal8Bit()).isNull() )
+    if(incomingbuffer[i]!='}'){ continue; } //only look for the end of a JSON block
+    JsonRequest = incomingbuffer.left(i+1);
+    //REST requests will have non-JSON at the top - trim that off
+    JsonRequest = "{"+JsonRequest.section("{",1,-1);
+    //JsonRequest.truncate(i);
+    //qDebug() << "Check JSON:" << JsonRequest;
+    if ( !QJsonDocument::fromJson(JsonRequest.toLocal8Bit()).isNull() )
     {
       // We have what looks like a valid JSON request, lets parse it now
       //qDebug() << "TCP Message" << JsonRequest;
-      EvaluateREST(JsonRequest);
+      EvaluateREST(incomingbuffer.left(i+1)); //send the full message
       incomingbuffer.remove(0, i);
       found = true;
       break;
     }
   }
-
+  //if(!found){ qDebug() << "Bad Message:" << incomingbuffer; }
   // If the buffer is larger than 128000 chars and no valid JSON somebody
   // is screwing with us, lets clear the buffer
   if ( ! found && incomingbuffer.size() > 128000 ) {
