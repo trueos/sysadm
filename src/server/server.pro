@@ -7,7 +7,6 @@ QT = core network websockets concurrent sql
 HEADERS	+= globals.h globals-qt.h \
 		WebServer.h \
 		WebSocket.h \
-#		syscache-client.h \
 		RestStructs.h \
 		AuthorizationManager.h \ 
 		SslServer.h \
@@ -18,9 +17,9 @@ HEADERS	+= globals.h globals-qt.h \
 SOURCES	+= main.cpp \
 		WebServer.cpp \
 		WebSocket.cpp \
+		RestStructs.cpp \
 		WebBackend.cpp \
 		WebBackendSlots.cpp \
-#		syscache-client.cpp \
 		AuthorizationManager.cpp \
 		EventWatcher.cpp \
 		LogManager.cpp \

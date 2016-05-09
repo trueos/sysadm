@@ -33,8 +33,8 @@ private:
 	void ParseIncoming();
 
 	//Main connection comminucations procedure
-	void EvaluateREST(QString); //Text -> Rest/JSON struct
-	void EvaluateRequest(const RestInputStruct&); // Parse Rest/JSON (does auth/events)
+	void EvaluateREST(QString); //STAGE 1 response: Text -> Rest/JSON struct
+	void EvaluateRequest(const RestInputStruct&); //STAGE 2 response: Parse Rest/JSON (does auth/events)
 
 	//Simplification functions
 	QString JsonValueToString(QJsonValue);
@@ -82,9 +82,9 @@ private slots:
 	void SocketClosing();
 
 	//Currently connected socket signal/slot connections
-	void EvaluateMessage(const QByteArray&); 
-	void EvaluateMessage(const QString&);
-	void EvaluateTcpMessage();
+	void EvaluateMessage(const QByteArray&); //initial message input (raw bytes - WebSocket)
+	void EvaluateMessage(const QString&); //initial message input (text - WebSocket)
+	void EvaluateTcpMessage(); //initial message input (text - REST)
 
 	//SSL signal handling
 	void nowEncrypted(); //the socket/connection is now encrypted

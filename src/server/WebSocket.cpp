@@ -90,9 +90,12 @@ void WebSocket::sendReply(QString msg){
 
 void WebSocket::EvaluateREST(QString msg){
   //Parse the message into it's elements and proceed to the main data evaluation
-  RestInputStruct IN(msg);
-  //NOTE: All the REST functionality is disabled for the moment, until we decide to turn it on again at a later time (just need websockets right now - not full REST)	
-
+  RestInputStruct IN(msg, TSOCKET!=0);	
+  if(SOCKET!=0 && !IN.Header.isEmpty()){
+    //Bridge-relay message - need to decrypt the message body before it can be parsed
+    //IN.Body = AUTHSYSTEM->decryptString(IN.Body, key); //TO-DO
+    IN.ParseBodyIntoJson();
+  }
   if(DEBUG){
     qDebug() << "New REST Message:";
     qDebug() << "  VERB:" << IN.VERB << "URI:" << IN.URI;
@@ -120,7 +123,6 @@ void WebSocket::EvaluateREST(QString msg){
       out.Header << "Content-Type: text/json; charset=utf-8";
     this->sendReply(out.assembleMessage());
   }else{
-    //EvaluateRequest(IN);
     if(IN.name.startsWith("auth") || (IN.namesp.toLower()=="rpc" && IN.name.toLower()=="identify") ){
       //Keep auth/pre-auth system requests in order
       EvaluateRequest(IN);
@@ -278,12 +280,19 @@ if(out.in_struct.namesp.toLower() == "rpc"){
     }
   }
   //Return any information
-  
+  QString msg = out.assembleMessage();
+  if(SOCKET!=0 && !REQ.Header.isEmpty()){
+    //BRIDGE RELAY - alternate format
+    //Need to encrypt the message for output (TO-DO)
+    //msg = AUTHSYSTEM->encryptString(msg, key);
+    //Now add the destination ID
+    msg.prepend( REQ.Header.join("\n")+"\n");
+  }
   if(out.CODE == RestOutputStruct::FORBIDDEN && SOCKET!=0 && SOCKET->isValid()){
-    this->sendReply(out.assembleMessage());
+    this->sendReply(msg);
     SOCKET->close(QWebSocketProtocol::CloseCodeNormal, "Too Many Authorization Failures - Try again later");
   }else{
-    this->emit SendMessage(out.assembleMessage());	  
+    this->emit SendMessage(msg);	  
   }
 }
 
