@@ -128,14 +128,14 @@ void AuthorizationManager::ListCertificates(QString token, QJsonObject *out){
 }
 
 void AuthorizationManager::ListCertificateChecksums(QJsonObject *out){
- QStringList keys; //Format: "RegisteredCerts/<user>/<key>"
+ QStringList keys; //Format: "RegisteredCerts/<user>/<key>" (value is full text)
     //Read all user's certs (since we only need checksums)
     keys = CONFIG->allKeys().filter("RegisteredCerts/");
   keys.sort();
   QJsonArray arr;
   QCryptographicHash chash(QCryptographicHash::Md5);
   for(int i=0; i<keys.length(); i++){
-    chash.addData( CONFIG->value(keys[i]).toString().toLocal8Bit() );
+    chash.addData( keys[i].section("/",2,-1).toLocal8Bit() );
     QByteArray res = chash.result();
     chash.reset();
     arr << QString(res);
