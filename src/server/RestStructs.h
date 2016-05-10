@@ -25,6 +25,8 @@ public:
 	//JSON input variables
 	QString name, namesp, id, auth;
 	QJsonValue args;
+	QString bridgeID;
+
 	//Raw Text
 	QStringList Header; //REST Headers
 	QString Body; //Everything else

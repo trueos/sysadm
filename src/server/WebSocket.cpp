@@ -142,6 +142,11 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
   QHostAddress host;
     if(SOCKET!=0 && SOCKET->isValid()){ host = SOCKET->peerAddress(); }
     else if(TSOCKET!=0 && TSOCKET->isValid()){ host = TSOCKET->peerAddress(); }
+  QString cur_auth_tok = SockAuthToken;
+  if(!REQ.bridgeID.isEmpty()){
+    cur_auth_tok.clear();
+    if(BRIDGE.contains(REQ.bridgeID)){ cur_auth_tok = BRIDGE[REQ.bridgeID].auth_tok; }
+  }
   if(!REQ.VERB.isEmpty() && REQ.VERB != "GET" && REQ.VERB!="POST" && REQ.VERB!="PUT"){
     //Non-supported request (at the moment) - return an error message
     out.CODE = RestOutputStruct::BADREQUEST;
@@ -155,7 +160,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
       AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
       SockAuthToken = AUTHSYSTEM->LoginUP(host, out.in_struct.auth.section(":",0,0), out.in_struct.auth.section(":",1,1));
     }
-  //qDebug() << "Auth Token:" << SockAuthToken;
+  //qDebug() << "Auth Token:" << cur_auth_tok;
     //Now check the body of the message and do what it needs
 if(out.in_struct.namesp.toLower() == "rpc"){
   if(out.in_struct.name == "identify"){
@@ -166,57 +171,68 @@ if(out.in_struct.namesp.toLower() == "rpc"){
   }else if(out.in_struct.name.startsWith("auth")){
     //Now perform authentication based on type of auth given
     //Note: This sets/changes the current SockAuthToken
-    AUTHSYSTEM->clearAuth(SockAuthToken); //new auth requested - clear any old token
+   AUTHSYSTEM->clearAuth(cur_auth_tok);  //new auth requested - clear any old token
+
     if(DEBUG){ qDebug() << "Authenticate Peer:" << host; }
     //Now do the auth
-    if(out.in_struct.name=="auth" && out.in_struct.args.isObject() ){
+    if(out.in_struct.name=="auth" && out.in_struct.args.isObject() && !isBridge ){
 	    //username/[password/cert] authentication
 	    QString user, pass;
 	    if(out.in_struct.args.toObject().contains("username")){ user = JsonValueToString(out.in_struct.args.toObject().value("username"));  }
 	    if(out.in_struct.args.toObject().contains("password")){ pass = JsonValueToString(out.in_struct.args.toObject().value("password"));  }
 	    
 	      //Use the given password
-	      SockAuthToken = AUTHSYSTEM->LoginUP(host, user, pass);
+	      cur_auth_tok = AUTHSYSTEM->LoginUP(host, user, pass);
     }else if(out.in_struct.name=="auth_ssl"){
       if(out.in_struct.args.isObject() && out.in_struct.args.toObject().contains("encrypted_string")){
         //Stage 2: Check the returned encrypted/string
-	SockAuthToken = AUTHSYSTEM->LoginUC(host, JsonValueToString(out.in_struct.args.toObject().value("encrypted_string")) );
+	cur_auth_tok = AUTHSYSTEM->LoginUC(host, JsonValueToString(out.in_struct.args.toObject().value("encrypted_string")) );
       }else{
         //Stage 1: Send the client a random string to encrypt with their SSL key
         QString key = AUTHSYSTEM->GenerateEncCheckString();
         QJsonObject obj; obj.insert("test_string", key);
 	out.out_args = obj;
         out.CODE = RestOutputStruct::OK;
-	this->sendReply(out.assembleMessage());
+        QString msg = out.assembleMessage();
+        if(SOCKET!=0 && !REQ.bridgeID.isEmpty()){
+          //BRIDGE RELAY - alternate format
+          //Need to encrypt the message for output (TO-DO)
+         QString key = BRIDGE[REQ.bridgeID].enc_key;
+         if(!key.isEmpty()){ msg = AUTHSYSTEM->encryptString(msg, key); }
+          //Now add the destination ID
+          msg.prepend( REQ.bridgeID+"\n");
+        }
+	this->sendReply(msg);
 	return;
       }
-    }else if(out.in_struct.name == "auth_token" && out.in_struct.args.isObject()){
-       SockAuthToken = JsonValueToString(out.in_struct.args.toObject().value("token"));
+    }else if(out.in_struct.name == "auth_token" && out.in_struct.args.isObject()  && !isBridge){
+       cur_auth_tok = JsonValueToString(out.in_struct.args.toObject().value("token"));
     }else if(out.in_struct.name == "auth_clear"){
        return; //don't send a return message after clearing an auth (already done)
     }
 	  
 	  //Now check the auth and respond appropriately
-	  if(AUTHSYSTEM->checkAuth(SockAuthToken)){
+	  if(AUTHSYSTEM->checkAuth(cur_auth_tok)){
 	    //Good Authentication - return the new token 
 	    QJsonArray array;
-	      array.append(SockAuthToken);
-	      array.append(AUTHSYSTEM->checkAuthTimeoutSecs(SockAuthToken));
+	      array.append(cur_auth_tok);
+	      array.append(AUTHSYSTEM->checkAuthTimeoutSecs(cur_auth_tok));
 	    out.out_args = array;
 	    out.CODE = RestOutputStruct::OK;
+	    if(REQ.bridgeID.isEmpty()){ SockAuthToken = cur_auth_tok; }
+            else{ BRIDGE[REQ.bridgeID].auth_tok = cur_auth_tok; }
 	  }else{
 	    if(SockAuthToken=="REFUSED"){
 	      out.CODE = RestOutputStruct::FORBIDDEN;
 	    }
-	    SockAuthToken.clear(); //invalid token
 	    //Bad Authentication - return error
 	      out.CODE = RestOutputStruct::UNAUTHORIZED;
 	  }
 		
-	}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
+	}else if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token	 
 	  //Now provide access to the various subsystems
 	  // First get/set the permissions flag into the input structure
-	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
+	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(cur_auth_tok);
 	  //Pre-set any output fields
     QJsonObject outargs;	
 	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
@@ -228,7 +244,7 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 	    	
 }else if(out.in_struct.namesp.toLower() == "events"){
 	//qDebug() << "Got Event subsytem request" << out.in_struct.args;
-          if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
+          if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token	 
 	    //Pre-set any output fields
             QJsonObject outargs;	
 	    //Assemble the list of input events
@@ -264,10 +280,10 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 	    out.CODE = RestOutputStruct::UNAUTHORIZED;
 	  }
 	//Other namespace - check whether auth has already been established before continuing
-}else if( AUTHSYSTEM->checkAuth(SockAuthToken) ){ //validate current Authentication token	 
+}else if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token	 
 	  //Now provide access to the various subsystems
 	  // First get/set the permissions flag into the input structure
-	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(SockAuthToken);
+	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(cur_auth_tok);
 	  //Pre-set any output fields
           QJsonObject outargs;	
 	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
@@ -284,12 +300,13 @@ if(out.in_struct.namesp.toLower() == "rpc"){
   }
   //Return any information
   QString msg = out.assembleMessage();
-  if(SOCKET!=0 && !REQ.Header.isEmpty()){
+  if(SOCKET!=0 && !REQ.bridgeID.isEmpty()){
     //BRIDGE RELAY - alternate format
     //Need to encrypt the message for output (TO-DO)
-    //msg = AUTHSYSTEM->encryptString(msg, key);
+    QString key = BRIDGE[REQ.bridgeID].enc_key;
+    if(!key.isEmpty()){ msg = AUTHSYSTEM->encryptString(msg, key); }
     //Now add the destination ID
-    msg.prepend( REQ.Header.join("\n")+"\n");
+    msg.prepend( REQ.bridgeID+"\n");
   }
   if(out.CODE == RestOutputStruct::FORBIDDEN && SOCKET!=0 && SOCKET->isValid()){
     this->sendReply(msg);

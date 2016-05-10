@@ -18,7 +18,8 @@ RestInputStruct::RestInputStruct(QString message, bool isRest){
       Body = "{"+message.section("{",1, -1);
     }else{
       //Encrypted message body (via sysadm-bridge?)
-      Header << message.section("\n",0,0);
+      bridgeID = message.section("\n",0,0);
+      Header << bridgeID;
       Body = message.section("\n",1,-1);
     }
   }else{

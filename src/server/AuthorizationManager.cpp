@@ -292,6 +292,14 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
   }
 }
 
+QString AuthorizationManager::encryptString(QString msg, QString key){
+
+}
+
+QString AuthorizationManager::decryptString(QString msg, QString key){
+
+}
+
 // =========================
 //               PRIVATE
 // =========================

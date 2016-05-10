@@ -36,6 +36,9 @@ public:
 	//Stage 2 SSL Login Check: Verify that the returned/encrypted string can be decoded and matches the initial random string
 	QString LoginUC(QHostAddress host, QString encstring); 
 	
+	//Message Encryption/decryption methods
+	QString encryptString(QString msg, QString key);
+	QString decryptString(QString msg, QString key);
 
 private:
 	QHash<QString, QDateTime> HASH;
