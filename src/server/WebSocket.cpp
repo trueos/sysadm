@@ -13,6 +13,7 @@
 
 WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
   SockID = ID;
+  isBridge = false;
   SockAuthToken.clear(); //nothing set initially
   SOCKET = sock;
   TSOCKET = 0;
@@ -126,6 +127,8 @@ void WebSocket::EvaluateREST(QString msg){
     if(IN.name.startsWith("auth") || (IN.namesp.toLower()=="rpc" && IN.name.toLower()=="identify") ){
       //Keep auth/pre-auth system requests in order
       EvaluateRequest(IN);
+    }else if(isBridge && (IN.name=="response" || (IN.namesp=="events" && IN.name=="bridge") ) ){
+      EvaluateResponse(IN);
     }else{
       QtConcurrent::run(this, &WebSocket::EvaluateRequest, IN);
     }
@@ -296,6 +299,20 @@ if(out.in_struct.namesp.toLower() == "rpc"){
   }
 }
 
+void WebSocket::EvaluateResponse(const RestInputStruct& IN){
+  if(IN.namesp=="events" && IN.name=="bridge"){
+    QStringList bids = JsonArrayToStringList(IN.args.toObject().value("available_connections").toArray());
+    QStringList keys = BRIDGE.keys();
+    for(int i=0; i<keys.length(); i++){
+      if(bids.contains(keys[i])){ bids.removeAll(keys[i]);  } //already handled
+      else{ AUTHSYSTEM->clearAuth(BRIDGE[keys[i]].auth_tok); BRIDGE.remove(keys[i]); } //no longer available
+    }
+    //Now add any new bridge ID's to the hash
+    for(int i=0; i<bids.length(); i++){
+      BRIDGE.insert(bids[i], bridge_data());
+    }
+  }
+}
 // === GENERAL PURPOSE UTILITY FUNCTIONS ===
 QString WebSocket::JsonValueToString(QJsonValue val){
   //Note: Do not use this on arrays - only use this on single-value values

@@ -11,6 +11,10 @@
 #include "RestStructs.h"
 #include "AuthorizationManager.h"
 
+struct bridge_data{
+  QString enc_key, auth_tok;
+};
+
 class WebSocket : public QObject{
 	Q_OBJECT
 public:
@@ -28,13 +32,19 @@ private:
 	AuthorizationManager *AUTHSYSTEM;
 	QList<EventWatcher::EVENT_TYPE> ForwardEvents;
 
+	//Data handling for bridged connections (1 connection for multiple clients)
+	QHash<QString, bridge_data> BRIDGE; //ID/data
+	bool isBridge;
+
 	// Where we store incoming Tcp data
 	QString incomingbuffer;
 	void ParseIncoming();
 
-	//Main connection comminucations procedure
+	//Main connection communications procedure
 	void EvaluateREST(QString); //STAGE 1 response: Text -> Rest/JSON struct
 	void EvaluateRequest(const RestInputStruct&); //STAGE 2 response: Parse Rest/JSON (does auth/events)
+	//Response handling 
+	void EvaluateResponse(const RestInputStruct&);
 
 	//Simplification functions
 	QString JsonValueToString(QJsonValue);
