@@ -18,11 +18,15 @@ public:
 	void forwardMessage(QString msg);
 	bool isServer();
 
+	QStringList validKeySums();
+
 private:
 	QTimer *idletimer;
 	QWebSocket *SOCKET;
 	QString SockID, SockAuthToken, SockPeerIP;
 	bool serverconn;
+	QStringList knownkeys;
+	QStringList lastKnownConnections;
 
 	//Simplification functions
 	QString JsonValueToString(QJsonValue);
@@ -46,10 +50,13 @@ private slots:
 	void SslError(const QList<QSslError>&); //sslErrors() signal
 	
 public slots:
+	void requestKeyList();
+	void announceIDAvailability(QStringList IDs);
 
 signals:
 	void SocketClosed(QString); //ID
-	void SocketMessage(QString, QString);
+	void SocketMessage(QString, QString); //toID / Message
+	void keysChanged(QString, bool, QStringList); //ID, isServer,  goodkeys
 };
 
 #endif

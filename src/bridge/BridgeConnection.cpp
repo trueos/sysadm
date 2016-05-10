@@ -43,6 +43,14 @@ void BridgeConnection::forwardMessage(QString msg){
  if(SOCKET!=0 && SOCKET->isValid()){ SOCKET->sendTextMessage(msg); }
 }
 
+bool BridgeConnection::isServer(){
+  return serverconn;
+}
+
+QStringList BridgeConnection::validKeySums(){
+  return knownkeys;
+}
+
 //=======================
 //             PRIVATE
 //=======================
@@ -108,6 +116,13 @@ void BridgeConnection::HandleAPIMessage(QString msg){
       QString id = JM.value("id").toString();
       if(id=="sysadm_bridge_request_ident"){
         serverconn = (JM.value("args").toObject().value("type").toString() == "server");
+      }else if("bridge_request_list_keys"){
+        QStringList keys = JsonArrayToStringList(JM.value("args").toObject().value("md5_keys").toArray());
+        //Now see what has changed (if anything)
+        if(keys!=knownkeys){
+          knownkeys = keys;
+          emit keysChanged(SockID, serverconn, knownkeys);
+        }
       }
      //no response needed
   }else{
@@ -140,6 +155,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
 	    array.append(SockAuthToken);
 	    array.append(AUTHSYSTEM->checkAuthTimeoutSecs(SockAuthToken));
 	  outargs = array;
+          QTimer::singleShot(10 ,this, SLOT(requestKeyList()) );
         }else{
           out.insert("name","error");
           outargs = "unauthorized";
@@ -213,3 +229,30 @@ void BridgeConnection::SslError(const QList<QSslError> &err){ //sslErrors() sign
 // ======================
 //       PUBLIC SLOTS
 // ======================
+void BridgeConnection::requestKeyList(){
+  if(!AUTHSYSTEM->checkAuth(SockAuthToken)){ return; } //not authorized yet
+  QJsonObject obj;
+    obj.insert("id","bridge_request_list_keys");
+    obj.insert("namespace","rpc");
+    obj.insert("name","settings");
+    QJsonObject args;
+      args.insert("action","list_ssl_checksums");
+    obj.insert("args",args);
+
+  SOCKET->sendTextMessage( QJsonDocument(obj).toJson(QJsonDocument::Compact) );
+}
+
+void BridgeConnection::announceIDAvailability(QStringList IDs){
+  if(!AUTHSYSTEM->checkAuth(SockAuthToken)){ return; } //not authorized yet
+  if(lastKnownConnections == IDs){ return; } //don't announce changes when nothing changed
+  lastKnownConnections = IDs; //save for comparison later
+  QJsonObject obj;
+    obj.insert("id","");
+    obj.insert("namespace","events");
+    obj.insert("name","bridge");
+    QJsonObject args;
+      args.insert("available_connections",QJsonArray::fromStringList(IDs));
+    obj.insert("args",args);
+
+  SOCKET->sendTextMessage( QJsonDocument(obj).toJson(QJsonDocument::Compact) );
+}

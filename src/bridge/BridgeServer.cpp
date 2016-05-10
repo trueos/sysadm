@@ -12,12 +12,11 @@
 //=======================
 BridgeServer::BridgeServer() : QWebSocketServer("sysadm-bridge", QWebSocketServer::SecureMode){
   //Setup all the various settings
-  //AUTH = new AuthorizationManager();
   connect(AUTHSYSTEM, SIGNAL(BlockHost(QHostAddress)), this, SLOT(BlackListConnection(QHostAddress)) );
 }
 
 BridgeServer::~BridgeServer(){
-  //delete AUTH;
+
 }
 
 bool BridgeServer::startServer(quint16 port){
@@ -125,6 +124,7 @@ void BridgeServer::NewSocketConnection(){
   //qDebug() << "New Socket Connection";	
   connect(sock, SIGNAL(SocketClosed(QString)), this, SLOT(SocketClosed(QString)) );
   connect(sock, SIGNAL(SocketMessage(QString, QString)), this, SLOT(SendMessage(QString, QString)) );
+  connect(sock, SIGNAL(keysChanged(QString, bool, QStringList)), this, SLOT(announceKeyChange(QString, bool, QStringList)) );
   OpenSockets << sock;
 }
 
@@ -182,4 +182,25 @@ void BridgeServer::SocketClosed(QString ID){
     if(OpenSockets[i]->ID()==ID){ delete OpenSockets.takeAt(i); break; }
   }
   QTimer::singleShot(0,this, SLOT(NewSocketConnection()) ); //check for a new connection
+}
+
+// Connection Keys Changed
+void BridgeServer::announceKeyChange(QString ID, bool isServer, QStringList keys){
+  for(int c = 0; c<OpenSockets.length(); c++){
+    bool server = OpenSockets[c]->isServer();
+    QStringList keys = OpenSockets[c]->validKeySums();
+    keys.removeDuplicates();
+    QStringList IDs;
+    for(int i=0; i<OpenSockets.length(); i++){
+      if(i==c){ continue; } //current socket
+      else if(OpenSockets[i]->isServer() != server){ //look for a server/client pair
+        //compare keys to look for matches
+        QStringList chkkeys = OpenSockets[i ]->validKeySums();
+        chkkeys.removeDuplicates();
+        chkkeys << keys;
+        if(chkkeys.removeDuplicates() > 0){ IDs << OpenSockets[i]->ID(); }
+      }
+    }//end inner loop of sockets
+    OpenSockets[c]->announceIDAvailability(IDs);
+  } //end loop over sockets to check
 }

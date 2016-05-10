@@ -49,6 +49,8 @@ private slots:
 	void PeerVerifyError(const QSslError&);			//peerVerifyError() signal
 	void SslErrors(const QList<QSslError>&);	//sslErrors() signal
 	void SocketClosed(QString ID);
+	// Connection Keys Changed
+	void announceKeyChange(QString ID, bool isServer, QStringList keys);
 
 signals:
 	void ForwardMessage(QString, QString); //toID, msg
