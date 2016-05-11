@@ -46,6 +46,7 @@ private:
 
 	QString generateNewToken(bool isOperator, QString name);
 	QStringList getUserGroups(QString user);
+	bool local_checkActive(QString user);
 
 	//Failure count management
 	bool BumpFailCount(QString host);

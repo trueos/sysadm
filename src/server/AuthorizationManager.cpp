@@ -8,6 +8,7 @@
 #include "globals.h"
 
 #include <QCryptographicHash>
+#include "library/sysadm-general.h" //simplification functions
 
 // Stuff for PAM to work
 #include <sys/types.h>
@@ -171,7 +172,7 @@ QString AuthorizationManager::LoginUP(QHostAddress host, QString user, QString p
     if(!localhost || user=="root" || user=="toor"){
       ok = pam_checkPW(user,pass);
     }else{
-      ok = true; //allow local access for users without password
+      ok = local_checkActive(user); //allow local access for users without password
     }
   }
   qDebug() << "User Login Attempt:" << user << " Success:" << ok << " IP:" << host.toString();
@@ -337,6 +338,23 @@ QStringList AuthorizationManager::getUserGroups(QString user){
   QStringList out = QString(proc.readAllStandardOutput()).remove("\n").split(" ");
   //qDebug() << "Found Groups for user:" << user << out;
   return out;	
+}
+
+bool AuthorizationManager::local_checkActive(QString user){
+  //Check for X Sessions first (don't show up with normal login verification tools)
+  QDir xdir("/tmp/.X11-unix");
+  qDebug() << "Check local user activity:" << user;
+  if(xdir.exists() && !xdir.entryList(QDir::System | QDir::NoDotAndDotDot, QDir::Name).isEmpty() ){
+    //Found an active graphical session - check for active processes associated with the user
+    QString res = sysadm::General::RunCommand("ps",QStringList() << "-U" << user << "-x");
+    //qDebug() << "PS list length:" << res.split("\n").length();
+    return (res.split("\n").length()>2); //more than 1 active process for this user (labels + shell/desktop + tool used to communicate with sysadm)
+  }else{
+    //No X sessions - look for normal login sessions
+   QStringList active =  sysadm::General::RunCommand("users").section("\n",0,0).split(" ");
+   //qDebug() << "active users" << active;
+   return active.contains(user);
+  }
 }
 
 bool AuthorizationManager::BumpFailCount(QString host){
