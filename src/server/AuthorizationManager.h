@@ -32,7 +32,9 @@ public:
 	QString LoginService(QHostAddress host, QString service); //Login a particular automated service
 
 	//Stage 1 SSL Login Check: Generation of random string for this user
-	QString GenerateEncCheckString(); 
+	QString GenerateEncCheckString();  //generate random string (server is receiver w/ pub key)
+	QString GenerateEncString_bridge(QString str); //encrypt random string (server is initiator w/ private key)
+
 	//Stage 2 SSL Login Check: Verify that the returned/encrypted string can be decoded and matches the initial random string
 	QString LoginUC(QHostAddress host, QString encstring); 
 	

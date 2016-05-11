@@ -231,6 +231,35 @@ QString AuthorizationManager::GenerateEncCheckString(){
   return key;
 }
 
+QString AuthorizationManager::GenerateEncString_bridge(QString str){
+  //Get the private key
+  return str; //NOT IMPLEMENTED YET
+  QByteArray privkey = "";//SSL_cfg.privateKey().toPem();
+  
+  //Now use this private key to encode the given string
+  unsigned char encode[4098] = {};
+  RSA *rsa= NULL;
+  BIO *keybio = NULL;
+  keybio = BIO_new_mem_buf(privkey.data(), -1);
+  if(keybio==NULL){ return ""; }
+  rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa,NULL, NULL);
+  if(rsa==NULL){ return ""; }
+  int len = RSA_private_encrypt(str.length(), (unsigned char*)(str.toLatin1().data()), encode, rsa, RSA_PKCS1_PADDING);
+  if(len <0){ return ""; }
+  else{ 
+    //Now return this as a base64 encoded string
+    QByteArray str_encode( (char*)(encode), len);
+    /*qDebug() << "Encoded String Info";
+    qDebug() << " - Raw string:" << str << "Length:" << str.length();
+    qDebug() << " - Encoded string:" << str_encode << "Length:" << str_encode.length();*/
+    str_encode = str_encode.toBase64();
+    /*qDebug() << " - Enc string (base64):" << str_encode << "Length:" << str_encode.length();
+    qDebug() << " - Enc string (QString):" << QString(str_encode);*/
+    return QString( str_encode ); 
+  }
+
+}
+
 //Stage 2 SSL Login Check: Verify that the returned/encrypted string can be decoded and matches the initial random string
 QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
   //Login w/  SSL certificate
@@ -294,11 +323,12 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
 }
 
 QString AuthorizationManager::encryptString(QString msg, QString key){
-
+  //do nothing yet
+  return msg;
 }
 
 QString AuthorizationManager::decryptString(QString msg, QString key){
-
+  return msg; //do nothing yet
 }
 
 // =========================

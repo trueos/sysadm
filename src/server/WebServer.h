@@ -28,7 +28,8 @@ private:
 	SslServer *TCPServer;
 	QList<WebSocket*> OpenSockets;
 	AuthorizationManager *AUTH;
-	
+	QTimer *bridgeTimer;	
+
 	//Server Setup functions
 	bool setupWebSocket(quint16 port);
 	bool setupTcp(quint16 port);
@@ -55,6 +56,9 @@ private slots:
 	void PeerVerifyError(const QSslError&);			//peerVerifyError() signal
 	void SslErrors(const QList<QSslError>&);	//sslErrors() signal
 	void SocketClosed(QString ID);
+
+	// BRIDGE Connection checks
+	void checkBridges();
 
 signals:
 	//void DispatchStatusUpdate(QString);

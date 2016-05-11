@@ -15,6 +15,9 @@ WebServer::WebServer(){
   //Setup all the various settings
   WSServer = 0;
   TCPServer = 0;
+  bridgeTimer = new QTimer(this);
+    bridgeTimer->setInterval(5*60*1000); //5 minutes
+    connect(bridgeTimer, SIGNAL(timeout()), this, SLOT(checkBridges()) );
   AUTH = new AuthorizationManager();
   connect(AUTH, SIGNAL(BlockHost(QHostAddress)), this, SLOT(BlackListConnection(QHostAddress)) );
 }
@@ -30,7 +33,7 @@ bool WebServer::startServer(quint16 port, bool websocket){
     qDebug() << " - Version:" << QSslSocket::sslLibraryVersionString();
   }
   bool ok = false;
-  if(websocket){ ok	= setupWebSocket(port); }
+  if(websocket){ ok = setupWebSocket(port); }
   else{ ok = setupTcp(port); }
   
   if(ok){ 
@@ -41,11 +44,15 @@ bool WebServer::startServer(quint16 port, bool websocket){
   }else{ 
     qCritical() << "Could not start server - exiting..."; 
   }
-  
+  if(ok && websocket){
+    bridgeTimer->start();
+    QTimer::singleShot(5, this, SLOT(checkBridges()));
+  }
   return ok;
 }
 
 void WebServer::stopServer(){
+  if(bridgeTimer->isActive()){ bridgeTimer->stop(); }
   if(WSServer!=0){ WSServer->close(); } //note - this will throw the "closed()" signal when done
   else if(TCPServer!=0){ TCPServer->close(); QCoreApplication::exit(0);} //no corresponding signal
 }
@@ -205,4 +212,9 @@ void WebServer::SocketClosed(QString ID){
     if(OpenSockets[i]->ID()==ID){ delete OpenSockets.takeAt(i); break; }
   }
   QTimer::singleShot(0,this, SLOT(NewSocketConnection()) ); //check for a new connection
+}
+
+// BRIDGE Connection checks
+void WebServer::checkBridges(){
+
 }

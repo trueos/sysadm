@@ -20,6 +20,7 @@ class WebSocket : public QObject{
 public:
 	WebSocket(QWebSocket*, QString ID, AuthorizationManager *auth);
 	WebSocket(QSslSocket*, QString ID, AuthorizationManager *auth);
+	WebSocket(QUrl, QString ID, AuthorizationManager *auth); //sets up a bridge connection (websocket only)
 	~WebSocket();
 
 	QString ID();
@@ -105,6 +106,9 @@ private slots:
 	void slotIohyveFetchDone(QString, int, QString);
 	void slotIohyveFetchProcessOutput(QString);
 	
+	//Bridge Connection Handling
+	void startBridgeAuth();
+
 public slots:
 	void EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue = QJsonValue() );
 
