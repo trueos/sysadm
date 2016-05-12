@@ -191,6 +191,7 @@ To subscribe to the Life Preserver subsystem for event updates, use the followin
   }
  }
  
+
 System State
 ------------
 
@@ -235,3 +236,23 @@ To subscribe to the System State subsystem for event updates, use the following:
   }
  }
  
+Bridge
+------
+
+Bridge events are automatically received by any system connected to a bridge, with no subscription required. This event will get sent out any time a new connection/disconnection is made from the bridge which impacts the current connection.
+A client will only get the event when a server connects/disconnects or vice versa.
+
+**Websocket Reply: Connected Bridge**
+
+.. code-block:: json
+
+  {
+    "id" : "",
+    "namespace" : "events",
+    "name" : "bridge",
+    "args" : {
+      "available_connections" : ["ID1", "ID2", "<etc..>"]
+      }
+  }
+
+.. note:: available_connections are **all** the connections available at the time, **not** a difference from a previous state. There may be both new ID's in the list and ID's which are no longer listed.
