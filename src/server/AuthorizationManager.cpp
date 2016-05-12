@@ -233,9 +233,12 @@ QString AuthorizationManager::GenerateEncCheckString(){
 
 QString AuthorizationManager::GenerateEncString_bridge(QString str){
   //Get the private key
-  return str; //NOT IMPLEMENTED YET
-  QByteArray privkey = "";//SSL_cfg.privateKey().toPem();
-  
+  QFile keyfile("/usr/local/etc/sysadm/ws_bridge.key");
+    keyfile.open(QIODevice::ReadOnly);
+  QSslKey key(&keyfile, QSsl::Rsa);
+  QByteArray privkey = key.toPem();
+  keyfile.close();
+
   //Now use this private key to encode the given string
   unsigned char encode[4098] = {};
   RSA *rsa= NULL;

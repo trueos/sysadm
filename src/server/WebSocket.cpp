@@ -59,7 +59,7 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
   QTimer::singleShot(30000, this, SLOT(checkAuth()));
 }
 
-WebSocket::WebSocket(QUrl url, QString ID, AuthorizationManager *auth){
+WebSocket::WebSocket(QString url, QString ID, AuthorizationManager *auth){
   //sets up a bridge connection (websocket only)
   SockID = ID;
   isBridge = true;
@@ -81,7 +81,12 @@ WebSocket::WebSocket(QUrl url, QString ID, AuthorizationManager *auth){
   connect(SOCKET, SIGNAL(connected()), this, SLOT(startBridgeAuth()) );
   //idletimer->start(); //do not idle out on a bridge connection
   /*QTimer::singleShot(30000, this, SLOT(checkAuth()));*/
-  SOCKET->open(url);
+  //Assemble the URL as needed
+  if(!url.startsWith("wss://")){ url.prepend("wss://"); }
+  bool hasport = false;
+  url.section(":",-1).toInt(&hasport); //check if the last piece of the url is a valid number
+  if(!hasport){ url.append(":"+QString::number(BRIDGEPORTNUMBER)); }
+  SOCKET->open(QUrl(url));
 }
 
 WebSocket::~WebSocket(){
@@ -99,6 +104,15 @@ WebSocket::~WebSocket(){
 
 QString WebSocket::ID(){
   return SockID;
+}
+
+void WebSocket::closeConnection(){
+  if(SOCKET!=0 && SOCKET->isValid()){
+    SOCKET->close();
+  }
+  if(TSOCKET!=0 && TSOCKET->isValid()){
+    TSOCKET->close();
+  }
 }
 
 //=======================
@@ -285,6 +299,10 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 	      for(int i=0; i<evlist.length(); i++){
 	        EventWatcher::EVENT_TYPE type = EventWatcher::typeFromString(evlist[i]);
 		//qDebug() << " - type:" << type;
+		if(isBridge){ 
+                  ForwardEvents.clear();
+                  if(!REQ.bridgeID.isEmpty()){ ForwardEvents = BRIDGE[REQ.bridgeID].sendEvents; }
+                }
 		if(type==EventWatcher::BADEVENT){ continue; }
 		outargs.insert(out.in_struct.name,QJsonValue(evlist[i]));
 		if(sub==1){ 
@@ -293,6 +311,7 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 		}else{
 		  ForwardEvents.removeAll(type);
 		}
+                if(isBridge && !REQ.bridgeID.isEmpty()){ BRIDGE[REQ.bridgeID].sendEvents = ForwardEvents; }
 	      }
 	      out.out_args = outargs;
 	      out.CODE = RestOutputStruct::OK;
@@ -542,14 +561,29 @@ void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QJsonValue msg){
   //qDebug() << "Got Socket Event Update:" << msg;
   if(msg.isNull()){ msg = EVENTS->lastEvent(evtype); }
   if(msg.isNull()){ return; } //nothing to send
-  if( !ForwardEvents.contains(evtype) ){ return; }
+  if( !ForwardEvents.contains(evtype) && !isBridge ){ return; }
   RestOutputStruct out;
     out.CODE = RestOutputStruct::OK;
     out.in_struct.namesp = "events";
     out.out_args = msg;
-    out.Header << "Content-Type: text/json; charset=utf-8"; //REST header info
+    //out.Header << "Content-Type: text/json; charset=utf-8"; //REST header info
     out.in_struct.name = EventWatcher::typeToString(evtype);
   //qDebug() << "Send Event:" << out.assembleMessage();
-  //Now send the message back through the socket
-  this->emit SendMessage(out.assembleMessage());
+  if(isBridge){
+    QString raw = out.assembleMessage();
+    QStringList conns = BRIDGE.keys();
+    for(int i=0; i<conns.length(); i++){
+      if( !BRIDGE[conns[i]].sendEvents.contains(evtype) ){ continue; }
+      //Encrypt the data with the proper key
+      QString key = BRIDGE[conns[i]].enc_key;
+      QString enc_data = raw;
+      if(!key.isEmpty()){ enc_data = AUTHSYSTEM->encryptString(raw, key); }
+      //Now add the destination ID
+      enc_data.prepend( conns[i]+"\n");
+      this->emit SendMessage(enc_data);
+    }
+  }else{
+    //NON-BRIDGE: Now send the message back through the socket
+    this->emit SendMessage(out.assembleMessage());
+  }
 }

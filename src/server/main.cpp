@@ -25,6 +25,7 @@ bool WS_MODE = false;
 int BlackList_BlockMinutes = 60;
 int BlackList_AuthFailsToBlock = 5;
 int BlackList_AuthFailResetMinutes = 10;
+bool BRIDGE_ONLY = false;
 
 //Create the default logfile
 QFile logfile;
@@ -64,7 +65,7 @@ inline QString ReadFile(QString path){
 
 int main( int argc, char ** argv )
 {
-    QCoreApplication a(argc, argv);
+    
     //Check whether running as root
     if( getuid() != 0){
       qDebug() << "sysadm-server must be started as root!";
@@ -73,13 +74,44 @@ int main( int argc, char ** argv )
 
     //Evaluate input arguments
     bool websocket = true;
+    bool setonly = false;
     quint16 port = 0;
     for(int i=1; i<argc; i++){
       if( QString(argv[i])=="-rest" ){ websocket = false;}
       else if( QString(argv[i])=="-p" && (i+1<argc) ){ i++; port = QString(argv[i]).toUInt(); }
+      else if( QString(argv[i]).startsWith("bridge_") ){
+        setonly = true;
+        QString opt = QString(argv[i]).section("_",1,-1);
+        if(opt=="list"){
+          QStringList bridges = CONFIG->allKeys().filter("bridge_connections/");
+          qDebug() << "Current Bridges:";
+          for(int i=0; i<bridges.length(); i++){
+            qDebug() << bridges[i].section("/",1,-1) + " ("+CONFIG->value(bridges[i]).toString()+")";
+          }
+        }else if(opt=="add" && argc > i+2){
+          QString name = QString(argv[i+1]);
+          QString url = QString(argv[i+2]);
+          CONFIG->setValue("bridge_connections/"+name, url);
+	  qDebug() << "New Bridge Added:" << name+" ("+url+")";
+          i=i+2;
+        }else if(opt=="remove" && argc>i+1){
+          QString name = QString(argv[i+1]);
+          CONFIG->remove("bridge_connections/"+name);
+          qDebug() << "Bridge Removed:" << name;
+          i=i+1;
+        }else{
+          qDebug() << "Unknown option:" << argv[i];
+          return 1;
+        }
+      }else{
+        qDebug() << "Unknown option:" << argv[1];
+        return 1;
+      }
     }
+    if(setonly){ CONFIG->sync(); return 0; }
     WS_MODE = websocket; //set the global variable too
-    
+
+    QCoreApplication a(argc, argv);
     //Now load the config file
     QStringList conf = ReadFile(CONFFILE).split("\n");
     if(!conf.filter("[internal]").isEmpty()){
@@ -123,7 +155,11 @@ int main( int argc, char ** argv )
       int tmp = conf.filter(rg).first().section("=",1,1).simplified().toInt(&ok);
       if(ok){ BlackList_AuthFailResetMinutes = tmp; }
     }
-    
+    rg = QRegExp("BRIDGE_CONNECTIONS_ONLY=*",Qt::CaseSensitive,QRegExp::Wildcard);
+    if(!conf.filter(rg).isEmpty()){
+      BRIDGE_ONLY = conf.filter(rg).first().section("=",1,1).simplified().toLower()=="true";
+    }    
+
     //Setup the log file
     LogManager::checkLogDir(); //ensure the logging directory exists
     if(!websocket){ logfile.setFileName("/var/log/sysadm-server-tcp.log"); }

@@ -13,6 +13,7 @@
 
 struct bridge_data{
   QString enc_key, auth_tok;
+  QList<EventWatcher::EVENT_TYPE> sendEvents;
 };
 
 class WebSocket : public QObject{
@@ -20,10 +21,11 @@ class WebSocket : public QObject{
 public:
 	WebSocket(QWebSocket*, QString ID, AuthorizationManager *auth);
 	WebSocket(QSslSocket*, QString ID, AuthorizationManager *auth);
-	WebSocket(QUrl, QString ID, AuthorizationManager *auth); //sets up a bridge connection (websocket only)
+	WebSocket(QString url, QString ID, AuthorizationManager *auth); //sets up a bridge connection (websocket only)
 	~WebSocket();
 
 	QString ID();
+	void closeConnection();
 
 private:
 	QTimer *idletimer;

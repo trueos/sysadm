@@ -20,6 +20,7 @@ extern EventWatcher *EVENTS;
 extern Dispatcher *DISPATCHER;
 
 //Special defines
+#define BRIDGEPORTNUMBER 12149 //Default port for a sysadm-bridge
 #define WSPORTNUMBER 12150 	// WebSocket server default port
 #define PORTNUMBER 12151		// TCP server default port
 
@@ -27,5 +28,6 @@ extern Dispatcher *DISPATCHER;
 extern int BlackList_BlockMinutes;
 extern int BlackList_AuthFailsToBlock;
 extern int BlackList_AuthFailResetMinutes;
+extern bool BRIDGE_ONLY; //bridge-only mode (no listening on a socket)
 
 #endif

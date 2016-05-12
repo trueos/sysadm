@@ -33,7 +33,8 @@ bool WebServer::startServer(quint16 port, bool websocket){
     qDebug() << " - Version:" << QSslSocket::sslLibraryVersionString();
   }
   bool ok = false;
-  if(websocket){ ok = setupWebSocket(port); }
+  if(websocket && BRIDGE_ONLY){ ok = true; }
+  else if(websocket){ ok = setupWebSocket(port); }
   else{ ok = setupTcp(port); }
   
   if(ok){ 
@@ -124,9 +125,11 @@ bool WebServer::allowConnection(QHostAddress addr){
 }
 
 QString WebServer::generateID(){
-  int id = 0;
+  int id = 1; //start integer ID's with 1
   for(int i=0; i<OpenSockets.length(); i++){
-    if(OpenSockets[i]->ID().toInt()>=id){ id = OpenSockets[i]->ID().toInt()+1; }
+    bool ok=false;
+    int num = OpenSockets[i]->ID().toInt(&ok); //some ID's will not be a simple number (bridge connections)
+    if(ok && num>=id){ id = OpenSockets[i]->ID().toInt()+1; }
   }
   return QString::number(id);
 }
@@ -216,5 +219,25 @@ void WebServer::SocketClosed(QString ID){
 
 // BRIDGE Connection checks
 void WebServer::checkBridges(){
-
+  if(!WS_MODE){ return; }
+  //Get all the unique bridge URL's we need connections to
+  QStringList bridgeKeys = CONFIG->allKeys().filter("bridge_connections/");
+  for(int i=0; i<bridgeKeys.length(); i++){
+    bridgeKeys[i] = CONFIG->value(bridgeKeys[i]).toString(); //turn the key into the URL for the bridge  (unique ID)
+  }
+  //Now browse through all the current connections and see if any are already active
+  for(int i=0; i<OpenSockets.length(); i++){
+    if( bridgeKeys.contains( OpenSockets[i]->ID() ) ){
+      bridgeKeys.removeAll( OpenSockets[i]->ID() ); //already running - remove from the temporary list
+    }else if( OpenSockets[i]->ID().toInt()==0 ){
+      //non-integer ID - another bridge connection which must have been removed from the server settings
+      OpenSockets[i]->closeConnection();
+    }
+  }
+  //Now startup any connections which are missing
+  for(int i=0; i<bridgeKeys.length(); i++){
+    WebSocket *sock = new WebSocket(bridgeKeys[i], bridgeKeys[i], AUTH);
+    connect(sock, SIGNAL(SocketClosed(QString)), this, SLOT(SocketClosed(QString)) );
+    OpenSockets << sock;
+  }
 }
