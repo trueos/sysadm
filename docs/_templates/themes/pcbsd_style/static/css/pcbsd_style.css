@@ -2672,8 +2672,7 @@ div[class^='highlight'] pre {
     padding: 0.4045em 2.427em
 }
 .wy-menu-vertical li.current a:hover {
-//    background: #d6d6d6 // HOVER
-    background: #ffcfff
+	background: #5d6369 !important
 }
 .wy-menu-vertical li code,
 .wy-menu-vertical li .rst-content tt,
@@ -2699,19 +2698,19 @@ div[class^='highlight'] pre {
     font-weight: bold;
     position: relative;
 //    background: #fcfcfc;
-    background: #5d6963;
+    background: #808991 !important;
     border: none;
-    border-bottom: solid 1px #5d6963;
-    border-top: solid 1px #5d6963;
+    border-bottom: solid 1px #808991;
+    border-top: solid 1px #808991;
     padding-left: 1.618em -4px
 }
 .wy-menu-vertical li.on a:hover,
 .wy-menu-vertical li.current>a:hover {
-    background: #0d8585
+    background: #5d6369
 }
 .wy-menu-vertical li.on a:hover span.toctree-expand,
 .wy-menu-vertical li.current>a:hover span.toctree-expand {
-    color: white
+    color: #60695d
 }
 .wy-menu-vertical li.on a span.toctree-expand,
 .wy-menu-vertical li.current>a span.toctree-expand {
@@ -2729,17 +2728,17 @@ div[class^='highlight'] pre {
     display: block
 }
 .wy-menu-vertical li.toctree-l2.current>a {
-    background: #5d6963;
+    background: #850d0d;
     padding: 0.4045em 2.427em
 }
-.wy-menu-vertical li.toctree-l2.current li.toctree-l3>a {
+/*level3:#.#.#*/.wy-menu-vertical li.toctree-l2.current li.toctree-l3>a {
     display: block;
 //    background: #c9c9c9;
-    background: #5d6963;
+    background: #850d0d;
     padding: 0.4045em 4.045em
 }
 .wy-menu-vertical li.toctree-l2 a:hover span.toctree-expand {
-    color: gray
+    color: #60695d
 }
 .wy-menu-vertical li.toctree-l2 span.toctree-expand {
     color: #a3a3a3
@@ -2751,16 +2750,16 @@ div[class^='highlight'] pre {
     background: #bdbdbd;
     padding: 0.4045em 4.045em
 }
-.wy-menu-vertical li.toctree-l3.current li.toctree-l4>a {
+/*level4: #.#.#.#*/.wy-menu-vertical li.toctree-l3.current li.toctree-l4>a {
     display: block;
 //    background: #bdbdbd;
-    background: #9c9cFF;
+    background: #890dod;
     padding: 0.4045em 5.663em;
     border-top: none;
     border-bottom: none
 }
 .wy-menu-vertical li.toctree-l3 a:hover span.toctree-expand {
-    color: gray
+    color: #60695d
 }
 .wy-menu-vertical li.toctree-l3 span.toctree-expand {
     color: #969696
@@ -2792,12 +2791,12 @@ div[class^='highlight'] pre {
     font-size: 90%;
     color: #f5f5f5
 }
-.wy-menu-vertical a:hover {
-    background-color: #4e4a4a;
+/*sidebarlevel1 hover color*/.wy-menu-vertical a:hover {
+    background-color: #5d6369;
     cursor: pointer
 }
 .wy-menu-vertical a:hover span.toctree-expand {
-    color: #b3b3b3
+    color: #60695d
 }
 .wy-menu-vertical a:active {
     background-color: #2980B9;
@@ -2842,7 +2841,7 @@ div[class^='highlight'] pre {
 }
 .wy-side-nav-search>a:hover,
 .wy-side-nav-search .wy-dropdown>a:hover {
-    background: rgba(255, 255, 255, 0.1)
+    background: #60695d
 }
 .wy-side-nav-search>a img.logo,
 .wy-side-nav-search .wy-dropdown>a img.logo {
@@ -2865,8 +2864,7 @@ div[class^='highlight'] pre {
     color: #b3b3b3
 }
 .wy-nav .wy-menu-vertical a:hover {
-    background-color: #2980B9;
-    color: #fff
+    background-color: #60695d
 }
 [data-menu-wrap] {
     -webkit-transition: all 0.2s ease-in;
@@ -2910,7 +2908,7 @@ div[class^='highlight'] pre {
     padding-bottom: 2em;
     width: 300px;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: hidden;
     min-height: 100%;
     background: #343131;
     z-index: 200
@@ -3624,7 +3622,11 @@ span[id*='MathJax-Span'] {
 
 .wy-nav-side,
 div.related {
-    background-color: #850d0d!important;
+    background: #a90329;
+	background: -moz-linear-gradient(top, #a90329 0%, #8f0222 44%, #6d0019 100%);
+	background: -webkit-linear-gradient(top, #a90329 0%,#8f0222 44%,#6d0019 100%);
+	background: linear-gradient(to bottom, #a90329 0%,#8f0222 44%,#6d0019 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a90329', endColorstr='#6d0019',GradientType=0 );
     /* was 0f0df0 */
 }
 code.kbd,
@@ -3848,11 +3850,11 @@ margin: 0px 2px -2px 0px;
 .wy-side-nav-search {
     z-index: 200;
     /*background-color: rgb(45, 175,255);*/
-	background-color: -webkit-gradient( linear, right top, right bottom,
-	  color-stop(0.7, #5D6963),
-	  color-stop(1, #850D0D) 
-	  );
-	  background-image: linear-gradient(to bottom, #5D6963 80%, #850D0D 100%);
+	background-color: #b5bdc8;
+	background: -moz-linear-gradient(-45deg, #b5bdc8 0%, #828c95 36%, #28343b 100%);
+	background: -webkit-linear-gradient(-45deg, #b5bdc8 0%,#828c95 36%,#28343b 100%);
+	background: linear-gradient(135deg, #b5bdc8 0%,#828c95 36%,#28343b 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b5bdc8', endColorstr='#28343b',GradientType=1 );
     text-align: center;
     padding: 0.809em;
     display: block;
@@ -3862,7 +3864,7 @@ margin: 0px 2px -2px 0px;
  .wy-nav-content {
     padding: 1.618em 3.236em;
     height: 100%;
-    max-width: 90%;
+    max-width: 95%;
     margin: auto;
 }
 .wy-menu-vertical li.on a, .wy-menu-vertical li.current > a {
