@@ -2841,7 +2841,7 @@ div[class^='highlight'] pre {
 }
 .wy-side-nav-search>a:hover,
 .wy-side-nav-search .wy-dropdown>a:hover {
-    background: #60695d
+    background: rgba(255, 255, 255, 0.1) none repeat scroll 0 0
 }
 .wy-side-nav-search>a img.logo,
 .wy-side-nav-search .wy-dropdown>a img.logo {
