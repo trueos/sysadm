@@ -107,6 +107,22 @@ int main( int argc, char ** argv )
           qDebug() << "Unknown option:" << argv[i];
           return 1;
         }
+      }else if(QString(argv[i])=="-import_ssl_key" && i+3>argc){
+        i++; QString user(argv[i]);
+        i++; QByteArray key(argv[i]);
+        i++; QString nickname(argv[i]);
+        QString email;
+        if(i+1<argc){ i++; email = QString(argv[i]); }
+	//See if the key is a file instead - then read it
+        bool ok = true;
+	if(QFile::exists(key)){ 
+	  QFile file(key);
+          if(file.open(QIODevice::ReadOnly)){ key = file.readAll(); file.close(); }
+          else{ qDebug() << "Could not open file:" << file.fileName(); ok = false; }
+        }	
+	if(ok){ ok = AuthorizationManager::RegisterCertificateInternal(user, key, nickname, email); }
+	if(ok){ qDebug() << "Key Added" << user << nickname; }
+        else{ qDebug() << "Could not add key"; }
       }else{
         qDebug() << "Unknown option:" << argv[1];
         return 1;

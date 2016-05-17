@@ -21,6 +21,7 @@ public:
 
 	//SSL Certificate register/revoke/list (should only run if the current token is valid)
 	bool RegisterCertificate(QString token, QString pubkey, QString nickname, QString email); //if token is valid, register the given cert for future logins
+	static bool RegisterCertificateInternal(QString user, QByteArray pubkey, QString nickname, QString email); //INTERNAL ONLY
 	bool RevokeCertificate(QString token, QString key, QString user=""); //user will be the current user if not empty - cannot touch other user's certs without full perms on current session
 	void ListCertificates(QString token, QJsonObject *out);
 	void ListCertificateChecksums(QJsonObject *out);

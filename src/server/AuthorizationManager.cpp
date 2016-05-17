@@ -86,6 +86,13 @@ bool AuthorizationManager::RegisterCertificate(QString token, QString pubkey, QS
   CONFIG->setValue("RegisteredCerts/"+user+"/"+pubkey, "Nickname: "+nickname+"\nEmail: "+email+"\nDate Registered: "+QDateTime::currentDateTime().toString(Qt::ISODate) );
   return true;
 }
+//
+bool AuthorizationManager::RegisterCertificateInternal(QString user, QByteArray pubkey, QString nickname, QString email){
+  pubkey = pubkey.toBase64();
+  //NOTE: The public key should be saved as a base64 encoded string
+  CONFIG->setValue("RegisteredCerts/"+user+"/"+pubkey, "Nickname: "+nickname+"\nEmail: "+email+"\nDate Registered: "+QDateTime::currentDateTime().toString(Qt::ISODate) );
+  return true;
+}
 
 bool AuthorizationManager::RevokeCertificate(QString token, QString key, QString user){
   //user will be the current user if not empty - cannot touch other user's certs without full perms on current session
