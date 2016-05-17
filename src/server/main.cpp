@@ -99,6 +99,10 @@ int main( int argc, char ** argv )
           CONFIG->remove("bridge_connections/"+name);
           qDebug() << "Bridge Removed:" << name;
           i=i+1;
+        }else if(opt=="export_key"){
+          //Export the public SSL cert used for establishing a connection with a bridge
+	  QString crt = ReadFile("/usr/local/etc/sysadm/ws_bridge.crt");
+	  qDebug() << crt.toLocal8Bit();
         }else{
           qDebug() << "Unknown option:" << argv[i];
           return 1;

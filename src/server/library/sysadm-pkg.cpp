@@ -80,7 +80,7 @@ inline QString openDB(QString repo){
     DB.setHostName("localhost");
     QString path = getRepoFile(repo);
     DB.setDatabaseName(path); //path to the database file
-    qDebug() << "New DB:" << repo << DB.connectionName();
+    //qDebug() << "New DB:" << repo << DB.connectionName();
   return DB.connectionName();
 }
 

@@ -22,7 +22,7 @@ int BlackList_AuthFailsToBlock = 5;
 int BlackList_AuthFailResetMinutes = 10;*/
 
 //Create the default logfile
-QFile logfile;
+/*QFile logfile;
 void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg){
   QString txt;
   switch(type){
@@ -46,7 +46,7 @@ void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
   QTextStream out(&logfile);
   out << txt;
   if(!txt.endsWith("\n")){ out << "\n"; }
-}
+} */
 
 int main( int argc, char ** argv )
 {
@@ -71,7 +71,7 @@ int main( int argc, char ** argv )
      QCoreApplication a(argc, argv);
 
     //Setup the log file
-    logfile.setFileName("/var/log/sysadm-bridge.log");
+    /*logfile.setFileName("/var/log/sysadm-bridge.log");
     if(DEBUG){ qDebug() << "Log File:" << logfile.fileName(); }
       if(QFile::exists(logfile.fileName()+".old")){ QFile::remove(logfile.fileName()+".old"); }
       if(logfile.exists()){ QFile::rename(logfile.fileName(), logfile.fileName()+".old"); }
@@ -82,8 +82,8 @@ int main( int argc, char ** argv )
       }
       logfile.open(QIODevice::WriteOnly | QIODevice::Append);
       qInstallMessageHandler(MessageOutput);
-      
-    //Create the two servers and connect them
+      */
+    //Create the server
     qDebug() << "Starting the PC-BSD sysadm bridge....";
     BridgeServer server;
      
@@ -99,7 +99,7 @@ int main( int argc, char ** argv )
 
     //Cleanup any globals
     delete CONFIG;
-    logfile.close();
+    //logfile.close();
     
     //Return
     return ret;

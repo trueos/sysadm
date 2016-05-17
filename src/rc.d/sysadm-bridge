@@ -33,10 +33,10 @@ sysadm_bridge_stop()
   fi
 }
 
-sysadm_start()
+sysadm_bridge_start()
 {
   export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
-  sysadm_stop
+  sysadm_bridge_stop
   echo "Starting sysadm bridge..."
   command="/usr/local/bin/sysadm-bridge-start"
   daemon -r -P /var/run/sysadm-bridge-daemon.pid -p /var/run/sysadm-bridge.pid $command $flags

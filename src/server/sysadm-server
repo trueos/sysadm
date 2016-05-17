@@ -17,7 +17,7 @@ ssl_keygen()
        -keyout /usr/local/etc/sysadm/wsserver.key \
        -out /usr/local/etc/sysadm/wsserver.crt -days 1024 \
        -subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
-    if [ -ne "/usr/local/etc/sysadm/ws_bridge.key" ]; then
+    if [ ! -e "/usr/local/etc/sysadm/ws_bridge.key" ] ; then
       openssl req -x509 -nodes -newkey rsa:2048 \
         -keyout /usr/local/etc/sysadm/ws_bridge.key \
        -out /usr/local/etc/sysadm/ws_bridge.crt -days 102400 \
