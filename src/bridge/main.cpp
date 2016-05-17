@@ -11,6 +11,7 @@
 #include "BridgeServer.h"
 
 #define DEBUG 0
+#define USELOG 1 //turn this to "0" for dumping all output to the CLI (for debugging)
 
 //Create any global classes/settings
 QSettings *CONFIG = new QSettings(SETTINGSFILE, QSettings::IniFormat);
@@ -22,7 +23,7 @@ int BlackList_AuthFailsToBlock = 5;
 int BlackList_AuthFailResetMinutes = 10;*/
 
 //Create the default logfile
-/*QFile logfile;
+QFile logfile;
 void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg){
   QString txt;
   switch(type){
@@ -46,7 +47,7 @@ void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
   QTextStream out(&logfile);
   out << txt;
   if(!txt.endsWith("\n")){ out << "\n"; }
-} */
+}
 
 int main( int argc, char ** argv )
 {
@@ -65,14 +66,37 @@ int main( int argc, char ** argv )
       }
       else if( (QString(argv[i])=="-port" || QString(argv[i])=="-p") && (i+1<argc)){ i++; port = QString(argv[i]).toUInt(); }
       else if( QString(argv[i])=="-set" && i+1<argc){ settingchange = true; }
-    }
+      else if( QString(argv[i])=="-import_ssl_file" && i+1<argc){
+        i++;
+        QFile file(argv[i]);
+ 	if(!file.open(QIODevice::ReadOnly)){ qDebug() << "Could not open file:" << file.fileName(); }
+        else{
+          QString enc_key;
+          if(file.fileName().endsWith(".crt")){ QSslCertificate cert(&file); enc_key = QString(cert.publicKey().toPem().toBase64()); }
+          else if(file.fileName().endsWith(".key")){ QSslKey key(&file); enc_key = QString(key.toPem().toBase64());  }
+          if(enc_key.isEmpty()){ qDebug() << "Could not read key (need .crt or .key file)"; }
+          else{
+            qDebug() << "Registered Key:" << enc_key << "(base64)";
+            CONFIG->setValue("RegisteredCerts/cli-import/"+enc_key, "Date Registered: "+QDateTime::currentDateTime().toString(Qt::ISODate) );
+          }
+	}
+        settingchange=true;
+      }else if( QString(argv[i])=="-import_ssl_pubkey" && i+1<argc){
+        i++;
+        QString enc_key = QByteArray(argv[i]).toBase64();
+        CONFIG->setValue("RegisteredCerts/cli-import/"+enc_key, "Date Registered: "+QDateTime::currentDateTime().toString(Qt::ISODate) );
+        qDebug() << "Registered Key:" << enc_key << "(base64)";
+        settingchange=true;
+      }
+    } //end loop over argc
     if(settingchange){ return 0; }
 
      QCoreApplication a(argc, argv);
 
     //Setup the log file
-    /*logfile.setFileName("/var/log/sysadm-bridge.log");
-    if(DEBUG){ qDebug() << "Log File:" << logfile.fileName(); }
+    if(USELOG){
+      logfile.setFileName("/var/log/sysadm-bridge.log");
+      if(DEBUG){ qDebug() << "Log File:" << logfile.fileName(); }
       if(QFile::exists(logfile.fileName()+".old")){ QFile::remove(logfile.fileName()+".old"); }
       if(logfile.exists()){ QFile::rename(logfile.fileName(), logfile.fileName()+".old"); }
       //Make sure the parent directory exists
@@ -82,7 +106,7 @@ int main( int argc, char ** argv )
       }
       logfile.open(QIODevice::WriteOnly | QIODevice::Append);
       qInstallMessageHandler(MessageOutput);
-      */
+    }
     //Create the server
     qDebug() << "Starting the PC-BSD sysadm bridge....";
     BridgeServer server;
@@ -99,7 +123,7 @@ int main( int argc, char ** argv )
 
     //Cleanup any globals
     delete CONFIG;
-    //logfile.close();
+    if(USELOG){ logfile.close(); }
     
     //Return
     return ret;
