@@ -108,6 +108,7 @@ int main( int argc, char ** argv )
           return 1;
         }
       }else if(QString(argv[i])=="-import_ssl_key" && i+3>argc){
+        setonly = true;
         i++; QString user(argv[i]);
         i++; QByteArray key(argv[i]);
         i++; QString nickname(argv[i]);
