@@ -72,17 +72,26 @@ inline QString getRepoFile(QString repo){
   if(repo=="local"){  return "/var/db/pkg/local.sqlite"; }
   else{ return ("/var/db/pkg/repo-"+repo+".sqlite"); }	
 }
-inline void checkDB(QString repo){
-  if(!QSqlDatabase::contains(repo)){
-    //First time for this database - set it up
-    QSqlDatabase DB = QSqlDatabase::addDatabase("QSQLITE", repo);
+inline QString openDB(QString repo){
+  //This ensures that each request for a database gets its own unique connection 
+  //  (preventing conflict between concurrent calls)
+    QSqlDatabase DB = QSqlDatabase::addDatabase("QSQLITE", repo+QUuid::createUuid().toString());
     DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
     DB.setHostName("localhost");
     QString path = getRepoFile(repo);
     DB.setDatabaseName(path); //path to the database file
-    qDebug() << "Created pkg DB connection:" << path << DB.connectionName();
-  }
+    qDebug() << "New DB:" << repo << DB.connectionName();
+  return DB.connectionName();
 }
+
+/*inline QSqlDatabase closeDB(QSqlDatabase *DB){
+  qDebug() << " - Close DB:" << DB->connectionName();
+  //completely close/remove the database connection
+  QString conn = DB->connectionName();
+  DB->close();
+  QSqlDatabase::removeDatabase(conn);
+  qDebug() << " - done closing";
+}*/
 
 // =================
 //  MAIN FUNCTIONS
@@ -90,8 +99,9 @@ inline void checkDB(QString repo){
 QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, bool fullresults){
   QJsonObject retObj;
   //if(origins.contains("math/R")){ qDebug() << "pkg_info:" << repo << category; }
-  checkDB(repo); //create if needed
-  QSqlDatabase DB = QSqlDatabase::database(repo);
+  QString dbconn = openDB(repo);
+  if(!dbconn.isEmpty()){  
+  QSqlDatabase DB = QSqlDatabase::database(dbconn);
   if(!DB.isOpen()){ return retObj; } //could not open DB (file missing?)
   //Now do all the pkg info, one pkg origin at a time
   origins.removeAll("");
@@ -198,17 +208,22 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
        //Now insert this information into the main object
        retObj.insert(origin,info);
   } //end loop over pkg matches
+  DB.close();
+  }//end if dbconn exists (force DB out of scope now)
+  //closeDB(&DB);
+  QSqlDatabase::removeDatabase(dbconn);
   return retObj;
 }
 
 QStringList PKG::pkg_search(QString repo, QString searchterm, QStringList searchexcludes, QString category){
-  checkDB(repo); //create if needed
-  QSqlDatabase DB = QSqlDatabase::database(repo);
+  QString dbconn = openDB(repo);
+  QStringList found;
+  if(!dbconn.isEmpty()){  
+  QSqlDatabase DB = QSqlDatabase::database(dbconn);
   if(!DB.isOpen()){ return QStringList(); } //could not open DB (file missing?)
   
   QStringList terms = searchterm.split(" ",QString::SkipEmptyParts);
   searchexcludes.removeAll("");
-  QStringList found;
   QString q_string;
 int numtry = 0;
 while(found.isEmpty() && numtry<2){
@@ -269,13 +284,20 @@ while(found.isEmpty() && numtry<2){
   numtry++;
 } //end while loop  for number of tries
   //if(searchterm=="R"){ qDebug()<< "Search:" << searchterm << category << found; }
+  //disable open queries before closing DB
+  DB.close();
+  //closeDB(&DB);
+ }//end if dbconn exists (force DB out of scope now)
+  QSqlDatabase::removeDatabase(dbconn);
   found.removeDuplicates();
   return found;
 }
 
 QJsonArray PKG::list_categories(QString repo){
-  checkDB(repo); //create if needed
-  QSqlDatabase DB = QSqlDatabase::database(repo);
+  QString dbconn = openDB(repo);
+  QStringList found;
+  if(!dbconn.isEmpty()){  
+  QSqlDatabase DB = QSqlDatabase::database(dbconn);
   if(!DB.isOpen()){ return QJsonArray(); } //could not open DB (file missing?)
 
   //Get all the pkg origins for this repo
@@ -286,18 +308,23 @@ QJsonArray PKG::list_categories(QString repo){
     }
   //Now get all the categories
   QString q_string = "SELECT name FROM categories";
-    QSqlQuery query(q_string, DB);
-    QStringList found;
-    while(query.next()){
-	found << query.value("name").toString(); //need the origin for later
-    }
+  QSqlQuery query(q_string, DB);
+  while(query.next()){
+    found << query.value("name").toString(); //need the origin for later
+  }
     
   //Now check all the categories to ensure that pkgs exist within it
     for(int i=0; i<found.length(); i++){
       if(origins.filter(found[i]+"/").isEmpty()){ found.removeAt(i); i--; }
     }
-    if(!found.isEmpty()){ return QJsonArray::fromStringList(found); }
-    else{ return QJsonArray(); }
+  //Cleanup and return
+  //q_o.clear(); query.clear(); //disable open queries before closing DB
+  DB.close();
+  } //force DB out of scope
+  //closeDB(&DB);
+  QSqlDatabase::removeDatabase(dbconn);
+  if(!found.isEmpty()){ return QJsonArray::fromStringList(found); }
+  else{ return QJsonArray(); }
 }
 
 QJsonArray PKG::list_repos(){
