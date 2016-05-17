@@ -187,10 +187,10 @@ Several actions are available for managing the SSL certificates used for authent
 | id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | sysadm        |                                                                                                                      |
+| name                            | settings      |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | settings      |                                                                                                                      |
+| namespace                       | sysadm        |                                                                                                                      |
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | action                          |               | supported actions include "list_ssl_certs", "register_ssl_cert", and "revoke_ssl_cert"                               |
@@ -206,7 +206,37 @@ The rest of this section provides examples of the available *actions* for each t
 List SSL Certificates
 ---------------------
 
-The "list_ssl_certificates" action lists the known and registered certificates. For each certificate, the response includes the username, public key, and the text of the certificate.
+The "list_ssl_certificates" action lists the known and registered certificates. For each certificate, the response includes the username, public key, and the certificate's details.
+
+**Websocket Request**
+
+.. code-block:: json
+  
+  {  
+  "id" : "example_id",
+  "name" : "settings",
+  "namespace": "sysadm",
+  "args" : {
+    "action" : "list_ssl_certificates"
+    }
+  }
+
+**Websocket Response**
+
+.. code-block:: json
+  
+  {  
+   "id" : "example_id",
+   "name" : "response",
+   "namespace": "sysadm",
+   "args" : {
+      "<user>" : {
+         "<key>" : "<certificate_details>"
+         }
+      }
+  }
+  
+.. note:: the "<key>" value is base64 encoded.
 
 .. index:: register_ssl_cert, settings
 
@@ -219,6 +249,36 @@ The "register_ssl_certificate" action registers the specified certificate on the
 certificate is loaded in any future connections. When using this action, The "pub_key" needs to match the public key of one of the certificates currently loaded into the server/client
 connection.
 
+**Websocket Request**
+
+.. code-block:: json
+  
+  {
+   "id" : "example_id",
+   "name" : "settings",
+   "namespace": "sysadm",
+   "args" : {
+    "action" : "register_ssl_certificate",
+    "pub_key" : "<base64key>",
+    "nickname" : "<example_name>",
+    "email" : "<example_email>"
+    }
+  }
+  
+**Websocket Response**
+
+.. code-block:: json
+  
+  {  
+   "id" : "example_id",
+   "name" : "response",
+   "namespace": "sysadm",
+   "args" : {}
+  }
+
+  
+.. note:: the "nickname" and "email" arguments are optional and may not be seen in all responses
+
 .. index:: revoke_ssl_cert, settings
 
 .. _Revoke a SSL Certificate:
@@ -229,6 +289,32 @@ Revoke a SSL Certificate
 The "revoke_ssl_certificate" action revokes a currently registered certificate so that it can no longer be used for authentication. The "pub_key" must be specified and must match one of the
 keys given by the "list_ssl_certs" action, but does not need to match any currently loaded certificates. The "user" is optional and allows a connection with full administrative privileges to
 revoke a certificate belonging to another user.
+
+**Websocket Request**
+
+.. code-block:: json
+  
+  {
+   "id" : "example_id",
+   "name" : "settings",
+   "namespace": "sysadm",
+   "args" : {
+    "action" : "revoke_ssl_certificate",
+    "pub_key" : "<base64key>",
+    "user" : "<example_user>"
+    }
+  }
+  
+**Websocket Response**
+
+.. code-block:: json
+  
+  {  
+   "id" : "example_id",
+   "name" : "response",
+   "namespace": "sysadm",
+   "args" : {}
+  }
 
 .. note:: if the current user has full administrative access, "list_ssl_certs" will return the registered certificates for all users on the system. Otherwise, it will only return the
    certificates for the current user. Similarly, "revoke_ssl_cert" may be used to remove certificates registered to other users only if the current user/connection has full administrative
