@@ -17,11 +17,6 @@
 QSettings *CONFIG = new QSettings(SETTINGSFILE, QSettings::IniFormat);
 AuthorizationManager *AUTHSYSTEM = new AuthorizationManager();
 
-//Set the defail values for the global config variables
-/*int BlackList_BlockMinutes = 60;
-int BlackList_AuthFailsToBlock = 5;
-int BlackList_AuthFailResetMinutes = 10;*/
-
 //Create the default logfile
 QFile logfile;
 void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg){
@@ -81,15 +76,26 @@ int main( int argc, char ** argv )
           }
 	}
         settingchange=true;
+
       }else if( QString(argv[i])=="-import_ssl_pubkey" && i+1<argc){
         i++;
         QString enc_key = QByteArray(argv[i]).toBase64();
         CONFIG->setValue("RegisteredCerts/cli-import/"+enc_key, "Date Registered: "+QDateTime::currentDateTime().toString(Qt::ISODate) );
         qDebug() << "Registered Key:" << enc_key << "(base64)";
         settingchange=true;
+
+      }else if( QString(argv[i])=="-list_ssl" ){
+        qDebug() << "Known SSL Keys (base64)";
+        settingchange = true;
+        QStringList keys = QStringList(CONFIG->allKeys());//.filter("RegisteredCerts/");
+        for(int i=0; i<keys.length(); i++){
+          qDebug() << keys[i].section("/",2,-1) << CONFIG->value(keys[i]).toString();
+        }
+      }else{
+        qDebug() << "Unknown Option:" << argv[i];
       }
     } //end loop over argc
-    if(settingchange){ return 0; }
+    if(settingchange){ CONFIG->sync(); return 0; }
 
      QCoreApplication a(argc, argv);
 
