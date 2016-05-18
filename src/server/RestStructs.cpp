@@ -44,6 +44,7 @@ RestInputStruct::RestInputStruct(QString message, bool isRest){
   //Now Parse out the Body into the JSON fields and/or arguments structure
   //NOTE: if the body of the message is encrypted, then it needs to be decrypted outside the struct first,
   //  then run the "ParseBodyIntoJson()" function to read/convert the data as needed.
+  qDebug() << "Got request:" << message << isRest << Header << bridgeID;
   if(Header.isEmpty() || isRest){ //no other data processing needed
     ParseBodyIntoJson();
   }
@@ -52,6 +53,7 @@ RestInputStruct::RestInputStruct(QString message, bool isRest){
 RestInputStruct::~RestInputStruct(){}
 
 void RestInputStruct::ParseBodyIntoJson(){
+  if(Body.endsWith("\n")){ Body.chop(1); }
   if(Body.startsWith("{") && Body.endsWith("}") ){
     QJsonDocument doc = QJsonDocument::fromJson(Body.toUtf8());
     if(!doc.isNull() && doc.isObject() ){

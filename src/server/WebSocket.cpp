@@ -175,7 +175,7 @@ void WebSocket::EvaluateREST(QString msg){
 }
 
 void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
-  //qDebug() << "Evaluate Request:" << REQ.namesp << REQ.name << REQ.args;
+  qDebug() << "Evaluate Request:" << REQ.namesp << REQ.name << REQ.args;
   RestOutputStruct out;
     out.in_struct = REQ;
   QHostAddress host;
