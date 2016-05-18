@@ -64,7 +64,8 @@ int main( int argc, char ** argv )
 {
   if(getuid() != 0){ CONFIG = new QSettings("sysadm","bridge"); SSLFILEDIR=CONFIG->fileName().section("/",0,-2); }
   else{ CONFIG = new QSettings("/var/db/sysadm-bridge.ini", QSettings::IniFormat);  SSLFILEDIR="/usr/local/etc/sysadm"; }
-  qDebug() << "Using Config file:" << CONFIG->fileName() << "SSL FILE DIR:" << SSLFILEDIR;
+  qDebug() << "Using Config file:" << CONFIG->fileName();
+  qDebug() << "SSL FILE DIR:" << SSLFILEDIR;
     //Evaluate input arguments
     quint16 port = 12149; //port number
     bool settingchange = false;
@@ -91,10 +92,17 @@ int main( int argc, char ** argv )
  	if(!file.open(QIODevice::ReadOnly)){ qDebug() << "Could not open file:" << file.fileName(); }
         else{
           QString enc_key;
-          if(file.fileName().endsWith(".crt")){ QSslCertificate cert(&file); enc_key = QString(cert.publicKey().toPem().toBase64()); }
-          else if(file.fileName().endsWith(".key")){ QSslKey key(&file); enc_key = QString(key.toPem().toBase64());  }
+          if(file.fileName().endsWith(".crt")){ 
+            QSslCertificate cert(&file, QSsl::Pem); 
+            if(!cert.isNull()){ enc_key = QString(cert.publicKey().toPem().toBase64()); }
+          }else if(file.fileName().endsWith(".key")){ 
+            QSslKey key( &file, QSsl::Rsa, QSsl::Pem, QSsl::PublicKey); 
+            if(!key.isNull()){ enc_key = QString(key.toPem().toBase64()); }
+           }else{
+             qDebug() << "Error: Unknown file type (need .crt or .key file)";
+           }
           file.close();
-          if(enc_key.isEmpty()){ qDebug() << "Could not read key (need .crt or .key file)"; }
+          if(enc_key.isEmpty()){ qDebug() << "ERROR: Could not read file"; }
           else{
             qDebug() << "Registered Key:" << id << enc_key << "(base64)";
             QStringList dupkeys = CONFIG->allKeys().filter("RegisteredCerts/"+id+"/");
@@ -106,8 +114,9 @@ int main( int argc, char ** argv )
  // -------------------------
       }else if( QString(argv[i])=="-import_ssl_pubkey" && i+2<argc){
         i++;  QString id = QString(argv[i]);
-        i++;  QString enc_key = QByteArray(argv[i]).toBase64();
-        qDebug() << "Registered Key:" << id << enc_key << "(base64)";
+        i++;  QByteArray byte(argv[i], strlen(argv[i]) );
+        QString enc_key = byte.toBase64();
+        qDebug() << "Registered Key:" << id << byte << enc_key << "(base64)";
         QStringList dupkeys = CONFIG->allKeys().filter("RegisteredCerts/"+id+"/");
         for(int i=0; i<dupkeys.length(); i++){ CONFIG->remove(dupkeys[i]); }
         CONFIG->setValue("RegisteredCerts/"+id+"/"+enc_key, "Date Registered: "+QDateTime::currentDateTime().toString(Qt::ISODate) );
