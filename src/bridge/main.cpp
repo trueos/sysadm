@@ -14,8 +14,9 @@
 #define USELOG 1 //turn this to "0" for dumping all output to the CLI (for debugging)
 
 //Create any global classes/settings
-QSettings *CONFIG = new QSettings("sysadm","bridge");
+QSettings *CONFIG = 0;
 AuthorizationManager *AUTHSYSTEM = new AuthorizationManager();
+QString SSLFILEDIR;
 
 //Create the default logfile
 QFile logfile;
@@ -61,7 +62,9 @@ qDebug() << "    \"blacklist/fails_to_block\" (integer): Number of times a syste
 
 int main( int argc, char ** argv )
 {
-  qDebug() << "Using Config file:" << CONFIG->fileName();
+  if(getuid() != 0){ CONFIG = new QSettings("sysadm","bridge"); SSLFILEDIR=CONFIG->fileName().section("/",0,-2); }
+  else{ CONFIG = new QSettings("/var/db/sysadm-bridge.ini", QSettings::IniFormat);  SSLFILEDIR="/usr/local/etc/sysadm"; }
+  qDebug() << "Using Config file:" << CONFIG->fileName() << "SSL FILE DIR:" << SSLFILEDIR;
     //Evaluate input arguments
     quint16 port = 12149; //port number
     bool settingchange = false;
@@ -84,11 +87,13 @@ int main( int argc, char ** argv )
       else if( QString(argv[i])=="-import_ssl_file" && i+2<argc){
         i++; QString id = QString(argv[i]);
 	i++; QFile file(argv[i]);
+        settingchange=true;
  	if(!file.open(QIODevice::ReadOnly)){ qDebug() << "Could not open file:" << file.fileName(); }
         else{
           QString enc_key;
           if(file.fileName().endsWith(".crt")){ QSslCertificate cert(&file); enc_key = QString(cert.publicKey().toPem().toBase64()); }
           else if(file.fileName().endsWith(".key")){ QSslKey key(&file); enc_key = QString(key.toPem().toBase64());  }
+          file.close();
           if(enc_key.isEmpty()){ qDebug() << "Could not read key (need .crt or .key file)"; }
           else{
             qDebug() << "Registered Key:" << id << enc_key << "(base64)";
@@ -97,7 +102,7 @@ int main( int argc, char ** argv )
             CONFIG->setValue("RegisteredCerts/"+id+"/"+enc_key, "Date Registered: "+QDateTime::currentDateTime().toString(Qt::ISODate) );
           }
 	}
-        settingchange=true;
+        
  // -------------------------
       }else if( QString(argv[i])=="-import_ssl_pubkey" && i+2<argc){
         i++;  QString id = QString(argv[i]);
@@ -133,8 +138,8 @@ int main( int argc, char ** argv )
 
     //Setup the log file
     if(USELOG){
-      logfile.setFileName("/var/log/sysadm-bridge.log");
-      if(DEBUG){ qDebug() << "Log File:" << logfile.fileName(); }
+      logfile.setFileName(SSLFILEDIR+"/sysadm-bridge.log");
+      qDebug() << "Log File:" << logfile.fileName();
       if(QFile::exists(logfile.fileName()+".old")){ QFile::remove(logfile.fileName()+".old"); }
       if(logfile.exists()){ QFile::rename(logfile.fileName(), logfile.fileName()+".old"); }
       //Make sure the parent directory exists

@@ -4,12 +4,20 @@
 
 ssl_keygen()
 {
-  if [ ! -d "/usr/local/etc/sysadm" ] ; then
-    mkdir -p /usr/local/etc/sysadm
+  #Determine where the files should be placed (based on user)
+  if [ `id -u` != "0" ] ; then
+   DIR="${XDG_CONFIG_HOME}/sysadm"
+  else
+    DIR="/usr/local/etc/sysadm"
   fi
+  #Now ensure the dir exists
+  if [ ! -d "${DIR}" ] ; then
+    mkdir -p ${DIR}
+  fi
+  #Now create the key/crt files
   openssl req -x509 -nodes -newkey rsa:2048 \
-    -keyout /usr/local/etc/sysadm/bridgeserver.key \
-    -out /usr/local/etc/sysadm/bridgeserver.crt -days 1024 \
+    -keyout ${DIR}/bridgeserver.key \
+    -out ${DIR}/bridgeserver.crt -days 1024 \
     -subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
 }
 

@@ -52,7 +52,7 @@ void BridgeServer::sendMessage(QString toID, QString msg){
 bool BridgeServer::setupWebSocket(quint16 port){
   //SSL Configuration
   QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-	QFile CF( QStringLiteral(SSLCERTFILE) ); 
+	QFile CF( SSLFILEDIR +"/"+SSLCERTFILE ); 
 	  if(CF.open(QIODevice::ReadOnly) ){
 	    QSslCertificate CERT(&CF,QSsl::Pem);
 	    config.setLocalCertificate( CERT );
@@ -60,7 +60,7 @@ bool BridgeServer::setupWebSocket(quint16 port){
 	  }else{
 	    qWarning() << "Could not read WS certificate file:" << CF.fileName();
 	  }
-	QFile KF( QStringLiteral(SSLKEYFILE));
+	QFile KF( SSLFILEDIR +"/"+SSLKEYFILE );
 	  if(KF.open(QIODevice::ReadOnly) ){
 	    QSslKey KEY(&KF, QSsl::Rsa, QSsl::Pem);
 	    config.setPrivateKey( KEY );

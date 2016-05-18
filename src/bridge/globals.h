@@ -32,8 +32,8 @@
 
 // SSL Version/File defines
 #define SSLVERSION QSsl::TlsV1_0OrLater
-#define SSLCERTFILE "/usr/local/etc/sysadm/bridgeserver.crt"
-#define SSLKEYFILE "/usr/local/etc/sysadm/bridgeserver.key"
+#define SSLCERTFILE QString("bridgeserver.crt")
+#define SSLKEYFILE QString("bridgeserver.key")
 
 #define SETTINGSFILE "/var/db/sysadm-bridge.ini"
 
@@ -42,4 +42,4 @@
 
 extern QSettings* CONFIG;
 extern AuthorizationManager* AUTHSYSTEM;
-
+extern QString SSLFILEDIR;
