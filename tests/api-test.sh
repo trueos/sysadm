@@ -3,6 +3,7 @@
 # Both resty/jsawk use bash'isms
 
 # Possible environment variables
+# APITESTREST - [yes/no]
 # APITESTUSER - username
 # APITESTPASS - password
 # APITESTNAMESPACE - namespace / sysadm
@@ -58,6 +59,19 @@ if [ ! -d "${HOME}/.npm/wss" ] ; then
     echo "Failed installing wss node module"
     exit 1
   fi
+fi
+
+if [ -z "$APITESTREST" ] ; then
+  echo "Test REST server?"
+  echo -e "[y/N]>\c"
+  read APITESTREST
+  echo ""
+fi
+
+if [ -z "$APITESTREST" -o "$APITESTREST" != "y" ] ; then
+    RESTMODE="no"
+else
+    RESTMODE="yes"
 fi
 
 if [ -z "$APITESTUSER" ] ; then
@@ -144,7 +158,7 @@ rm $ofile >/dev/null 2>/dev/null
 ofile="/tmp/api-response"
 echo "" > $ofile
 
-echo "REST Request:" | tee -a $ofile
+echo "REST Request (example):" | tee -a $ofile
 echo "-------------------------------" | tee -a $ofile
 echo "PUT /${APITESTNAMESPACE}/${APITESTCLASS}" | tee -a $ofile
 echo "${APITESTPAYLOAD}" | perl -0007 -MJSON -ne'print to_json(from_json($_, {allow_nonref=>1}),{pretty=>1})."\n"' | tee -a $ofile
