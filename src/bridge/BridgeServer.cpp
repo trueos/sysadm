@@ -51,6 +51,7 @@ void BridgeServer::sendMessage(QString toID, QString msg){
 //===================
 bool BridgeServer::setupWebSocket(quint16 port){
   //SSL Configuration
+  qDebug() << "SSL Files:" << SSLFILEDIR+"/["+SSLCERTFILE+", "+SSLKEYFILE+"]";
   QSslConfiguration config = QSslConfiguration::defaultConfiguration();
 	QFile CF( SSLFILEDIR +"/"+SSLCERTFILE ); 
 	  if(CF.open(QIODevice::ReadOnly) ){
@@ -112,6 +113,7 @@ QString BridgeServer::generateID(QString name){
 // New Connection Signals
 void BridgeServer::NewSocketConnection(){
   BridgeConnection *sock = 0;
+  qDebug() << "New incoming connection..";
   if(this->hasPendingConnections()){ 
     QWebSocket *ws = this->nextPendingConnection();
     if(allowConnection(ws->peerAddress()) ){

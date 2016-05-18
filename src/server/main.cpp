@@ -107,7 +107,7 @@ int main( int argc, char ** argv )
           qDebug() << "Unknown option:" << argv[i];
           return 1;
         }
-      }else if(QString(argv[i])=="-import_ssl_key" && i+3>argc){
+      }else if(QString(argv[i])=="-import_ssl_key" && i+3<argc){
         setonly = true;
         i++; QString user(argv[i]);
         i++; QByteArray key(argv[i]);

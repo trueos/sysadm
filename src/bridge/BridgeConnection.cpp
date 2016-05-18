@@ -15,6 +15,7 @@ BridgeConnection::BridgeConnection(QWebSocket *sock, QString ID){
   SockAuthToken.clear(); //nothing set initially
   SOCKET = sock;
   SockPeerIP = SOCKET->peerAddress().toString();
+  qDebug() << "New Connection:" << SockPeerIP;
   idletimer = new QTimer(this);
     idletimer->setInterval(30000); //connection timout for idle sockets
     idletimer->setSingleShot(true);
@@ -155,10 +156,12 @@ void BridgeConnection::HandleAPIMessage(QString msg){
 	    array.append(SockAuthToken);
 	    array.append(AUTHSYSTEM->checkAuthTimeoutSecs(SockAuthToken));
 	  outargs = array;
+          qDebug() << "Connection Authorized:" << SockPeerIP;
           QTimer::singleShot(10 ,this, SLOT(requestKeyList()) );
         }else{
           out.insert("name","error");
           outargs = "unauthorized";
+          qDebug() << "Connection Not Authorized:" << SockPeerIP;
         }
       }
     }else if(AUTHSYSTEM->checkAuth(SockAuthToken)){

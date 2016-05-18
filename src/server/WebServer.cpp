@@ -219,7 +219,9 @@ void WebServer::SocketClosed(QString ID){
 
 // BRIDGE Connection checks
 void WebServer::checkBridges(){
+  qDebug() << "Check Bridges:" << WS_MODE;
   if(!WS_MODE){ return; }
+
   //Get all the unique bridge URL's we need connections to
   QStringList bridgeKeys = CONFIG->allKeys().filter("bridge_connections/");
   for(int i=0; i<bridgeKeys.length(); i++){
@@ -236,6 +238,7 @@ void WebServer::checkBridges(){
   }
   //Now startup any connections which are missing
   for(int i=0; i<bridgeKeys.length(); i++){
+    qDebug() << "Try to connect to bridge:" << bridgeKeys[i];
     WebSocket *sock = new WebSocket(bridgeKeys[i], bridgeKeys[i], AUTH);
     connect(sock, SIGNAL(SocketClosed(QString)), this, SLOT(SocketClosed(QString)) );
     OpenSockets << sock;

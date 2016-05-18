@@ -86,6 +86,7 @@ WebSocket::WebSocket(QString url, QString ID, AuthorizationManager *auth){
   bool hasport = false;
   url.section(":",-1).toInt(&hasport); //check if the last piece of the url is a valid number
   if(!hasport){ url.append(":"+QString::number(BRIDGEPORTNUMBER)); }
+  qDebug() << "Connecting to bridge:" << url;
   SOCKET->open(QUrl(url));
 }
 
