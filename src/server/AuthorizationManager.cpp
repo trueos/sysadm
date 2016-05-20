@@ -146,7 +146,7 @@ void AuthorizationManager::ListCertificateChecksums(QJsonObject *out){
     chash.addData( keys[i].section("/",2,-1).toLocal8Bit() );
     QByteArray res = chash.result();
     chash.reset();
-    arr << QString(res);
+    arr << QString(res.toBase64());
   }
   out->insert("md5_keys", arr);
 }

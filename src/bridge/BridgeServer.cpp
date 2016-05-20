@@ -190,7 +190,7 @@ void BridgeServer::SocketClosed(QString ID){
 
 // Connection Keys Changed
 void BridgeServer::announceKeyChange(QString ID, bool isServer, QStringList keys){
-  qDebug() << "Key Change:" << ID << isServer << keys;
+  //qDebug() << "Key Change:" << ID << isServer << keys;
   for(int c = 0; c<OpenSockets.length(); c++){
     bool server = OpenSockets[c]->isServer();
     QStringList keys = OpenSockets[c]->validKeySums();

@@ -182,7 +182,8 @@ void WebSocket::EvaluateREST(QString msg){
 }
 
 void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
-  //qDebug() << "Evaluate Request:" << REQ.namesp << REQ.name << REQ.args;
+  qDebug() << "Evaluate Request:" << REQ.namesp << REQ.name << REQ.args;
+  if(REQ.name=="response" && REQ.bridgeID.isEmpty() && isBridge){ qDebug() << "Unhandled Bridge Message:" << REQ.name << REQ.id << REQ.args; return; } //if a bridge reply gets this far - skip it (automated reply to some message we don't care about)
   RestOutputStruct out;
     out.in_struct = REQ;
   QHostAddress host;
@@ -208,20 +209,21 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     }
   //qDebug() << "Auth Token:" << cur_auth_tok;
     //Now check the body of the message and do what it needs
-if(out.in_struct.namesp.toLower() == "rpc"){
-  if(out.in_struct.name == "identify"){
-    QJsonObject obj;
+  if(out.in_struct.namesp.toLower() == "rpc" && (out.in_struct.name=="identify" || out.in_struct.name.startsWith("auth")) ){
+    //qDebug() << "Within rpc section";
+    if(out.in_struct.name == "identify"){
+      QJsonObject obj;
       obj.insert("type", "server");
-    out.out_args = obj;
-    out.CODE = RestOutputStruct::OK;
-  }else if(out.in_struct.name.startsWith("auth")){
-    //Now perform authentication based on type of auth given
-    //Note: This sets/changes the current SockAuthToken
-   AUTHSYSTEM->clearAuth(cur_auth_tok);  //new auth requested - clear any old token
+      out.out_args = obj;
+      out.CODE = RestOutputStruct::OK;
+    }else if(out.in_struct.name.startsWith("auth")){
+      //Now perform authentication based on type of auth given
+      //Note: This sets/changes the current SockAuthToken
+     AUTHSYSTEM->clearAuth(cur_auth_tok);  //new auth requested - clear any old token
 
-    if(DEBUG){ qDebug() << "Authenticate Peer:" << host; }
-    //Now do the auth
-    if(out.in_struct.name=="auth" && out.in_struct.args.isObject() && !isBridge ){
+     if(DEBUG){ qDebug() << "Authenticate Peer:" << host; }
+     //Now do the auth
+     if(out.in_struct.name=="auth" && out.in_struct.args.isObject() && !isBridge ){
 	    //username/[password/cert] authentication
 	    QString user, pass;
 	    if(out.in_struct.args.toObject().contains("username")){ user = JsonValueToString(out.in_struct.args.toObject().value("username"));  }
@@ -331,7 +333,15 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 	    out.CODE = RestOutputStruct::UNAUTHORIZED;
 	  }
 	//Other namespace - check whether auth has already been established before continuing
-}else if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token	 
+}else if( isBridge && REQ.bridgeID.isEmpty() && !SockAuthToken.isEmpty() && REQ.namesp=="rpc" && REQ.name=="settings" && REQ.args.toObject().value("action").toString()=="list_ssl_checksums"){
+  qDebug() << "Within special bridge section";
+	  out.in_struct.fullaccess = false;
+	  //Pre-set any output fields
+          QJsonObject outargs;	
+	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
+            out.out_args = outargs;
+}else if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token
+  qDebug() << "Within auth section";
 	  //Now provide access to the various subsystems
 	  // First get/set the permissions flag into the input structure
 	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(cur_auth_tok);
@@ -340,6 +350,7 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
             out.out_args = outargs;
 }else{
+  qDebug() << "Within fallback auth error section";
 	  //Error in inputs - assemble the return error message
 	  out.CODE = RestOutputStruct::UNAUTHORIZED;
 }
@@ -368,7 +379,7 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 }
 
 void WebSocket::EvaluateResponse(const RestInputStruct& IN){
-  qDebug() << "Evaluate Response:" << IN.id << IN.name << IN.args;
+  //qDebug() << "Evaluate Response:" << IN.id << IN.name << IN.args;
   if(!isBridge){ return; } //this is only valid for bridge connections
   if(IN.namesp=="events" && IN.name=="bridge"){
     QStringList bids = JsonArrayToStringList(IN.args.toObject().value("available_connections").toArray());

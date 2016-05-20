@@ -18,7 +18,7 @@ BridgeConnection::BridgeConnection(QWebSocket *sock, QString ID){
   qDebug() << "New Connection:" << SockPeerIP;
   idletimer = new QTimer(this);
     idletimer->setInterval(30000); //connection timout for idle sockets
-    idletimer->setSingleShot(true);
+    //idletimer->setSingleShot(true);
   connect(idletimer, SIGNAL(timeout()), this, SLOT(checkAuth()) );
   connect(SOCKET, SIGNAL(textMessageReceived(const QString&)), this, SLOT(EvaluateMessage(const QString&)) );
   connect(SOCKET, SIGNAL(binaryMessageReceived(const QByteArray&)), this, SLOT(EvaluateMessage(const QByteArray&)) );
@@ -87,6 +87,7 @@ QStringList BridgeConnection::JsonArrayToStringList(QJsonArray array){
 
 void BridgeConnection::InjectMessage(QString msg){
   //See if this message is directed to the bridge itself, or a client
+  qDebug() << "Got Message:" << msg;
   if(msg.startsWith("{") || !AUTHSYSTEM->checkAuth(SockAuthToken) ){
     HandleAPIMessage(msg);
   }else{
@@ -95,7 +96,8 @@ void BridgeConnection::InjectMessage(QString msg){
     QString toID = msg.left(lb);
     if(toID.contains(" ")){ 
       //Return an error message to the calling socket
-      if(SOCKET->isValid()){ SOCKET->sendTextMessage("{\"namespace\":\"error\", \"name\":\"error\",\"id\":\"error\",\"args\":\"\" }"); }
+      qDebug() << "Invalid Destination ID:" << toID;
+      //if(SOCKET->isValid()){ SOCKET->sendTextMessage("{\"namespace\":\"error\", \"name\":\"error\",\"id\":\"error\",\"args\":\"\" }"); }
     }else{
       //Add the "from" ID to the message
       msg = msg.replace(0,lb,SockID); //replace the "to" ID with the "from" ID
@@ -109,10 +111,10 @@ void BridgeConnection::HandleAPIMessage(QString msg){
   QJsonObject out;
   if(JM.isEmpty() || !JM.contains("namespace") || !JM.contains("name") || !JM.contains("args") || !JM.contains("id") ){
     //invalid inputs - return 
-    out.insert("namespace","error");
+    /*out.insert("namespace","error");
     out.insert("name","error");
     out.insert("id", JM.contains("id") ? JM.value("id") : "error");
-    out.insert("args", "");
+    out.insert("args", "");*/
   }else if( JM.value("name").toString()=="response" ){
     // - Return messages first (check ID)
       QString id = JM.value("id").toString();
@@ -128,7 +130,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
         }
       }
      //no response needed
-  }else{
+  }else if(JM.value("name").toString()!="error"){
     //API Call
     QString name, namesp, id; 
     QJsonObject args = JM.value("args").toObject();
@@ -147,7 +149,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
     }else if(namesp == "rpc" && name=="auth_ssl"){
       if(!args.contains("encrypted_string")){
         //Stage 1 - send a random string to encrypt
-        qDebug() << "Connection Auth Init:" << SockPeerIP;
+        qDebug() << "Connection Auth Init:" << SockID;
         QString key = AUTHSYSTEM->GenerateEncCheckString();
         QJsonObject obj; obj.insert("test_string", key);
 	outargs = obj;
@@ -159,12 +161,12 @@ void BridgeConnection::HandleAPIMessage(QString msg){
 	    array.append(SockAuthToken);
 	    array.append(AUTHSYSTEM->checkAuthTimeoutSecs(SockAuthToken));
 	  outargs = array;
-          qDebug() << "Connection Authorized:" << SockPeerIP << "Type:" << (serverconn ? "server" : "client");
+          qDebug() << "Connection Authorized:" << SockPeerIP << SockID << "Type:" << (serverconn ? "server" : "client");
           QTimer::singleShot(10 ,this, SLOT(requestKeyList()) );
         }else{
           out.insert("name","error");
           outargs = "unauthorized";
-          qDebug() << "Connection Not Authorized:" << SockPeerIP;
+          qDebug() << "Connection Not Authorized:" << SockPeerIP << SockID;
         }
       }
     }else if(AUTHSYSTEM->checkAuth(SockAuthToken)){
@@ -182,21 +184,25 @@ void BridgeConnection::HandleAPIMessage(QString msg){
 //       PRIVATE SLOTS
 // =====================
 void BridgeConnection::checkIdle(){
-  if(SOCKET !=0 && SOCKET->isValid()){
-    qDebug() << "Connection Idle: "<<SockPeerIP;
-    SOCKET->close(); //timeout - close the connection to make way for others
-  }
+  if(SOCKET !=0){
+    if(SOCKET->isValid()){
+      qDebug() << "Connection Idle: "<< SockID;
+      SOCKET->close(); //timeout - close the connection to make way for others
+    }else{
+      emit SocketClosed(SockID); //disconnect signal did not get picked up for some reason
+    }
+  } 
 }
 
 void BridgeConnection::checkAuth(){
- if(!AUTHSYSTEM->checkAuth(SockAuthToken)){
+ if(!AUTHSYSTEM->checkAuth(SockAuthToken) || !SOCKET->isValid() ){
     //Still not authorized - disconnect
     checkIdle();
   }
 }
 
 void BridgeConnection::SocketClosing(){
-  qDebug() << "Connection Closing: " << SockPeerIP;
+  qDebug() << "Connection Closing: " << SockID;
   if(idletimer->isActive()){ idletimer->stop(); }
   //Stop any current requests
 
@@ -254,7 +260,7 @@ void BridgeConnection::requestKeyList(){
     QJsonObject args;
       args.insert("action","list_ssl_checksums");
     obj.insert("args",args);
-
+  qDebug() << "Request Key List";
   SOCKET->sendTextMessage( QJsonDocument(obj).toJson(QJsonDocument::Compact) );
 }
 
