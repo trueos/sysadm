@@ -87,7 +87,7 @@ QStringList BridgeConnection::JsonArrayToStringList(QJsonArray array){
 
 void BridgeConnection::InjectMessage(QString msg){
   //See if this message is directed to the bridge itself, or a client
-  qDebug() << "Got Message:" << msg;
+  //qDebug() << "Got Message:" << msg;
   if(msg.startsWith("{") || !AUTHSYSTEM->checkAuth(SockAuthToken) ){
     HandleAPIMessage(msg);
   }else{

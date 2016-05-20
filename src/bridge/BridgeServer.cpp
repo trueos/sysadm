@@ -41,6 +41,7 @@ bool BridgeServer::startServer(quint16 port){
 //    PUBLIC SLOTS
 //===================
 void BridgeServer::sendMessage(QString toID, QString msg){
+  //qDebug() << "Try to forward message:" << toID;
   for(int i=0; i<OpenSockets.length(); i++){
     if(OpenSockets[i]->ID()==toID){ OpenSockets[i]->forwardMessage(msg); }
   }
@@ -182,6 +183,7 @@ void BridgeServer::SslErrors(const QList<QSslError> &list){
 
 // - More Functions for all socket interactions
 void BridgeServer::SocketClosed(QString ID){
+  qDebug() << "Socket Closed:" << ID;
   for(int i=0; i<OpenSockets.length(); i++){
     if(OpenSockets[i]->ID()==ID){ delete OpenSockets.takeAt(i); break; }
   }
@@ -200,11 +202,13 @@ void BridgeServer::announceKeyChange(QString ID, bool isServer, QStringList keys
       if(i==c){ continue; } //current socket
       else if(OpenSockets[i]->isServer() != server){ //look for a server/client pair
         //compare keys to look for matches
-        QStringList chkkeys = OpenSockets[i ]->validKeySums();
+        /*QStringList chkkeys = OpenSockets[i ]->validKeySums();
         chkkeys.removeDuplicates();
         qDebug() << "Known Keys for ID:" << OpenSockets[i]->ID() << chkkeys;
         chkkeys << keys;
-        if(chkkeys.removeDuplicates() > 0){ IDs << OpenSockets[i]->ID(); }
+        if(chkkeys.removeDuplicates() > 0){ */
+          IDs << OpenSockets[i]->ID(); 
+        //}
       }
     }//end inner loop of sockets
     OpenSockets[c]->announceIDAvailability(IDs);
