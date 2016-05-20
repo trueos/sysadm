@@ -101,8 +101,24 @@ int main( int argc, char ** argv )
           i=i+1;
         }else if(opt=="export_key"){
           //Export the public SSL cert used for establishing a connection with a bridge
-	  QString crt = ReadFile("/usr/local/etc/sysadm/ws_bridge.crt");
-	  qDebug() << crt.toLocal8Bit();
+          QFile cfile("/usr/local/etc/sysadm/ws_bridge.crt");
+          if( cfile.open(QIODevice::ReadOnly) ){
+            QSslCertificate cert(&cfile);
+            cfile.close();
+            if(!cert.isNull()){
+              if(i+1<argc){ 
+                i++; QString filepath = argv[i];
+	        QFile outfile(filepath);
+                  outfile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+                  outfile.write(cert.publicKey().toPem());
+                outfile.close();
+                qDebug() << "Public Key Saved to file:" << filepath;
+              }else{
+                //Output to std out instead
+               qDebug() << cert.publicKey().toPem();
+              }
+            }
+          }
         }else{
           qDebug() << "Unknown option:" << argv[i];
           return 1;
@@ -118,8 +134,13 @@ int main( int argc, char ** argv )
         bool ok = true;
 	if(QFile::exists(key)){ 
 	  QFile file(key);
-          if(file.open(QIODevice::ReadOnly)){ key = file.readAll(); file.close(); }
-          else{ qDebug() << "Could not open file:" << file.fileName(); ok = false; }
+          QByteArray pubkey;
+          if(file.open(QIODevice::ReadOnly)){  
+            QSslKey sslkey( &file, QSsl::Rsa, QSsl::Pem, QSsl::PublicKey); 
+            if(!key.isNull()){ pubkey = sslkey.toPem(); }
+            else{ qDebug() << "Invalid Key file:" << file.fileName(); ok = false; }
+            file.close();
+          }else{ qDebug() << "Could not open file:" << file.fileName(); ok = false; }
         }	
 	if(ok){ ok = AuthorizationManager::RegisterCertificateInternal(user, key, nickname, email); }
 	if(ok){ qDebug() << "Key Added" << user << nickname; }

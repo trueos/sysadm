@@ -113,11 +113,13 @@ QString BridgeServer::generateID(QString name){
 // New Connection Signals
 void BridgeServer::NewSocketConnection(){
   BridgeConnection *sock = 0;
-  qDebug() << "New incoming connection..";
   if(this->hasPendingConnections()){ 
+    qDebug() << "New incoming connection..";
     QWebSocket *ws = this->nextPendingConnection();
     if(allowConnection(ws->peerAddress()) ){
-      sock = new BridgeConnection( ws, generateID(ws->peerName()) );
+      QString name = ws->peerName();
+      if(name.isEmpty()){ name = ws->peerAddress().toString(); }
+      sock = new BridgeConnection( ws, generateID(name) );
     }else{
       ws->abort();
     }
@@ -125,7 +127,7 @@ void BridgeServer::NewSocketConnection(){
   if(sock==0){ return; } //no new connection
   //qDebug() << "New Socket Connection";	
   connect(sock, SIGNAL(SocketClosed(QString)), this, SLOT(SocketClosed(QString)) );
-  connect(sock, SIGNAL(SocketMessage(QString, QString)), this, SLOT(SendMessage(QString, QString)) );
+  connect(sock, SIGNAL(SocketMessage(QString, QString)), this, SLOT(sendMessage(QString, QString)) );
   connect(sock, SIGNAL(keysChanged(QString, bool, QStringList)), this, SLOT(announceKeyChange(QString, bool, QStringList)) );
   OpenSockets << sock;
 }
@@ -188,6 +190,7 @@ void BridgeServer::SocketClosed(QString ID){
 
 // Connection Keys Changed
 void BridgeServer::announceKeyChange(QString ID, bool isServer, QStringList keys){
+  qDebug() << "Key Change:" << ID << isServer << keys;
   for(int c = 0; c<OpenSockets.length(); c++){
     bool server = OpenSockets[c]->isServer();
     QStringList keys = OpenSockets[c]->validKeySums();
@@ -199,6 +202,7 @@ void BridgeServer::announceKeyChange(QString ID, bool isServer, QStringList keys
         //compare keys to look for matches
         QStringList chkkeys = OpenSockets[i ]->validKeySums();
         chkkeys.removeDuplicates();
+        qDebug() << "Known Keys for ID:" << OpenSockets[i]->ID() << chkkeys;
         chkkeys << keys;
         if(chkkeys.removeDuplicates() > 0){ IDs << OpenSockets[i]->ID(); }
       }

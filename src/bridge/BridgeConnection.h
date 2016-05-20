@@ -50,6 +50,7 @@ private slots:
 	void SslError(const QList<QSslError>&); //sslErrors() signal
 	
 public slots:
+	void requestIdentify();
 	void requestKeyList();
 	void announceIDAvailability(QStringList IDs);
 

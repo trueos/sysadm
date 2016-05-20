@@ -62,8 +62,17 @@ qDebug() << "    \"blacklist/fails_to_block\" (integer): Number of times a syste
 
 int main( int argc, char ** argv )
 {
-  if(getuid() != 0){ CONFIG = new QSettings("sysadm","bridge"); SSLFILEDIR=CONFIG->fileName().section("/",0,-2); }
-  else{ CONFIG = new QSettings("/var/db/sysadm-bridge.ini", QSettings::IniFormat);  SSLFILEDIR="/usr/local/etc/sysadm"; }
+  QString logdir;
+  if(getuid() != 0){ 
+    CONFIG = new QSettings("sysadm","bridge"); 
+    SSLFILEDIR=CONFIG->fileName().section("/",0,-2); 
+    logdir = SSLFILEDIR;
+  }
+  else{ 
+    CONFIG = new QSettings("/var/db/sysadm-bridge.ini", QSettings::IniFormat);  
+    SSLFILEDIR="/usr/local/etc/sysadm"; 
+    logdir="/var/log";
+  }
   qDebug() << "Using Config file:" << CONFIG->fileName();
   qDebug() << "SSL FILE DIR:" << SSLFILEDIR;
     //Evaluate input arguments
@@ -147,7 +156,7 @@ int main( int argc, char ** argv )
 
     //Setup the log file
     if(USELOG){
-      logfile.setFileName(SSLFILEDIR+"/sysadm-bridge.log");
+      logfile.setFileName(logdir+"/sysadm-bridge.log");
       qDebug() << "Log File:" << logfile.fileName();
       if(QFile::exists(logfile.fileName()+".old")){ QFile::remove(logfile.fileName()+".old"); }
       if(logfile.exists()){ QFile::rename(logfile.fileName(), logfile.fileName()+".old"); }

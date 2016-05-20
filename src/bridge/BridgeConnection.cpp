@@ -24,6 +24,7 @@ BridgeConnection::BridgeConnection(QWebSocket *sock, QString ID){
   connect(SOCKET, SIGNAL(binaryMessageReceived(const QByteArray&)), this, SLOT(EvaluateMessage(const QByteArray&)) );
   connect(SOCKET, SIGNAL(aboutToClose()), this, SLOT(SocketClosing()) );
   idletimer->start();
+  requestIdentify();
   QTimer::singleShot(30000, this, SLOT(checkAuth()));
 }
 
@@ -116,6 +117,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
     // - Return messages first (check ID)
       QString id = JM.value("id").toString();
       if(id=="sysadm_bridge_request_ident"){
+        qDebug() << "Got ident reply:" << JM;
         serverconn = (JM.value("args").toObject().value("type").toString() == "server");
       }else if("bridge_request_list_keys"){
         QStringList keys = JsonArrayToStringList(JM.value("args").toObject().value("md5_keys").toArray());
@@ -134,7 +136,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
     namesp = JM.value("namespace").toString();
     out.insert("id", JM.value("id"));
     out.insert("namespace", namesp);
-    out.insert("name","reponse");
+    out.insert("name","response");
     QJsonValue outargs;
     //There is only a short list of API calls the bridge is capable of:
     if(namesp == "rpc" && name=="identify"){
@@ -145,6 +147,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
     }else if(namesp == "rpc" && name=="auth_ssl"){
       if(!args.contains("encrypted_string")){
         //Stage 1 - send a random string to encrypt
+        qDebug() << "Connection Auth Init:" << SockPeerIP;
         QString key = AUTHSYSTEM->GenerateEncCheckString();
         QJsonObject obj; obj.insert("test_string", key);
 	outargs = obj;
@@ -156,7 +159,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
 	    array.append(SockAuthToken);
 	    array.append(AUTHSYSTEM->checkAuthTimeoutSecs(SockAuthToken));
 	  outargs = array;
-          qDebug() << "Connection Authorized:" << SockPeerIP;
+          qDebug() << "Connection Authorized:" << SockPeerIP << "Type:" << (serverconn ? "server" : "client");
           QTimer::singleShot(10 ,this, SLOT(requestKeyList()) );
         }else{
           out.insert("name","error");
@@ -232,6 +235,16 @@ void BridgeConnection::SslError(const QList<QSslError> &err){ //sslErrors() sign
 // ======================
 //       PUBLIC SLOTS
 // ======================
+void BridgeConnection::requestIdentify(){
+ QJsonObject obj;
+    obj.insert("id","sysadm_bridge_request_ident");
+    obj.insert("namespace","rpc");
+    obj.insert("name","identify");
+    obj.insert("args","");
+
+  SOCKET->sendTextMessage( QJsonDocument(obj).toJson(QJsonDocument::Compact) );
+}
+
 void BridgeConnection::requestKeyList(){
   if(!AUTHSYSTEM->checkAuth(SockAuthToken)){ return; } //not authorized yet
   QJsonObject obj;

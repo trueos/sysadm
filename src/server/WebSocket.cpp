@@ -79,6 +79,8 @@ WebSocket::WebSocket(QString url, QString ID, AuthorizationManager *auth){
   connect(EVENTS, SIGNAL(NewEvent(EventWatcher::EVENT_TYPE, QJsonValue)), this, SLOT(EventUpdate(EventWatcher::EVENT_TYPE, QJsonValue)) );
   connect(this, SIGNAL(SendMessage(QString)), this, SLOT(sendReply(QString)) );
   connect(SOCKET, SIGNAL(connected()), this, SLOT(startBridgeAuth()) );
+  //connect(SOCKET, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)) );
+  connect(SOCKET, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(SslError(const QList<QSslError>&)) );
   //idletimer->start(); //do not idle out on a bridge connection
   /*QTimer::singleShot(30000, this, SLOT(checkAuth()));*/
   //Assemble the URL as needed
@@ -86,7 +88,10 @@ WebSocket::WebSocket(QString url, QString ID, AuthorizationManager *auth){
   bool hasport = false;
   url.section(":",-1).toInt(&hasport); //check if the last piece of the url is a valid number
   if(!hasport){ url.append(":"+QString::number(BRIDGEPORTNUMBER)); }
+  //Now setup/init the connection
   qDebug() << "Connecting to bridge:" << url;
+  SOCKET->setSslConfiguration(QSslConfiguration::defaultConfiguration());
+  //QTimer::singleShot(0,SOCKET, SLOT(ignoreSslErrors()) );
   SOCKET->open(QUrl(url));
 }
 
@@ -164,6 +169,7 @@ void WebSocket::EvaluateREST(QString msg){
       out.Header << "Content-Type: text/json; charset=utf-8";
     this->sendReply(out.assembleMessage());
   }else{
+    qDebug() << "Got Message:" << IN.namesp << IN.name << IN.args << isBridge;
     if(IN.name.startsWith("auth") || (IN.namesp.toLower()=="rpc" && IN.name.toLower()=="identify") ){
       //Keep auth/pre-auth system requests in order
       EvaluateRequest(IN);
@@ -362,6 +368,7 @@ if(out.in_struct.namesp.toLower() == "rpc"){
 }
 
 void WebSocket::EvaluateResponse(const RestInputStruct& IN){
+  qDebug() << "Evaluate Response:" << IN.id << IN.name << IN.args;
   if(!isBridge){ return; } //this is only valid for bridge connections
   if(IN.namesp=="events" && IN.name=="bridge"){
     QStringList bids = JsonArrayToStringList(IN.args.toObject().value("available_connections").toArray());
@@ -538,14 +545,29 @@ void WebSocket::nowEncrypted(){
 }
 
 void WebSocket::peerError(const QSslError&){ //peerVerifyError() signal
-  //qDebug() << "Socket Peer Error:";
+  qDebug() << "Socket Peer Error:";
 }
 
 void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
-  LogManager::log(LogManager::HOST,"Connection SSL Errors ["+SockPeerIP+"]: "+err.length());
+  QList<QSslError> ignored;
+  for(int i=0; i< err.length(); i++){
+    if(err[i].error()==QSslError::SelfSignedCertificate || err[i].error()==QSslError::HostNameMismatch ){
+      //qDebug() << " - (IGNORED) " << err[i].errorString();
+      ignored << err[i];
+    }else{
+      qWarning() << " - " << err[i].errorString();
+    }
+  }
+  if(ignored.length() != err.length()){
+    LogManager::log(LogManager::HOST,"Connection SSL Errors ["+SockPeerIP+"]: "+err.length());
+    SOCKET->close(); //SSL errors - close the connection
+  }else{
+    SOCKET->ignoreSslErrors();
+  }
 }
 
 void WebSocket::startBridgeAuth(){
+  qDebug() << "Init Bridge Auth...";
   QJsonObject obj;
   obj.insert("id", "server_to_bridge_auth");
   obj.insert("namespace","rpc");
