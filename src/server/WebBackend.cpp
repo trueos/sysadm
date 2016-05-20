@@ -95,7 +95,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
 	"args" - JSON input arguments structure
 	"out" - JSON output arguments structure
   */
-  qDebug() << "Evaluate Backend Request:" << IN.namesp << IN.name << IN.id << IN.args << IN.fullaccess;
+  //qDebug() << "Evaluate Backend Request:" << IN.namesp << IN.name << IN.id << IN.args << IN.fullaccess;
   QString namesp = IN.namesp.toLower(); QString name = IN.name.toLower();
 
   //Get/Verify subsystems

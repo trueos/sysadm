@@ -169,7 +169,7 @@ void WebSocket::EvaluateREST(QString msg){
       out.Header << "Content-Type: text/json; charset=utf-8";
     this->sendReply(out.assembleMessage());
   }else{
-    qDebug() << "Got Message:" << IN.namesp << IN.name << IN.args << isBridge;
+    //qDebug() << "Got Message:" << IN.namesp << IN.name << IN.args << isBridge;
     if(IN.name.startsWith("auth") || (IN.namesp.toLower()=="rpc" && IN.name.toLower()=="identify") ){
       //Keep auth/pre-auth system requests in order
       EvaluateRequest(IN);
@@ -182,7 +182,7 @@ void WebSocket::EvaluateREST(QString msg){
 }
 
 void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
-  qDebug() << "Evaluate Request:" << REQ.namesp << REQ.name << REQ.args;
+  //qDebug() << "Evaluate Request:" << REQ.namesp << REQ.name << REQ.args;
   if(REQ.name=="response" && REQ.bridgeID.isEmpty() && isBridge){ qDebug() << "Unhandled Bridge Message:" << REQ.name << REQ.id << REQ.args; return; } //if a bridge reply gets this far - skip it (automated reply to some message we don't care about)
   RestOutputStruct out;
     out.in_struct = REQ;
@@ -334,14 +334,14 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	  }
 	//Other namespace - check whether auth has already been established before continuing
 }else if( isBridge && REQ.bridgeID.isEmpty() && !SockAuthToken.isEmpty() && REQ.namesp=="rpc" && REQ.name=="settings" && REQ.args.toObject().value("action").toString()=="list_ssl_checksums"){
-  qDebug() << "Within special bridge section";
+  //qDebug() << "Within special bridge section";
 	  out.in_struct.fullaccess = false;
 	  //Pre-set any output fields
           QJsonObject outargs;	
 	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
             out.out_args = outargs;
 }else if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token
-  qDebug() << "Within auth section";
+  //qDebug() << "Within auth section";
 	  //Now provide access to the various subsystems
 	  // First get/set the permissions flag into the input structure
 	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(cur_auth_tok);
@@ -350,7 +350,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
             out.out_args = outargs;
 }else{
-  qDebug() << "Within fallback auth error section";
+  //qDebug() << "Within fallback auth error section";
 	  //Error in inputs - assemble the return error message
 	  out.CODE = RestOutputStruct::UNAUTHORIZED;
 }
