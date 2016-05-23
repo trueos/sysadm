@@ -26,6 +26,10 @@ BridgeConnection::BridgeConnection(QObject *parent, QWebSocket *sock, QString ID
   idletimer->start();
   requestIdentify();
   QTimer::singleShot(30000, this, SLOT(checkAuth()));
+  connCheckTimer = new QTimer(this);
+    connCheckTimer->setInterval(60000); //every 1 minute
+    connect(connCheckTimer, SIGNAL(timeout()), this, SLOT(checkConnection()) );
+  connCheckTimer->start();
 }
 
 BridgeConnection::~BridgeConnection(){
@@ -47,6 +51,10 @@ void BridgeConnection::forwardMessage(QString msg){
 
 bool BridgeConnection::isServer(){
   return serverconn;
+}
+
+bool BridgeConnection::isActive(){
+  return (SOCKET!=0 && SOCKET->isValid());
 }
 
 QStringList BridgeConnection::validKeySums(){
@@ -119,7 +127,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
     // - Return messages first (check ID)
       QString id = JM.value("id").toString();
       if(id=="sysadm_bridge_request_ident"){
-        qDebug() << "Got ident reply:" << JM;
+        //qDebug() << "Got ident reply:" << JM;
         serverconn = (JM.value("args").toObject().value("type").toString() == "server");
       }else if("bridge_request_list_keys"){
         QStringList keys = JsonArrayToStringList(JM.value("args").toObject().value("md5_keys").toArray());
@@ -149,7 +157,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
     }else if(namesp == "rpc" && name=="auth_ssl"){
       if(!args.contains("encrypted_string")){
         //Stage 1 - send a random string to encrypt
-        qDebug() << "Connection Auth Init:" << SockID;
+        //qDebug() << "Connection Auth Init:" << SockID;
         QString key = AUTHSYSTEM->GenerateEncCheckString();
         QJsonObject obj; obj.insert("test_string", key);
 	outargs = obj;
@@ -173,7 +181,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
       //Valid auth - a couple more API calls available here
 
     }else{
-      out.insert("name","error"); //unknown API call
+      out.insert("name","error"); //unkeys[i] << known API call
     }
     out.insert("args",outargs);
     SOCKET->sendTextMessage( QJsonDocument(out).toJson(QJsonDocument::Compact) );
@@ -183,6 +191,12 @@ void BridgeConnection::HandleAPIMessage(QString msg){
 // =====================
 //       PRIVATE SLOTS
 // =====================
+void BridgeConnection::checkConnection(){
+  if(SOCKET==0 && !SOCKET->isValid()){
+    emit SocketClosed(SockID);
+  }
+}
+
 void BridgeConnection::checkIdle(){
   if(SOCKET !=0){
     if(SOCKET->isValid()){
@@ -260,7 +274,7 @@ void BridgeConnection::requestKeyList(){
     QJsonObject args;
       args.insert("action","list_ssl_checksums");
     obj.insert("args",args);
-  qDebug() << "Request Key List";
+  //qDebug() << "Request Key List";
   SOCKET->sendTextMessage( QJsonDocument(obj).toJson(QJsonDocument::Compact) );
 }
 

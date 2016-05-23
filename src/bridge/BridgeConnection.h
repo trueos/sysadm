@@ -17,11 +17,12 @@ public:
 	QString ID();
 	void forwardMessage(QString msg);
 	bool isServer();
+	bool isActive();
 
 	QStringList validKeySums();
 
 private:
-	QTimer *idletimer;
+	QTimer *idletimer, *connCheckTimer;
 	QWebSocket *SOCKET;
 	QString SockID, SockAuthToken, SockPeerIP;
 	bool serverconn;
@@ -36,6 +37,7 @@ private:
 	void HandleAPIMessage(QString msg);
 
 private slots:
+	void checkConnection(); //Check if the connection was closed without announcement somehow
 	void checkIdle(); //see if the currently-connected client is idle
 	void checkAuth(); //see if the currently-connected client has authed yet
 	void SocketClosing();

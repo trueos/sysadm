@@ -115,7 +115,7 @@ QString BridgeServer::generateID(QString name){
 void BridgeServer::NewSocketConnection(){
   BridgeConnection *sock = 0;
   if(this->hasPendingConnections()){ 
-    qDebug() << "New incoming connection..";
+    //qDebug() << "New incoming connection..";
     QWebSocket *ws = this->nextPendingConnection();
     if(allowConnection(ws->peerAddress()) ){
       QString name = ws->peerName();
@@ -200,15 +200,16 @@ void BridgeServer::announceKeyChange(QString ID, bool isServer, QStringList keys
     QStringList IDs;
     for(int i=0; i<OpenSockets.length(); i++){
       if(i==c){ continue; } //current socket
+      if(!OpenSockets[i]->isActive()){ continue; } //skip right now (probably waiting on a signal that the connection closed)
       else if(OpenSockets[i]->isServer() != server){ //look for a server/client pair
         //compare keys to look for matches
-        /*QStringList chkkeys = OpenSockets[i ]->validKeySums();
+        QStringList chkkeys = OpenSockets[i ]->validKeySums();
         chkkeys.removeDuplicates();
-        qDebug() << "Known Keys for ID:" << OpenSockets[i]->ID() << chkkeys;
+        //qDebug() << "Known Keys for ID:" << OpenSockets[i]->ID() << chkkeys;
         chkkeys << keys;
-        if(chkkeys.removeDuplicates() > 0){ */
+        if(chkkeys.removeDuplicates() > 0){
           IDs << OpenSockets[i]->ID(); 
-        //}
+        }
       }
     }//end inner loop of sockets
     OpenSockets[c]->announceIDAvailability(IDs);

@@ -142,10 +142,16 @@ void AuthorizationManager::ListCertificateChecksums(QJsonObject *out){
   keys.sort();
   QJsonArray arr;
   QCryptographicHash chash(QCryptographicHash::Md5);
+  //qDebug() << "MD5 Generation:";
   for(int i=0; i<keys.length(); i++){
-    chash.addData( keys[i].section("/",2,-1).toLocal8Bit() );
+    //qDebug() << "User:" << keys[i].section("/",1,1);
+    QByteArray key = QByteArray::fromBase64( keys[i].section("/",2,-1).toLocal8Bit() ); //remember that the keys are stored internally as base64-encoded strings
+    //qDebug() << " - Key:" << key;
+    chash.addData( key );
     QByteArray res = chash.result();
+    //qDebug() << " - md5:" << res;
     chash.reset();
+    //qDebug() << " - base64:" << res.toBase64();
     arr << QString(res.toBase64());
   }
   out->insert("md5_keys", arr);
