@@ -16,7 +16,7 @@ WebServer::WebServer(){
   WSServer = 0;
   TCPServer = 0;
   bridgeTimer = new QTimer(this);
-    bridgeTimer->setInterval(5*60*1000); //5 minutes
+    bridgeTimer->setInterval(60000); //1 minute
     connect(bridgeTimer, SIGNAL(timeout()), this, SLOT(checkBridges()) );
   AUTH = new AuthorizationManager();
   connect(AUTH, SIGNAL(BlockHost(QHostAddress)), this, SLOT(BlackListConnection(QHostAddress)) );
@@ -145,13 +145,13 @@ void WebServer::NewSocketConnection(){
     if(WSServer->hasPendingConnections()){ 
       QWebSocket *ws = WSServer->nextPendingConnection();
       if( !allowConnection(ws->peerAddress()) ){ ws->close(); }
-      else{ sock = new WebSocket( ws, generateID(), AUTH); }
+      else{ sock = new WebSocket( this, ws, generateID(), AUTH); }
     }
   }else if(TCPServer!=0){
     if(TCPServer->hasPendingConnections()){ 
 	QSslSocket *ss = TCPServer->nextPendingConnection();
 	if( !allowConnection(ss->peerAddress()) ){ ss->close(); }    
-	else{ sock = new WebSocket( ss, generateID(), AUTH); }
+	else{ sock = new WebSocket( this, ss, generateID(), AUTH); }
     }
   }
   if(sock==0){ return; } //no new connection
@@ -211,6 +211,7 @@ void WebServer::SslErrors(const QList<QSslError> &list){
 
 // - More Functions for all socket interactions
 void WebServer::SocketClosed(QString ID){
+  qDebug() << "Socket Closed:" << ID;
   for(int i=0; i<OpenSockets.length(); i++){
     if(OpenSockets[i]->ID()==ID){ delete OpenSockets.takeAt(i); break; }
   }
@@ -219,7 +220,7 @@ void WebServer::SocketClosed(QString ID){
 
 // BRIDGE Connection checks
 void WebServer::checkBridges(){
-  qDebug() << "Check Bridges:" << WS_MODE;
+  //qDebug() << "Check Bridges:" << WS_MODE << QDateTime::currentDateTime().toString(Qt::ISODate);
   if(!WS_MODE){ return; }
 
   //Get all the unique bridge URL's we need connections to
@@ -229,17 +230,18 @@ void WebServer::checkBridges(){
   }
   //Now browse through all the current connections and see if any are already active
   for(int i=0; i<OpenSockets.length(); i++){
-    if( bridgeKeys.contains( OpenSockets[i]->ID() ) ){
+    bool active = OpenSockets[i]->isActive();
+    if( bridgeKeys.contains( OpenSockets[i]->ID() ) && active){
       bridgeKeys.removeAll( OpenSockets[i]->ID() ); //already running - remove from the temporary list
-    }else if( OpenSockets[i]->ID().toInt()==0 ){
+    }else if( OpenSockets[i]->ID().toInt()==0 || !active){
       //non-integer ID - another bridge connection which must have been removed from the server settings
       OpenSockets[i]->closeConnection();
     }
   }
   //Now startup any connections which are missing
   for(int i=0; i<bridgeKeys.length(); i++){
-    qDebug() << "Try to connect to bridge:" << bridgeKeys[i];
-    WebSocket *sock = new WebSocket(bridgeKeys[i], bridgeKeys[i], AUTH);
+    //qDebug() << "Try to connect to bridge:" << bridgeKeys[i];
+    WebSocket *sock = new WebSocket(this, bridgeKeys[i], bridgeKeys[i], AUTH);
     connect(sock, SIGNAL(SocketClosed(QString)), this, SLOT(SocketClosed(QString)) );
     OpenSockets << sock;
   }

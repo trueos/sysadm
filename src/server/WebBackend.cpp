@@ -142,7 +142,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
 
 // === SYSADM SSL SETTINGS ===
 RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSettingsRequest(const QJsonValue in_args, QJsonObject *out){
-  qDebug() << "sysadm/settings Request:" << in_args;
+  //qDebug() << "sysadm/settings Request:" << in_args;
   if(!in_args.isObject()){ return RestOutputStruct::BADREQUEST; }
   QJsonObject argsO = in_args.toObject();
   QStringList keys = argsO.keys();

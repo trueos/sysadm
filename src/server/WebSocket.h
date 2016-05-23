@@ -19,16 +19,17 @@ struct bridge_data{
 class WebSocket : public QObject{
 	Q_OBJECT
 public:
-	WebSocket(QWebSocket*, QString ID, AuthorizationManager *auth);
-	WebSocket(QSslSocket*, QString ID, AuthorizationManager *auth);
-	WebSocket(QString url, QString ID, AuthorizationManager *auth); //sets up a bridge connection (websocket only)
+	WebSocket(QObject *parent, QWebSocket*, QString ID, AuthorizationManager *auth);
+	WebSocket(QObject *parent, QSslSocket*, QString ID, AuthorizationManager *auth);
+	WebSocket(QObject *parent, QString url, QString ID, AuthorizationManager *auth); //sets up a bridge connection (websocket only)
 	~WebSocket();
 
 	QString ID();
 	void closeConnection();
+	bool isActive(); //check if the connection is still active/valid
 
 private:
-	QTimer *idletimer;
+	QTimer *idletimer, *connCheckTimer;
 	QWebSocket *SOCKET;
 	QSslSocket *TSOCKET;
 	QString SockID, SockAuthToken, SockPeerIP;
@@ -90,6 +91,7 @@ private:
 	
 private slots:
 	void sendReply(QString msg);
+	void checkConnection(); //see if the current connection is still open/valid
 	void checkIdle(); //see if the currently-connected client is idle
 	void checkAuth(); //see if the currently-connected client has authed yet
 	void SocketClosing();

@@ -11,7 +11,7 @@
 class BridgeConnection : public QObject{
 	Q_OBJECT
 public:
-	BridgeConnection(QWebSocket*, QString ID);
+	BridgeConnection(QObject *parent, QWebSocket*, QString ID);
 	~BridgeConnection();
 
 	QString ID();

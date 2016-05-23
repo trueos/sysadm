@@ -11,7 +11,7 @@
 #define DEBUG 0
 #define IDLETIMEOUTMINS 30
 
-WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
+WebSocket::WebSocket(QObject *parent, QWebSocket *sock, QString ID, AuthorizationManager *auth) : QObject(parent){
   SockID = ID;
   isBridge = false;
   SockAuthToken.clear(); //nothing set initially
@@ -31,9 +31,13 @@ WebSocket::WebSocket(QWebSocket *sock, QString ID, AuthorizationManager *auth){
   connect(this, SIGNAL(SendMessage(QString)), this, SLOT(sendReply(QString)) );
   idletimer->start();
   QTimer::singleShot(30000, this, SLOT(checkAuth()));
+  connCheckTimer = new QTimer(this);
+    connCheckTimer->setInterval(60000); //1 minute check for connection validity
+    connect(connCheckTimer, SIGNAL(timeout()), this, SLOT(checkConnection()) );
+    connCheckTimer->start();
 }
 
-WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
+WebSocket::WebSocket(QObject *parent, QSslSocket *sock, QString ID, AuthorizationManager *auth) : QObject(parent){
   SockID = ID;
   SockAuthToken.clear(); //nothing set initially
   TSOCKET = sock;
@@ -57,9 +61,13 @@ WebSocket::WebSocket(QSslSocket *sock, QString ID, AuthorizationManager *auth){
   //qDebug() << " - Socket Encrypted:" << TSOCKET->isEncrypted();
   idletimer->start();
   QTimer::singleShot(30000, this, SLOT(checkAuth()));
+  connCheckTimer = new QTimer(this);
+    connCheckTimer->setInterval(60000); //1 minute check for connection validity
+    connect(connCheckTimer, SIGNAL(timeout()), this, SLOT(checkConnection()) );
+    connCheckTimer->start();
 }
 
-WebSocket::WebSocket(QString url, QString ID, AuthorizationManager *auth){
+WebSocket::WebSocket(QObject *parent, QString url, QString ID, AuthorizationManager *auth) : QObject(parent){
   //sets up a bridge connection (websocket only)
   SockID = ID;
   isBridge = true;
@@ -82,7 +90,6 @@ WebSocket::WebSocket(QString url, QString ID, AuthorizationManager *auth){
   //connect(SOCKET, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)) );
   connect(SOCKET, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(SslError(const QList<QSslError>&)) );
   //idletimer->start(); //do not idle out on a bridge connection
-  /*QTimer::singleShot(30000, this, SLOT(checkAuth()));*/
   //Assemble the URL as needed
   if(!url.startsWith("wss://")){ url.prepend("wss://"); }
   bool hasport = false;
@@ -91,8 +98,11 @@ WebSocket::WebSocket(QString url, QString ID, AuthorizationManager *auth){
   //Now setup/init the connection
   qDebug() << "Connecting to bridge:" << url;
   SOCKET->setSslConfiguration(QSslConfiguration::defaultConfiguration());
-  //QTimer::singleShot(0,SOCKET, SLOT(ignoreSslErrors()) );
   SOCKET->open(QUrl(url));
+  connCheckTimer = new QTimer(this);
+    connCheckTimer->setInterval(60000); //1 minute check for connection validity
+    connect(connCheckTimer, SIGNAL(timeout()), this, SLOT(checkConnection()) );
+    connCheckTimer->start();
 }
 
 WebSocket::~WebSocket(){
@@ -119,6 +129,16 @@ void WebSocket::closeConnection(){
   if(TSOCKET!=0 && TSOCKET->isValid()){
     TSOCKET->close();
   }
+}
+
+bool WebSocket::isActive(){
+  bool ok = false;
+  if(SOCKET!=0){
+    ok = SOCKET->isValid();
+  }else if(TSOCKET!=0){
+    ok = TSOCKET->isValid();
+  }
+  return ok;
 }
 
 //=======================
@@ -448,6 +468,14 @@ QStringList WebSocket::JsonArrayToStringList(QJsonArray array){
 // =====================
 //       PRIVATE SLOTS
 // =====================
+void WebSocket::checkConnection(){
+  if(SOCKET !=0 && !SOCKET->isValid()){
+    emit SocketClosed(SockID);
+  }
+  else if(TSOCKET !=0 && !TSOCKET->isValid() ){
+    emit SocketClosed(SockID);
+  }
+}
 void WebSocket::checkIdle(){
   if(SOCKET !=0 && SOCKET->isValid()){
     LogManager::log(LogManager::HOST,"Connection Idle: "+SockPeerIP);
@@ -578,7 +606,7 @@ void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
 }
 
 void WebSocket::startBridgeAuth(){
-  qDebug() << "Init Bridge Auth...";
+  //qDebug() << "Init Bridge Auth...";
   QJsonObject obj;
   obj.insert("id", "server_to_bridge_auth");
   obj.insert("namespace","rpc");

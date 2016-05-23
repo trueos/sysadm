@@ -10,7 +10,7 @@
 #define DEBUG 0
 #define IDLETIMEOUTMINS 30
 
-BridgeConnection::BridgeConnection(QWebSocket *sock, QString ID){
+BridgeConnection::BridgeConnection(QObject *parent, QWebSocket *sock, QString ID) : QObject(parent){
   SockID = ID;
   SockAuthToken.clear(); //nothing set initially
   SOCKET = sock;

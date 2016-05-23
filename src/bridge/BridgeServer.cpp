@@ -120,7 +120,7 @@ void BridgeServer::NewSocketConnection(){
     if(allowConnection(ws->peerAddress()) ){
       QString name = ws->peerName();
       if(name.isEmpty()){ name = ws->peerAddress().toString(); }
-      sock = new BridgeConnection( ws, generateID(name) );
+      sock = new BridgeConnection( this, ws, generateID(name) );
     }else{
       ws->abort();
     }
