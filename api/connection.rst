@@ -173,6 +173,42 @@ To clear a pre-saved authentication token, such as signing out, use this request
     "args" : "junk argument"
     }
   
+
+
+**4. SSL Certificate Client Initiation (client authentication with server through bridge)**
+
+  **WebSocket Request (Stage 1 - Initial Request, client through bridge)**
+  
+  .. code-block:: json
+
+    {
+    "namespace" : "rpc",
+    "name" : "auth_ssl",
+    "id" : "sampleID",
+    "args" : {
+      "action" : "auth_ssl",
+      "md5_key" : "<base 64 encoded key>"
+      }
+    } 
+
+
+  **WebSocket Reply (Stage 1)**
+
+  .. code-block:: json
+
+    {
+      "args": {
+       "test_string" : "<some random plaintext string of letters/numbers>",
+       "new_ssl_key" : ["<piece 1>", "<piece 2>", "<continuing>"]
+       },
+      "id": "sampleID",
+      "name": "response",
+      "namespace": "rpc"
+    }
+
+
+.. important:: all future messages are bulk encrypted with the private key. For example, the following section {"id","name","namespace","args"} is being encrypted in one block prior to transport through the bridge.
+
 .. _SSL Certificate Management:
 
 SSL Certificate Management
