@@ -110,6 +110,7 @@ void BridgeConnection::InjectMessage(QString msg){
       //Add the "from" ID to the message
       msg = msg.replace(0,lb,SockID); //replace the "to" ID with the "from" ID
       emit SocketMessage(toID, msg); //forward the message on to the "to" connection
+      //qDebug() << "Message:" << toID << SockID << msg; //simple message snooping on the bridge - to verify server/client encryption
     }
   }
 }

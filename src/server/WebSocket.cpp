@@ -76,7 +76,7 @@ WebSocket::WebSocket(QObject *parent, QString url, QString ID, AuthorizationMana
   TSOCKET = 0;
   AUTHSYSTEM = auth;
   SockPeerIP = SOCKET->peerAddress().toString();
-  LogManager::log(LogManager::HOST,"New Connection: "+SockPeerIP);
+  //LogManager::log(LogManager::HOST,"New Bridge Connection: "+SockPeerIP);
   idletimer = new QTimer(this);
     idletimer->setInterval(IDLETIMEOUTMINS*60000); //connection timout for idle sockets
     idletimer->setSingleShot(true);
@@ -254,19 +254,40 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     }else if(out.in_struct.name=="auth_ssl"){
       if(out.in_struct.args.isObject() && out.in_struct.args.toObject().contains("encrypted_string")){
         //Stage 2: Check the returned encrypted/string
+        qDebug() << "State 2 SSL Auth Request";
 	cur_auth_tok = AUTHSYSTEM->LoginUC(host, JsonValueToString(out.in_struct.args.toObject().value("encrypted_string")) );
       }else{
         //Stage 1: Send the client a random string to encrypt with their SSL key
         QString key = AUTHSYSTEM->GenerateEncCheckString();
-        QJsonObject obj; obj.insert("test_string", key);
+        QJsonObject obj;
+        /*if(out.in_struct.args.toObject().contains("md5_key")){
+          qDebug() << "Encrypted SSL Auth Requested";
+          QString md5 = out.in_struct.args.toObject().value("md5_key").toString(); //Note: This is base64 encoded right now
+          //qDebug() << " - Get pub key for md5";
+          QByteArray pubkey = AUTHSYSTEM->pubkeyForMd5(md5);
+          //qDebug() << " - Generate new Priv key";
+          QByteArray privkey = AUTHSYSTEM->GenerateSSLPrivkey();
+          //Now break up the private key into 128 byte chunks and encrypt with public key for transport
+          //qDebug() << " - Destruct priv key into chunks" << "Length:" << privkey.size();
+	  QJsonArray pkeyarr;
+          for(int i=0; i<privkey.size(); i+=64){
+            //qDebug() << " -- i:" << i;
+	    pkeyarr << AUTHSYSTEM->encryptString( QString(privkey.mid(i,64)), pubkey);
+          }
+          obj.insert("new_ssl_key", pkeyarr); //send this to the client for re-assembly
+          //Also encrypt the test string with the public key as well
+          //qDebug() << " - Encrypt test string with pubkey";
+          key = AUTHSYSTEM->encryptString( key, pubkey);
+          //qDebug() << " - Done with special SSL section";
+          BRIDGE[REQ.bridgeID].enc_key = privkey;
+        }*/
+        obj.insert("test_string", key);
 	out.out_args = obj;
         out.CODE = RestOutputStruct::OK;
         QString msg = out.assembleMessage();
         if(SOCKET!=0 && !REQ.bridgeID.isEmpty()){
-          //BRIDGE RELAY - alternate format
-          //Need to encrypt the message for output (TO-DO)
-         QString key = BRIDGE[REQ.bridgeID].enc_key;
-         if(!key.isEmpty()){ msg = AUTHSYSTEM->encryptString(msg, key); }
+          //BRIDGE RELAY - alternate format 
+          //Note that the Stage 1 SSL auth reply is only partially encrypted (specific variables only, not bulk message encryption)
           //Now add the destination ID
           msg.prepend( REQ.bridgeID+"\n");
         }
@@ -383,12 +404,10 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
   //Return any information
   QString msg = out.assembleMessage();
   if(SOCKET!=0 && !REQ.bridgeID.isEmpty()){
-    //BRIDGE RELAY - alternate format
-    //Need to encrypt the message for output (TO-DO)
-    QString key = BRIDGE[REQ.bridgeID].enc_key;
-    if(!key.isEmpty()){ msg = AUTHSYSTEM->encryptString(msg, key); }
-    //Now add the destination ID
-    msg.prepend( REQ.bridgeID+"\n");
+   //BRIDGE RELAY - alternate format
+   msg = AUTHSYSTEM->encryptString(msg, BRIDGE[REQ.bridgeID].enc_key); 
+   //Now add the destination ID
+   msg.prepend( REQ.bridgeID+"\n");
   }
   if(out.CODE == RestOutputStruct::FORBIDDEN && SOCKET!=0 && SOCKET->isValid()){
     this->sendReply(msg);
@@ -521,7 +540,7 @@ void WebSocket::EvaluateMessage(const QByteArray &msg){
 }
 
 void WebSocket::EvaluateMessage(const QString &msg){ 
-  //qDebug() << "New Text Message:";
+  qDebug() << "New Text Message:" << msg;
   if(idletimer->isActive()){ idletimer->stop(); }
   idletimer->start(); 
   EvaluateREST(msg); 
@@ -606,6 +625,8 @@ void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
 }
 
 void WebSocket::startBridgeAuth(){
+  SockPeerIP = SOCKET->peerAddress().toString();
+  LogManager::log(LogManager::HOST,"New Bridge Connection: "+SockPeerIP);
   //qDebug() << "Init Bridge Auth...";
   QJsonObject obj;
   obj.insert("id", "server_to_bridge_auth");
@@ -637,9 +658,7 @@ void WebSocket::EventUpdate(EventWatcher::EVENT_TYPE evtype, QJsonValue msg){
     for(int i=0; i<conns.length(); i++){
       if( !BRIDGE[conns[i]].sendEvents.contains(evtype) ){ continue; }
       //Encrypt the data with the proper key
-      QString key = BRIDGE[conns[i]].enc_key;
-      QString enc_data = raw;
-      if(!key.isEmpty()){ enc_data = AUTHSYSTEM->encryptString(raw, key); }
+      QString enc_data = AUTHSYSTEM->encryptString(raw, BRIDGE[conns[i]].enc_key);
       //Now add the destination ID
       enc_data.prepend( conns[i]+"\n");
       this->emit SendMessage(enc_data);

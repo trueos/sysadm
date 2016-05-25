@@ -338,13 +338,143 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
   }
 }
 
-QString AuthorizationManager::encryptString(QString msg, QString key){
-  //do nothing yet
-  return msg;
+QString AuthorizationManager::encryptString(QString str, QByteArray key){
+  return str; //TEMPORARY BYPASS
+  bool pub=true;
+  if(key.contains("--BEGIN PUBLIC KEY--")){ pub=true; }
+  else if(key.contains(" PRIVATE KEY--")){ pub=false; }
+  else{ return str; } //unknown encryption - just return as-is
+  qDebug() << "Encrypt String:" << str << pub;//<< key;
+  //Reset/Load some SSL stuff
+    //OpenSSL_add_all_algorithms();
+    //ERR_load_crypto_strings();
+
+  //Now Encrypt the string
+  //qDebug() << "allocate encode array";
+  unsigned char *encode = (unsigned char*)malloc(2*str.length()); //give it plenty of extra space as needed
+  RSA *rsa= NULL;
+  BIO *keybio = NULL;
+  //qDebug() << "allocate keybio buffer";
+  keybio = BIO_new_mem_buf(key.data(), -1);
+  if(keybio==NULL){ return ""; }
+
+  if(!pub){
+    //Using PRIVATE key to encrypt
+    //qDebug() << "Read private key";
+    rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa,NULL, NULL);
+    if(rsa==NULL){ return ""; }
+    //qDebug() << "Encrypt with private key";
+    int len = RSA_private_encrypt(str.length(), (unsigned char*)(str.toLocal8Bit().data()), encode, rsa, RSA_PKCS1_PADDING);
+    if(len <0){ return ""; }
+    //qDebug() << "Return base-64 encoded version";
+    QByteArray str_encode( (char*)(encode), len);
+    str_encode = str_encode.toBase64();
+    return QString( str_encode ); 
+  }else{
+    //Using PUBLIC key to encrypt
+    //qDebug() << "Read Public Key";
+    rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
+    if(rsa==NULL){ return ""; }
+    //qDebug() << "Encrypt with public key";
+    int len = RSA_public_encrypt(str.length(), (unsigned char*)(str.toLocal8Bit().data()), encode, rsa, RSA_PKCS1_PADDING);
+    if(len <0){ return ""; }
+    //qDebug() << "Return base-64 encoded version";
+    QByteArray str_encode = QByteArray::fromRawData( (char*)(encode), len);
+    qDebug() << "Encoded:" << str_encode;
+    str_encode = str_encode.toBase64();
+    qDebug() << "Could reverse encoding:" << (decryptString(str_encode, key) == str);
+    qDebug() << "Base64:" << str_encode;
+
+    return QString( str_encode ); 
+  }
+  return str;
 }
 
-QString AuthorizationManager::decryptString(QString msg, QString key){
-  return msg; //do nothing yet
+QString AuthorizationManager::decryptString(QString str, QByteArray key){
+  return str; //TEMPORARY BYPASS
+  bool pub=true;
+  if(key.contains("--BEGIN PUBLIC KEY--")){ pub=true; }
+  else if(key.contains(" PRIVATE KEY--")){ pub=false; }
+  else{ return str; } //unknown encryption - just return as-is
+  //Reset/Load some SSL stuff
+  //  OpenSSL_add_all_algorithms();
+   // ERR_load_crypto_strings();
+
+  //Turn the encrypted string into a byte array
+  QByteArray enc; enc.append(str.toLocal8Bit());
+
+  unsigned char *decode = (unsigned char*)malloc(2*str.length());
+  RSA *rsa= NULL;
+  BIO *keybio = NULL;
+  //qDebug() << " - Generate keybio";
+  keybio = BIO_new_mem_buf(key.data(), -1);
+  if(keybio==NULL){ return ""; }
+  //qDebug() << " - Read pubkey";
+  if(pub){
+    //PUBLIC KEY
+    rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
+    if(rsa==NULL){ qDebug() << " - Invalid RSA key!!"; return ""; }
+    //qDebug() << " - Decrypt string";
+    int len = RSA_public_decrypt(enc.length(), (unsigned char*)(enc.data()), decode, rsa, RSA_PKCS1_PADDING);
+    if(len<0){ return ""; }
+    return QString( QByteArray( (char*)(decode), len) );
+  }else{
+    //PRIVATE KEY
+    rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa,NULL, NULL);
+    if(rsa==NULL){ qDebug() << " - Invalid RSA key!!"; return ""; }
+    //qDebug() << " - Decrypt string";
+    int len = RSA_private_decrypt(enc.length(), (unsigned char*)(enc.data()), decode, rsa, RSA_PKCS1_PADDING);
+    if(len<0){ return ""; }
+    return QString( QByteArray( (char*)(decode), len) );
+  }
+}
+
+//Additional SSL Encryption functions
+QByteArray AuthorizationManager::GenerateSSLPrivkey(){
+  const int kBits = 4096; //25165824; // 3MB in bits
+  const int kExp = 3;
+
+  int keylen;
+  char *pem_key;
+
+  RSA *rsa = RSA_generate_key(kBits, kExp, 0, 0);
+
+  /* To get the C-string PEM form: */
+  BIO *bio = BIO_new(BIO_s_mem());
+  PEM_write_bio_RSAPrivateKey(bio, rsa, NULL, NULL, 0, NULL, NULL);
+
+  keylen = BIO_pending(bio);
+  pem_key = (char *)malloc(keylen+1); /* Null-terminate */
+  BIO_read(bio, pem_key, keylen);
+  QByteArray data = QByteArray::fromRawData(pem_key, keylen);
+  qDebug() << "New Priv Key:" << data;
+  return data;
+}
+
+QByteArray AuthorizationManager::pubkeyForMd5(QString md5_base64){
+  QByteArray md5 = QByteArray::fromBase64( md5_base64.toLocal8Bit() );
+
+QStringList keys; //Format: "RegisteredCerts/<user>/<key>" (value is full text)
+    //Read all user's certs (since we only need checksums)
+    keys = CONFIG->allKeys().filter("RegisteredCerts/");
+  keys.sort();
+  QJsonArray arr;
+  QCryptographicHash chash(QCryptographicHash::Md5);
+  //qDebug() << "MD5 Generation:";
+  for(int i=0; i<keys.length(); i++){
+    //qDebug() << "User:" << keys[i].section("/",1,1);
+    QByteArray key = QByteArray::fromBase64( keys[i].section("/",2,-1).toLocal8Bit() ); //remember that the keys are stored internally as base64-encoded strings
+    //qDebug() << " - Key:" << key;
+    chash.addData( key );
+    QByteArray res = chash.result();
+    //qDebug() << " - md5:" << res;
+    chash.reset();
+    if(res==md5){
+      //qDebug() << "Found key for MD5:" << key;
+      return key;
+    }
+  }
+  return ""; //fallback - no matching key found
 }
 
 // =========================

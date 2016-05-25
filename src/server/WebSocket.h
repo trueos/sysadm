@@ -12,7 +12,8 @@
 #include "AuthorizationManager.h"
 
 struct bridge_data{
-  QString enc_key, auth_tok;
+  QByteArray enc_key;
+  QString auth_tok;
   QList<EventWatcher::EVENT_TYPE> sendEvents;
 };
 

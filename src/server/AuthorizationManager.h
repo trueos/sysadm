@@ -40,9 +40,13 @@ public:
 	QString LoginUC(QHostAddress host, QString encstring); 
 	
 	//Message Encryption/decryption methods
-	QString encryptString(QString msg, QString key);
-	QString decryptString(QString msg, QString key);
+	QString encryptString(QString msg, QByteArray key);
+	QString decryptString(QString msg, QByteArray key);
 
+        //Additional SSL Encryption functions
+        QByteArray GenerateSSLPrivkey();
+	QByteArray pubkeyForMd5(QString md5_base64);
+	
 private:
 	QHash<QString, QDateTime> HASH;
 	QHash <QString, QDateTime> IPFAIL;
