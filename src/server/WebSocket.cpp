@@ -145,7 +145,7 @@ bool WebSocket::isActive(){
 //             PRIVATE
 //=======================
 void WebSocket::sendReply(QString msg){
-  //qDebug() << "Sending Socket Reply:" << msg;
+  qDebug() << "Sending Socket Reply:" << msg;
  if(SOCKET!=0 && SOCKET->isValid()){ SOCKET->sendTextMessage(msg); } //Websocket connection
  else if(TSOCKET!=0 && TSOCKET->isValid()){ 
     //TCP Socket connection

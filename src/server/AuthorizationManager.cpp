@@ -339,11 +339,11 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
 }
 
 QString AuthorizationManager::encryptString(QString str, QByteArray key){
-  return str; //TEMPORARY BYPASS
   bool pub=true;
   if(key.contains("--BEGIN PUBLIC KEY--")){ pub=true; }
   else if(key.contains(" PRIVATE KEY--")){ pub=false; }
   else{ return str; } //unknown encryption - just return as-is
+  return str.toLocal8Bit().toBase64(); //TEMPORARY BYPASS
   qDebug() << "Encrypt String:" << str << pub;//<< key;
   //Reset/Load some SSL stuff
     //OpenSSL_add_all_algorithms();
@@ -391,7 +391,10 @@ QString AuthorizationManager::encryptString(QString str, QByteArray key){
 }
 
 QString AuthorizationManager::decryptString(QString str, QByteArray key){
-  return str; //TEMPORARY BYPASS
+  QByteArray bytes; bytes.append(str);
+  bytes = QByteArray::fromBase64(bytes);
+  qDebug() << "Decode String:" << bytes;
+  return QString(bytes); //TEMPORARY BYPASS
   bool pub=true;
   if(key.contains("--BEGIN PUBLIC KEY--")){ pub=true; }
   else if(key.contains(" PRIVATE KEY--")){ pub=false; }
