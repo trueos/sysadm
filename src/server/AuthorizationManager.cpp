@@ -316,21 +316,21 @@ QString AuthorizationManager::LoginUC(QHostAddress host, QString encstring){
       QStringList groups = getUserGroups(user);
       if(groups.contains("wheel")){ isOperator = true; } //full-access user
       else if(!groups.contains("operator")){
-        return ""; //user not allowed access if not in either of the wheel/operator groups
+        ok = false; //user not allowed access if not in either of the wheel/operator groups
       }
     }else{ isOperator = true; }
 
   }
   if(user.isEmpty()){ ok = false; }
 
-  qDebug() << "User Login Attempt:" << user << " Success:" << ok << " IP:" << host.toString();
-  LogManager::log(LogManager::HOST, QString("User Login Attempt: ")+user+"   Success: "+(ok?"true":"false")+"   IP: "+host.toString() );
+  qDebug() << "SSL Login Attempt: User:" << user << " Success:" << ok << " IP:" << host.toString();
+  LogManager::log(LogManager::HOST, QString("SSL Login Attempt:   User: ")+user+"   Success: "+(ok?"true":"false")+"   IP: "+host.toString() );
   if(!ok){
     //invalid login
     //Bump the fail count for this host
     bool overlimit = BumpFailCount(host.toString());
     if(overlimit){ emit BlockHost(host); }
-    return (overlimit ? "REFUSED" : "");
+    return (overlimit ? "REFUSED" : "invalid");
   }else{
     //valid login - generate a new token for it
     ClearHostFail(host.toString());
@@ -564,11 +564,11 @@ QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey
     pkey.append(pubkey);
   pkey = QByteArray::fromBase64(pkey);
   //Now start the SSL routine
-  /*qDebug() << "Decrypt String:" << "Length:" << enc.length() << enc;
-  qDebug() << " - Base64:" << encstring << "Length:" << encstring.length();
-  qDebug() << " - pubkey (base64):" << pubkey << "Length:" << pubkey.length();
-  qDebug() << " - pubkey:" << pkey << "Length:" << pkey.length();*/
-  unsigned char decode[4098] = {};
+  //qDebug() << "Decrypt String:" << "Length:" << enc.length() << enc;
+  //qDebug() << " - Base64:" << encstring << "Length:" << encstring.length();
+  //qDebug() << " - pubkey (base64):" << pubkey << "Length:" << pubkey.length();
+  //qDebug() << " - pubkey:" << pkey << "Length:" << pkey.length();
+  unsigned char *decode = (unsigned char*)malloc(4098);
   RSA *rsa= NULL;
   BIO *keybio = NULL;
   //qDebug() << " - Generate keybio";
@@ -576,7 +576,7 @@ QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey
   if(keybio==NULL){ return ""; }
   //qDebug() << " - Read pubkey";
   rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
-  if(rsa==NULL){ qDebug() << " - Invalid RSA key!!"; return ""; }
+  if(rsa==NULL){ return ""; }
   //qDebug() << " - Decrypt string";
   int len = RSA_public_decrypt(enc.length(), (unsigned char*)(enc.data()), decode, rsa, RSA_PKCS1_PADDING);
   if(len<0){ return ""; }
