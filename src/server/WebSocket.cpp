@@ -260,7 +260,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
         //Stage 1: Send the client a random string to encrypt with their SSL key
         QString key = AUTHSYSTEM->GenerateEncCheckString();
         QJsonObject obj;
-        /*if(out.in_struct.args.toObject().contains("md5_key")){
+        if(out.in_struct.args.toObject().contains("md5_key")){
           qDebug() << "Encrypted SSL Auth Requested";
           QString md5 = out.in_struct.args.toObject().value("md5_key").toString(); //Note: This is base64 encoded right now
           //qDebug() << " - Get pub key for md5";
@@ -280,7 +280,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
           key = AUTHSYSTEM->encryptString( key, pubkey);
           //qDebug() << " - Done with special SSL section";
           BRIDGE[REQ.bridgeID].enc_key = privkey;
-        }*/
+        }
         obj.insert("test_string", key);
 	out.out_args = obj;
         out.CODE = RestOutputStruct::OK;
