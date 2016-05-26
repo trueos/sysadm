@@ -81,7 +81,7 @@ by both server and bridge, while token authentication and username/password requ
 Here is an example of using a pre-registered SSL certificate to request authentication. Note that this is a two-step process with only a 30 seconds window of validity, so this is best
 left to automated systems rather than direct user requests.
 
-**3. SSL Certificate: (Server and Bridge)**
+**3.1. SSL Certificate Authentication: (Server and Bridge)**
 
   **WebSocket Request (Stage 1 - Initial Request)**
   
@@ -175,9 +175,11 @@ To clear a pre-saved authentication token, such as signing out, use this request
   
 
 
-**4. SSL Certificate Client Initiation (client authentication with server through bridge)**
+**3.2. Alternate SSL Certificate Authentication Initiation (server through bridge)**
 
-  **WebSocket Request (Stage 1 - Initial Request, client through bridge)**
+This is an alternate method for stage 1 of the SSL Certificate Authentication method. In this case, the initial request has specified using a base 64 encoded key, to which the server will respond with its own encrypted message. This prevents the bridge from being able to decrypt messages between client and server for the duration of the connection.
+
+  **WebSocket Request (Stage 1 - Initial Request)**
   
   .. code-block:: json
 
@@ -207,7 +209,7 @@ To clear a pre-saved authentication token, such as signing out, use this request
     }
 
 
-.. important:: all future messages are bulk encrypted with the private key. For example, the following section {"id","name","namespace","args"} is being encrypted in one block prior to transport through the bridge.
+.. important:: in the above reply, both values for "test_string" and "new_ssl_key" are encrypted with the public SSL key matching the md5 sum from the initial request and then base 64 encoded for transport. All future messages are bulk encrypted with the "new_ssl_key", which is a new randomly generated private key only known to the server and client. For example, the following section {"id","name","namespace","args"} will now be encrypted with the private key in one block prior to transport through the bridge.
 
 .. _SSL Certificate Management:
 
