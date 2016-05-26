@@ -12,7 +12,7 @@ RestInputStruct::RestInputStruct(QString message, bool isRest){
   if(message.isEmpty()){ return; }
   //Pull out any REST headers
   //qDebug() << "Raw Message:" << message;
-  if(!message.startsWith("{")){ 
+  if(!message.startsWith("{")){ //TO-DO
     if(isRest){
       Header = message.section("{",0,0).split("\n");
       Body = "{"+message.section("{",1, -1);
@@ -53,6 +53,7 @@ RestInputStruct::RestInputStruct(QString message, bool isRest){
 RestInputStruct::~RestInputStruct(){}
 
 void RestInputStruct::ParseBodyIntoJson(){
+  qDebug() << "Parse Body Into JSON";
   while(Body.endsWith("\n")){ Body.chop(1); }
   if(Body.startsWith("{") && Body.endsWith("}") ){
     QJsonDocument doc = QJsonDocument::fromJson(Body.toUtf8());
@@ -67,6 +68,9 @@ void RestInputStruct::ParseBodyIntoJson(){
 	args = doc.object();
       }
     }
+  }else{
+    qDebug() << " -Could not find JSON!!";
+    qDebug() << " - Body:" << Body;
   }
   //Now do any REST -> JSON conversions if necessary
   if(!URI.isEmpty()){

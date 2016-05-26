@@ -157,9 +157,11 @@ void WebSocket::sendReply(QString msg){
 void WebSocket::EvaluateREST(QString msg){
   //Parse the message into it's elements and proceed to the main data evaluation
   RestInputStruct IN(msg, TSOCKET!=0);	
-  if(SOCKET!=0 && !IN.Header.isEmpty()){
-    //Bridge-relay message - need to decrypt the message body before it can be parsed
-    //IN.Body = AUTHSYSTEM->decryptString(IN.Body, key); //TO-DO
+  if(SOCKET!=0 && !IN.Header.isEmpty() && !IN.bridgeID.isEmpty() ){
+    if(BRIDGE.contains(IN.bridgeID)){
+      //Bridge-relay message - need to decrypt the message body before it can be parsed
+      IN.Body = AUTHSYSTEM->decryptString(IN.Body, BRIDGE[IN.bridgeID].enc_key);
+    }
     IN.ParseBodyIntoJson();
   }
   if(DEBUG){
@@ -259,6 +261,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
       }else{
         //Stage 1: Send the client a random string to encrypt with their SSL key
         QString key = AUTHSYSTEM->GenerateEncCheckString();
+       //qDebug() << "New Check String:" << key;
         QJsonObject obj;
         if(out.in_struct.args.toObject().contains("md5_key")){
           qDebug() << "Encrypted SSL Auth Requested";
@@ -497,8 +500,10 @@ void WebSocket::checkConnection(){
 }
 void WebSocket::checkIdle(){
   if(SOCKET !=0 && SOCKET->isValid()){
-    LogManager::log(LogManager::HOST,"Connection Idle: "+SockPeerIP);
-    SOCKET->close(); //timeout - close the connection to make way for others
+    if(!isBridge){ //never timout from idle on a bridge connection
+      LogManager::log(LogManager::HOST,"Connection Idle: "+SockPeerIP);
+      SOCKET->close(); //timeout - close the connection to make way for others
+    }
   }
   else if(TSOCKET !=0 && TSOCKET->isValid() ){
     LogManager::log(LogManager::HOST,"Connection Idle: "+SockPeerIP);
@@ -507,7 +512,13 @@ void WebSocket::checkIdle(){
 }
 
 void WebSocket::checkAuth(){
-  if(!AUTHSYSTEM->checkAuth(SockAuthToken)){
+  if(isBridge){
+    //Special handling for a bridge connection - since the server is the connection "initiator" instead of receiver
+    if(!SockAuthToken.isEmpty() && SOCKET!=0 && SOCKET->isValid()){
+      LogManager::log(LogManager::HOST,"Bridge Connection Still Unauthorized: "+SockPeerIP);
+      SOCKET->close();
+    }
+  }else if(!AUTHSYSTEM->checkAuth(SockAuthToken)){
     //Still not authorized - disconnect
     checkIdle();
   }
