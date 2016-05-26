@@ -145,7 +145,7 @@ bool WebSocket::isActive(){
 //             PRIVATE
 //=======================
 void WebSocket::sendReply(QString msg){
-  qDebug() << "Sending Socket Reply:" << msg;
+  //qDebug() << "Sending Socket Reply:" << msg;
  if(SOCKET!=0 && SOCKET->isValid()){ SOCKET->sendTextMessage(msg); } //Websocket connection
  else if(TSOCKET!=0 && TSOCKET->isValid()){ 
     //TCP Socket connection
@@ -269,20 +269,23 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
           //qDebug() << " - Get pub key for md5";
           QByteArray pubkey = AUTHSYSTEM->pubkeyForMd5(md5);
           //qDebug() << " - Generate new Priv key";
-          QByteArray privkey = AUTHSYSTEM->GenerateSSLPrivkey();
+          QList<QByteArray> newkeys = AUTHSYSTEM->GenerateSSLKeyPair(); //public[0]/private[1]
           //Now break up the private key into 128 byte chunks and encrypt with public key for transport
-          //qDebug() << " - Destruct priv key into chunks" << "Length:" << privkey.size();
+          //qDebug() << " - Destruct public key into chunks";
 	  QJsonArray pkeyarr;
-          for(int i=0; i<privkey.size(); i+=64){
+          for(int i=0; i<newkeys[0].size(); i+=128){
             //qDebug() << " -- i:" << i;
-	    pkeyarr << AUTHSYSTEM->encryptString( QString(privkey.mid(i,64)), pubkey);
+	    pkeyarr << AUTHSYSTEM->encryptString( QString(newkeys[0].mid(i,128)), pubkey);
           }
-          obj.insert("new_ssl_key", pkeyarr); //send this to the client for re-assembly
+          obj.insert("new_ssl_key", pkeyarr); //send this to the client for re-assembly (public key)
           //Also encrypt the test string with the public key as well
           //qDebug() << " - Encrypt test string with pubkey";
+          qDebug() << "SSL Test String (raw):" << key;
           key = AUTHSYSTEM->encryptString( key, pubkey);
           //qDebug() << " - Done with special SSL section";
-          BRIDGE[REQ.bridgeID].enc_key = privkey;
+          qDebug() << "SSL Test String (encrypted + encoded):" << key;
+          qDebug() << "SSL Test String (encrypted):" << QByteArray::fromBase64(key.toLocal8Bit());
+          BRIDGE[REQ.bridgeID].enc_key = newkeys[1]; //keep private key
         }
         obj.insert("test_string", key);
 	out.out_args = obj;
@@ -551,7 +554,7 @@ void WebSocket::EvaluateMessage(const QByteArray &msg){
 }
 
 void WebSocket::EvaluateMessage(const QString &msg){ 
-  qDebug() << "New Text Message:" << msg;
+  //qDebug() << "New Text Message:" << msg;
   if(idletimer->isActive()){ idletimer->stop(); }
   idletimer->start(); 
   EvaluateREST(msg); 

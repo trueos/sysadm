@@ -241,6 +241,7 @@ QString AuthorizationManager::GenerateEncCheckString(){
     //insert this new key into the hash for later
     HASH.insert("SSL_CHECK_STRING/"+key, QDateTime::currentDateTime().addSecs(30) ); //only keep a key "alive" for 30 seconds
   }
+  //qDebug() << "New SSL test string:" << key;
   return key;
 }
 
@@ -343,11 +344,11 @@ QString AuthorizationManager::encryptString(QString str, QByteArray key){
   if(key.contains("--BEGIN PUBLIC KEY--")){ pub=true; }
   else if(key.contains(" PRIVATE KEY--")){ pub=false; }
   else{ return str; } //unknown encryption - just return as-is
-  return str.toLocal8Bit().toBase64(); //TEMPORARY BYPASS
+  //return str.toLocal8Bit().toBase64(); //TEMPORARY BYPASS
   //qDebug() << "Encrypt String:" << str << pub;//<< key;
   //Reset/Load some SSL stuff
-    //OpenSSL_add_all_algorithms();
-    //ERR_load_crypto_strings();
+    OpenSSL_add_all_algorithms();
+    ERR_load_crypto_strings();
 
   //Now Encrypt the string
   //qDebug() << "allocate encode array";
@@ -369,7 +370,9 @@ QString AuthorizationManager::encryptString(QString str, QByteArray key){
     //qDebug() << "Return base-64 encoded version";
     QByteArray str_encode( (char*)(encode), len);
     str_encode = str_encode.toBase64();
+    //qDebug() << "Could reverse encoding:" << (decryptString(str_encode, key) == str);
     return QString( str_encode ); 
+
   }else{
     //Using PUBLIC key to encrypt
     //qDebug() << "Read Public Key";
@@ -382,9 +385,13 @@ QString AuthorizationManager::encryptString(QString str, QByteArray key){
     QByteArray str_encode = QByteArray::fromRawData( (char*)(encode), len);
     //qDebug() << "Encoded:" << str_encode;
     str_encode = str_encode.toBase64();
-    qDebug() << "Could reverse encoding:" << (decryptString(str_encode, key) == str);
+    /*qDebug() << "==========CHECK Internal reverse encoding:";
+    INTERNAL VERIFY WILL NEVER WORK: Public Key encrypt needs private key decrypt and vice-versa
+    QString tmp = decryptString(str_encode, key);
+    qDebug() << "INITIAL:" << str;
+    qDebug() << "Decoded:" << tmp;
+    qDebug() << "Match:" << ( tmp== str);*/
     //qDebug() << "Base64:" << str_encode;
-
     return QString( str_encode ); 
   }
   return str;
@@ -399,57 +406,72 @@ QString AuthorizationManager::decryptString(QString str, QByteArray key){
   QByteArray bytes; bytes.append(str);
   bytes = QByteArray::fromBase64(bytes);
   //qDebug() << "Decode String:" << bytes;
-  return QString(bytes); //TEMPORARY BYPASS
+  //return QString(bytes); //TEMPORARY BYPASS
 
   //Reset/Load some SSL stuff
-  //  OpenSSL_add_all_algorithms();
-   // ERR_load_crypto_strings();
+    //OpenSSL_add_all_algorithms();
+    //ERR_load_crypto_strings();
   unsigned char *decode = (unsigned char*)malloc(2*bytes.size());
   RSA *rsa= NULL;
   BIO *keybio = NULL;
   //qDebug() << " - Generate keybio";
   keybio = BIO_new_mem_buf(key.data(), -1);
-  if(keybio==NULL){ return ""; }
+  if(keybio==NULL){ qDebug() << "Invalid keybio"; return ""; }
   //qDebug() << " - Read pubkey";
   if(pub){
     //PUBLIC KEY
     rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
     if(rsa==NULL){ qDebug() << " - Invalid RSA key!!"; return ""; }
     //qDebug() << " - Decrypt string";
-    int len = RSA_public_decrypt(bytes.size(), (unsigned char*)(bytes.data()), decode, rsa, RSA_PKCS1_PADDING);
-    if(len<0){ return ""; }
+    int len = RSA_public_decrypt(bytes.length(), (unsigned char*)(bytes.data()), decode, rsa, RSA_PKCS1_PADDING);
+    if(len<0){ 
+      qDebug() << "decrypt error:"; 
+      qDebug() << ERR_error_string (ERR_peek_error(), NULL);
+      qDebug() << ERR_error_string (ERR_peek_last_error(), NULL); 
+      return ""; 
+    }
     return QString( QByteArray( (char*)(decode), len) );
+
   }else{
     //PRIVATE KEY
     rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa,NULL, NULL);
     if(rsa==NULL){ qDebug() << " - Invalid RSA key!!"; return ""; }
     //qDebug() << " - Decrypt string";
-    int len = RSA_private_decrypt(bytes.size(), (unsigned char*)(bytes.data()), decode, rsa, RSA_PKCS1_PADDING);
+    int len = RSA_private_decrypt(bytes.length(), (unsigned char*)(bytes.data()), decode, rsa, RSA_PKCS1_PADDING);
     if(len<0){ return ""; }
     return QString( QByteArray( (char*)(decode), len) );
   }
 }
 
 //Additional SSL Encryption functions
-QByteArray AuthorizationManager::GenerateSSLPrivkey(){
+QList<QByteArray> AuthorizationManager::GenerateSSLKeyPair(){
   const int kBits = 4096; //25165824; // 3MB in bits
   const int kExp = 3;
 
-  int keylen;
-  char *pem_key;
+  char *pem_key, *pem_key_pub;
 
   RSA *rsa = RSA_generate_key(kBits, kExp, 0, 0);
 
-  /* To get the C-string PEM form: */
+  //Private key in PEM form:
   BIO *bio = BIO_new(BIO_s_mem());
   PEM_write_bio_RSAPrivateKey(bio, rsa, NULL, NULL, 0, NULL, NULL);
-
-  keylen = BIO_pending(bio);
+  int keylen = BIO_pending(bio);
   pem_key = (char *)malloc(keylen+1); /* Null-terminate */
   BIO_read(bio, pem_key, keylen);
-  QByteArray data = QByteArray::fromRawData(pem_key, keylen);
-  //qDebug() << "New Priv Key:" << data;
-  return data;
+  QByteArray privkey = QByteArray::fromRawData(pem_key, keylen);
+
+  //Public key in PEM form:
+  BIO *bio2 = BIO_new(BIO_s_mem());
+  PEM_write_bio_RSAPublicKey(bio2, rsa);
+  int keylen2 = BIO_pending(bio2);
+  pem_key_pub = (char *)malloc(keylen2+1); /* Null-terminate */
+  BIO_read(bio2, pem_key_pub, keylen2);
+  QByteArray pubkey = QByteArray::fromRawData(pem_key_pub, keylen2);
+
+  BIO_free_all(bio);
+  BIO_free_all(bio2);
+  RSA_free(rsa);
+  return (QList<QByteArray>() << pubkey << privkey);
 }
 
 QByteArray AuthorizationManager::pubkeyForMd5(QString md5_base64){

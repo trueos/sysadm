@@ -44,7 +44,7 @@ public:
 	QString decryptString(QString msg, QByteArray key);
 
         //Additional SSL Encryption functions
-        QByteArray GenerateSSLPrivkey();
+        QList<QByteArray> GenerateSSLKeyPair(); //Returns: [public key, private key]
 	QByteArray pubkeyForMd5(QString md5_base64);
 	
 private:

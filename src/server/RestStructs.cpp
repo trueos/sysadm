@@ -53,7 +53,7 @@ RestInputStruct::RestInputStruct(QString message, bool isRest){
 RestInputStruct::~RestInputStruct(){}
 
 void RestInputStruct::ParseBodyIntoJson(){
-  qDebug() << "Parse Body Into JSON";
+  //qDebug() << "Parse Body Into JSON";
   while(Body.endsWith("\n")){ Body.chop(1); }
   if(Body.startsWith("{") && Body.endsWith("}") ){
     QJsonDocument doc = QJsonDocument::fromJson(Body.toUtf8());
