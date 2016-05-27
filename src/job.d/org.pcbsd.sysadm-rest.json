@@ -1,5 +1,4 @@
 {
 	"Label": "org.pcbsd.sysadm-rest",
-	"Program": [ "/usr/local/bin/sysadm-server", "-rest" ],
-	"Enable": false
+	"Program": [ "/usr/local/bin/sysadm-server", "-rest" ]
 }

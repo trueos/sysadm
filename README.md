@@ -40,6 +40,11 @@ Qt5 Websockets (pkg install qt5-websockets)
 
 ### Starting SysAdm
 
+SysAdm can be started one of two ways:
+1. The traditional rc(8) mechanism
+2. The new jobd(8) mechanism
+
+To run under rc(8):
 ```
 (For WebSockets - Required for SysAdm Client)
 % sudo sysrc -f /etc/rc.conf sysadm_enable="YES"
@@ -48,6 +53,15 @@ Qt5 Websockets (pkg install qt5-websockets)
 (Optional for REST)
 % sudo sysrc -f /etc/rc.conf sysadm_rest_enable="YES"
 % sudo service sysadm-rest start
+```
+
+To run under jobd(8):
+```
+(For WebSockets - Required for SysAdm Client)
+% sudo jobctl org.pcbsd.sysadm enable
+
+(Optional for REST)
+% sudo jobctl org.pcbsd.sysadm-rest enable
 ```
 
 ### API Documentation
