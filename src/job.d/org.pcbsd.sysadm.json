@@ -1,5 +1,4 @@
 {
 	"Label": "org.pcbsd.sysadm",
-	"Program": ["/usr/local/bin/sysadm-server"],
-	"Enable": true
+	"Program": ["/usr/local/bin/sysadm-server"]
 }
