@@ -256,7 +256,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     }else if(out.in_struct.name=="auth_ssl"){
       if(out.in_struct.args.isObject() && out.in_struct.args.toObject().contains("encrypted_string")){
         //Stage 2: Check the returned encrypted/string
-        qDebug() << "State 2 SSL Auth Request";
+        //qDebug() << "State 2 SSL Auth Request";
 	cur_auth_tok = AUTHSYSTEM->LoginUC(host, JsonValueToString(out.in_struct.args.toObject().value("encrypted_string")) );
       }else{
         //Stage 1: Send the client a random string to encrypt with their SSL key
@@ -264,30 +264,27 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
        //qDebug() << "New Check String:" << key;
         QJsonObject obj;
         if(out.in_struct.args.toObject().contains("md5_key")){
-          qDebug() << "Encrypted SSL Auth Requested";
+          //qDebug() << "Encrypted SSL Auth Requested";
           QString md5 = out.in_struct.args.toObject().value("md5_key").toString(); //Note: This is base64 encoded right now
           //qDebug() << " - Get pub key for md5";
           QByteArray pubkey = AUTHSYSTEM->pubkeyForMd5(md5);
           //qDebug() << " - Generate new Priv key";
           QList<QByteArray> newkeys = AUTHSYSTEM->GenerateSSLKeyPair(); //public[0]/private[1]
-          //Now break up the private key into 128 byte chunks and encrypt with public key for transport
-          //qDebug() << " - Destruct public key into chunks";
-	  QJsonArray pkeyarr;
-          for(int i=0; i<newkeys[0].size(); i+=128){
-            //qDebug() << " -- i:" << i;
-	    pkeyarr << AUTHSYSTEM->encryptString( QString(newkeys[0].mid(i,128)), pubkey);
-          }
-          obj.insert("new_ssl_key", pkeyarr); //send this to the client for re-assembly (public key)
+          //qDebug() << "New Keys:";
+          //qDebug() << newkeys[0] << "\n" <<  newkeys[1];
+          obj.insert("new_ssl_key", AUTHSYSTEM->encryptString( QString(newkeys[0]), pubkey) ); //pkeyarr); //send this to the client for re-assembly (public key)
           //Also encrypt the test string with the public key as well
           //qDebug() << " - Encrypt test string with pubkey";
-          qDebug() << "SSL Test String (raw):" << key;
+          //qDebug() << "SSL Test String (raw):" << key;
           key = AUTHSYSTEM->encryptString( key, pubkey);
           //qDebug() << " - Done with special SSL section";
-          qDebug() << "SSL Test String (encrypted + encoded):" << key;
-          qDebug() << "SSL Test String (encrypted):" << QByteArray::fromBase64(key.toLocal8Bit());
+          //qDebug() << "SSL Test String (encrypted + encoded):" << key;
+          //qDebug() << "SSL Test String (encrypted):" << QByteArray::fromBase64(key.toLocal8Bit());
+
           BRIDGE[REQ.bridgeID].enc_key = newkeys[1]; //keep private key
+          //BRIDGE[REQ.bridgeID].enc_key = pubkey;
         }
-        obj.insert("test_string", key);
+        obj.insert("test_string", QJsonValue(key));
 	out.out_args = obj;
         out.CODE = RestOutputStruct::OK;
         QString msg = out.assembleMessage();
