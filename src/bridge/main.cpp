@@ -50,11 +50,11 @@ qDebug() << "Starting the bridge:";
 qDebug() << "    \"sysadm-bridge [-port <portnumber>]\"";
 qDebug() << "CLI flags for configuring the bridge:";
 qDebug() << "  \"-h\" or \"help\": Show this help text";
-qDebug() << "  \"-import_ssl_file <nickname> <filepath>\": Loads a .crt or .key file and enables the public key for authorization access later";
-qDebug() << "  \"-import_ssl_pubkey <nickname> <key>\": Enables the public key for authorization access later";
-qDebug() << "  \"-list_ssl\":  Show all known SSL keys";
-qDebug() << "  \"-remove_ssl <nickname>\": Removes a public key from allowing authorization access";
-qDebug() << "  \"-set <variable>=<value>\": Used for adjusting individual settings for the bridge";
+qDebug() << "  \"import_ssl_file <nickname> <filepath>\": Loads a .crt or .key file and enables the public key for authorization access later";
+qDebug() << "  \"import_ssl_pubkey <nickname> <key>\": Enables the public key for authorization access later";
+qDebug() << "  \"list_ssl\":  Show all known SSL keys";
+qDebug() << "  \"remove_ssl <nickname>\": Removes a public key from allowing authorization access";
+qDebug() << "  \"set <variable>=<value>\": Used for adjusting individual settings for the bridge";
 qDebug() << "  - Possible variables:";
 qDebug() << "    \"blacklist/block_minutes\" (integer): Number of minutes a system remains on the automatic blacklist";
 qDebug() << "    \"blacklist/fails_to_block\" (integer): Number of times a system must fail authentication to be placed on blacklist";
@@ -92,9 +92,9 @@ int main( int argc, char ** argv )
  // -------------------------
       else if( (QString(argv[i])=="-port" || QString(argv[i])=="-p") && (i+1<argc)){ i++; port = QString(argv[i]).toUInt(); }
  // -------------------------
-      else if( QString(argv[i])=="-set" && i+1<argc){ settingchange = true; }
+      else if( QString(argv[i])=="set" && i+1<argc){ settingchange = true; }
  // -------------------------
-      else if( QString(argv[i])=="-import_ssl_file" && i+2<argc){
+      else if( QString(argv[i])=="import_ssl_file" && i+2<argc){
         i++; QString id = QString(argv[i]);
 	i++; QFile file(argv[i]);
         settingchange=true;
@@ -121,7 +121,7 @@ int main( int argc, char ** argv )
 	}
         
  // -------------------------
-      }else if( QString(argv[i])=="-import_ssl_pubkey" && i+2<argc){
+      }else if( QString(argv[i])=="import_ssl_pubkey" && i+2<argc){
         i++;  QString id = QString(argv[i]);
         i++;  QByteArray byte(argv[i], strlen(argv[i]) );
         QString enc_key = byte.toBase64();
@@ -131,7 +131,7 @@ int main( int argc, char ** argv )
         CONFIG->setValue("RegisteredCerts/"+id+"/"+enc_key, "Date Registered: "+QDateTime::currentDateTime().toString(Qt::ISODate) );
         settingchange=true;
  // -------------------------
-      }else if( QString(argv[i])=="-list_ssl" ){
+      }else if( QString(argv[i])=="list_ssl" ){
         qDebug() << "Known SSL Keys (base64)";
         settingchange = true;
         QStringList keys = QStringList(CONFIG->allKeys());//.filter("RegisteredCerts/");
@@ -139,7 +139,7 @@ int main( int argc, char ** argv )
           qDebug() << keys[i].section("/",1,1) << keys[i].section("/",2,-1) << CONFIG->value(keys[i]).toString();
         }
  // -------------------------
-      }else if( QString(argv[i])=="-remove_ssl" && i+1<argc){
+      }else if( QString(argv[i])=="remove_ssl" && i+1<argc){
         i++; QString id = QString(argv[i]);
         settingchange = true;
         QStringList dupkeys = CONFIG->allKeys().filter("RegisteredCerts/"+id+"/");

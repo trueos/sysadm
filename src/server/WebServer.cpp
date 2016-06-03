@@ -211,7 +211,7 @@ void WebServer::SslErrors(const QList<QSslError> &list){
 
 // - More Functions for all socket interactions
 void WebServer::SocketClosed(QString ID){
-  qDebug() << "Socket Closed:" << ID;
+  qDebug() << "Socket Closed:" << ID << QDateTime::currentDateTime().toString(Qt::ISODate);
   for(int i=0; i<OpenSockets.length(); i++){
     if(OpenSockets[i]->ID()==ID){ delete OpenSockets.takeAt(i); break; }
   }

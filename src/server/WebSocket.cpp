@@ -14,6 +14,7 @@
 WebSocket::WebSocket(QObject *parent, QWebSocket *sock, QString ID, AuthorizationManager *auth) : QObject(parent){
   SockID = ID;
   isBridge = false;
+  connecting = false;
   SockAuthToken.clear(); //nothing set initially
   SOCKET = sock;
   TSOCKET = 0;
@@ -42,6 +43,7 @@ WebSocket::WebSocket(QObject *parent, QSslSocket *sock, QString ID, Authorizatio
   SockAuthToken.clear(); //nothing set initially
   TSOCKET = sock;
   SOCKET = 0;
+  connecting = false;
   SockPeerIP = TSOCKET->peerAddress().toString();
   LogManager::log(LogManager::HOST,"New Connection: "+SockPeerIP);
   AUTHSYSTEM = auth;
@@ -96,7 +98,8 @@ WebSocket::WebSocket(QObject *parent, QString url, QString ID, AuthorizationMana
   url.section(":",-1).toInt(&hasport); //check if the last piece of the url is a valid number
   if(!hasport){ url.append(":"+QString::number(BRIDGEPORTNUMBER)); }
   //Now setup/init the connection
-  qDebug() << "Connecting to bridge:" << url;
+  qDebug() << "Connecting to bridge:" << url << QDateTime::currentDateTime().toString(Qt::ISODate);
+  connecting = true;
   SOCKET->setSslConfiguration(QSslConfiguration::defaultConfiguration());
   SOCKET->open(QUrl(url));
   connCheckTimer = new QTimer(this);
@@ -134,7 +137,7 @@ void WebSocket::closeConnection(){
 bool WebSocket::isActive(){
   bool ok = false;
   if(SOCKET!=0){
-    ok = SOCKET->isValid();
+    ok = (SOCKET->isValid() || connecting);
   }else if(TSOCKET!=0){
     ok = TSOCKET->isValid();
   }
@@ -492,6 +495,7 @@ QStringList WebSocket::JsonArrayToStringList(QJsonArray array){
 // =====================
 void WebSocket::checkConnection(){
   if(SOCKET !=0 && !SOCKET->isValid()){
+    if(connecting){ SOCKET->abort(); }
     emit SocketClosed(SockID);
   }
   else if(TSOCKET !=0 && !TSOCKET->isValid() ){
@@ -636,6 +640,7 @@ void WebSocket::SslError(const QList<QSslError> &err){ //sslErrors() signal
 }
 
 void WebSocket::startBridgeAuth(){
+  connecting = false; //now connected
   SockPeerIP = SOCKET->peerAddress().toString();
   LogManager::log(LogManager::HOST,"New Bridge Connection: "+SockPeerIP);
   //qDebug() << "Init Bridge Auth...";

@@ -63,6 +63,20 @@ inline QString ReadFile(QString path){
   return str;
 }
 
+void showUsage(){
+qDebug() << "sysadm-binary usage:";
+qDebug() << "Starting the server:";
+qDebug() << "    \"sysadm-binary [-rest] [-port <portnumber>]\"";
+qDebug() << "CLI flags for configuring the server:";
+qDebug() << "  \"-h\" or \"help\": Show this help text";
+qDebug() << "  \"import_ssl_file <username> <filepath> <nickname> [<email>]\": Loads a .crt or .key file and enables the public key for authorization access later";
+qDebug() << "Configuring server->bridge connections (websockets only):";
+qDebug() << "  \"bridge_list\": Show all bridges that are currently setup";
+qDebug() << "  \"bridge_add <nickname> <url>\":  Create a new bridge connection with the given nickname";
+qDebug() << "  \"bridge_remove <nickname>\": Remove the bridge connection with the given nickname";
+qDebug() << "  \"bridge_export_key [file]\": Export the public SSL key the server uses to connect to bridges";
+}
+
 int main( int argc, char ** argv )
 {
     
@@ -79,6 +93,7 @@ int main( int argc, char ** argv )
     for(int i=1; i<argc; i++){
       if( QString(argv[i])=="-rest" ){ websocket = false;}
       else if( QString(argv[i])=="-p" && (i+1<argc) ){ i++; port = QString(argv[i]).toUInt(); }
+      else if( QString(argv[i])=="-h" || QString(argv[i]).contains("help") ){ showUsage(); return 0; }
       else if( QString(argv[i]).startsWith("bridge_") ){
         setonly = true;
         QString opt = QString(argv[i]).section("_",1,-1);
@@ -123,16 +138,38 @@ int main( int argc, char ** argv )
           qDebug() << "Unknown option:" << argv[i];
           return 1;
         }
-      }else if(QString(argv[i])=="-import_ssl_key" && i+3<argc){
+      }else if(QString(argv[i])=="import_ssl_file" && i+3<argc){
         setonly = true;
-        i++; QString user(argv[i]);
-        i++; QByteArray key(argv[i]);
-        i++; QString nickname(argv[i]);
-        QString email;
-        if(i+1<argc){ i++; email = QString(argv[i]); }
+        //Load CLI inputs
+        i++; QString user(argv[i]); //username
+        i++; QByteArray key(argv[i]); //key file
+        i++; QString nickname(argv[i]); // nickname for key
+        QString email; if(i+1<argc){ i++; email = QString(argv[i]); } //email address
+        //Read the key file
+        QFile file(key);
+ 	if(!file.open(QIODevice::ReadOnly)){ qDebug() << "Could not open file:" << file.fileName(); }
+        else{
+          QByteArray enc_key;
+          if(file.fileName().endsWith(".crt")){ 
+            QSslCertificate cert(&file, QSsl::Pem); 
+            if(!cert.isNull()){ enc_key = cert.publicKey().toPem(); }
+          }else if(file.fileName().endsWith(".key")){ 
+            QSslKey key( &file, QSsl::Rsa, QSsl::Pem, QSsl::PublicKey); 
+            if(!key.isNull()){ enc_key = key.toPem(); }
+           }else{
+             qDebug() << "Error: Unknown file type (need .crt or .key file)";
+           }
+          file.close();
+          if(enc_key.isEmpty()){ qDebug() << "ERROR: Could not read file"; }
+          else{
+            bool ok = AuthorizationManager::RegisterCertificateInternal(user, enc_key, nickname, email);
+            if(ok){ qDebug() << "Key Added" << user << nickname; }
+            else{ qDebug() << "Could not add key"; }
+          }
+	}
 	//See if the key is a file instead - then read it
-        bool ok = true;
-	if(QFile::exists(key)){ 
+        /*bool ok = true;
+	if(QFile::exists(key)){
 	  QFile file(key);
           QByteArray pubkey;
           if(file.open(QIODevice::ReadOnly)){  
@@ -144,7 +181,8 @@ int main( int argc, char ** argv )
         }	
 	if(ok){ ok = AuthorizationManager::RegisterCertificateInternal(user, key, nickname, email); }
 	if(ok){ qDebug() << "Key Added" << user << nickname; }
-        else{ qDebug() << "Could not add key"; }
+        else{ qDebug() << "Could not add key"; } */
+
       }else{
         qDebug() << "Unknown option:" << argv[1];
         return 1;

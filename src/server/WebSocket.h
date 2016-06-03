@@ -36,6 +36,7 @@ private:
 	QString SockID, SockAuthToken, SockPeerIP;
 	AuthorizationManager *AUTHSYSTEM;
 	QList<EventWatcher::EVENT_TYPE> ForwardEvents;
+	bool connecting; //flag for whether the connection is still being established
 
 	//Data handling for bridged connections (1 connection for multiple clients)
 	QHash<QString, bridge_data> BRIDGE; //ID/data
