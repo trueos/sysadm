@@ -6,6 +6,7 @@
 #include "WebSocket.h"
 
 #include <QtConcurrent>
+#include <QHostInfo>
 #include <unistd.h>
 
 #define DEBUG 0
@@ -239,6 +240,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     if(out.in_struct.name == "identify"){
       QJsonObject obj;
       obj.insert("type", "server");
+      obj.insert("hostname",QHostInfo::localHostName() );
       out.out_args = obj;
       out.CODE = RestOutputStruct::OK;
     }else if(out.in_struct.name.startsWith("auth")){

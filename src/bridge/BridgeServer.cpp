@@ -118,9 +118,7 @@ void BridgeServer::NewSocketConnection(){
     //qDebug() << "New incoming connection..";
     QWebSocket *ws = this->nextPendingConnection();
     if(allowConnection(ws->peerAddress()) ){
-      QString name = ws->peerName();
-      if(name.isEmpty()){ name = ws->peerAddress().toString(); }
-      sock = new BridgeConnection( this, ws, generateID(name) );
+      sock = new BridgeConnection( this, ws, generateID("") );
     }else{
       ws->abort();
     }

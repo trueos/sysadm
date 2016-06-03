@@ -6,6 +6,7 @@
 #include "BridgeConnection.h"
 
 #include <unistd.h>
+#include <QHostInfo>
 
 #define DEBUG 0
 #define IDLETIMEOUTMINS 30
@@ -130,6 +131,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
       if(id=="sysadm_bridge_request_ident"){
         //qDebug() << "Got ident reply:" << JM;
         serverconn = (JM.value("args").toObject().value("type").toString() == "server");
+
       }else if("bridge_request_list_keys"){
         QStringList keys = JsonArrayToStringList(JM.value("args").toObject().value("md5_keys").toArray());
         //Now see what has changed (if anything)
@@ -153,6 +155,7 @@ void BridgeConnection::HandleAPIMessage(QString msg){
     if(namesp == "rpc" && name=="identify"){
       QJsonObject tmp;
         tmp.insert("type","bridge");
+        tmp.insert("hostname", QHostInfo::localHostName() );
       outargs = tmp;
 
     }else if(namesp == "rpc" && name=="auth_ssl"){
