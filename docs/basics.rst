@@ -60,6 +60,8 @@ Bridge Initialization
 
 Configuring and connecting to a bridge can be a complicated process. Thankfully, there are several steps that are done the first time a server and bridge are configured with SysAdm but do not need to be repeated later. Once these steps are complete, it becomes a much simpler process for a new user to configure their client to communicate with the now configured server and bridge.
 
+.. note:: A list of current commands is available by typing :command:`-h` after the utility name (Example: :command:`sysadm-bridge -h`).
+
 .. _serverbridge init:
 
 Server and Bridge Initialization
@@ -69,7 +71,7 @@ To initialize the server and bridge, begin with the server. Run :command:`sudo s
 
 .. note:: For both server and client, giving SSL key files an easy to remember name and location will simplify the process of finding those files for import to the bridge.
 
-Now, we must transition to the bridge to import the server key. Login to the bridge as the administrator (or root), then type :command:`sysadm-bridge -import_ssl_file <filename> <filepath>`, replacing <filename> and <filepath> with the server key filename and location. Once the server key file is successfully imported, start the bridge (if not already running).
+Now, we must transition to the bridge to import the server key. Login to the bridge as the administrator (or root), then type :command:`sysadm-bridge import_ssl_file <filename> <filepath>`, replacing <filename> and <filepath> with the server key filename and location. Once the server key file is successfully imported, start the bridge (if not already running).
 
 .. note:: The bridge can import SSL files whether it is active or not with no negative effects.
 
@@ -83,11 +85,11 @@ Adding a Client to the Server/Bridge Connection
 
 .. note:: If you have an old SSL bundle from a pre-alpha version of SysAdm created before June 2016, it will need to be removed prior to proceeding with the client initialization process.
 
-In the client UI, create or import an SSL key bundle as prompted by the UI. Once the new SSL keys are created, open :menuselection:`Setup SSL --> View Certificates` in the connection manager and click "Save to File" for both the server and bridge keys. This will export both SSL keys in file form, depositing them in either the "Desktop" folder or home directory (depending on operating system). If necessary, send these key files as an email attachment to the system administrator as part of a request for server/bridge access.
+In the client UI, create or import an SSL key bundle as prompted by the UI. Once the new SSL keys are created, open :menuselection:`Setup SSL --> View Certificates` in the connection manager and click "Export Public Key" for both the server and bridge keys. This will export both SSL keys in file form, depositing them in either the "Desktop" folder or home directory (depending on operating system). If necessary, send these key files as an email attachment to the system administrator as part of a request for server/bridge access.
 
-Moving to the bridge, as the administrator (or root), run :command:`sysadm-bridge -import_ssl_file <nickname> <filepath>` for the requesting client's bridge key file. Now the client and bridge should be able to communicate, but the client/server connection still needs to be established. 
+Moving to the bridge, as the administrator (or root), run :command:`sysadm-bridge import_ssl_file <nickname> <filepath>` for the requesting client's bridge key file. Now the client and bridge should be able to communicate, but the client/server connection still needs to be established. 
 
-On the server, run :command:`sudo sysadm-binary -import_ssl_key <username> <filepath> [<email>]` to import the client -> server SSL key file. This grants an individual with that specific SSL authorization the same permissions as <user>.
+On the server, run :command:`sudo sysadm-binary import_ssl_key <username> <filepath> [<email>]` to import the client -> server SSL key file. This grants an individual with that specific SSL authorization the same permissions as <user>.
 
 Back in the user client, open the connection manager and choose "Bridge Relay" as the connection option. Input the established bridge's URL and click "Connect".The bridge will now show up in the menu tree with a different icon, and will have a sub-menu of connections within it. If you click on the bridged system, it will open the standard UI but the connection is still being relayed through the bridge.
 
