@@ -203,7 +203,7 @@ void BridgeServer::announceKeyChange(QString ID, bool isServer, QStringList keys
         //compare keys to look for matches
         QStringList chkkeys = OpenSockets[i ]->validKeySums();
         chkkeys.removeDuplicates();
-        //qDebug() << "Known Keys for ID:" << OpenSockets[i]->ID() << chkkeys;
+        qDebug() << "Known Keys for ID:" << OpenSockets[i]->ID() << chkkeys;
         chkkeys << keys;
         if(chkkeys.removeDuplicates() > 0){
           IDs << OpenSockets[i]->ID(); 

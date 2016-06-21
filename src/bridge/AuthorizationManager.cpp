@@ -223,6 +223,7 @@ QString AuthorizationManager::DecryptSSLString(QString encstring, QString pubkey
   QByteArray enc;
     enc.append(encstring);
   enc = QByteArray::fromBase64(enc);
+  //return QString(enc); //BYPASS - only use BASE64 for now (skip 2nd layer SSL encryption)
   QByteArray pkey;
     pkey.append(pubkey);
   pkey = QByteArray::fromBase64(pkey);
