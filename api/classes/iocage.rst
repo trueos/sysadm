@@ -3,7 +3,9 @@
 iocage
 ******
 
-The iocage class is used to manage jails which provide a light-weight, operating system-level virtualization for running applications or services.
+The iocage class is used to manage jails which provide a light-weight, 
+operating system-level virtualization for running applications or 
+services.
 
 Every iocage class request contains the following parameters:
 
@@ -26,7 +28,8 @@ Every iocage class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions* 
+for each type of request, along with their responses. 
 
 .. index:: getdefaultsettings, iocage
 
@@ -35,7 +38,8 @@ The rest of this section provides examples of the available *actions* for each t
 Default Settings
 ================
 
-The "getdefaultsettings" action lists all of the global settings that apply to all jails.
+The "getdefaultsettings" action lists all of the global settings that 
+apply to all jails.
 
 **REST Request**
 
@@ -313,8 +317,12 @@ The "getdefaultsettings" action lists all of the global settings that apply to a
 List Jails
 ==========
 
-The "listjails" action lists information about currently installed jails. For each jail, the response includes the UUID of the jail, whether or not the jail has been configured to start at
-system boot, the jail ID (only applies to running jails), whether or not the jail is running, a friendly name for the jail (tag), and the type of jail (basejail or thickjail).
+The "listjails" action lists information about currently installed jails.
+For each jail, the response includes the UUID of the jail, whether or 
+not the jail has been configured to start at system boot, the jail ID 
+(only applies to running jails), whether or not the jail is running, a 
+friendly name for the jail (tag), and the type of jail (basejail or 
+thickjail).
 
 **REST Request**
 
@@ -386,7 +394,8 @@ system boot, the jail ID (only applies to running jails), whether or not the jai
 Jail Settings
 =============
 
-The "getjailsettings" action lists settings that apply to the specified jail. This action supports 4 modes:
+The "getjailsettings" action lists settings that apply to the specified 
+jail. This action supports 4 modes:
 
 * specify a property and a jail
 
@@ -491,7 +500,8 @@ Here is an example of using *-r* and a specifed property:
   "namespace": "sysadm"
  }
 
-An example of specifying either *all* and a jail, or just specifying the jail, as both modes produce identical outputs:
+An example of specifying either *all* and a jail, or just specifying the
+jail, as both modes produce identical outputs:
 
 **REST Request**
 
@@ -657,8 +667,10 @@ An example of specifying either *all* and a jail, or just specifying the jail, a
 List Resource Usage
 ===================
 
-The "df" action lists resource usage for all jails. For each jail, the response includes: CRT (compression ratio), RES (reserved space), QTA (disk quota), USE (used space), AVA (available
-space), and TAG (jail name).
+The "df" action lists resource usage for all jails. For each jail, the 
+response includes: CRT (compression ratio), RES (reserved space), QTA 
+(disk quota), USE (used space), AVA (available space), and TAG (jail 
+name).
 
 **REST Request**
 
@@ -721,7 +733,8 @@ Start a Jail
 
 The "startjail" action starts the specified jail.
 
-.. note:: since a jail can only be started once, you will receive an error if the jail is already running.
+.. note:: since a jail can only be started once, you will receive an 
+error if the jail is already running.
 
 **REST Request**
 
@@ -789,7 +802,8 @@ Stop a Jail
 
 The "stopjail" action stops the specified jail.
 
-.. note:: since a jail can only be stopped once, you will receive an error if the jail is not running.
+.. note:: since a jail can only be stopped once, you will receive an 
+error if the jail is not running.
 
 **REST Request**
 
@@ -857,8 +871,9 @@ The "stopjail" action stops the specified jail.
 Cap a Jail
 ===========
 
-The "capjail" action re-applies resource limits to a running jail. Use this action when you make a change to the specified jail's resources and want to apply the changes without restarting
-the jail.
+The "capjail" action re-applies resource limits to a running jail. Use 
+this action when you make a change to the specified jail's resources and
+want to apply the changes without restarting the jail.
 
 **REST Request**
 
@@ -906,10 +921,13 @@ the jail.
 Clone a Jail
 ============
 
-The "clonejail" action clones the specified "jail". By default, the clone will inherit that jail's properties. Use "props" to specify any properties that should differ. All available
-properties are described in `iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_. 
+The "clonejail" action clones the specified "jail". By default, the 
+clone will inherit that jail's properties. Use "props" to specify any 
+properties that should differ. All available properties are described in
+`iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_. 
 
-In this example, the "tag" property is specified so that the new jail has a different name than the jail it was cloned from. 
+In this example, the "tag" property is specified so that the new jail 
+has a different name than the jail it was cloned from. 
 
 **REST Request**
 
@@ -956,7 +974,8 @@ In this example, the "tag" property is specified so that the new jail has a diff
   "namespace": "sysadm"
  }
  
-In this example, no properties are specified so iocage populates its own values and the props returned in the response is empty:
+In this example, no properties are specified so iocage populates its own
+values and the props returned in the response is empty:
 
 **REST Request**
 
@@ -1010,7 +1029,8 @@ Create a Jail
 
 The "createjail" action creates a jail. 
 
-In this example, the "tag" property sets the name of the new jail and the "release" property specifies which template to use.
+In this example, the "tag" property sets the name of the new jail and 
+the "release" property specifies which template to use.
 
 **REST Request**
 
@@ -1055,8 +1075,9 @@ In this example, the "tag" property sets the name of the new jail and the "relea
   "namespace": "sysadm"
  }
 
-In this example, the **-e** switch, which creates an empty jail, is specified using "switches". Refer to `iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_ for the list
-of available switches.
+In this example, the **-e** switch, which creates an empty jail, is 
+specified using "switches". Refer to `iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_
+for the list of available switches.
 
 **REST Request**
 
@@ -1110,7 +1131,9 @@ of available switches.
 Destroy a Jail
 ==============
 
-The "destroyjail" action destroys the specified jail. This action is irreversible and does not prompt for confirmation, but will fail if the jail is running.
+The "destroyjail" action destroys the specified jail. This action is 
+irreversible and does not prompt for confirmation, but will fail if the 
+jail is running.
 
 **REST Request**
 
@@ -1160,8 +1183,10 @@ The "destroyjail" action destroys the specified jail. This action is irreversibl
 Run Command
 ===========
 
-The "execjail" action executes the specified "command" under the privileges of the specified "user" in the specified "jail". The response will indicate whether or not command execution
-succeeded as well as any output from the command.
+The "execjail" action executes the specified "command" under the 
+privileges of the specified "user" in the specified "jail". The response
+will indicate whether or not command execution succeeded as well as any 
+output from the command.
 
 **REST Request**
 
@@ -1215,7 +1240,8 @@ succeeded as well as any output from the command.
 Clean Jails
 ===========
 
-The "cleanjails" action destroys all existing jail datasets, including all data stored in the jails.
+The "cleanjails" action destroys all existing jail datasets, including 
+all data stored in the jails.
 
 **REST Request**
 
@@ -1261,7 +1287,9 @@ The "cleanjails" action destroys all existing jail datasets, including all data 
 Clean Releases
 ==============
 
-The "cleanreleases" action deletes all releases that have been fetched. Since basejails rely on releases, do not run this action if any basejails still exist.
+The "cleanreleases" action deletes all releases that have been fetched. 
+Since basejails rely on releases, do not run this action if any 
+basejails still exist.
 
 **REST Request**
 
@@ -1403,7 +1431,9 @@ The "cleanall" action destroys everything associated with iocage.
 Activate a Pool
 ===============
 
-The "activatepool" action can be used to specify which ZFS pool is used to store jails. If you do not specify the pool, the response will indicate the current setting.
+The "activatepool" action can be used to specify which ZFS pool is used 
+to store jails. If you do not specify the pool, the response will 
+indicate the current setting.
 
 These examples specify the pool to use:
 
@@ -1520,9 +1550,12 @@ These examples show responses when the pool is not specified:
 Deactivate a Pool
 =================
 
-Since only one pool can be active, the "deactivatepool" action can be used to deactivate a currently active pool. This should be done before using the
-"activatepool" action to activate a different pool. When a pool is deactivated, no data is removed. However, you won't have access to its jails unless you move those datasets to the newly
-activated pool or activate the old pool again.
+Since only one pool can be active, the "deactivatepool" action can be 
+used to deactivate a currently active pool. This should be done before 
+using the "activatepool" action to activate a different pool. When a 
+pool is deactivated, no data is removed. However, you won't have access 
+to its jails unless you move those datasets to the newly activated pool 
+or activate the old pool again.
 
 **REST Request**
 

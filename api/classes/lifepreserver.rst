@@ -3,7 +3,8 @@
 lifepreserver
 *************
 
-The lifepreserver class is used to manage and retrieve information about scheduled snapshots and replication.
+The lifepreserver class is used to manage and retrieve information about
+scheduled snapshots and replication.
 
 Every lifepreserver class request contains the following parameters:
 
@@ -26,7 +27,8 @@ Every lifepreserver class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses.
+The rest of this section provides examples of the available *actions* 
+for each type of request, along with their responses.
 
 .. index:: listcron, Life Preserver
 
@@ -35,8 +37,11 @@ The rest of this section provides examples of the available *actions* for each t
 List Schedules
 ==============
 
-The "listcron" action retrieves the information for each Life Preserver scheduled task. If snapshots have been configured for a ZFS pool, it lists the number of snapshots to keep and
-the time that snapshots are taken. If scrubs have been configured on that ZFS pool, it also lists the time that ZFS scrubs occur.
+The "listcron" action retrieves the information for each Life Preserver 
+scheduled task. If snapshots have been configured for a ZFS pool, it 
+lists the number of snapshots to keep and the time that snapshots are 
+taken. If scrubs have been configured on that ZFS pool, it also lists 
+the time that ZFS scrubs occur.
 
 **REST Request**
 
@@ -103,7 +108,8 @@ the time that snapshots are taken. If scrubs have been configured on that ZFS po
 Create a Snapshot Schedule
 ==========================
 
-The "cronsnap" action is used to create snapshot schedules for Life Preserver. This action supports the following parameters:
+The "cronsnap" action is used to create snapshot schedules for Life 
+Preserver. This action supports the following parameters:
 
 +---------------------------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Description**                                                                                                      |
@@ -187,7 +193,8 @@ The "cronsnap" action is used to create snapshot schedules for Life Preserver. T
 Create a Scrub Schedule
 ==========================
 
-The "cronscrub" action is used to schedule a ZFS scrub. This action supports the following parameters:
+The "cronscrub" action is used to schedule a ZFS scrub. This action 
+supports the following parameters:
 
 +---------------------------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Description**                                                                                                      |
@@ -264,7 +271,8 @@ The "cronscrub" action is used to schedule a ZFS scrub. This action supports the
 Create a Snapshot
 =================
 
-The "createsnap" action creates a one-time snapshot of the specified dataset.
+The "createsnap" action creates a one-time snapshot of the specified 
+dataset.
 
 **REST Request**
 
@@ -400,10 +408,14 @@ The "listsnap" action retrieves the list of saved snapshots.
 Revert a Snapshot
 =================
 
-The "revertsnap" action is used to rollback the contents of the specified dataset to the point in time that the specified snapshot was taken.
+The "revertsnap" action is used to rollback the contents of the 
+specified dataset to the point in time that the specified snapshot was 
+taken.
 
-.. warning:: performing this operation will revert the contents of the dataset back in time, meaning that all changes to the dataset's files that occurred since the snapshot was taken will
-   be lost.
+.. warning:: performing this operation will revert the contents of the 
+             dataset back in time, meaning that all changes to the 
+             dataset's files that occurred since the snapshot was taken 
+             will be lost.
 
 **REST Request**
 
@@ -467,7 +479,8 @@ The "revertsnap" action is used to rollback the contents of the specified datase
 Remove a Snapshot
 =================
 
-The "removesnap" action is used to remove a ZFS snapshot from the specified dataset or pool.
+The "removesnap" action is used to remove a ZFS snapshot from the 
+specified dataset or pool.
 
 **REST Request**
 
@@ -531,7 +544,8 @@ The "removesnap" action is used to remove a ZFS snapshot from the specified data
 Add Replication
 ===============
 
-The "addreplication" action is used to create a replication task in Life Preserver. This action supports the following parameters:
+The "addreplication" action is used to create a replication task in Life
+Preserver. This action supports the following parameters:
 
 +---------------------------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Description**                                                                                                      |
@@ -641,8 +655,9 @@ The "addreplication" action is used to create a replication task in Life Preserv
 Remove Replication
 ==================
 
-The "removereplication" action is used to delete an existing replication task. Note that this action only deletes the task--it does not remove any already replicated data from the
-remote system.
+The "removereplication" action is used to delete an existing replication
+task. Note that this action only deletes the task--it does not remove 
+any already replicated data from the remote system.
 
 This action supports the following parameters:
 
@@ -719,9 +734,14 @@ This action supports the following parameters:
 List Replications
 =================
 
-The "listreplication" action is used to retrieve the settings of configured replication tasks. For each task, the response includes the name of the local ZFS pool or dataset to replicate,
-the IP address and listening port number of the remote system to replicate to, when the replication occurs (see the "frequency" description in :ref:`Add Replication`), the name of the
-dataset on the remote system to store the replicated data ("rdset"), and the name of the replication user account.
+The "listreplication" action is used to retrieve the settings of 
+configured replication tasks. For each task, the response includes the 
+name of the local ZFS pool or dataset to replicate, the IP address and 
+listening port number of the remote system to replicate to, when the 
+replication occurs (see the "frequency" description in 
+:ref:`Add Replication`), the name of the dataset on the remote system to
+store the replicated data ("rdset"), and the name of the replication 
+user account.
 
 **REST Request**
 
@@ -793,7 +813,8 @@ dataset on the remote system to store the replicated data ("rdset"), and the nam
 Start Replication
 =================
 
-The "runreplication" action can be used to manually replicate the specified dataset to the specified remote server.
+The "runreplication" action can be used to manually replicate the 
+specified dataset to the specified remote server.
 
 **REST Request**
 
@@ -857,8 +878,10 @@ The "runreplication" action can be used to manually replicate the specified data
 Initialize Replication
 ======================
 
-The "initreplication" action can be used to clear the replication data on the remote server. This is useful if a replication becomes stuck. After running this action, issue a
-"runreplication" action to start a new replication.
+The "initreplication" action can be used to clear the replication data 
+on the remote server. This is useful if a replication becomes stuck. 
+After running this action, issue a "runreplication" action to start a 
+new replication.
 
 The "initreplication" action supports the following parameters:
 
@@ -935,10 +958,15 @@ The "initreplication" action supports the following parameters:
 View Settings
 =============
 
-The "settings" action returns the system-wide settings of the Life Preserver utility. The returned settings include the disk percentage used at which Life Preserver will issue a warning, the
-level at which an email will be sent, the email address to send notifications to, and whether or not snapshots are taken recursively (include all child datasets).
+The "settings" action returns the system-wide settings of the Life 
+Preserver utility. The returned settings include the disk percentage 
+used at which Life Preserver will issue a warning, the level at which an
+email will be sent, the email address to send notifications to, and 
+whether or not snapshots are taken recursively (include all child 
+datasets).
 
-Run :command:`lpreserver help set` for more information about each available setting.
+Run :command:`lpreserver help set` for more information about each 
+available setting.
 
 **REST Request**
 
@@ -1002,7 +1030,9 @@ Run :command:`lpreserver help set` for more information about each available set
 Save Settings
 =============
 
-The "savesettings" action can be used to modify the system-wide settings of the Life Preserver utility. This action supports the following parameters:
+The "savesettings" action can be used to modify the system-wide settings
+of the Life Preserver utility. This action supports the following 
+parameters:
 
 +---------------------------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Description**                                                                                                      |

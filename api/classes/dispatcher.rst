@@ -3,7 +3,8 @@
 dispatcher
 **********
 
-The dispatcher class is used to spin up external processes on demand, such as a user running a custom system setup script.
+The dispatcher class is used to spin up external processes on demand, 
+such as a user running a custom system setup script.
 
 Every dispatcher class request contains the following parameters:
 
@@ -24,7 +25,8 @@ Every dispatcher class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions* 
+for each type of request, along with their responses. 
 
 .. index:: list, dispatcher
 
@@ -33,7 +35,9 @@ The rest of this section provides examples of the available *actions* for each t
 List Processes
 ==============
 
-The "list" action lists all the currently running or pending processes within the dispatcher queues. Possible queues are "no_queue", "pkg_queue", and "iocage_queue".
+The "list" action lists all the currently running or pending processes 
+within the dispatcher queues. Possible queues are "no_queue", 
+"pkg_queue", and "iocage_queue".
 
 **REST Request**
 
@@ -67,7 +71,7 @@ The "list" action lists all the currently running or pending processes within th
       "pkg_queue": {
         "sysadm_pkg_install-{9c079421-ace9-4b6e-8870-d023b48f4c49}": {
           "commands": [
-            "pkg install -y --repository \"pcbsd-major\" misc/pcbsd-meta-mate"
+            "pkg install -y --repository \"pcbsd-major\"misc/pcbsd-meta-mate"
           ],
           "queue_position": "0",
           "state": "running"
@@ -87,7 +91,8 @@ The "list" action lists all the currently running or pending processes within th
 Kill Processes
 ==============
 
-The "kill" action allows a user with full access to cancel pending or running jobs within the dispatcher system.
+The "kill" action allows a user with full access to cancel pending or 
+running jobs within the dispatcher system.
 
 **REST Request**
 

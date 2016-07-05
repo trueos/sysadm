@@ -24,7 +24,8 @@ Every beadm class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions* 
+for each type of request, along with their responses. 
 
 .. index:: listbes, beadm
 
@@ -33,8 +34,10 @@ The rest of this section provides examples of the available *actions* for each t
 List Boot Environments
 ======================
 
-The "listbes" action retrieves the list of boot environments. For each boot environment, the response includes its name, its flags (where  "R" is active on reboot, "N" is active now and
-"-" is inactive), the date it was created, its mount point, its nickname, and its size.
+The "listbes" action retrieves the list of boot environments. For each 
+boot environment, the response includes its name, its flags (where  "R" 
+is active on reboot, "N" is active now and "-" is inactive), the date it
+was created, its mount point, its nickname, and its size.
 
 
 **REST Request**
@@ -94,7 +97,9 @@ The "listbes" action retrieves the list of boot environments. For each boot envi
 Rename a Boot Environment
 =========================
 
-The "renamebe" action renames the specified boot environment. When using this action, specify the new name as the "source" and the boot environment as the "target".
+The "renamebe" action renames the specified boot environment. When using
+this action, specify the new name as the "source" and the boot 
+environment as the "target".
 
 
 **REST Request**
@@ -146,7 +151,8 @@ The "renamebe" action renames the specified boot environment. When using this ac
 Activate Boot Environment
 =========================
 
-The "activatebe" action activates the specified boot environment (target) so that it will be the default at next boot.
+The "activatebe" action activates the specified boot environment 
+(target) so that it will be the default at next boot.
 
 
 **REST Request**
@@ -195,8 +201,10 @@ The "activatebe" action activates the specified boot environment (target) so tha
 Create Boot Environment
 =======================
 
-The "create" action creates a new boot environment. Specify the name of the boot environment as the "newbe". By default, this action clones the active boot environment. 
-To specify another, inactive boot environment, also include "clonefrom" to specify which boot environment to clone from.
+The "create" action creates a new boot environment. Specify the name of 
+the boot environment as the "newbe". By default, this action clones the 
+active boot environment. To specify another, inactive boot environment, 
+also include "clonefrom" to specify which boot environment to clone from.
 
 **REST Request**
 
@@ -247,7 +255,8 @@ To specify another, inactive boot environment, also include "clonefrom" to speci
 Destroy a Boot Environment
 ==========================
 
-The "destroybe" action destroys the specified "target" boot environment and forcefully unmounts it.
+The "destroybe" action destroys the specified "target" boot environment 
+and forcefully unmounts it.
 
 
 **REST Request**
@@ -296,7 +305,8 @@ The "destroybe" action destroys the specified "target" boot environment and forc
 Mount a Boot Environment
 ========================
 
-The "mountbe" action mounts the specified boot environment. Use the optional "mountpoint" argument to specify the mount point.
+The "mountbe" action mounts the specified boot environment. Use the 
+optional "mountpoint" argument to specify the mount point.
 
 **REST Request**
 
@@ -347,7 +357,8 @@ The "mountbe" action mounts the specified boot environment. Use the optional "mo
 Unmount a Boot Environment
 ==========================
 
-The "umountbe" action forcibly unmounts the specified boot environment, even if it is in use.
+The "umountbe" action forcibly unmounts the specified boot environment, 
+even if it is in use.
 
 **REST Request**
 

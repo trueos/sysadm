@@ -3,7 +3,8 @@
 systemmanager
 *************
 
-The systemmanager class is used to retrieve information about the system. Every systemmanager class request contains the following parameters:
+The systemmanager class is used to retrieve information about the system.
+Every systemmanager class request contains the following parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
@@ -23,7 +24,8 @@ The systemmanager class is used to retrieve information about the system. Every 
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses.
+The rest of this section provides examples of the available *actions* 
+for each type of request, along with their responses.
 
 .. index:: memorystats, systemmanager
 
@@ -32,7 +34,8 @@ The rest of this section provides examples of the available *actions* for each t
 Memory Statistics
 =================
 
-The "memorystats" action returns memory statistics, including the amount of active, cached, free, inactive, and total physical (wired) memory.
+The "memorystats" action returns memory statistics, including the amount
+of active, cached, free, inactive, and total physical (wired) memory.
 
 **REST Request**
 
@@ -244,8 +247,10 @@ The "cputemps" action returns the temperature of each CPU.
 Process Information
 ===================
 
-The "procinfo" action lists information about each running process. Since a system will have many running processes, the responses in this section only show one process as an example
-of the type of information listed by this action.
+The "procinfo" action lists information about each running process. 
+Since a system will have many running processes, the responses in this 
+section only show one process as an example of the type of information 
+listed by this action.
 
 **REST Request**
 
@@ -326,7 +331,9 @@ of the type of information listed by this action.
 Kill a Process
 ==============
 
-The "killproc" action can be used to send the specified signal to the specified Process ID (PID). The following signals are supported: INT, QUIT, ABRT, KILL, ALRM, or TERM.
+The "killproc" action can be used to send the specified signal to the 
+specified Process ID (PID). The following signals are supported: INT, 
+QUIT, ABRT, KILL, ALRM, or TERM.
 
 **REST Request**
 
@@ -392,8 +399,10 @@ The "killproc" action can be used to send the specified signal to the specified 
 Battery Information
 ===================
 
-The "batteryinfo" action will indicate whether or not a battery exists. If it does, it will also report its current charge percentage level (1-99). its
-status (offline, charging, on backup, or unknown), and estimated time left (in seconds).
+The "batteryinfo" action will indicate whether or not a battery exists. 
+If it does, it will also report its current charge percentage level 
+(1-99). its status (offline, charging, on backup, or unknown), and 
+estimated time left (in seconds).
 
 **REST Request**
 
@@ -451,8 +460,10 @@ status (offline, charging, on backup, or unknown), and estimated time left (in s
 List External Mounts
 ====================
 
-The "externalmounts" action returns a list of mounted external devices. Supported device types are UNKNOWN, USB, HDRIVE (external hard drive), DVD, and SDCARD.
-For each mounted device, the response will include the device name, filesystem, mount path, and device type.
+The "externalmounts" action returns a list of mounted external devices. 
+Supported device types are UNKNOWN, USB, HDRIVE (external hard drive), 
+DVD, and SDCARD. For each mounted device, the response will include the 
+device name, filesystem, mount path, and device type.
 
 **REST Request**
 
@@ -518,8 +529,10 @@ For each mounted device, the response will include the device name, filesystem, 
 System Information
 ==================
 
-The "systemmanager" action lists system information, including the architecture, number of CPUs, type of CPU, hostname, kernel name and version, system version and patch level, total amount
-of RAM, and the system's uptime.
+The "systemmanager" action lists system information, including the 
+architecture, number of CPUs, type of CPU, hostname, kernel name and 
+version, system version and patch level, total amount of RAM, and the 
+system's uptime.
 
 **REST Request**
 
@@ -593,7 +606,9 @@ of RAM, and the system's uptime.
 List Sysctls
 ============
 
-The "sysctllist" action lists returns the list of all setable sysctl values. Since there are many, the example responses in this section have been truncated to just show a few.
+The "sysctllist" action lists returns the list of all setable sysctl 
+values. Since there are many, the example responses in this section have
+been truncated to just show a few.
 
 **REST Request**
 
@@ -667,7 +682,9 @@ The "sysctllist" action lists returns the list of all setable sysctl values. Sin
 Set a Sysctl
 ============
 
-The "setsysctl" action sets the specified setable sysctl to the specified value. The response indicates that the old value was changed to the new value.
+The "setsysctl" action sets the specified setable sysctl to the 
+specified value. The response indicates that the old value was changed 
+to the new value.
 
 **REST Request**
 

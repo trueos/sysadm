@@ -3,7 +3,8 @@
 logs
 ****
 
-The logs class is used to interact with the log files created by the SysAdm server.
+The logs class is used to interact with the log files created by the 
+SysAdm server.
 
 Every logs class request contains the following parameters:
 
@@ -24,7 +25,8 @@ Every logs class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions* 
+for each type of request, along with their responses. 
 
 .. index:: read_logs, logs
 
@@ -33,20 +35,29 @@ The rest of this section provides examples of the available *actions* for each t
 Read Logs
 =========
 
-The "read_logs" action can be used to display log entries. It supports the following optional arguments:
+The "read_logs" action can be used to display log entries. It supports 
+the following optional arguments:
 
-* **logs:** used to specify an array or string of log type(s). Valid types are "hostinfo", "dispatcher", "events-dispatcher","events-lifepreserver", and "events-state".
+* **logs:** used to specify an array or string of log type(s). Valid 
+  types are "hostinfo", "dispatcher", "events-dispatcher",
+  "events-lifepreserver", and "events-state".
 
-* **time_format:** used to specify the format for "start_time" and "end_time". Valid Formats are "time_t_seconds", "epoch_mseconds, "relative_[day/month/second]", or a
-  `QDateTime String code <http://doc.qt.io/qt-5/qdatetime.html#fromString>`_.
+* **time_format:** used to specify the format for "start_time" and 
+  "end_time". Valid Formats are "time_t_seconds", "epoch_mseconds, 
+  "relative_[day/month/second]", or a `QDateTime String code <http://doc.qt.io/qt-5/qdatetime.html#fromString>`_.
   
-* **start_time:** displays log entries that occurred after the time specified using a valid "time_format".
+* **start_time:** displays log entries that occurred after the time 
+  specified using a valid "time_format".
 
-* **end_time:** displays log entries that occurred before the time specified using a valid "time_format".
+* **end_time:** displays log entries that occurred before the time 
+  specified using a valid "time_format".
 
-If the "time_format" is not specified, or if the "start_time" or "end_time" are not defined, the end time will be the current date and time and the start time will be 12 hours previous.
+If the "time_format" is not specified, or if the "start_time" or 
+"end_time" are not defined, the end time will be the current date and 
+time and the start time will be 12 hours previous.
 
-If the "logs" argument is missing or empty, then all logs matching the search parameters will be returned.
+If the "logs" argument is missing or empty, then all logs matching the 
+search parameters will be returned.
 
 For example, this input returns all log entries within the last hour:
 

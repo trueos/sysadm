@@ -3,33 +3,37 @@
 Events
 ======
 
-The "events" namespace can be used to setup and receive asynchronous updates about system status and other types of system notifications.
+The "events" namespace can be used to setup and receive asynchronous 
+updates about system status and other types of system notifications.
 
-.. note:: 
-   the events namespace does not really translate over to REST which was not designed for asynchronous events. For this reason, only Websocket examples are used in this section.
+.. note:: The events namespace does not really translate over to REST 
+          which was not designed for asynchronous events. For this 
+          reason, only Websocket examples are used in this section.
 
 Every events request contains the following parameters:
 
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                                                                      |
-|                                 |               |                                                                                                                      |
-+=================================+===============+======================================================================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            |               | supported values are "subscribe" or unsubscribe"                                                                     |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | events        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| args                            |               | values vary by type of class                                                                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
++---------------------------------+---------------+------------------------------------------------------------------------------+
+| **Parameter**                   | **Value**     | **Description**                                                              |
+|                                 |               |                                                                              |
++=================================+===============+==============================================================================+
+| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid |
+|                                 |               |                                                                              |
++---------------------------------+---------------+------------------------------------------------------------------------------+
+| name                            |               | supported values are "subscribe" or unsubscribe"                             |
+|                                 |               |                                                                              |
++---------------------------------+---------------+------------------------------------------------------------------------------+
+| namespace                       | events        |                                                                              |
+|                                 |               |                                                                              |
++---------------------------------+---------------+------------------------------------------------------------------------------+
+| args                            |               | values vary by type of class                                                 |
+|                                 |               |                                                                              |
++---------------------------------+---------------+------------------------------------------------------------------------------+
 
 
-Subsystems can also be tracked using the events namespace. Currently, there are three trackable subsystems: Dispatcher, Life Preserver, and System State.
-The following is a template to subscribe to various subsystem event notifications:
+Subsystems can also be tracked using the events namespace. Currently, 
+there are three trackable subsystems: Dispatcher, Life Preserver, and 
+System State. The following is a template to subscribe to various 
+subsystem event notifications:
 
 **Websocket Request**
 
@@ -42,7 +46,9 @@ The following is a template to subscribe to various subsystem event notification
   "args" : ["dispatcher", "life-preserver", "system-state"]
  }
  
-Once subscribed, events will be received as they are produced. To unsubscribe from events, repeat the request, using "unsubscribe" for the "name". 
+Once subscribed, events will be received as they are produced. To 
+unsubscribe from events, repeat the request, using "unsubscribe" for the
+"name". 
 
 Here is an example reply from the Life Preserver subsystem:
  
@@ -65,9 +71,11 @@ Here is an example reply from the Life Preserver subsystem:
 Dispatcher
 ----------
 
-The Dispatcher subsystem is used by SysAdm™ to process external commands and return specific information from the utility.
-This is managed on the server as a separate process, and will not interrupt primary server tasks.
-To subscribe to the Dispatcher subsystem for event updates, use the following:
+The Dispatcher subsystem is used by SysAdm™ to process external commands
+and return specific information from the utility. This is managed on the
+server as a separate process, and will not interrupt primary server 
+tasks. To subscribe to the Dispatcher subsystem for event updates, use 
+the following:
 
 **Websocket Request**
 
@@ -80,9 +88,10 @@ To subscribe to the Dispatcher subsystem for event updates, use the following:
   "args" : ["dispatcher"]
  }
 
-The Dispatcher event log will display three different states: "pending", "running", and "finished".
-Depending upon the current state, the log can change in some minor but noteworthy ways.
-The following sample logs will reflect the differences between these states:
+The Dispatcher event log will display three different states: "pending",
+"running", and "finished". Depending upon the current state, the log can
+change in some minor but noteworthy ways. The following sample logs will
+reflect the differences between these states:
 
 **Dispatcher Response: "Pending" state**
 
@@ -138,9 +147,10 @@ The following sample logs will reflect the differences between these states:
  }
 
 
-Individual classes such as iohyve will move these dispatcher elements into a "process_details" section.
-Tailored sample responses will be provided in these classes' individual documentation pages.
-A generalized sample is as follows:
+Individual classes such as iohyve will move these dispatcher elements 
+into a "process_details" section. Tailored sample responses will be 
+provided in these classes' individual documentation pages. A generalized
+sample is as follows:
 
 **Dispatcher Class Event Message**
 
@@ -158,12 +168,14 @@ A generalized sample is as follows:
     }
  }
 
-For specific details on these special types of events please refer to the Classes section of this User Guide.
+For specific details on these special types of events please refer to 
+the Classes section of this User Guide.
 
 Life Preserver
 --------------
 
-To subscribe to the Life Preserver subsystem for event updates, use the following:
+To subscribe to the Life Preserver subsystem for event updates, use the 
+following:
 
 **Websocket Request**
 
@@ -195,7 +207,8 @@ To subscribe to the Life Preserver subsystem for event updates, use the followin
 System State
 ------------
 
-To subscribe to the System State subsystem for event updates, use the following:
+To subscribe to the System State subsystem for event updates, use the 
+following:
 
 **Websocket Request**
 
@@ -239,8 +252,11 @@ To subscribe to the System State subsystem for event updates, use the following:
 Bridge
 ------
 
-Bridge events are automatically received by any system connected to a bridge, with no subscription required. This event will get sent out any time a new connection/disconnection is made from the bridge which impacts the current connection.
-A client will only get the event when a server connects/disconnects or vice versa.
+Bridge events are automatically received by any system connected to a 
+bridge, with no subscription required. This event will get sent out any 
+time a new connection/disconnection is made from the bridge which 
+impacts the current connection. A client will only get the event when a 
+server connects/disconnects or vice versa.
 
 **Websocket Reply: Connected Bridge**
 
@@ -255,4 +271,6 @@ A client will only get the event when a server connects/disconnects or vice vers
       }
   }
 
-.. note:: available_connections are **all** the connections available at the time, **not** a difference from a previous state. There may be both new ID's in the list and ID's which are no longer listed.
+.. note:: available_connections are **all** the connections available at
+the time, **not** a difference from a previous state. There may be both 
+new ID's in the list and ID's which are no longer listed.

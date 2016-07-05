@@ -3,7 +3,8 @@
 network
 *******
 
-The network class is used to manage and retrieve information from Ethernet and wireless network devices.
+The network class is used to manage and retrieve information from 
+Ethernet and wireless network devices.
 
 Every network class request contains the following parameters:
 
@@ -24,7 +25,8 @@ Every network class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions* 
+for each type of request, along with their responses. 
 
 .. index:: list-devices, network
 
@@ -33,8 +35,12 @@ The rest of this section provides examples of the available *actions* for each t
 List Devices
 ============
 
-The "list-devices" action lists information about currently recognized network devices. For each network device, the response includes the device's MAC address, description, IPv4 address,
-IPv6 address, whether or not the device is active, whether or not the device is configured using DHCP, whether or not the device is wireless, its subnet mask, and its current status.
+The "list-devices" action lists information about currently recognized 
+network devices. For each network device, the response includes the 
+device's MAC address, description, IPv4 address, IPv6 address, whether 
+or not the device is active, whether or not the device is configured 
+using DHCP, whether or not the device is wireless, its subnet mask, and 
+its current status.
 
 **REST Request**
 

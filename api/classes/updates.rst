@@ -3,7 +3,8 @@
 update
 ******
 
-The update class is used to check for and manage system and software updates.
+The update class is used to check for and manage system and software 
+updates.
 
 Every update class request contains the following parameters:
 
@@ -24,7 +25,8 @@ Every update class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions* 
+for each type of request, along with their responses. 
 
 .. index:: checkupdates, update
 
@@ -33,8 +35,11 @@ The rest of this section provides examples of the available *actions* for each t
 Check for Updates
 =================
 
-The "checkupdates" action queries the update server to see if any updates are available. If an update is available, the response will indicate if it is a system security update, an
-upgrade to a newer version of the operating system, a system patch, or an update to installed software packages.
+The "checkupdates" action queries the update server to see if any 
+updates are available. If an update is available, the response will 
+indicate if it is a system security update, an upgrade to a newer 
+version of the operating system, a system patch, or an update to 
+installed software packages.
 
 **REST Request**
 
@@ -92,7 +97,9 @@ upgrade to a newer version of the operating system, a system patch, or an update
 List Branches
 =============
 
-The "listbranches" action retrieves the list of available branches (operating system versions). The currently installed version will be listed as "active".
+The "listbranches" action retrieves the list of available branches 
+(operating system versions). The currently installed version will be 
+listed as "active".
 
 **REST Request**
 
@@ -152,17 +159,24 @@ The "listbranches" action retrieves the list of available branches (operating sy
 Start Updates
 =============
 
-The "startupdate" action starts the specified update. You must specify a "target" to indicate the type of update to perform. The available targets are:
+The "startupdate" action starts the specified update. You must specify a
+"target" to indicate the type of update to perform. The available 
+targets are:
 
-* **chbranch:** will update to the specified "branch" (operating system version). You can determine which branches are available by using the "listbranches" action.
+* **chbranch:** will update to the specified "branch" (operating system 
+  version). You can determine which branches are available by using the 
+  "listbranches" action.
 
 * **pkgupdate:** only update installed software.
 
 * **fbsdupdate:** only apply FreeBSD system updates.
 
-* **fbsdupdatepkgs:** update installed software and apply FreeBSD system updates.
+* **fbsdupdatepkgs:** update installed software and apply FreeBSD system
+  updates.
 
-* **standalone:** only apply the update specified as a "tag". Use the "checkupdates" action to determine the name (tag) of the update to specify.
+* **standalone:** only apply the update specified as a "tag". Use the 
+  "checkupdates" action to determine the name (tag) of the update to 
+  specify.
 
 **REST Request**
 

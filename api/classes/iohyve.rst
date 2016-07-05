@@ -3,7 +3,8 @@
 iohyve
 ******
 
-The iohyve class is used to manage virtual machines (VMs) running in the bhyve type 2 hypervisor.
+The iohyve class is used to manage virtual machines (VMs) running in the
+bhyve type 2 hypervisor.
 
 Every iohyve class request contains the following parameters:
 
@@ -26,7 +27,8 @@ Every iohyve class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions* 
+for each type of request, along with their responses. 
 
 .. index:: listvms, iohyve
 
@@ -35,8 +37,11 @@ The rest of this section provides examples of the available *actions* for each t
 List VMs
 ========
 
-The "listvms" action lists information about currently installed VMs. For each VM, the response includes the VM's name, description, whether or not it is scheduled to start when the host
-system boots, whether or not it is currently running, and whether or not the VM is currently loaded into memory.
+The "listvms" action lists information about currently installed VMs. 
+For each VM, the response includes the VM's name, description, whether 
+or not it is scheduled to start when the host system boots, whether or 
+not it is currently running, and whether or not the VM is currently 
+loaded into memory.
 
 **REST Request**
 
@@ -104,9 +109,9 @@ system boots, whether or not it is currently running, and whether or not the VM 
 Fetch ISO
 =========
 
-The "fetchiso" action is used to retrieve the installation ISO. It is used with the "url" argument which contains the ISO address beginning with *http://*, 
-*ftp://*, or
-*file://*.
+The "fetchiso" action is used to retrieve the installation ISO. It is 
+used with the "url" argument which contains the ISO address beginning 
+with *http://*, *ftp://*, or *file://*.
 
 **REST Request**
 
@@ -227,7 +232,8 @@ The "listisos" action lists all the known ISO files which iohyve can use.
 Rename ISO
 ==========
 
-The "renameiso" action is used to to rename an existing ISO file on disk. Specify the existing name with "source" and the new name with "target".
+The "renameiso" action is used to to rename an existing ISO file on disk.
+Specify the existing name with "source" and the new name with "target".
 
 **REST Request**
 
@@ -278,7 +284,8 @@ The "renameiso" action is used to to rename an existing ISO file on disk. Specif
 Remove ISO
 ==========
 
-The "rmiso" action is used to to remove an existing ISO file from disk. Specify the ISO's name as the "target".
+The "rmiso" action is used to to remove an existing ISO file from disk. 
+Specify the ISO's name as the "target".
 
 **REST Request**
 
@@ -326,7 +333,9 @@ The "rmiso" action is used to to remove an existing ISO file from disk. Specify 
 Setup iohyve
 ============
 
-The "setup" action performs the initial setup of iohyve. It is mandatory to specify the FreeBSD device name of the "nic" and the ZFS "pool" to use.
+The "setup" action performs the initial setup of iohyve. It is mandatory
+to specify the FreeBSD device name of the "nic" and the ZFS "pool" to 
+use.
 
 **REST Request**
 
@@ -377,7 +386,8 @@ The "setup" action performs the initial setup of iohyve. It is mandatory to spec
 Determine iohyve Setup
 ======================
 
-The "issetup" action queries if iohyve has been setup and returns either "true" or "false".
+The "issetup" action queries if iohyve has been setup and returns either
+"true" or "false".
 
 **REST Request**
 
@@ -423,7 +433,8 @@ The "issetup" action queries if iohyve has been setup and returns either "true" 
 Create Guest
 ============
 
-The "create" action creates a new iohyve guest of the specified "name" and "size".
+The "create" action creates a new iohyve guest of the specified "name"
+and "size".
 
 **REST Request**
 
@@ -474,8 +485,10 @@ The "create" action creates a new iohyve guest of the specified "name" and "size
 Install Guest
 =============
 
-The "install" action starts the iohyve installation of the specified guest from the specified ISO. This action only boots the VM with the ISO; to do the actual installation,
-run :command:`iohyve console <name>` from the system.
+The "install" action starts the iohyve installation of the specified 
+guest from the specified ISO. This action only boots the VM with the ISO;
+to do the actual installation, run :command:`iohyve console <name>` from
+the system.
 
 **REST Request**
 
@@ -770,7 +783,9 @@ The "listdisks" action lists the disks connected to the specified VM.
 Resize a Disk
 =============
 
-The "resizedisk" action **increases** the specified disk in the specified VM. The new specified size must be larger than the current size.
+The "resizedisk" action **increases** the specified disk in the 
+specified VM. The new specified size must be larger than the current 
+size.
 
 **REST Request**
 
@@ -984,8 +999,9 @@ The "getprops" action lists the properties for the specified guest.
 Set Guest Properties
 =====================
 
-The "setprop" action can be used to modify the properties for the specified guest. For each property, specify its name and desired value. Use "getprops" to see the current properties
-and values for the guest.
+The "setprop" action can be used to modify the properties for the 
+specified guest. For each property, specify its name and desired value. 
+Use "getprops" to see the current properties and values for the guest.
 
 **REST Request**
 

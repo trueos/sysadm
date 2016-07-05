@@ -25,7 +25,8 @@ Every pkg class request contains the following parameters:
 |                                 |               |                                                                                                                      |
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions* 
+for each type of request, along with their responses. 
 
 .. index:: pkg_info, pkg
 
@@ -34,15 +35,20 @@ The rest of this section provides examples of the available *actions* for each t
 Package Information
 ===================
 
-The "pkg_info" action reads the pkg database directly and returns any relevant information. The following arguments are optional:
+The "pkg_info" action reads the pkg database directly and returns any 
+relevant information. The following arguments are optional:
 
 * **"repo"**: unless specified, defaults to the local package repository.
 
-* **"pkg_origins"**: unless specified, information for all installed packages will be listed.
+* **"pkg_origins"**: unless specified, information for all installed 
+  packages will be listed.
 
-* **"category"**: limits the results to packages within the specified category.
+* **"category"**: limits the results to packages within the specified 
+  category.
 
-* **"result"**: must be set to "full" to retrieve all of the information with multiple possible values, such as "dependencies", "options", and "licences".
+* **"result"**: must be set to "full" to retrieve all of the information
+  with multiple possible values, such as "dependencies", "options", and 
+  "licences".
 
 **REST Request**
 
@@ -231,11 +237,14 @@ The "pkg_info" action reads the pkg database directly and returns any relevant i
 Search Packages
 ===============
 
-The "pkg_search" action searches the package database for pkgs which match the given "search_term" (required). These parameters are optional:
+The "pkg_search" action searches the package database for pkgs which 
+match the given "search_term" (required). These parameters are optional:
 
-* **"repo"**: may be used to specifiy searching the specified repository. If not specified, the local package database is searched.
+* **"repo"**: may be used to specifiy searching the specified repository.
+  If not specified, the local package database is searched.
 
-* **"category"**: may be used to restrict searches to the specified package category.
+* **"category"**: may be used to restrict searches to the specified 
+  package category.
 
 **REST Request**
 
@@ -412,7 +421,9 @@ The "pkg_search" action searches the package database for pkgs which match the g
 List Categories
 ===============
 
-The "list_categories" action lists all the known, non-empty categories within the specified repository or, if no repository is specified, the local repository.
+The "list_categories" action lists all the known, non-empty categories 
+within the specified repository or, if no repository is specified, the 
+local repository.
 
 **REST Request**
 
@@ -511,8 +522,10 @@ The "list_categories" action lists all the known, non-empty categories within th
 List Repositories
 =================
 
-The "list_repositories" action scan the package repository configuration files and returns the names of the available repositories. All of the repositories returned by this
-action are valid as the optional "repo" argument for the other pkg API actions.
+The "list_repositories" action scan the package repository configuration
+files and returns the names of the available repositories. All of the 
+repositories returned by this action are valid as the optional "repo" 
+argument for the other pkg API actions.
 
 **REST Request**
 
@@ -559,10 +572,16 @@ action are valid as the optional "repo" argument for the other pkg API actions.
 Audit Packages
 ==============
 
-The "pkg_audit" action performs an audit of all installed packages and reports any packages with known vulnerabilities as well as other packages which are impacted by those vulnerabilities. 
+The "pkg_audit" action performs an audit of all installed packages and 
+reports any packages with known vulnerabilities as well as other 
+packages which are impacted by those vulnerabilities. 
 
-.. note:: the vulnerability information will be returned as a dispatcher event as this action just queues up the results of the :command:`pkg` operation. This is due to a limitation of
-   :command:`pkg`, as it only supports one process call at a time. Refer to the :ref:`Dispatcher Subsystem` for instructions on how to subscribe to and query dispatcher events.
+.. note:: the vulnerability information will be returned as a dispatcher
+   event as this action just queues up the results of the :command:`pkg`
+   operation. This is due to a limitation of :command:`pkg`, as it only 
+   supports one process call at a time. Refer to the 
+   :ref:`Dispatcher Subsystem` for instructions on how to subscribe to 
+   and query dispatcher events.
 
 **REST Request**
 
@@ -634,8 +653,10 @@ The "pkg_audit" action performs an audit of all installed packages and reports a
 Upgrade Packages
 ================
 
-The "pkg_upgrade" action upgrades all currently installed packages. The messages from the upgrade will be returned as a dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for
-instructions on how to subscribe to and query dispatcher events.
+The "pkg_upgrade" action upgrades all currently installed packages. The 
+messages from the upgrade will be returned as a dispatcher event. Refer 
+to the :ref:`Dispatcher Subsystem` for instructions on how to subscribe 
+to and query dispatcher events.
 
 **REST Request**
 
@@ -707,8 +728,10 @@ instructions on how to subscribe to and query dispatcher events.
 Check Packages
 ==============
 
-The "pkg_check_upgrade" action checks to see if there are any package updates available and returns that information as a dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for
-instructions on how to subscribe to and query dispatcher events.
+The "pkg_check_upgrade" action checks to see if there are any package 
+updates available and returns that information as a dispatcher event. 
+Refer to the :ref:`Dispatcher Subsystem` for instructions on how to 
+subscribe to and query dispatcher events.
 
 **REST Request**
 
@@ -781,10 +804,14 @@ instructions on how to subscribe to and query dispatcher events.
 Update Package Database
 =======================
 
-The "pkg_update" action instructs :command:`pkg` to update its databases. This action is typically not required.  It returns any information as a dispatcher event. Refer to the
-:ref:`Dispatcher Subsystem` for instructions on how to subscribe to and query dispatcher events.
+The "pkg_update" action instructs :command:`pkg` to update its databases.
+This action is typically not required.  It returns any information as a 
+dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for 
+instructions on how to subscribe to and query dispatcher events.
 
-If you include "force" = "true", it forces :command:`pkg` to completely resync all of its databases with all known repositories which may take some time.
+If you include "force" = "true", it forces :command:`pkg` to completely 
+resync all of its databases with all known repositories which may take 
+some time.
 
 **REST Request**
 
@@ -858,12 +885,17 @@ If you include "force" = "true", it forces :command:`pkg` to completely resync a
 Lock/Unlock Packages
 ====================
 
-The "pkg_lock" action locks the specified "pkg_origins" so that it will be skipped during a package upgrade and remain at its current version. When using "pkg_origins", specify either a 
-single package origin string or an array of package origins.
+The "pkg_lock" action locks the specified "pkg_origins" so that it will 
+be skipped during a package upgrade and remain at its current version. 
+When using "pkg_origins", specify either a single package origin string 
+or an array of package origins.
 
-The "pkg_unlock" action unlocks the previously locked "pkg_origins" so that it is no longer skipped during a package upgrade. 
+The "pkg_unlock" action unlocks the previously locked "pkg_origins" so 
+that it is no longer skipped during a package upgrade. 
 
-Both actions return any information as a dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for instructions on how to subscribe to and query dispatcher events.
+Both actions return any information as a dispatcher event. Refer to the 
+:ref:`Dispatcher Subsystem` for instructions on how to subscribe to and 
+query dispatcher events.
 
 **REST Request**
 
@@ -1006,9 +1038,13 @@ Both actions return any information as a dispatcher event. Refer to the :ref:`Di
 Install Packages
 ================
 
-The "pkg_install" action installs the specified "pkg_origins" on the system. When using "pkg_origins", specify either a single package origin string or an array of package origins.
-Unless the "repo" is specified, :command:`pkg` will automatically determine the repository. The install messages will be returned as a dispatcher event. Refer to the
-:ref:`Dispatcher Subsystem` for instructions on how to subscribe to and query dispatcher events.
+The "pkg_install" action installs the specified "pkg_origins" on the 
+system. When using "pkg_origins", specify either a single package origin
+string or an array of package origins. Unless the "repo" is specified, 
+:command:`pkg` will automatically determine the repository. The install 
+messages will be returned as a dispatcher event. Refer to the
+:ref:`Dispatcher Subsystem` for instructions on how to subscribe to and 
+query dispatcher events.
 
 **REST Request**
 
@@ -1084,12 +1120,17 @@ Unless the "repo" is specified, :command:`pkg` will automatically determine the 
 Uninstall Packages
 ==================
 
-The "pkg_remove" action uninstalls the specified "pkg_origins" from the system. When using "pkg_origins", specify either a single package origin string or an array of package origins.
+The "pkg_remove" action uninstalls the specified "pkg_origins" from the 
+system. When using "pkg_origins", specify either a single package origin
+string or an array of package origins.
 
-The optional "recursive" argument can be set to "true" or "false". The default is "true", which means that other packages which depend on this package will also be removed so that there are
-no broken dependencies.
+The optional "recursive" argument can be set to "true" or "false". The 
+default is "true", which means that other packages which depend on this 
+package will also be removed so that there are no broken dependencies.
 
-The uninstall messages will be returned as a dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for instructions on how to subscribe to and query dispatcher events.
+The uninstall messages will be returned as a dispatcher event. Refer to 
+the :ref:`Dispatcher Subsystem` for instructions on how to subscribe to 
+and query dispatcher events.
 
 **REST Request**
 
