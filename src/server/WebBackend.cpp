@@ -21,6 +21,7 @@
 #include "library/sysadm-zfs.h"
 #include "library/sysadm-pkg.h"
 
+#include <QTemporaryFile>
 
 #define DEBUG 0
 //#define SCLISTDELIM QString("::::") //SysCache List Delimiter
@@ -901,8 +902,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
 // ==== SYSADM USER API ====
 RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, QString user, const QJsonValue in_args, QJsonObject *out){
   bool ok = false;
+  QJsonObject obj = in_args.toObject();
   //REQUIRED: "action"
-  QString action = in_args.toObject().value("action").toString().toLower();
+  QString action =obj.value("action").toString().toLower();
   if(action=="usershow"){
     QStringList args; args << "usershow";
     if(allaccess){ args << "-a"; }
@@ -943,9 +945,33 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, 
       ok = true;
     }
   }else if(action=="useradd" && allaccess){
-    //REQUIRED: "name"
-    //OPTIONAL: "
-
+    //REQUIRED: ("name" OR "uid")  AND "password"
+    //OPTIONAL: "comment", "home_dir", "expire", "change", "shell", "group", "other_groups", "class"
+    if(obj.contains("password") && (obj.contains("name") || obj.contains("uid")) ){
+      QStringList args; args << "useradd";
+      if(obj.contains("name")){ args << "-n" << obj.value("name").toString(); }
+      if(obj.contains("uid")){ args << "-u" << obj.value("uid").toString(); }
+      if(obj.contains("comment")){ args << "-c" << obj.value("comment").toString(); }
+      if(obj.contains("home_dir")){ args << "-d" << obj.value("home_dir").toString(); }
+      if(obj.contains("expire")){ args << "-e" << obj.value("expire").toString(); }
+      if(obj.contains("change")){ args << "-p" << obj.value("change").toString(); }
+      if(obj.contains("shell")){ args << "-s" << obj.value("shell").toString(); }
+      if(obj.contains("group")){ args << "-g" << obj.value("group").toString(); }
+      if(obj.contains("other_groups")){ 
+        if(obj.value("other_groups").isString()){ args << "-G" << obj.value("other_groups").toString(); }
+        else if(obj.value("other_groups").isArray()){ args << "-G" << JsonArrayToStringList(obj.value("other_groups").toArray()).join(","); }
+      }
+      if(obj.contains("class")){ args << "-L" << obj.value("class").toString(); }
+      QTemporaryFile pwfile;
+      if(pwfile.open()){ 
+        qDebug() << "[DEBUG] Opened temporary file to create a user";
+        pwfile.write( obj.value("password").toString().toUtf8().data() );
+        pwfile.close(); //closed but still exists - will go out of scope and get removed in a moment
+        args << "-h" << "0"; //read from std input
+        ok = (0== system("cat "+pwfile.fileName().toUtf8()+" | pw "+args.join(" ").toUtf8()) );
+        qDebug() << "[DEBUG] Finished creating user:" << ok;
+      }else{ qDebug() << "[DEBUG] Could not open temporary file to create a user"; }
+    }
   }
   return (ok ? RestOutputStruct::OK : RestOutputStruct::BADREQUEST);
 }
