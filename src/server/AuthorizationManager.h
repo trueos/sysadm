@@ -18,6 +18,7 @@ public:
 	void clearAuth(QString token); //clear an authorization token
 	bool checkAuth(QString token); //see if the given token is valid
 	bool hasFullAccess(QString token); //see if the token is associated with a full-access account
+	QString userForToken(QString token); //get the username associated with this token
 
 	//SSL Certificate register/revoke/list (should only run if the current token is valid)
 	bool RegisterCertificate(QString token, QString pubkey, QString nickname, QString email); //if token is valid, register the given cert for future logins

@@ -85,6 +85,9 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
     out->insert("sysadm/update", "read/write");
   }
 
+  // - User Manager
+  out->insert("sysadm/users","read/write");
+
   return RestOutputStruct::OK;
 }
 
@@ -134,6 +137,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmZfsRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="pkg"){
     return EvaluateSysadmPkgRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="users"){
+    return EvaluateSysadmUserRequest(IN.fullaccess, AUTHSYSTEM->userForToken(SockAuthToken), IN.args, out);
   }else{
     return RestOutputStruct::BADREQUEST;
   }
@@ -891,4 +896,56 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPkgRequest(const QJsonValue 
   }
   
   return RestOutputStruct::OK;
+}
+
+// ==== SYSADM USER API ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, QString user, const QJsonValue in_args, QJsonObject *out){
+  bool ok = false;
+  //REQUIRED: "action"
+  QString action = in_args.toObject().value("action").toString().toLower();
+  if(action=="usershow"){
+    QStringList args; args << "usershow";
+    if(allaccess){ args << "-a"; }
+    else{ args << user; }
+    
+    QStringList users = sysadm::General::RunCommand(ok, "pw", args, "",QStringList() << "MM_CHARSET=UTF-8").split("\n");
+    if(ok){
+      //Go ahead and parse/list all the users
+      for(int i=0; i<users.length(); i++){
+        QStringList info = users[i].split(":");
+        if(info.length() == 10){
+          QJsonObject uinfo;
+          uinfo.insert("name", info[0]);
+          //uinfo.insert("name", info[1]); //Skip Password field (just a "*" in this viewer anyway)
+          uinfo.insert("uid", info[2]);
+          uinfo.insert("gid", info[3]);
+          uinfo.insert("class", info[4]);
+          uinfo.insert("change", info[5]);
+          uinfo.insert("expire", info[6]);
+          uinfo.insert("comment", info[7]);
+          uinfo.insert("home_dir", info[8]);
+          uinfo.insert("shell", info[9]);
+          out->insert(info[0], uinfo); //use the username as the unique object name
+        }else if(info.length() == 7){
+          QJsonObject uinfo;
+          uinfo.insert("name", info[0]);
+          //uinfo.insert("name", info[1]); //Skip Password field (just a "*" in this viewer anyway)
+          uinfo.insert("uid", info[2]);
+          uinfo.insert("gid", info[3]);
+          uinfo.insert("comment", info[4]);
+          uinfo.insert("home_dir", info[5]);
+          uinfo.insert("shell", info[6]);
+          out->insert(info[0], uinfo); //use the username as the unique object name
+        }
+      }
+    }else{
+      //Bad result from "pw" - inputs were just fine (just return nothing)
+      ok = true;
+    }
+  }else if(action=="useradd" && allaccess){
+    //REQUIRED: "name"
+    //OPTIONAL: "
+
+  }
+  return (ok ? RestOutputStruct::OK : RestOutputStruct::BADREQUEST);
 }

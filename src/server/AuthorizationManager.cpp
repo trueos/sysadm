@@ -78,6 +78,15 @@ bool AuthorizationManager::hasFullAccess(QString token){
   return ok;
 }
 
+QString AuthorizationManager::userForToken(QString token){
+  QString id = hashID(token);
+  if(!id.isEmpty()){
+    return id.section("::::",2,2);
+  }else{
+    return "";
+  }
+}
+
 //SSL Certificate register/revoke/list
 bool AuthorizationManager::RegisterCertificate(QString token, QString pubkey, QString nickname, QString email){
   if(!checkAuth(token)){ return false; }

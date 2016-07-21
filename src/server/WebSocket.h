@@ -90,6 +90,8 @@ private:
 	RestOutputStruct::ExitCode EvaluateSysadmZfsRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm PKG API
 	RestOutputStruct::ExitCode EvaluateSysadmPkgRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- sysadm User Mgmt API
+	RestOutputStruct::ExitCode EvaluateSysadmUserRequest(bool allaccess, QString user, const QJsonValue in_args, QJsonObject *out);
 	
 private slots:
 	void sendReply(QString msg);

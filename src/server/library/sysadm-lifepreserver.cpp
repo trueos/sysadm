@@ -55,12 +55,13 @@ QJsonObject LifePreserver::addReplication(QJsonObject jsin) {
    // Run the command with the SSHPASS env variable set
    QStringList output;
    output = General::RunCommand("lpreserver", QStringList() << "replicate" << "add"
-	<< host
-	<< user
-	<< port
-	<< ldataset
-	<< rdataset
-	<< frequency, "", QStringList() << "SSHPASS=" + password ).split("\n");
+	<< host \
+	<< user \
+	<< port \
+	<< ldataset \
+	<< rdataset \
+	<< frequency \
+        , "", QStringList() << "SSHPASS=" + password).split("\n");
 
    // Check for any errors
    for ( int i = 0; i < output.size(); i++)
