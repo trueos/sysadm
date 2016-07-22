@@ -14,11 +14,13 @@
 #include <QDebug>
 #include <QFile>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QJsonValue>
 #include <QProcess>
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
+#include <QTemporaryFile>
 
 //FreeBSD Includes
 #include <sys/types.h>

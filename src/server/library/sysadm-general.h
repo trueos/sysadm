@@ -26,6 +26,10 @@ public:
     static QStringList readTextFile(QString filename);
     static bool writeTextFile(QString filename, QStringList contents, bool overwrite = true);
 
+
+    //JSON Array to QStringList simplification
+    static QStringList JsonArrayToStringList(QJsonArray);
+
     /**
      * @brief getConfFileValue get the value associated with a key in a config file
      * @param fileName the file to read from

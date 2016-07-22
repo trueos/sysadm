@@ -97,6 +97,18 @@ bool General::writeTextFile(QString filepath, QStringList contents, bool overwri
   }
   return ok;
 }
+
+//== JsonArrayToStringList() ==
+QStringList General::JsonArrayToStringList(QJsonArray array){
+  //Note: This assumes that the array is only values, not additional objects
+  QStringList out;
+  for(int i=0; i<array.count(); i++){
+    out << array.at(i).toString();
+  }
+  return out;  
+}
+
+//== getConfFileValue() ==
 QString General::getConfFileValue(QString fileName, QString Key, int occur )
 {
     int found = 1;
