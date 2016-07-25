@@ -98,6 +98,7 @@ bool UserManager::addUser(QJsonObject* out, QJsonObject obj){
       pwfile.write( obj.value("password").toString().toUtf8().data() );
       pwfile.close(); //closed but still exists - will go out of scope and get removed in a moment
       args << "-h" << "0"; //read from std input
+      args << "-m"; //automatically create users home dir
       ok = (0== system("cat "+pwfile.fileName().toUtf8()+" | pw "+args.join(" ").toUtf8()) );
       usercreated = ok;
     }else{
@@ -204,7 +205,9 @@ bool UserManager::InitializePersonaCryptDevice(QString username, QString pass, Q
   if( pfile.open() ){
     pfile.write(pass.toUtf8().data());
     pfile.close();
-    ok = General::RunQuickCommand("personacrypt", QStringList() << "init" << username << pfile.fileName() << device);
+    QString result = General::RunCommand(ok, "personacrypt", QStringList() << "init" << username << pfile.fileName() << device);
+    //ok = General::RunQuickCommand("personacrypt", QStringList() << "init" << username << pfile.fileName() << device);
+    qDebug() << "PC init result:" << result;
   }
   return ok;
 }

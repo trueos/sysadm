@@ -934,6 +934,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, 
     if(go){ ok = sysadm::UserManager::modifyUser(out, in_args.toObject() ); }
 
   }else if(action=="personacrypt_init"){
+    qDebug() << "got PC init request:" << in_args << allaccess << user;
     bool go = true;
     if(!allaccess){
       //ensure that the user being acted on is the current user - otherwise deny access
@@ -944,6 +945,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, 
       QJsonObject obj = in_args.toObject();
       if(obj.contains("name") && obj.contains("password") && obj.contains("device") ){
         ok = sysadm::UserManager::InitializePersonaCryptDevice(obj.value("name").toString(), obj.value("password").toString(), obj.value("device").toString() ); 
+        if(ok){ out->insert("result","success"); }
+        else{ out->insert("error","Could not initialize Personacrypt device"); }
       }
     }
 
