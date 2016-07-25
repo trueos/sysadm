@@ -932,8 +932,28 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, 
       go = (in_args.toObject().value("name").toString() == user);
     }
     if(go){ ok = sysadm::UserManager::modifyUser(out, in_args.toObject() ); }
-  }
 
+  }else if(action=="personacrypt_init"){
+    bool go = true;
+    if(!allaccess){
+      //ensure that the user being acted on is the current user - otherwise deny access
+      go = (in_args.toObject().value("name").toString() == user);
+    }
+    if(go){ 
+      //REQUIRED: "name", "password","device"
+      QJsonObject obj = in_args.toObject();
+      if(obj.contains("name") && obj.contains("password") && obj.contains("device") ){
+        ok = sysadm::UserManager::InitializePersonaCryptDevice(obj.value("name").toString(), obj.value("password").toString(), obj.value("device").toString() ); 
+      }
+    }
+
+  }else if(action=="personacrypt_listdevs"){
+    QStringList devs = sysadm::UserManager::getAvailablePersonaCryptDevices();
+    for(int i=0; i<devs.length(); i++){
+      out->insert(devs[i].section(":",0,0), devs[i].section(":",1,-1).simplified()); //<device>:<info>
+    }
+    ok = true;
+  }
 
   return (ok ? RestOutputStruct::OK : RestOutputStruct::BADREQUEST);
 }
