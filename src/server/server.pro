@@ -19,7 +19,6 @@ SOURCES	+= main.cpp \
 		WebSocket.cpp \
 		RestStructs.cpp \
 		WebBackend.cpp \
-		WebBackendSlots.cpp \
 		AuthorizationManager.cpp \
 		EventWatcher.cpp \
 		LogManager.cpp \

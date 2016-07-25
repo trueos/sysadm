@@ -111,8 +111,8 @@ private slots:
 	void SslError(const QList<QSslError>&); //sslErrors() signal
 
 	// Library Slots
-	void slotIohyveFetchDone(QString, int, QString);
-	void slotIohyveFetchProcessOutput(QString);
+	//void slotIohyveFetchDone(QString, int, QString);
+	//void slotIohyveFetchProcessOutput(QString);
 	
 	//Bridge Connection Handling
 	void startBridgeAuth();
