@@ -924,6 +924,16 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, 
     }else{
       out->insert("error","Cannot delete the current user");
     }
+
+  }else if(action=="usermod"){
+    bool go = true;
+    if(!allaccess){
+      //ensure that the user being acted on is the current user - otherwise deny access
+      go = (in_args.toObject().value("name").toString() == user);
+    }
+    if(go){ ok = sysadm::UserManager::modifyUser(out, in_args.toObject() ); }
   }
+
+
   return (ok ? RestOutputStruct::OK : RestOutputStruct::BADREQUEST);
 }
