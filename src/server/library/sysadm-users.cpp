@@ -205,12 +205,26 @@ bool UserManager::listGroups(QJsonObject* out, QString user ){
       out->insert(ginfo[0], obj);
     }
   }
+  if(!ok){ out->insert("error",info.join("\n")); }
   return ok;
 }
 
 bool UserManager::addGroup(QJsonObject* out, QJsonObject input){
   bool ok = false;
-
+  // REQUIRED: "name"
+  // OPTIONAL: "gid", "users"
+  if(input.contains("name")){
+    QStringList args; 
+    args << "groupadd" << "-n" << input.value("name").toString();
+    if(input.contains("gid")){ args << "-g" << input.value("gid").toString(); }
+    if(input.contains("users")){
+      if(input.value("users").isArray()){ args << "-M" << General::JsonArrayToStringList(input.value("users").toArray()).join(","); }
+      else if(input.value("users").isString()){ args << "-M" << input.value("users").toString(); }
+    }
+    QString res = General::RunCommand(ok, "pw", args, "",QStringList() << "MM_CHARSET=UTF-8");
+    if(ok){ out->insert("result","success"); }
+    else{ out->insert("error", res); }
+  }
   return ok;
 }
 

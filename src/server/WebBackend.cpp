@@ -936,6 +936,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, 
   }else if(action=="groupshow"){
     ok = sysadm::UserManager::listGroups(out, (allaccess ? "" : user) );
 
+  }else if(action=="groupadd" && allaccess){
+    ok = sysadm::UserManager::addGroup(out, in_args.toObject() );
+
   }else if(action=="personacrypt_init"){
     qDebug() << "got PC init request:" << in_args << allaccess << user;
     bool go = true;
