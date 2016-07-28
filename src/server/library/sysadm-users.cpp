@@ -187,6 +187,47 @@ bool UserManager::modifyUser(QJsonObject* out, QJsonObject obj){
   return ok;
 }
 
+// === GROUP MANAGEMENT ===
+bool UserManager::listGroups(QJsonObject* out, QString user ){
+  bool ok = false;
+  QStringList info = General::RunCommand(ok, "pw", QStringList() << "groupshow" << "-a", "",QStringList() << "MM_CHARSET=UTF-8").split("\n");
+  if(ok){
+    for(int i=0; i<info.length(); i++){
+      QStringList ginfo = info[i].split(":");
+      if(ginfo.length()<4){ continue; } //invalid line
+      QJsonObject obj;
+        obj.insert("name",ginfo[0]);
+        obj.insert("gid",ginfo[2]);
+        QStringList users = ginfo[3].split(",");
+        //If restricted to a particular user, only show that user in the users list as needed (don't show other users)
+        if(user.isEmpty()){obj.insert("users", QJsonArray::fromStringList( users ) ); }
+        else if(users.contains(user)){ obj.insert("users", QJsonArray::fromStringList( QStringList() << user ) ); }
+      out->insert(ginfo[0], obj);
+    }
+  }
+  return ok;
+}
+
+bool UserManager::addGroup(QJsonObject* out, QJsonObject input){
+  bool ok = false;
+
+  return ok;
+}
+
+bool UserManager::removeGroup(QString name){
+  bool ok = false;
+  QStringList args; args << "groupdel" << "-n" << name;
+  QString res = General::RunCommand(ok, "pw", args);
+  if(!ok){ qDebug() << "[ERROR] Could not delete group:"<< name << "\n - Result Message:" << res; }
+  return ok;
+}
+
+bool UserManager::modifyGroup(QJsonObject* out, QJsonObject input){
+  bool ok = false;
+
+  return ok;
+}
+
 // === PERSONACRYPT FUNCTIONS ===
 //List all the devices currently available to be used for a PersonaCrypt User
 QStringList UserManager::getAvailablePersonaCryptDevices(){
@@ -206,8 +247,7 @@ bool UserManager::InitializePersonaCryptDevice(QString username, QString pass, Q
     pfile.write(pass.toUtf8().data());
     pfile.close();
     QString result = General::RunCommand(ok, "personacrypt", QStringList() << "init" << username << pfile.fileName() << device);
-    //ok = General::RunQuickCommand("personacrypt", QStringList() << "init" << username << pfile.fileName() << device);
-    qDebug() << "PC init result:" << result;
+    //qDebug() << "PC init result:" << result;
   }
   return ok;
 }

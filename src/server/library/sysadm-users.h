@@ -17,10 +17,18 @@ public:
 	//List all the users currently registered on the system
 	static bool listUsers(QJsonObject* out, bool showall, QString user = "");
 
-	//Add a new user to the system
+	//User Management
 	static bool addUser(QJsonObject* out, QJsonObject inputs);
 	static bool removeUser(QString username, bool deletehomedir = true);
 	static bool modifyUser(QJsonObject* out, QJsonObject inputs);
+
+	//List all the groups current registered on the system
+	static bool listGroups(QJsonObject* out, QString user = "");
+
+	//Group Management
+	static bool addGroup(QJsonObject* out, QJsonObject input);
+	static bool removeGroup(QString name);
+	static bool modifyGroup(QJsonObject* out, QJsonObject input);
 
 	//List all the devices currently available to be used for a PersonaCrypt User
 	static QStringList getAvailablePersonaCryptDevices();
