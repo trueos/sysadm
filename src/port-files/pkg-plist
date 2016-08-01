@@ -2,8 +2,6 @@ bin/sysadm-binary
 bin/sysadm-server
 bin/sysadm-bridge
 bin/sysadm-bridge-start
-etc/job.d/org.pcbsd.sysadm.json
-etc/job.d/org.pcbsd.sysadm-rest.json
 etc/sysadm.conf.dist
 etc/rc.d/sysadm
 etc/rc.d/sysadm-bridge
