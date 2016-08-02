@@ -4,7 +4,7 @@ Getting Started
 ===============
 
 Beginning with SysAdm™ is a relatively simple process. 
-SysAdm™ files are currently available from the `github repository <https://github.com/pcbsd/sysadm.git>`_
+SysAdm™ files are currently available from the `github repository <https://github.com/trueos/sysadm>`_
 
 
 .. _building:
@@ -17,14 +17,12 @@ SysAdm™: ::
 
   Qt5 Core (# pkg install qt5-core)
   Qt5 Concurrent (# pkg install qt5-concurrent)
-  Qt5 Network (# pkg install qt-network)
-  Qt5 Sql (# pkg install qt5-sql)
   Qt5 Websockets (# pkg install qt5-websockets)
 
 Building the prototype version of SysAdm™ assumes you have access to 
 github.com. ::
 
-  % git clone https://github.com/pcbsd/sysadm.git
+  % git clone https://github.com/trueos/sysadm.git
   % cd sysadm/src
   % /usr/local/lib/qt5/bin/qmake -recursive
   % make && sudo make install
