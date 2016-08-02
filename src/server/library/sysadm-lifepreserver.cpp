@@ -244,13 +244,13 @@ QJsonObject LifePreserver::listReplication() {
    QStringList output = General::RunCommand("lpreserver replicate list").split("\n");
    QStringList setitems;
    QString tmpkey;
-   QRegExp sep("\\s+");
+   //QRegExp sep("\\s+");
 
    // Parse the output
    bool inSection = false;
    for ( int i = 0; i < output.size(); i++)
    {
-      if ( output.at(i).indexOf("-----------------") != -1 ) {
+      if ( !inSection && output.at(i).indexOf("-----------------") != -1 ) {
          inSection = true;
          continue;
       }
@@ -265,13 +265,13 @@ QJsonObject LifePreserver::listReplication() {
       QJsonObject values;
       tmpkey = "";
       QString dset, rdset, user, host, port, parseline, time;
-      dset = output.at(i).section(sep, 0, 0).simplified();
-      parseline = output.at(i).section(sep, 2, 2).simplified();
+      dset = output.at(i).section(" -> ", 0, 0).simplified();
+      parseline = output.at(i).section(" -> ", 1, -1).simplified();
       user = parseline.section("@", 0, 0);
       host = parseline.section("@", 1, 1).section("[", 0, 0);
       port = parseline.section("@", 1, 1).section("[", 1, 1).section("]", 0, 0);
       rdset = parseline.section(":", 1, 1);
-      time = output.at(i).section(sep, 4, 4).simplified();
+      time = output.at(i).section(" Time:", -1).simplified();
 
       values.insert("dataset", dset);
       values.insert("user", user);
