@@ -327,10 +327,14 @@ QJsonArray PKG::list_categories(QString repo){
   else{ return QJsonArray(); }
 }
 
-QJsonArray PKG::list_repos(){
+QJsonArray PKG::list_repos(bool updated){
   QString dbdir = "/var/db/pkg/repo-%1.sqlite";
   QDir confdir("/usr/local/etc/pkg/repos");
     QStringList confs = confdir.entryList(QStringList() << "*.conf", QDir::Files);
+  if(confs.isEmpty() && !updated){
+    QProcess::execute("pkg update"); //need to update pkg configs
+    return list_repos(true); //try again recursively (will not try to update again)
+  }
   QStringList found;
   found << "local"; //There is always a local database (for installed pkgs)
   for(int i=0; i<confs.length(); i++){

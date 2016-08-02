@@ -23,7 +23,7 @@ public:
 	static QJsonObject pkg_info(QStringList origins, QString repo, QString category = "", bool fullresults = true);
 	static QStringList pkg_search(QString repo, QString searchterm, QStringList searchexcludes, QString category = "");
 	static QJsonArray list_categories(QString repo);
-	static QJsonArray list_repos();
+	static QJsonArray list_repos(bool updated = false);
 
 	//pkg modification routines (dispatcher events for notifications)
 	static QJsonObject pkg_install(QStringList origins, QString repo);
