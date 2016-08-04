@@ -236,7 +236,7 @@ while(found.isEmpty() && numtry<2){
 	found << query.value("origin").toString(); //need the origin for later
     }
   }
-  if(found.length()<10 && numtry<1){
+  if(found.length()<60 && numtry<1){
     //Expand the search to names containing the term
     q_string = "SELECT origin FROM packages WHERE name LIKE '"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
@@ -246,7 +246,7 @@ while(found.isEmpty() && numtry<2){
 	found << q2.value("origin").toString(); //need the origin for later
     }
   }
-  if(found.length()<10 && numtry<1){
+  if(found.length()<60 && numtry<1){
     //Expand the search to names containing the term
     q_string = "SELECT origin FROM packages WHERE name LIKE '%"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
@@ -256,7 +256,7 @@ while(found.isEmpty() && numtry<2){
 	found << q2.value("origin").toString(); //need the origin for later
     }
   }
-  if(found.length()<10){
+  if(found.length()<60){
     //Expand the search to comments
     if(terms.length()<2){ q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+searchterm+"%'"; }
     else if(numtry==0){ q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+terms.join("%' AND comment LIKE '%")+"%'"; }
@@ -268,7 +268,7 @@ while(found.isEmpty() && numtry<2){
 	found << q2.value("origin").toString(); //need the origin for later
     }
   }
-  if(found.length()<10){
+  if(found.length()<100){
     //Expand the search to full descriptions
     if(terms.length()<2){ q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+searchterm+"%'"; }
     else if(numtry==0){ q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+terms.join("%' AND desc LIKE '%")+"%'"; }
@@ -340,8 +340,8 @@ QJsonArray PKG::list_repos(bool updated){
   for(int i=0; i<confs.length(); i++){
     QStringList repoinfo = General::readTextFile(confdir.absoluteFilePath(confs[i])).join("\n").split("}");
     for(int j=0; j<repoinfo.length(); j++){
-      QString repo = repoinfo[j].section(":",0,0);
-      if(QFile::exists(dbdir.arg(repo))){ found << repo; }
+      QString repo = repoinfo[j].section(":",0,0).simplified();
+      if(QFile::exists(dbdir.arg(repo)) && repoinfo[j].section("enabled:",1,-1).section(":",0,0).contains("true")){ found << repo; }
     }
   }
   return QJsonArray::fromStringList(found);
