@@ -20,7 +20,7 @@ inline void annotations_from_ids(QStringList var_ids, QStringList val_ids, QJson
   QStringList tot; tot << var_ids << val_ids;
   tot.removeDuplicates();
   int index = -1;
-  QSqlQuery q("SELECT annotation, annotation_id FROM annotation WHERE annotation_id = '"+tot.join("' OR annotation_id = '")+"'",DB);
+  QSqlQuery q("SELECT annotation, annotation_id FROM annotation WHERE annotation_id IN ('"+tot.join("', '")+"')",DB);
     while(q.next()){ 
 	//qDebug() << "Got query result:" << q.value("annotation_id").toString() << q.value("annotation").toString();
 	index = var_ids.indexOf(q.value("annotation_id").toString());
@@ -42,28 +42,28 @@ inline void annotations_from_ids(QStringList var_ids, QStringList val_ids, QJson
 }
 //Get origin from package_id (for reverse lookups)
 inline QStringList origins_from_package_ids(QStringList ids, QSqlDatabase DB){
-  QSqlQuery q("SELECT origin FROM packages WHERE id = '"+ids.join("' OR id = '")+"'",DB);
+  QSqlQuery q("SELECT origin FROM packages WHERE id IN ('"+ids.join("', '")+"')",DB);
   QStringList out;
   while(q.next()){ out << q.value("origin").toString(); }
   return out;
 }
 //Generic ID's -> Names function (known databases: users, groups, licenses, shlibs, categories )
 inline QStringList names_from_ids(QStringList ids, QString db, QSqlDatabase DB){
-  QSqlQuery q("SELECT name FROM "+db+" WHERE id = '"+ids.join("' OR id = '")+"'",DB);
+  QSqlQuery q("SELECT name FROM "+db+" WHERE id IN ('"+ids.join("', '")+"')",DB);
   QStringList out;
   while(q.next()){ out << q.value("name").toString(); }
   return out;
 }
 //provide values from ID's
 inline QStringList provides_from_ids(QStringList ids, QSqlDatabase DB){
-  QSqlQuery q("SELECT provide FROM provides WHERE id = '"+ids.join("' OR id = '")+"'",DB);
+  QSqlQuery q("SELECT provide FROM provides WHERE id IN ('"+ids.join("', '")+"')",DB);
   QStringList out;
   while(q.next()){ out << q.value("provide").toString(); }
   return out;
 }
 //require values from ID's
 inline QStringList requires_from_ids(QStringList ids, QSqlDatabase DB){
-  QSqlQuery q("SELECT require FROM requires WHERE id = '"+ids.join("' OR id = '")+"'", DB);
+  QSqlQuery q("SELECT require FROM requires WHERE id IN ('"+ids.join("', '")+"')", DB);
   QStringList out;
   while(q.next()){ out << q.value("require").toString(); }
   return out;
