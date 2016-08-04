@@ -58,12 +58,11 @@ Here is an example reply from the Life Preserver subsystem:
 
  {
     "namespace" : "events",
-    "name" : "life-preserver",
+    "name" : "life_preserver",
     "id" : "<none>"
     "args" : {
-       "message" : <message>,
-       "priority" : "<number> -
-  <category>",
+       "message" : "<message>",
+       "priority" : "<number>/<category>",
        "class" : "[snapshot/replication]"
      }
  }
@@ -198,8 +197,8 @@ following:
   "id" : "none",
   "args" : {
     "message" : "<text string>",
-    "priority" : "<number - warning level>",
-    "class" : "snapshot" OR "replication"
+    "priority" : "<number/warning level>",
+    "class" : "snapshot/replication"
   }
  }
  
@@ -223,6 +222,9 @@ following:
 
 **Websocket Event Message**
 
+This message will appear if the host name has changed and a priority
+error has occurred.
+
 .. code-block:: json
 
  {
@@ -231,7 +233,7 @@ following:
   "id" : "none",
   "args" : {
     "hostname" : "<name>",
-    "hostnamechanged" : "true",		(only if host name changed)
+    "hostnamechanged" : "true",
     "zpools" : {
       "<poolname>" : {
         "size" : "<107G>", 
@@ -243,7 +245,7 @@ following:
         "altroot" : "<->",
         "capacity" : "<12%>",
         "health" : "<online>",
-        "priority" : "<priority>" (if error)
+        "priority" : "<priority>"
       }
     }
   }
@@ -271,6 +273,6 @@ server connects/disconnects or vice versa.
       }
   }
 
-.. note:: available_connections are **all** the connections available at
-the time, **not** a difference from a previous state. There may be both 
-new ID's in the list and ID's which are no longer listed.
+.. note:: Available_connections are **all** the connections available at
+   the time, **not** a difference from a previous state. There may be
+   both new ID's in the list and ID's which are no longer listed.

@@ -42,7 +42,7 @@ was created, its mount point, its nickname, and its size.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/beadm
  {
@@ -104,7 +104,7 @@ environment as the "target".
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/beadm
  {
@@ -157,7 +157,7 @@ The "activatebe" action activates the specified boot environment
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/beadm
  {
@@ -208,7 +208,7 @@ also include "clonefrom" to specify which boot environment to clone from.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/beadm
  {
@@ -261,7 +261,7 @@ and forcefully unmounts it.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/beadm
  {
@@ -310,7 +310,7 @@ optional "mountpoint" argument to specify the mount point.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/beadm
  {
@@ -362,7 +362,7 @@ even if it is in use.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/beadm
  {

@@ -43,7 +43,7 @@ installed software packages.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/update
  {
@@ -103,7 +103,7 @@ listed as "active".
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/update
  {
@@ -180,7 +180,7 @@ targets are:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/update
  {
@@ -242,7 +242,7 @@ targets are:
   "name" : "dispatcher",
   "id" : "none",
   "args" : {
-    "event_system" : "sysadm"/"update",
+    "event_system" : "sysadm/update",
     "state" : "finished",
     "update_log" : "<update log>",
     "process_details" : {

@@ -38,7 +38,7 @@ The "dirlist" action lists the contents of the specified directory.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/fs
  {

@@ -52,7 +52,7 @@ relevant information. The following arguments are optional:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -82,7 +82,7 @@ relevant information. The following arguments are optional:
 
 **Response**
 
-.. code-block:: json
+::
 
  {
   "args": {
@@ -98,24 +98,9 @@ relevant information. The following arguments are optional:
           "x11-wm/fluxbox",
           "x11/libXdamage",
           "devel/qt5-linguist",
-          "x11/numlockx",
-          "devel/qt5-buildtools",
-          "multimedia/qt5-multimedia",
-          "graphics/qt5-svg",
-          "x11/xbrightness",
-          "x11/xorg",
-          "devel/desktop-file-utils",
-          "devel/qt5-concurrent",
-          "x11/libX11",
-          "net/qt5-network",
-          "x11-themes/fluxbox-tenr-styles-pack",
-          "x11-themes/kde4-icons-oxygen",
-          "devel/qt5-core",
-          "x11/xscreensaver",
-          "multimedia/gstreamer1-plugins-core",
-          "graphics/qt5-imageformats"
+          "x11/numlockx"
         ],
-        "desc": "Lumina-DE is a lightweight, BSD licensed desktop environment,\ndesigned specifically for use on FreeBSD\n\nWWW: http://lumina-desktop.org",
+        "desc": "Lumina-DE is a lightweight, BSD licensed desktop environment.",
         "files": [
           "/usr/local/share/licenses/lumina-0.8.8_2,1/catalog.mk",
           "/usr/local/share/licenses/lumina-0.8.8_2,1/LICENSE",
@@ -130,48 +115,7 @@ relevant information. The following arguments are optional:
           "/usr/local/bin/lumina-search",
           "/usr/local/bin/lumina-xconfig",
           "/usr/local/etc/luminaDesktop.conf.dist",
-          "/usr/local/include/LuminaOS.h",
-          "/usr/local/include/LuminaSingleApplication.h",
-          "/usr/local/include/LuminaThemes.h",
-          "/usr/local/include/LuminaUtils.h",
-          "/usr/local/include/LuminaX11.h",
-          "/usr/local/include/LuminaXDG.h",
-          "/usr/local/lib/libLuminaUtils.so",
-          "/usr/local/lib/libLuminaUtils.so.1",
-          "/usr/local/lib/libLuminaUtils.so.1.0",
-          "/usr/local/lib/libLuminaUtils.so.1.0.0",
-          "/usr/local/share/Lumina-DE/Login.ogg",
-          "/usr/local/share/Lumina-DE/Logout.ogg",
-          "/usr/local/share/Lumina-DE/colors/Black.qss.colors",
-          "/usr/local/share/Lumina-DE/colors/Blue-Light.qss.colors",
-          "/usr/local/share/Lumina-DE/colors/Grey-Dark.qss.colors",
-          "/usr/local/share/Lumina-DE/colors/Lumina-Glass.qss.colors",
-          "/usr/local/share/Lumina-DE/colors/Lumina-Gold.qss.colors",
-          "/usr/local/share/Lumina-DE/colors/Lumina-Green.qss.colors",
-          "/usr/local/share/Lumina-DE/colors/Lumina-Purple.qss.colors",
-          "/usr/local/share/Lumina-DE/colors/Lumina-Red.qss.colors",
-          "/usr/local/share/Lumina-DE/colors/PCBSD10-Default.qss.colors",
-          "/usr/local/share/Lumina-DE/colors/Solarized-Dark.qss.colors",
-          "/usr/local/share/Lumina-DE/colors/Solarized-Light.qss.colors",
-          "/usr/local/share/Lumina-DE/desktop-background.jpg",
-          "/usr/local/share/Lumina-DE/fluxbox-init-rc",
-          "/usr/local/share/Lumina-DE/fluxbox-keys",
-          "/usr/local/share/Lumina-DE/luminaDesktop.conf",
-          "/usr/local/share/Lumina-DE/quickplugins/quick-sample.qml",
-          "/usr/local/share/Lumina-DE/themes/Lumina-default.qss.template",
-          "/usr/local/share/Lumina-DE/themes/None.qss.template",
-          "/usr/local/share/applications/lumina-fm.desktop",
-          "/usr/local/share/applications/lumina-info.desktop",
-          "/usr/local/share/applications/lumina-screenshot.desktop",
-          "/usr/local/share/applications/lumina-search.desktop",
-          "/usr/local/share/applications/lumina-support.desktop",
-          "/usr/local/share/pixmaps/Insight-FileManager.png",
-          "/usr/local/share/pixmaps/Lumina-DE.png",
-          "/usr/local/share/wallpapers/Lumina-DE/Lumina_Wispy_gold.jpg",
-          "/usr/local/share/wallpapers/Lumina-DE/Lumina_Wispy_green.jpg",
-          "/usr/local/share/wallpapers/Lumina-DE/Lumina_Wispy_purple.jpg",
-          "/usr/local/share/wallpapers/Lumina-DE/Lumina_Wispy_red.jpg",
-          "/usr/local/share/xsessions/Lumina-DE.desktop"
+          "/usr/local/include/LuminaOS.h"
         ],
         "flatsize": "12324767",
         "icon": "\\\"http://www.pcbsd.org/appcafe/icons/x11_lumina.png\\\"",
@@ -183,7 +127,7 @@ relevant information. The following arguments are optional:
         "locked": "0",
         "maintainer": "kmoore@FreeBSD.org",
         "manifestdigest": "2$0$4ypg5zrco9upyuioczmo3uwbtdd5yart7xuit6fx3gjrn1k979qb",
-        "message": "[{\"message\":\"The Lumina Desktop Environment has been installed!\\n\\nAn entry for for launching Lumina from a graphical login manager has already been added to the system, but if you with to start Lumina manually, you will need to do one of the following:\\n1) Put the line \\\"exec Lumina-DE\\\" at the end of your user's \\\"~/.xinitrc\\\" file before running startx\\n2) Wrap the Lumina binary call with an X initialization call: \\nExample: \\\"xinit ${PREFIX}/bin/Lumina-DE -- :0\\\"\\n\\nAlso note that the system-wide default settings for Lumina are contained in ${PREFIX}/etc/luminaDesktop.conf[.dist]. While it is possible to customize the desktop to the user's liking after logging in, you may want to adjust the default settings as necessary if there are multiple user accounts on this system.\"}]",
+        "message": "The Lumina Desktop Environment has been installed!",
         "mtree_id": "",
         "name": "lumina",
         "options": {
@@ -205,19 +149,7 @@ relevant information. The following arguments are optional:
           "libxcb-damage.so.0",
           "libXdamage.so.1",
           "libxcb-util.so.1",
-          "libGL.so.1",
-          "libQt5Core.so.5",
-          "libxcb-image.so.0",
-          "libxcb-icccm.so.4",
-          "libxcb-ewmh.so.2",
-          "libQt5Gui.so.5",
-          "libQt5Network.so.5",
-          "libQt5Widgets.so.5",
-          "libQt5Concurrent.so.5",
-          "libQt5Multimedia.so.5",
-          "libQt5MultimediaWidgets.so.5",
-          "libQt5Svg.so.5",
-          "libQt5X11Extras.so.5"
+          "libGL.so.1"
         ],
         "time": "1458334158",
         "version": "0.8.8_2,1",
@@ -248,7 +180,7 @@ match the given "search_term" (required). These parameters are optional:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -427,7 +359,7 @@ local repository.
 
 **REST Request**
 
-.. code-block:: json
+::
  
  PUT /sysadm/pkg
  {
@@ -529,7 +461,7 @@ argument for the other pkg API actions.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -585,7 +517,7 @@ packages which are impacted by those vulnerabilities.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -631,7 +563,7 @@ packages which are impacted by those vulnerabilities.
   "name" : "dispatcher",
   "id" : "none",
   "args" : {
-    "event_system" : "sysadm"/"pkg",
+    "event_system" : "sysadm/pkg",
     "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_audit",
@@ -660,7 +592,7 @@ to and query dispatcher events.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -706,7 +638,7 @@ to and query dispatcher events.
   "name" : "dispatcher",
   "id" : "none",
   "args" : {
-    "event_system" : "sysadm"/"pkg",
+    "event_system" : "sysadm/pkg",
     "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_upgrade",
@@ -735,7 +667,7 @@ subscribe to and query dispatcher events.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -785,7 +717,7 @@ subscribe to and query dispatcher events.
     "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_check_upgrade",
-    "updates_available" : "true" OR "false",
+    "updates_available" : "true/false",
     "process_details" : {
       "time_finished" : "<ISO 8601 time date string>",
       "cmd_list" : ["<command 1>", "<command 2>"],
@@ -815,7 +747,7 @@ some time.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -863,7 +795,7 @@ some time.
   "name" : "dispatcher",
   "id" : "none",
   "args" : {
-    "event_system" : "sysadm"/"pkg",
+    "event_system" : "sysadm/pkg",
     "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_update",
@@ -899,7 +831,7 @@ query dispatcher events.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -951,7 +883,7 @@ query dispatcher events.
   "name" : "dispatcher",
   "id" : "none",
   "args" : {
-    "event_system" : "sysadm"/"pkg",
+    "event_system" : "sysadm/pkg",
     "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_lock",
@@ -968,7 +900,7 @@ query dispatcher events.
  
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -1016,7 +948,7 @@ query dispatcher events.
   "name" : "dispatcher",
   "id" : "none",
   "args" : {
-    "event_system" : "sysadm"/"pkg",
+    "event_system" : "sysadm/pkg",
     "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_unlock",
@@ -1048,7 +980,7 @@ query dispatcher events.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -1098,7 +1030,7 @@ query dispatcher events.
   "name" : "dispatcher",
   "id" : "none",
   "args" : {
-    "event_system" : "sysadm"/"pkg",
+    "event_system" : "sysadm/pkg",
     "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_install",
@@ -1134,7 +1066,7 @@ and query dispatcher events.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {
@@ -1184,7 +1116,7 @@ and query dispatcher events.
   "name" : "dispatcher",
   "id" : "none",
   "args" : {
-    "event_system" : "sysadm"/"pkg",
+    "event_system" : "sysadm/pkg",
     "state" : "finished",
     "pkg_log" : "<process log>",
     "action" : "pkg_remove",
@@ -1210,7 +1142,7 @@ The "pkg_autoremove" action prunes all orphaned packages on the system.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/pkg
  {

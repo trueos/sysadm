@@ -39,7 +39,7 @@ of active, cached, free, inactive, and total physical (wired) memory.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/systemmanager
  {
@@ -105,7 +105,7 @@ The "cpupercentage" action returns the usage percentage of each CPU.
 
 **REST Request**
 
-.. code-block:: json 
+::
 
  PUT /sysadm/systemmanager
  {
@@ -187,7 +187,7 @@ The "cputemps" action returns the temperature of each CPU.
 
 **REST Request**
 
-.. code-block:: json  
+::
 
  PUT /sysadm/systemmanager
  {
@@ -254,7 +254,7 @@ listed by this action.
 
 **REST Request**
 
-.. code-block:: json 
+::
 
  PUT /sysadm/systemmanager
  {
@@ -337,7 +337,7 @@ QUIT, ABRT, KILL, ALRM, or TERM.
 
 **REST Request**
 
-.. code-block:: json  
+::
 
  PUT /sysadm/systemmanager
  {
@@ -406,7 +406,7 @@ estimated time left (in seconds).
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/systemmanager
  {
@@ -467,7 +467,7 @@ device name, filesystem, mount path, and device type.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/systemmanager
  {
@@ -536,7 +536,7 @@ system's uptime.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/systemmanager
  {
@@ -612,7 +612,7 @@ been truncated to just show a few.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/systemmanager
  {
@@ -688,7 +688,7 @@ to the new value.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/systemmanager
  {
@@ -754,7 +754,7 @@ The "halt" action shuts down the system.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/systemmanager
  {
@@ -800,7 +800,7 @@ The "reboot" action reboots the system.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/systemmanager
  {

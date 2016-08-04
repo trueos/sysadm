@@ -45,7 +45,7 @@ total size. This action is the equivalent of running
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/zfs
  {
@@ -101,7 +101,7 @@ The "datasets" action lists the ZFS datasets on the specified pool.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/zfs
  {

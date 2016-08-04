@@ -44,7 +44,7 @@ its current status.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/network
  {

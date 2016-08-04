@@ -45,7 +45,7 @@ loaded into memory.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -115,7 +115,7 @@ with *http://*, *ftp://*, or *file://*.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -163,7 +163,7 @@ with *http://*, *ftp://*, or *file://*.
   "name" : "dispatcher",
   "id" : "none",
   "args" : {
-    "event_system" : "sysadm"/"iohyve",
+    "event_system" : "sysadm/iohyve",
     "state" : "finished",
     "filename" : "<filename>",
     "percent_done" : "<number>%",
@@ -190,7 +190,7 @@ The "listisos" action lists all the known ISO files which iohyve can use.
 
 **REST Request**
 
-.. code-block:: json
+::
  
  PUT /sysadm/iohyve
  {
@@ -237,7 +237,7 @@ Specify the existing name with "source" and the new name with "target".
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -289,7 +289,7 @@ Specify the ISO's name as the "target".
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -339,7 +339,7 @@ use.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -391,7 +391,7 @@ The "issetup" action queries if iohyve has been setup and returns either
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -438,7 +438,7 @@ and "size".
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -492,7 +492,7 @@ the system.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -543,7 +543,7 @@ The "start" action starts the specified VM.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -591,7 +591,7 @@ The "stop" action stops the specified VM.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -639,7 +639,7 @@ The "delete" action deletes the specified iohyve guest.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -687,7 +687,7 @@ The "adddisk" action adds and creates a disk for a VM.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -739,7 +739,7 @@ The "listdisks" action lists the disks connected to the specified VM.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -789,7 +789,7 @@ size.
 
 **REST Request**
 
-.. code-block:: json 
+::
 
  PUT /sysadm/iohyve
  {
@@ -843,7 +843,7 @@ The "deletedisk" action removes the specified disk from the specified VM.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -869,7 +869,7 @@ The "deletedisk" action removes the specified disk from the specified VM.
 
 **Response**
 
-.. code-block:: json
+::
 
  {
   "args": {
@@ -894,7 +894,7 @@ The "version" action displays the iohyve version.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -940,7 +940,7 @@ The "getprops" action lists the properties for the specified guest.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {
@@ -1005,7 +1005,7 @@ Use "getprops" to see the current properties and values for the guest.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iohyve
  {

@@ -43,7 +43,7 @@ apply to all jails.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {
@@ -326,7 +326,7 @@ thickjail).
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {
@@ -409,7 +409,7 @@ Here is an example of specifying the property and the jail:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {
@@ -454,7 +454,7 @@ Here is an example of using *-r* and a specifed property:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {
@@ -505,7 +505,7 @@ jail, as both modes produce identical outputs:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {
@@ -674,7 +674,7 @@ name).
 
 **REST Request**
 
-.. code-block:: json 
+::
 
  PUT /sysadm/iocage
  {
@@ -733,12 +733,12 @@ Start a Jail
 
 The "startjail" action starts the specified jail.
 
-.. note:: since a jail can only be started once, you will receive an 
-error if the jail is already running.
+.. note:: A jail can be started only once. If the jail is already
+   running, an error message will be generated.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {
@@ -802,12 +802,12 @@ Stop a Jail
 
 The "stopjail" action stops the specified jail.
 
-.. note:: since a jail can only be stopped once, you will receive an 
-error if the jail is not running.
+.. note:: A jail can be only stopped once. If the jail has already
+   stopped, an error message will be generated.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {
@@ -877,7 +877,7 @@ want to apply the changes without restarting the jail.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {
@@ -931,7 +931,7 @@ has a different name than the jail it was cloned from.
 
 **REST Request**
 
-.. code-block:: json 
+::
 
  PUT /sysadm/iocage
  {
@@ -979,7 +979,7 @@ values and the props returned in the response is empty:
 
 **REST Request**
 
-.. code-block:: json 
+::
 
  PUT /sysadm/iocage
  {
@@ -1034,7 +1034,7 @@ the "release" property specifies which template to use.
 
 **REST Request**
 
-.. code-block:: json  
+::
 
  PUT /sysadm/iocage
  {
@@ -1081,7 +1081,7 @@ for the list of available switches.
 
 **REST Request**
 
-.. code-block:: json  
+::
 
  PUT /sysadm/iocage
  {
@@ -1107,7 +1107,7 @@ for the list of available switches.
 
 **Response**
 
-.. code-block:: json  
+::
 
  {
   "args": {
@@ -1137,7 +1137,7 @@ jail is running.
 
 **REST Request**
 
-.. code-block:: json 
+::
 
  PUT /sysadm/iocage
  {
@@ -1190,7 +1190,7 @@ output from the command.
 
 **REST Request**
 
-.. code-block:: json  
+::
 
  PUT /sysadm/iocage
  {
@@ -1245,7 +1245,7 @@ all data stored in the jails.
 
 **REST Request**
 
-.. code-block:: json 
+::
 
  PUT /sysadm/iocage
  {
@@ -1293,7 +1293,7 @@ basejails still exist.
 
 **REST Request**
 
-.. code-block:: json  
+::
 
  PUT /sysadm/iocage
  {
@@ -1343,7 +1343,7 @@ The "cleantemplates" action destroys all existing jail templates.
 
 **REST Request**
 
-.. code-block:: json  
+::
 
  PUT /sysadm/iocage
  {
@@ -1365,7 +1365,7 @@ The "cleantemplates" action destroys all existing jail templates.
 
 **Response**
 
-.. code-block:: json  
+::
 
  {
   "args": {
@@ -1389,7 +1389,7 @@ The "cleanall" action destroys everything associated with iocage.
 
 **REST Request**
 
-.. code-block:: json 
+::
 
  PUT /sysadm/iocage
  {
@@ -1439,7 +1439,7 @@ These examples specify the pool to use:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {
@@ -1492,7 +1492,7 @@ These examples show responses when the pool is not specified:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {
@@ -1528,7 +1528,7 @@ These examples show responses when the pool is not specified:
 
 **WebSocket Response**
 
-.. code-block:: json
+::
 
  {
   "args": {
@@ -1559,7 +1559,7 @@ or activate the old pool again.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/iocage
  {

@@ -652,7 +652,7 @@ access the user has. This subsystem is used only by the server.
 
 **REST Request**
 
-.. code-block:: json
+::
 
   PUT /rpc/query
   {
@@ -714,7 +714,7 @@ types using this subsystem.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /rpc/identify
  {}
@@ -755,7 +755,7 @@ the MD5 checksums of all known SSL keys.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /rpc/settings
  {

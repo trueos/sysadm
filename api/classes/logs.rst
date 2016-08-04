@@ -73,10 +73,11 @@ And will return this format:
 
 .. code-block:: json
 
- "args" : {
-  "<log_file_type>" : {
-    "<date_time_stamp>" : <message>,
-    "<date_timo_stamp2>" : <message>
+ {
+  "args" : {
+   "<log_file_type>" : {
+     "<date_time_stamp>" : "<message>",
+     "<date_time_stamp2>" : "<message>"
+   }
   }
  }
-

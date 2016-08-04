@@ -41,7 +41,7 @@ within the dispatcher queues. Possible queues are "no_queue",
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /rpc/dispatcher
  {
@@ -96,7 +96,7 @@ running jobs within the dispatcher system.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /rpc/dispatcher
  {

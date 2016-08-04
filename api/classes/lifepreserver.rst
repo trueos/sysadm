@@ -45,7 +45,7 @@ the time that ZFS scrubs occur.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -129,7 +129,7 @@ Preserver. This action supports the following parameters:
 
 **REST Request**
 
-.. code-block:: json
+::
 
   PUT /sysadm/lifepreserver
   {
@@ -211,7 +211,7 @@ supports the following parameters:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -276,7 +276,7 @@ dataset.
 
 **REST Request**
 
-.. code-block:: json 
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -330,7 +330,7 @@ The "listsnap" action retrieves the list of saved snapshots.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -419,7 +419,7 @@ taken.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -484,7 +484,7 @@ specified dataset or pool.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -577,7 +577,7 @@ Preserver. This action supports the following parameters:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -674,7 +674,7 @@ This action supports the following parameters:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -745,7 +745,7 @@ user account.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -818,7 +818,7 @@ specified dataset to the specified remote server.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -898,7 +898,7 @@ The "initreplication" action supports the following parameters:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -970,7 +970,7 @@ available setting.
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
@@ -1054,7 +1054,7 @@ parameters:
 
 **REST Request**
 
-.. code-block:: json
+::
 
  PUT /sysadm/lifepreserver
  {
