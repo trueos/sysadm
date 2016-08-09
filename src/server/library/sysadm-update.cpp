@@ -14,6 +14,8 @@
 #define UP_RBFILE "/tmp/.rebootRequired"
 #define UP_UPFILE "/tmp/.updatesAvailable"
 
+#define UP_CONFFILE "/usr/local/etc/trueos.conf"
+
 using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
@@ -214,3 +216,31 @@ QJsonObject Update::stopUpdate() {
   }
   return ret;
 }
+
+//SETTINGS OPTIONS
+QJsonObject Update::readSettings(){
+  QJsonObject ret;
+  QStringList knownsettings;
+  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE";// << "CDN_TYPE";
+
+  QStringList info = General::readTextFile(UP_CONFFILE);
+  for(int i=0; i<info.length(); i++){
+    if(info[i].section("#",0,0).simplified().isEmpty()){ continue; } //nothing on this line
+    QString line = info[i].section("#",0,0).simplified();
+    QString var = line.section(":",0,0).simplified();
+    if(knownsettings.contains(var)){
+      ret.insert(var.toLower(), line.section(":",1,-1).simplified());
+    }
+  }
+  return ret;
+}
+
+QJsonObject Update::writeSettings(QJsonObject){
+  QJsonObject ret;
+  //Check inputs
+
+  //Save Settings
+
+  return ret;
+}
+

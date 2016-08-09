@@ -19,6 +19,10 @@ public:
 	//Start/stop update routine
 	static QJsonObject startUpdate(QJsonObject);
 	static QJsonObject stopUpdate();
+	//Read/write update settings
+	static QJsonObject readSettings();
+	static QJsonObject writeSettings(QJsonObject);
+
 
 };
 	
