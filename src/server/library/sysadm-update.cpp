@@ -190,3 +190,27 @@ QJsonObject Update::startUpdate(QJsonObject jsin) {
   retObject.insert("queueid", ID);
   return retObject;
 }
+
+// Stop an update process
+QJsonObject Update::stopUpdate() {
+  //See if the update is running in the dispatcher
+  QJsonObject ret;
+  QJsonObject cup = DISPATCHER->listJobs();
+  QStringList ids = cup.keys().filter("sysadm_update_runupdates::");
+  if(!ids.isEmpty()){
+    //Found a dispatcher process - go ahead and request that it stop
+    DISPATCHER->killJobs(ids);
+    ret.insert("result","success");
+  }else if( QFile::exists(UP_PIDFILE) ){
+    //See if the process is actually running
+    if( General::RunQuickCommand(QString("pgrep -F ")+UP_PIDFILE) ){
+      //Success if return code == 0
+      int rtc = General::RunQuickCommand( QString("pkill -F ")+UP_PIDFILE );
+      if(rtc==0){ ret.insert("result","success"); }
+      else{ ret.insert("result","error: could not kill update process"); }
+    }
+  }else{
+    ret.insert("result","error: no update processes found");
+  }
+  return ret;
+}

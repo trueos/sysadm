@@ -16,7 +16,10 @@ class Update{
 public:
 	static QJsonObject checkUpdates(bool fast = false);
 	static QJsonObject listBranches();
+	//Start/stop update routine
 	static QJsonObject startUpdate(QJsonObject);
+	static QJsonObject stopUpdate();
+
 };
 	
 } //end of pcbsd namespace

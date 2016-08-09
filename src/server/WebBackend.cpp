@@ -581,6 +581,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
       }else if(act=="startupdate"){
 	ok = true;
 	out->insert("startupdate", sysadm::Update::startUpdate(in_args.toObject()) );
+
+      }else if(act=="stopupdate"){
+	ok = true;
+	out->insert("stopupdate", sysadm::Update::stopUpdate() );
       }
 
     } //end of "action" key usage
