@@ -160,10 +160,10 @@ QJsonObject Update::startUpdate(QJsonObject jsin) {
     flags = "chbranch " + jsin.value("branch").toString();
   } else if ( target == "pkgupdate" ) {
     flags = "pkgupdate";
-  } else if ( target == "fbsdupdate" ) {
+/*  } else if ( target == "fbsdupdate" ) {
     flags = "fbsdupdate";
   } else if ( target == "fbsdupdatepkgs" ) {
-    flags = "fbsdupdatepkgs";
+    flags = "fbsdupdatepkgs";*/
   } else if ( target == "standalone" ) {
     if (! keys.contains("tag") ) {
       retObject.insert("error", "Missing required key 'tag'");
