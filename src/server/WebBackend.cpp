@@ -589,6 +589,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
       }else if(act=="listsettings"){
 	ok = true;
 	out->insert("listsettings", sysadm::Update::readSettings() );
+
+      }else if(act=="changesettings"){
+	ok = true;
+	out->insert("changesettings", sysadm::Update::writeSettings(in_args.toObject()) );
       }
 
     } //end of "action" key usage

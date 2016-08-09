@@ -235,12 +235,45 @@ QJsonObject Update::readSettings(){
   return ret;
 }
 
-QJsonObject Update::writeSettings(QJsonObject){
+QJsonObject Update::writeSettings(QJsonObject obj){
   QJsonObject ret;
   //Check inputs
-
+  QStringList knownsettings;
+  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE";// << "CDN_TYPE";
+  QStringList keys = obj.keys();
+  QStringList vals;
+  for(int i=0; i<keys.length(); i++){
+    if(knownsettings.contains(keys[i].toUpper())){
+      vals << obj.value(keys[i]).toString();
+      keys[i] = keys[i].toUpper();
+    }else{
+      keys.removeAt(i); i--;
+    }
+  }
+  if(keys.isEmpty()){ ret.insert("result","no changes"); return ret; }
+  //Note: Now the keys/vals lists are "paired" up, with same size and info for the same index in the list
   //Save Settings
-
+  // - first replace existing variables in the config file
+  QStringList info = General::readTextFile(UP_CONFFILE);
+  for(int i=0; i<info.length(); i++){
+    if(info[i].section("#",0,0).simplified().isEmpty()){ continue; } //nothing on this line
+    QString line = info[i].section("#",0,0).simplified();
+    QString var = line.section(":",0,0).simplified();
+    int index = keys.indexOf(var);
+    if(index>=0){
+      info[i] = keys[index]+": "+vals[index];
+      keys.removeAt(index); vals.removeAt(index);
+    }
+  }
+  // if the variable was not previously defined, just add it to the end
+  for(int i=0; i<keys.length(); i++){
+    info << keys[i]+": "+vals[i];
+  }
+  if( General::writeTextFile(UP_CONFFILE, info, true) ){
+    ret.insert("result","success");
+  }else{
+    ret.insert("result","error");
+  }
   return ret;
 }
 
