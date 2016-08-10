@@ -24,7 +24,7 @@ using namespace sysadm;
 QJsonObject Update::checkUpdates(bool fast) {
   //NOTE: The "fast" option should only be used for automated/timed checks (to prevent doing this long check too frequently)
   QJsonObject retObject;
-	
+  qDebug() << "Check for updates: fast=" << fast;
   //Quick check to ensure the tool is available
   if(!QFile::exists("/usr/local/bin/pc-updatemanager")){ 
     return retObject;
@@ -47,13 +47,25 @@ QJsonObject Update::checkUpdates(bool fast) {
   }
   //Get the list of deatils from the update checks (fast/full)
   QStringList output;
-  if(fast && QFile::exists(UP_UPFILE) && (QFileInfo(UP_UPFILE).lastModified().addSecs(43200)<QDateTime::currentDateTime()) ){
+  QDateTime cdt = QDateTime::currentDateTime();
+  QDateTime fdt = cdt.addDays(-1); //just enough to trip the checks below if needed
+  if(QFile::exists(UP_UPFILE)){ fdt = QFileInfo(UP_UPFILE).lastModified(); }
+  //qDebug() << "Time Stamps (now/file):" << cdt << fdt;
+  //qDebug() << " - File earlier than now:" << (fdt<cdt);
+  //qDebug() << " - File +1 day earlier than now (+day):" << (fdt.addDays(1)<cdt);
+  //qDebug() << " - File +1 day earlier than now (+secs):" << (fdt.addSecs(24*60)<cdt);
+  //qDebug() << " - Seconds from File->Day time:" << fdt.secsTo(cdt);
+  int secs = fdt.secsTo(cdt);
+  if(fast && (secs<43200) ){
     //Note: The "fast" check will only be used if the last full check was less than 12 hours earlier.
+    qDebug() << " - UseFast Re-read";
     output = General::readTextFile(UP_UPFILE);
-  }else if(QFile::exists(UP_UPFILE) && (QFileInfo(UP_UPFILE).lastModified().addSecs(360)<QDateTime::currentDateTime()) ){
-    //Note: This will re-use the previous check if it was less than 1 hour ago (prevent hammering servers from user checks)
+  }else if(secs<600 ){
+    //Note: This will re-use the previous check if it was less than 10 minutes ago (prevent hammering servers from user checks)
+    qDebug() << " - Use Fast Re-read (failsafe -  less than 10 minute interval)";
     output = General::readTextFile(UP_UPFILE);
   }else{	  
+    qDebug() << " - Run full check";
     output = General::RunCommand("pc-updatemanager check").split("\n");
     output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
     General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
