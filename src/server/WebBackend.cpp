@@ -572,7 +572,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
       QString act = JsonValueToString(in_args.toObject().value("action"));
       if(act=="checkupdates"){
 	ok = true;
-        out->insert("checkupdates", sysadm::Update::checkUpdates());
+        bool fastcheck = true;
+        fastcheck = in_args.toObject().value("force").toString().toLower()!="true";
+        out->insert("checkupdates", sysadm::Update::checkUpdates(fastcheck));
 	      
       }else if(act=="listbranches"){
 	ok = true;
