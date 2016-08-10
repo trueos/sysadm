@@ -59,6 +59,7 @@ QJsonObject Update::checkUpdates(bool fast) {
     General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
   }
   //qDebug() << "pc-updatemanager checks:" << output;
+  
   QString nameval;
   int pnum=1;
   for ( int i = 0; i < output.size(); i++)
@@ -106,6 +107,7 @@ QJsonObject Update::checkUpdates(bool fast) {
     // Update status that we have updates
     retObject.insert("status", "updatesavailable");
   }
+  retObject.insert("last_check",QFileInfo(UP_UPFILE).lastModified().toString(Qt::ISODate) );
   return retObject;
 }
 
@@ -276,4 +278,3 @@ QJsonObject Update::writeSettings(QJsonObject obj){
   }
   return ret;
 }
-
