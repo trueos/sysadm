@@ -5,7 +5,7 @@ beadm
 
 The beadm class is used to manage boot environments.
 
-Every beadm class request contains the following parameters:
+Every beadm class request contains several parameters:
 
 +---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
 | **Parameter**                   | **Value**     | **Description**                                                                                                      |
