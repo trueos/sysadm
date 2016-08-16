@@ -150,6 +150,19 @@ bool UserManager::modifyUser(QJsonObject* out, QJsonObject obj){
   //OPTIONAL: "personacrypt_import"=<contents of key file - base64 encoded>
   if(obj.contains("name") ){
     QString username = obj.value("name").toString();
+    //See if PersonaCrypt should be used on this user as well
+    QString PCdev;
+    if(obj.contains("personacrypt_init")){
+      QString dev = obj.value("personacrypt_init").toString();
+      if(dev.startsWith("/dev/")){ dev = dev.remove(0,5); }
+      //Verify that the given device is valid
+      QStringList valid = getAvailablePersonaCryptDevices();
+      for(int i=0; i<valid.length(); i++){
+        if(valid[i].startsWith(dev+": ")){ PCdev = dev; } //this is a valid device
+      }
+      if(PCdev!=dev){ return false; } //invalid inputs - invalid device for PersonaCrypt
+    }
+    //Now start assembling the external command
     QStringList args; args << "usermod";
     args << "-n" << username;
     if(obj.contains("uid")){ args << "-u" << obj.value("uid").toString(); }
@@ -177,9 +190,34 @@ bool UserManager::modifyUser(QJsonObject* out, QJsonObject obj){
       }else{
         out->insert("error","Could not open temporary file for password"); //should never happen
       }
-    }else{
+    }else if(args.length()>3){
       //No password change - simple command
       ok = General::RunQuickCommand("pw", args);
+    }else if( !obj.keys().filter("personacrypt_").isEmpty() ){
+      ok = true; //no user changes aside from PersonaCrypt changes
+    }
+    //PERSONACRYPT CHANGES
+    if(ok && !PCdev.isEmpty()){
+      // INIT PERSONACRYPT DEVICE NOW
+      //User created fine - go ahead and initialize the PersonaCrypt device for this user now
+      QString pass = obj.value("password").toString(); //assume the same password as the user unless specified otherwise
+      if(obj.contains("personacrypt_password")){ pass = obj.value("personacrypt_password").toString(); } //separate password for device
+      ok = InitializePersonaCryptDevice(username, pass, PCdev);
+      if(!ok){ out->insert("error","could not initialize personacrypt device"); }
+    }else if(ok && obj.contains("personacrypt_import")){
+      // IMPORT PERSONACRYPT KEY NOW
+      ok = false;
+      //Need to save key to a local file temporarily
+      QTemporaryFile keyfile("/tmp/.XXXXXXXXXXXXXXX");
+      if(keyfile.open()){
+        keyfile.write( QByteArray::fromBase64(obj.value("personacrypt_import").toString().toUtf8()).data() );
+        keyfile.close();
+        ok = ImportPersonaCryptKey(keyfile.fileName());
+      }
+      if(!ok){ out->insert("error","could not import personacrypt key"); }
+    }else if(ok && obj.contains("personacrypt_disable")){
+      QString pass = obj.value("personacrypt_disable").toString();
+      ok = DisablePersonaCryptKey(username, pass);
     }
   }
   if(ok){ out->insert("result","success"); }
@@ -269,5 +307,21 @@ bool UserManager::InitializePersonaCryptDevice(QString username, QString pass, Q
 bool UserManager::ImportPersonaCryptKey(QString keyfile){
   if(!QFile::exists(keyfile)){ return false; } //quick check first
   bool ok = General::RunQuickCommand("personacrypt", QStringList() << "import" << keyfile);    
+  return ok;
+}
+
+bool UserManager::DisablePersonaCryptKey(QString username, QString pass){
+  bool ok = false;
+  if(pass.isEmpty()){
+    General::RunCommand(ok, "personacrypt", QStringList() << "remove" << username);
+  }else{
+    QTemporaryFile pfile("/tmp/.XXXXXXXXXXXXXXX");
+    if( pfile.open() ){
+      pfile.write(pass.toUtf8().data());
+      pfile.close();
+      QString result = General::RunCommand(ok, "personacrypt", QStringList() << "remove" << username << pfile.fileName());
+      //qDebug() << "PC init result:" << result;
+    }
+  }
   return ok;
 }

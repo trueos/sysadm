@@ -36,6 +36,7 @@ public:
 	//PersonaCrypt Modification functions
 	static bool InitializePersonaCryptDevice(QString username, QString pass, QString device);
 	static bool ImportPersonaCryptKey(QString keyfile);
+	static bool DisablePersonaCryptKey(QString username, QString pass);
 };
 	
 } //end of sysadm namespace
