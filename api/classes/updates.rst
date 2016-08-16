@@ -8,25 +8,77 @@ updates.
 
 Every update class request contains the following parameters:
 
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                                                                      |
-|                                 |               |                                                                                                                      |
-+=================================+===============+======================================================================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | update        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | sysadm        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "checkupdates", "listbranches", "startupdate"                                              |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
++----------------+------------+---------------------------------------+
+| **Parameter**  | **Value**  | **Description**                       |
+|                |            |                                       |
++================+============+=======================================+
+| id             |            | any unique value for the request;     |
+|                |            | examples include a hash, checksum, or |
+|                |            | uuid                                  |
++----------------+------------+---------------------------------------+
+| name           | update     |                                       |
+|                |            |                                       |
++----------------+------------+---------------------------------------+
+| namespace      | sysadm     |                                       |
+|                |            |                                       |
++----------------+------------+---------------------------------------+
+| action         |            | supported actions include             |
+|                |            | "changesettings", "checkupdates",     |
+|                |            | "listbranches", "listsettings",       |
+|                |            | "startupdate", "stopupdate"           |
++----------------+------------+---------------------------------------+
 
 The rest of this section provides examples of the available *actions* 
 for each type of request, along with their responses. 
+
+.. index:: changesettings, update
+
+.. _Change Settings:
+
+Change Settings
+===============
+
+Use :command:`changesettings` to change the various updatemanager
+settings (maxbe, package_set, package_url, auto_update).
+
+**REST Request**
+
+::
+
+ PUT /sysadm/update
+ {
+    "action" : "changesettings",
+    "maxbe" : "6"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+    "id" : "fooid",
+    "name" : "update",
+    "namespace" : "sysadm",
+    "args" : {
+       "maxbe" : "6",
+       "action" : "changesettings"
+    }
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+   "args": {
+     "changesettings": {
+       "result": "success"
+     }
+   },
+   "id": "fooid",
+   "name": "response",
+   "namespace": "sysadm"
+ }
 
 .. index:: checkupdates, update
 
@@ -56,6 +108,7 @@ installed software packages.
 
  {
     "args": {
+        "last_check" : "<ISO date/time stamp>",
         "checkupdates": {
             "status": "noupdates"
         }
@@ -69,18 +122,20 @@ installed software packages.
  {
    "name" : "update",
    "args" : {
-      "action" : "checkupdates"
+      "action" : "checkupdates",
+      "force":"[true/false]"
    },
    "namespace" : "sysadm",
    "id" : "fooid"
  }
 
-**WebSocket Response**
+**Response**
 
 .. code-block:: json
 
  {
   "args": {
+    "last_check" : "<ISO date/time stamp>",
     "checkupdates": {
       "status": "noupdates"
     }
@@ -151,7 +206,54 @@ listed as "active".
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
+.. index:: listsettings, update
+
+.. _List Settings:
+
+List Settings
+=============
+
+:command:`listsettings` shows all of the current settings.
+
+**REST Request**
+
+::
+
+ PUT /sysadm/update
+ {
+    "action" : "listsettings"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+    "args" : {
+       "action" : "listsettings"
+    },
+    "id" : "fooid",
+    "namespace" : "sysadm",
+    "name" : "update"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+   "args": {
+     "listsettings": {
+       "maxbe": " 5",
+       "package_set": " EDGE"
+     }
+   },
+   "id": "fooid",
+   "name": "response",
+   "namespace": "sysadm"
+ }
+
 .. index:: startupdate, update
 
 .. _Start Updates:
@@ -168,11 +270,6 @@ targets are:
   "listbranches" action.
 
 * **pkgupdate:** only update installed software.
-
-* **fbsdupdate:** only apply FreeBSD system updates.
-
-* **fbsdupdatepkgs:** update installed software and apply FreeBSD system
-  updates.
 
 * **standalone:** only apply the update specified as a "tag". Use the 
   "checkupdates" action to determine the name (tag) of the update to 
@@ -254,4 +351,39 @@ targets are:
       "state" : "finished"
       }
     }
+ }
+
+.. index:: stopupdate, update
+
+.. _Stop Updates:
+
+Stop Updates
+============
+
+This will look for any currently-running pc-updatemanager processes
+and kill/stop them as needed.
+
+**Websocket Request**
+
+.. code-block:: json
+
+ {
+  "id":"dummy",
+  "namespace":"sysadm",
+  "name":"update",
+  "args": {
+     "action":"stopupdate"
+  }
+ }
+
+**Websocket Response**
+
+.. code-block:: json
+
+ {
+   "args":{
+     "stopupdate": {
+       "result": "success"
+       }
+   }
  }
