@@ -212,14 +212,14 @@ QJsonObject BEADM::listBEs() {
  
  //  Unmount the given boot environment immediately.  Confirmation should be done through the client.
 
-  QJsonObject BEADM::umountBE(QJsonObject jsin) {
-	QJsonObject retObject;
+QJsonObject BEADM::umountBE(QJsonObject jsin) {
+    QJsonObject retObject;
 
-	QStringList keys = jsin.keys();
-	if (! keys.contains("be") ) {
-		retObject.insert("error", "Missing required key(s) 'be'");
-		return retObject;
-}
+    QStringList keys = jsin.keys();
+    if (! keys.contains("be") ) {
+      retObject.insert("error", "Missing required key(s) 'be'");
+      return retObject;
+    }
 
   // Get the key values
 
