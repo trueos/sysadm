@@ -931,7 +931,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, 
     QString deluser = in_args.toObject().value("name").toString();
     if(deluser != user){ //cannot delete the currently-used user
       bool clean = true;
-      if(in_args.toObject().contains("clean_home")){ clean = (in_args.toObject().value("clean_home").toString().toLower() == "false"); }
+      if(in_args.toObject().contains("clean_home")){ clean = (in_args.toObject().value("clean_home").toString().toLower() != "false"); }
       ok = sysadm::UserManager::removeUser(deluser, clean);
       if(ok){ out->insert("result","success"); }
       else{ out->insert("error","Could not delete user"); }
