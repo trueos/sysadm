@@ -36,6 +36,7 @@ bool UserManager::listUsers(QJsonObject *out, bool showall, QString user){
           uinfo.insert("home_dir", info[8]);
           uinfo.insert("shell", info[9]);
 	  if(PCinstalled && QFile::exists("/var/db/personacrypt/" + info[0] + ".key") ){ uinfo.insert("personacrypt_enabled","true"); }
+          if(info[0]==user){ uinfo.insert("canremove","false"); } //current user requesting info - cannot remove it
           out->insert(info[0], uinfo); //use the username as the unique object name
         }else if(info.length() == 7){
           QJsonObject uinfo;
