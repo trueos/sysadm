@@ -277,7 +277,48 @@ bool UserManager::removeGroup(QString name){
 
 bool UserManager::modifyGroup(QJsonObject* out, QJsonObject input){
   bool ok = false;
-
+  // REQUIRED: "name"
+  // OPTIONAL: "users", "add_users", "remove_users" (only one of these at a time) - all a string or array of strings
+  if(input.contains("name")){
+    QStringList args;
+    QString group = input.value("name").toString();
+    if(input.contains("users")){
+      QStringList users;
+      ok = true; //got valid inputs
+      if(input.value("users").isString()){ users << input.value("users").toString(); } //only one user
+      else if(input.value("users").isArray()){ users = General::JsonArrayToStringList(input.value("users").toArray()); }
+      else{ ok = false; } //actually invalid - could not read users
+      if(ok){
+        args << "groupmod" << "-n" << group << "-M" << users.join(",");
+      }
+    }else if(input.contains("add_users")){
+      QStringList users;
+      ok = true; //got valid inputs
+      if(input.value("add_users").isString()){ users << input.value("add_users").toString(); } //only one user
+      else if(input.value("add_users").isArray()){ users =General:: JsonArrayToStringList(input.value("add_users").toArray()); }
+      else{ ok = false; } //actually invalid - could not read users
+      if(ok){
+        args << "groupmod" << "-n" << group << "-m" << users.join(",");
+      }
+    }else if(input.contains("remove_users")){
+      QStringList users;
+      ok = true; //got valid inputs
+      if(input.value("remove_users").isString()){ users << input.value("remove_users").toString(); } //only one user
+      else if(input.value("remove_users").isArray()){ users = General::JsonArrayToStringList(input.value("remove_users").toArray()); }
+      else{ ok = false; } //actually invalid - could not read users
+      if(ok){
+        args << "groupmod" << "-n" << group << "-d" << users.join(",");
+      }
+    }
+    if(!args.isEmpty()){
+      QString res = General::RunCommand(ok, "pw", args);
+      if(!ok){ out->insert("error",res); }
+      else{ out->insert("result","success"); }
+    }else{ 
+      ok = false; //nothing to do
+    }
+  }
+  
   return ok;
 }
 

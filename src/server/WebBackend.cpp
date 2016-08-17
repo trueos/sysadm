@@ -962,6 +962,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, 
     if(ok){ out->insert("result","success"); }
     else{ out->insert("error","Could not delete group"); }
 
+  }else if(action=="groupmod" && allaccess){
+    ok = sysadm::UserManager::modifyGroup(out, in_args.toObject() );
+
   }else if(action=="personacrypt_init"){
     qDebug() << "got PC init request:" << in_args << allaccess << user;
     bool go = true;
