@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting Started &mdash; Sysadm Server Handbook 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+    
+
+    <link rel="stylesheet" href="_static/css/pcbsd_style.css" type="text/css" />
+
+  
+
+  
+    <link rel="top" title="Sysadm Server Handbook 1.0 documentation" href="index.html"/>
+        <link rel="next" title="SysAdm™ Management" href="manage.html"/>
+        <link rel="prev" title="Introduction" href="introduction.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> Sysadm Server Handbook
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building-sysadm">Building SysAdm™</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-sysadm">Starting SysAdm™</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bridge-initialization">Bridge Initialization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#server-and-bridge-initialization">Server and Bridge Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-a-client-to-the-server-bridge-connection">Adding a Client to the Server/Bridge Connection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-documentation">Additional Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manage.html">SysAdm™ Management</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Sysadm Server Handbook</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div class="wy-breadcrumbs-nav" role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs-nav">
+    <li class="wy-breadcrumbs-nav"><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li class="wy-breadcrumbs-nav">Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/basics.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+&nbsp;
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<span id="gettingstarted"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>Beginning with SysAdm™ is a relatively simple process.
+SysAdm™ files are currently available from the <a class="reference external" href="https://github.com/trueos/sysadm">github repository</a></p>
+<div class="section" id="building-sysadm">
+<span id="building"></span><h2>Building SysAdm™<a class="headerlink" href="#building-sysadm" title="Permalink to this headline">¶</a></h2>
+<p>The following Qt Modules are required before attempting to build
+SysAdm™:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Qt5</span> <span class="n">Core</span> <span class="p">(</span><span class="c1"># pkg install qt5-core)</span>
+<span class="n">Qt5</span> <span class="n">Concurrent</span> <span class="p">(</span><span class="c1"># pkg install qt5-concurrent)</span>
+<span class="n">Qt5</span> <span class="n">Websockets</span> <span class="p">(</span><span class="c1"># pkg install qt5-websockets)</span>
+</pre></div>
+</div>
+<p>Building the prototype version of SysAdm™ assumes you have access to
+github.com.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">trueos</span><span class="o">/</span><span class="n">sysadm</span><span class="o">.</span><span class="n">git</span>
+<span class="o">%</span> <span class="n">cd</span> <span class="n">sysadm</span><span class="o">/</span><span class="n">src</span>
+<span class="o">%</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">qt5</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">qmake</span> <span class="o">-</span><span class="n">recursive</span>
+<span class="o">%</span> <span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="starting-sysadm">
+<span id="starting"></span><h2>Starting SysAdm™<a class="headerlink" href="#starting-sysadm" title="Permalink to this headline">¶</a></h2>
+<p>SysAdm can be started one of two ways: 1. The traditional rc(8)
+mechanism 2. The new jobd(8) mechanism</p>
+<p>To run under rc(8):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">For</span> <span class="n">WebSockets</span> <span class="o">-</span> <span class="n">Required</span> <span class="k">for</span> <span class="n">SysAdm</span> <span class="n">Client</span><span class="p">)</span>
+<span class="o">%</span> <span class="n">sudo</span> <span class="n">sysrc</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">rc</span><span class="o">.</span><span class="n">conf</span> <span class="n">sysadm_enable</span><span class="o">=</span><span class="s2">&quot;YES&quot;</span>
+<span class="o">%</span> <span class="n">sudo</span> <span class="n">service</span> <span class="n">sysadm</span> <span class="n">start</span>
+
+<span class="p">(</span><span class="n">Optional</span> <span class="k">for</span> <span class="n">REST</span><span class="p">)</span>
+<span class="o">%</span> <span class="n">sudo</span> <span class="n">sysrc</span> <span class="o">-</span><span class="n">f</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">rc</span><span class="o">.</span><span class="n">conf</span> <span class="n">sysadm_rest_enable</span><span class="o">=</span><span class="s2">&quot;YES&quot;</span>
+<span class="o">%</span> <span class="n">sudo</span> <span class="n">service</span> <span class="n">sysadm</span><span class="o">-</span><span class="n">rest</span> <span class="n">start</span>
+</pre></div>
+</div>
+<p>To run under jobd(8):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">For</span> <span class="n">WebSockets</span> <span class="o">-</span> <span class="n">Required</span> <span class="k">for</span> <span class="n">SysAdm</span> <span class="n">Client</span><span class="p">)</span>
+<span class="o">%</span> <span class="n">sudo</span> <span class="n">jobctl</span> <span class="n">org</span><span class="o">.</span><span class="n">pcbsd</span><span class="o">.</span><span class="n">sysadm</span> <span class="n">enable</span>
+
+<span class="p">(</span><span class="n">Optional</span> <span class="k">for</span> <span class="n">REST</span><span class="p">)</span>
+<span class="o">%</span> <span class="n">sudo</span> <span class="n">jobctl</span> <span class="n">org</span><span class="o">.</span><span class="n">pcbsd</span><span class="o">.</span><span class="n">sysadm</span><span class="o">-</span><span class="n">rest</span> <span class="n">enable</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bridge-initialization">
+<span id="bridge-init"></span><h2>Bridge Initialization<a class="headerlink" href="#bridge-initialization" title="Permalink to this headline">¶</a></h2>
+<p>Configuring and connecting to a bridge can be a complicated process.
+Thankfully, there are several steps that are done the first time a
+server and bridge are configured with SysAdm but do not need to be
+repeated later. Once these steps are complete, it becomes a much simpler
+process for a new user to configure their client to communicate with the
+now configured server and bridge.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A list of current commands is available by typing <strong class="command">-h</strong>
+after the utility name (Example: <strong class="command">sysadm-bridge -h</strong>).</p>
+</div>
+<div class="section" id="server-and-bridge-initialization">
+<span id="serverbridge-init"></span><h3>Server and Bridge Initialization<a class="headerlink" href="#server-and-bridge-initialization" title="Permalink to this headline">¶</a></h3>
+<p>To initialize the server and bridge, begin with the server. Run
+<strong class="command">sudo sysadm-binary bridge_export_key [optional absolute file path]</strong>.
+This will export the public SSL key the server uses to authenticate with
+the bridge.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For both server and client, giving SSL key files an easy to
+remember name and location will simplify the process of
+finding those files for import to the bridge.</p>
+</div>
+<p>Now, we must transition to the bridge to import the server key. Login to
+the bridge as the administrator (or root), then type
+<strong class="command">sysadm-bridge import_ssl_file &lt;filename&gt; &lt;filepath&gt;</strong>,
+replacing &lt;filename&gt; and &lt;filepath&gt; with the server key filename and
+location. Once the server key file is successfully imported, start the
+bridge (if not already running).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The bridge can import SSL files whether it is active or not
+with no negative effects.</p>
+</div>
+<p>Back on the server, run <strong class="command">sudo sysadm-binary bridge_add &lt;nickname&gt; &lt;URL&gt;</strong>
+to point the server at the bridge. A bridge runs on <strong>port 12149</strong> by
+default, so the URL will likely need <strong>:12149</strong> added on the end of the
+address (Example URL: 127.0.0.1:12149). If necessary, (re)start the
+server. The log (<code class="file docutils literal"><span class="pre">/var/log/sysadm-server-ws.log</span></code>) will display
+messages about connecting to the bridge. If properly configured, the
+server and bridge will now be communicating with each other. At this
+point clients can be added to the mix which will communicate with the
+server through the bridge.</p>
+</div>
+<div class="section" id="adding-a-client-to-the-server-bridge-connection">
+<span id="add-client"></span><h3>Adding a Client to the Server/Bridge Connection<a class="headerlink" href="#adding-a-client-to-the-server-bridge-connection" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you have an old SSL bundle from a pre-alpha version of
+SysAdm created before June 2016, it will need to be removed
+prior to proceeding with the client initialization process.</p>
+</div>
+<p>In the client UI, create or import an SSL key bundle as prompted by the
+UI. Once the new SSL keys are created, open
+<span class="menuselection">Setup SSL ‣ View Certificates</span> in the connection
+manager and click &#8220;Export Public Key&#8221; for both the server and bridge
+keys. This will export both SSL keys in file form, depositing them in
+either the &#8220;Desktop&#8221; folder or home directory (depending on operating
+system). If necessary, send these key files as an email attachment to
+the system administrator as part of a request for server/bridge access.</p>
+<p>Moving to the bridge, as the administrator (or root), run
+<strong class="command">sysadm-bridge import_ssl_file &lt;nickname&gt; &lt;filepath&gt;</strong> for the
+requesting client&#8217;s bridge key file. Now the client and bridge should be
+able to communicate, but the client/server connection still needs to be
+established.</p>
+<p>On the server, run <strong class="command">sudo sysadm-binary import_ssl_key &lt;username&gt; &lt;filepath&gt; [&lt;email&gt;]</strong>
+to import the client -&gt; server SSL key file. This grants an individual
+with that specific SSL authorization the same permissions as &lt;user&gt;.</p>
+<p>Back in the user client, open the connection manager and choose &#8220;Bridge
+Relay&#8221; as the connection option. Input the established bridge&#8217;s URL and
+click &#8220;Connect&#8221;.The bridge will now show up in the menu tree with a
+different icon, and will have a sub-menu of connections within it. If
+you click on the bridged system, it will open the standard UI but the
+connection is still being relayed through the bridge.</p>
+</div>
+</div>
+<div class="section" id="additional-documentation">
+<span id="adddoc"></span><h2>Additional Documentation<a class="headerlink" href="#additional-documentation" title="Permalink to this headline">¶</a></h2>
+<p>API documentation can be found at <a class="reference external" href="https://api.pcbsd.org">https://api.pcbsd.org</a> .</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="introduction.html" class="btn btn-neutral" title="Introduction" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+      
+        <a href="manage.html" class="btn btn-neutral float-right" title="SysAdm™ Management" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, iXsystems.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+.. _connections:
+
+Managing Connections
+********************
+
