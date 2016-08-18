@@ -51,9 +51,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'SysAdm Client Handbook'
-copyright = u'2016, SysAdm Users'
-author = u'SysAdm Users'
+project = u'SysAdm™ Client Handbook'
+copyright = u'2016, SysAdm™ Users'
+author = u'SysAdm™ Users'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -145,7 +145,7 @@ html_theme_path = ['_static']
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 #
-# html_logo = None
+html_logo = 'sysadm_circle_red.png'
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
