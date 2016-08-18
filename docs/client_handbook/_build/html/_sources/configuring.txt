@@ -1,5 +1,0 @@
-.. _configuring:
-
-Configuring SysAdm
-******************
-

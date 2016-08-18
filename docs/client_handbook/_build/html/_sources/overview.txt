@@ -1,5 +1,0 @@
-.. _overview:
-
-SysAdm Overview
-***************
-
