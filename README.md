@@ -19,7 +19,7 @@ Official repo for PC-BSD's sysadm middleware WebSocket & REST server
 
 This middleware acts as the core for controlling a PC-BSD or FreeBSD <br />
 system either locally or remotely via WebSockets or REST. It is also the <br />
-server component to [PC-BSD's SysAdm GUI client](https://github.com/pcbsd/sysadm-ui-qt).
+server component to [TrueOS' SysAdm GUI client](https://github.com/trueos/sysadm-ui-qt).
 
 ### Required Qt Modules
 
@@ -32,7 +32,7 @@ Qt5 Websockets (pkg install qt5-websockets)
 ### Building SysAdm
 
 ```
-% git clone https://github.com/pcbsd/sysadm.git
+% git clone https://github.com/trueos/sysadm.git
 % cd sysadm/src
 % /usr/local/lib/qt5/bin/qmake -recursive
 % make && sudo make install
@@ -79,14 +79,14 @@ add a new function which accepts JSON in, and returns JSON, then connect <br />
 it to the backend.
 
 Example:
-https://github.com/pcbsd/sysadm/commit/4d3b590f460d301b9376a063f9407dabfd7c9c66
+https://github.com/trueos/sysadm/commit/4d3b590f460d301b9376a063f9407dabfd7c9c66
 
 ### Adding new Classes for API calls
 
 Adding a new API class requires tweaking a few more files than a new API call only.
 
 Example:
-https://github.com/pcbsd/sysadm/commit/1ba65b33880e2298ade3e5cc4f2718aa6112e44f
+https://github.com/trueos/sysadm/commit/1ba65b33880e2298ade3e5cc4f2718aa6112e44f
 
 ### Testing new API calls / classes
 
