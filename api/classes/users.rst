@@ -6,25 +6,25 @@ users
 The users class is used to manage users and groups on the system.
 Every user request will have several parameters:
 
-+----------------+------------+---------------------------------------+
-| **Parameter**  | **Value**  | **Description**                       |
-|                |            |                                       |
-+================+============+=======================================+
-| id             |            | any unique value for the request;     |
-|                |            | examples include a hash, checksum,    |
-|                |            | or uuid                               |
-+----------------+------------+---------------------------------------+
-| name           | users      |                                       |
-|                |            |                                       |
-+----------------+------------+---------------------------------------+
-| namespace      | sysadm     |                                       |
-|                |            |                                       |
-+----------------+------------+---------------------------------------+
-| action         |            | "groupadd", "groupdelete",            |
-|                |            | "groupshow", "personacrypt_listdevs", |
-|                |            | "useradd", "userdelete", "usermod",   |
-|                |            | "usershow"                            |
-+----------------+------------+---------------------------------------+
++----------------+------------+----------------------------------------+
+| **Parameter**  | **Value**  | **Description**                        |
+|                |            |                                        |
++================+============+========================================+
+| id             |            | any unique value for the request;      |
+|                |            | examples include a hash, checksum,     |
+|                |            | or uuid                                |
++----------------+------------+----------------------------------------+
+| name           | users      |                                        |
+|                |            |                                        |
++----------------+------------+----------------------------------------+
+| namespace      | sysadm     |                                        |
+|                |            |                                        |
++----------------+------------+----------------------------------------+
+| action         |            | "groupadd", "groupdelete", "groupmod", |
+|                |            | "groupshow", "personacrypt_listdevs",  |
+|                |            | "useradd", "userdelete", "usermod",    |
+|                |            | "usershow"                             |
++----------------+------------+----------------------------------------+
 
 .. index:: groupadd, users
 
@@ -117,6 +117,62 @@ Group Delete
     "id": "fooid",
     "name": "response",
     "namespace": "sysadm"
+ }
+
+.. index:: groupmod, users
+
+.. _groupmod:
+
+Group Modify
+============
+
+:command:`goupmod` modifies a given group on the system. There are two
+required fields: "name": "<desired group>", and any **one** of three
+choices:
+
+* "users": ["<array of users>"] (will set the list of users for this
+  group).
+* "add_users": ["<array of users>"] (will add the listed users to the
+  current users).
+* "remove_users": ["<array of users>"] (will remove the listed users
+  from the current users).
+
+**REST Request**
+
+::
+
+ PUT sysadm/users
+ 
+ {
+    "action": "groupmod"
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "id":"sample",
+   "namespace":"sysadm",
+   "name":"users",
+   "args":{
+     "action":"groupmod",
+     "name":"operator",
+     "users":["user1","user2"]
+   }
+ }
+ 
+**Response**
+
+.. code-block:: json
+
+ {
+   "args": {
+     "result": "success"
+   },
+   "id": "fooid",
+   "name": "response",
+   "namespace": "sysadm"
  }
 
 .. index:: groupshow, users
@@ -471,6 +527,7 @@ system, regardless of active/inactive status.
  {
    "args": {
      "_dhcp": {
+       "canremove": "false",
        "change": "0",
        "class": "",
        "comment": "dhcp programs",
