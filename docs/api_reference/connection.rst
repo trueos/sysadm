@@ -21,7 +21,7 @@ Authentication
 
 Once a websocket connection is made to the server, the client needs to 
 use the authentication class to authenticate itself to obtain access to 
-the sysadm service. Every authentication class request contains the 
+the SysAdm™ service. Every authentication class request contains the 
 following parameters:
 
 +----------------+------------+---------------------------------------+
@@ -613,7 +613,7 @@ mind:
 Server Subsystems
 =================
 
-The RPC namespace can be used to get information about SysAdm server 
+The RPC namespace can be used to get information about SysAdm™ server 
 subsystems. This namespace supports the following parameters:
 
 +---------------------------------+---------------+------------------------------------------------------------------------------+
@@ -705,7 +705,7 @@ access the user has. This subsystem is used only by the server.
 Identify Subsystem
 ------------------
  
-To identify the type of SysAdm system, use :command:`identify`. Possible
+To identify the type of SysAdm™ system, use :command:`identify`. Possible
 identities are "server", "bridge", and "client," with all three system 
 types using this subsystem.
 
