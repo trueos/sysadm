@@ -3,33 +3,35 @@
 iocage
 ******
 
-The iocage class is used to manage jails which provide a light-weight, 
-operating system-level virtualization for running applications or 
+The iocage class is used to manage jails, which provide a light-weight,
+operating system-level virtualization for running applications or
 services.
 
 Every iocage class request contains the following parameters:
 
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                                                                      |
-|                                 |               |                                                                                                                      |
-+=================================+===============+======================================================================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | iocage        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | sysadm        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "getdefaultsettings", "listjails", "getjailsettings", "df", "startjail", "stopjail",       |
-|                                 |               | "capjail", "clonejail", "createjail", "destroyjail", "execjail", "cleanjails", "cleanreleases", "cleantemplates",    |
-|                                 |               | "cleanall", "activatepool", and "deactivatepool"                                                                     |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+-----------+------------------------------------------------------+
+| **Parameter** | **Value** | **Description**                                      |
+|               |           |                                                      |
++===============+===========+======================================================+
+| id            |           | Any unique value for the request,                    |
+|               |           | including a hash, checksum, or uuid.                 |
++---------------+-----------+------------------------------------------------------+
+| name          | iocage    |                                                      |
+|               |           |                                                      |
++---------------+-----------+------------------------------------------------------+
+| namespace     | sysadm    |                                                      |
+|               |           |                                                      |
++---------------+-----------+------------------------------------------------------+
+| action        |           | Actions include "activatepool", "capjail",           |
+|               |           | "cleanall", "cleanjails", "cleanreleases",           |
+|               |           | "cleantemplates", "clonejail", "createjail",         |
+|               |           | "deactivatepool", "destroyjail", "df",               |
+|               |           | "execjail", "getdefaultsettings", "getjailsettings", |
+|               |           | "listjails", "startjail", and "stopjail".            |
++---------------+-----------+------------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* 
-for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions*
+for each type of request, along with their responses.
 
 .. index:: getdefaultsettings, iocage
 
@@ -38,7 +40,7 @@ for each type of request, along with their responses.
 Default Settings
 ================
 
-The "getdefaultsettings" action lists all of the global settings that 
+The "getdefaultsettings" action lists all of the global settings that
 apply to all jails.
 
 **REST Request**
@@ -318,10 +320,10 @@ List Jails
 ==========
 
 The "listjails" action lists information about currently installed jails.
-For each jail, the response includes the UUID of the jail, whether or 
-not the jail has been configured to start at system boot, the jail ID 
-(only applies to running jails), whether or not the jail is running, a 
-friendly name for the jail (tag), and the type of jail (basejail or 
+For each jail, the response includes the UUID of the jail, whether or
+not the jail has been configured to start at system boot, the jail ID
+(only applies to running jails), whether or not the jail is running, a
+friendly name for the jail (tag), and the type of jail (basejail or
 thickjail).
 
 **REST Request**
@@ -394,16 +396,16 @@ thickjail).
 Jail Settings
 =============
 
-The "getjailsettings" action lists settings that apply to the specified 
+The "getjailsettings" action lists settings that apply to the specified
 jail. This action supports 4 modes:
 
-* specify a property and a jail
+* Specify a property and a jail.
 
-* specify a property and *-r* for all downloaded releases
+* Specify a property and *-r* for all downloaded releases.
 
-* specify *all* properties for the specified jail
+* Specify *all* properties for the specified jail.
 
-* specify the jail
+* Specify the jail.
 
 Here is an example of specifying the property and the jail:
 
@@ -659,7 +661,7 @@ jail, as both modes produce identical outputs:
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: df, iocage
 
 .. _List Resource Usage:
@@ -667,9 +669,9 @@ jail, as both modes produce identical outputs:
 List Resource Usage
 ===================
 
-The "df" action lists resource usage for all jails. For each jail, the 
-response includes: CRT (compression ratio), RES (reserved space), QTA 
-(disk quota), USE (used space), AVA (available space), and TAG (jail 
+The "df" action lists resource usage for all jails. For each jail, the
+response includes: CRT (compression ratio), RES (reserved space), QTA
+(disk quota), USE (used space), AVA (available space), and TAG (jail
 name).
 
 **REST Request**
@@ -723,7 +725,7 @@ name).
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: startjail, iocage
 
 .. _Start a Jail:
@@ -733,7 +735,7 @@ Start a Jail
 
 The "startjail" action starts the specified jail.
 
-.. note:: A jail can be started only once. If the jail is already
+.. warning:: A jail can be started only once. If the jail is already
    running, an error message will be generated.
 
 **REST Request**
@@ -792,7 +794,7 @@ The "startjail" action starts the specified jail.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: stopjail, iocage
 
 .. _Stop a Jail:
@@ -802,7 +804,7 @@ Stop a Jail
 
 The "stopjail" action stops the specified jail.
 
-.. note:: A jail can be only stopped once. If the jail has already
+.. warning:: A jail can be only stopped once. If the jail has already
    stopped, an error message will be generated.
 
 **REST Request**
@@ -863,7 +865,7 @@ The "stopjail" action stops the specified jail.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: capjail, iocage
 
 .. _Cap a Jail:
@@ -871,7 +873,7 @@ The "stopjail" action stops the specified jail.
 Cap a Jail
 ===========
 
-The "capjail" action re-applies resource limits to a running jail. Use 
+The "capjail" action re-applies resource limits to a running jail. Use
 this action when you make a change to the specified jail's resources and
 want to apply the changes without restarting the jail.
 
@@ -913,7 +915,7 @@ want to apply the changes without restarting the jail.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: clonejail, iocage
 
 .. _Clone a Jail:
@@ -921,13 +923,13 @@ want to apply the changes without restarting the jail.
 Clone a Jail
 ============
 
-The "clonejail" action clones the specified "jail". By default, the 
-clone will inherit that jail's properties. Use "props" to specify any 
+The "clonejail" action clones the specified "jail". By default, the
+clone will inherit that jail's properties. Use "props" to specify any
 properties that should differ. All available properties are described in
-`iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_. 
+`iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_.
 
-In this example, the "tag" property is specified so that the new jail 
-has a different name than the jail it was cloned from. 
+In this example, the "tag" property is specified so that the new jail
+has a different name than the jail it was cloned from.
 
 **REST Request**
 
@@ -973,7 +975,7 @@ has a different name than the jail it was cloned from.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 In this example, no properties are specified so iocage populates its own
 values and the props returned in the response is empty:
 
@@ -1019,7 +1021,7 @@ values and the props returned in the response is empty:
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: createjail, iocage
 
 .. _Create a Jail:
@@ -1027,10 +1029,12 @@ values and the props returned in the response is empty:
 Create a Jail
 =============
 
-The "createjail" action creates a jail. 
+The "createjail" action creates a jail.
 
-In this example, the "tag" property sets the name of the new jail and 
+In this example, the "tag" property sets the name of the new jail and
 the "release" property specifies which template to use.
+
+.. TODO CONTINUE EDITING BELOW------------------------------------------
 
 **REST Request**
 
