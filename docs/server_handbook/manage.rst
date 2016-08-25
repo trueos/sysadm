@@ -8,9 +8,11 @@ SysAdm™ comes with a standard configuration file located at
   
 It is possible to edit this file for a custom configuration, but the 
 result will need to be saved as :kbd:`sysadm.conf`. Here are the current 
-default settings for SysAdm™::
+default settings for SysAdm™
 
-  #Sample Configuration file for the sysadm server
+.. code-block:: none
+
+  #Sample Configuration file for the SysAdm™ server
 
   ### Server Port Number ###
   # - Websocket Server (standard)
@@ -18,7 +20,9 @@ default settings for SysAdm™::
   # - REST Server (started with the "-rest" CLI flag)
   PORT_REST=12151
   
-This default configuration also has blacklist options, recreated here::
+This default configuration also has blacklist options:
+
+.. code-block:: none
 
   ### Blacklist options ###
   # - Number of minutes that an IP remains on the blacklist

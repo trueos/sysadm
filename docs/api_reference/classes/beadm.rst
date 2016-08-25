@@ -7,25 +7,26 @@ The beadm class is used to manage boot environments.
 
 Every beadm class request contains several parameters:
 
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                                                                      |
-|                                 |               |                                                                                                                      |
-+=================================+===============+======================================================================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | beadm         |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | sysadm        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listbes", "renamebe", "activatebe", "createbe", "destroybe", "mountbe", and "umountbe"    |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+-----------+----------------------------------------+
+| **Parameter** | **Value** | **Description**                        |
+|               |           |                                        |
++===============+===========+========================================+
+| id            |           | Any unique value for the request,      |
+|               |           | including a hash, checksum, or uuid.   |
++---------------+-----------+----------------------------------------+
+| name          | beadm     |                                        |
+|               |           |                                        |
++---------------+-----------+----------------------------------------+
+| namespace     | sysadm    |                                        |
+|               |           |                                        |
++---------------+-----------+----------------------------------------+
+| action        |           | Supported actions include "listbes",   |
+|               |           | "renamebe", "activatebe", "createbe",  |
+|               |           | "destroybe", "mountbe", and "umountbe" |
++---------------+-----------+----------------------------------------+
 
-The rest of this section provides examples of the available *actions* 
-for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions*
+for each type of request, along with their responses.
 
 .. index:: listbes, beadm
 
@@ -34,11 +35,10 @@ for each type of request, along with their responses.
 List Boot Environments
 ======================
 
-The "listbes" action retrieves the list of boot environments. For each 
-boot environment, the response includes its name, its flags (where  "R" 
+The "listbes" action retrieves the list of boot environments. For each
+boot environment, the response includes its name, its flags (where  "R"
 is active on reboot, "N" is active now and "-" is inactive), the date it
 was created, its mount point, its nickname, and its size.
-
 
 **REST Request**
 
@@ -89,7 +89,7 @@ was created, its mount point, its nickname, and its size.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: renamebe, beadm
 
 .. _Rename a Boot Environment:
@@ -98,9 +98,8 @@ Rename a Boot Environment
 =========================
 
 The "renamebe" action renames the specified boot environment. When using
-this action, specify the new name as the "source" and the boot 
+this action, specify the new name as the "source" and the boot
 environment as the "target".
-
 
 **REST Request**
 
@@ -143,7 +142,7 @@ environment as the "target".
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: activatebe, beadm
 
 .. _Activate Boot Environment:
@@ -151,9 +150,8 @@ environment as the "target".
 Activate Boot Environment
 =========================
 
-The "activatebe" action activates the specified boot environment 
+The "activatebe" action activates the specified boot environment
 (target) so that it will be the default at next boot.
-
 
 **REST Request**
 
@@ -193,7 +191,7 @@ The "activatebe" action activates the specified boot environment
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: createbe, beadm
 
 .. _Create Boot Environment:
@@ -201,9 +199,9 @@ The "activatebe" action activates the specified boot environment
 Create Boot Environment
 =======================
 
-The "create" action creates a new boot environment. Specify the name of 
-the boot environment as the "newbe". By default, this action clones the 
-active boot environment. To specify another, inactive boot environment, 
+The "create" action creates a new boot environment. Specify the name of
+the boot environment as the "newbe". By default, this action clones the
+active boot environment. To specify another, inactive boot environment,
 also include "clonefrom" to specify which boot environment to clone from.
 
 **REST Request**
@@ -247,7 +245,7 @@ also include "clonefrom" to specify which boot environment to clone from.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: destroybe, beadm
 
 .. _Destroy a Boot Environment:
@@ -255,9 +253,8 @@ also include "clonefrom" to specify which boot environment to clone from.
 Destroy a Boot Environment
 ==========================
 
-The "destroybe" action destroys the specified "target" boot environment 
+The "destroybe" action destroys the specified "target" boot environment
 and forcefully unmounts it.
-
 
 **REST Request**
 
@@ -297,7 +294,7 @@ and forcefully unmounts it.
   "name": "response",
   "namespace": "sysadm"
  } 
- 
+
 .. index:: mountbe, beadm
 
 .. _Mount a Boot Environment:
@@ -305,7 +302,7 @@ and forcefully unmounts it.
 Mount a Boot Environment
 ========================
 
-The "mountbe" action mounts the specified boot environment. Use the 
+The "mountbe" action mounts the specified boot environment. Use the
 optional "mountpoint" argument to specify the mount point.
 
 **REST Request**
@@ -349,7 +346,7 @@ optional "mountpoint" argument to specify the mount point.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: umountbe, beadm
 
 .. _Unmount a Boot Environment:
@@ -357,7 +354,7 @@ optional "mountpoint" argument to specify the mount point.
 Unmount a Boot Environment
 ==========================
 
-The "umountbe" action forcibly unmounts the specified boot environment, 
+The "umountbe" action forcibly unmounts the specified boot environment,
 even if it is in use.
 
 **REST Request**

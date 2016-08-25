@@ -4,7 +4,7 @@ logs
 ****
 
 The logs class is used to interact with the log files created by the 
-SysAdm server.
+SysAdm™ server.
 
 Every logs class request contains the following parameters:
 

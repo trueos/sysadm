@@ -3,37 +3,36 @@
 Events
 ======
 
-The "events" namespace can be used to setup and receive asynchronous 
+The "events" namespace can be used to setup and receive asynchronous
 updates about system status and other types of system notifications.
 
-.. note:: The events namespace does not really translate over to REST 
-          which was not designed for asynchronous events. For this 
-          reason, only Websocket examples are used in this section.
+.. warning:: The events namespace does not really translate over to REST
+             which was not designed for asynchronous events. For this
+             reason, only Websocket examples are used in this section.
 
-Every events request contains the following parameters:
+Every events request contains several parameters:
 
-+---------------------------------+---------------+------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                              |
-|                                 |               |                                                                              |
-+=================================+===============+==============================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid |
-|                                 |               |                                                                              |
-+---------------------------------+---------------+------------------------------------------------------------------------------+
-| name                            |               | supported values are "subscribe" or unsubscribe"                             |
-|                                 |               |                                                                              |
-+---------------------------------+---------------+------------------------------------------------------------------------------+
-| namespace                       | events        |                                                                              |
-|                                 |               |                                                                              |
-+---------------------------------+---------------+------------------------------------------------------------------------------+
-| args                            |               | values vary by type of class                                                 |
-|                                 |               |                                                                              |
-+---------------------------------+---------------+------------------------------------------------------------------------------+
++---------------+-----------+--------------------------------------+
+| **Parameter** | **Value** | **Description**                      |
+|               |           |                                      |
++===============+===========+======================================+
+| id            |           | Any unique value for the request,    |
+|               |           | including a hash, checksum, or uuid. |
++---------------+-----------+--------------------------------------+
+| name          |           | Supported values are "subscribe" or  |
+|               |           | "unsubscribe".                       |
++---------------+-----------+--------------------------------------+
+| namespace     | events    |                                      |
+|               |           |                                      |
++---------------+-----------+--------------------------------------+
+| args          |           | Values vary by type of class.        |
+|               |           |                                      |
++---------------+-----------+--------------------------------------+
 
-
-Subsystems can also be tracked using the events namespace. Currently, 
-there are three trackable subsystems: Dispatcher, Life Preserver, and 
-System State. The following is a template to subscribe to various 
-subsystem event notifications:
+Subsystems can also be tracked using the events namespace. Currently,
+there are three trackable subsystems: Dispatcher, Life Preserver, and
+System State. Use the template to subscribe to various subsystem event
+notifications:
 
 **Websocket Request**
 
@@ -45,13 +44,13 @@ subsystem event notifications:
   "id" : "sampleID",
   "args" : ["dispatcher", "life-preserver", "system-state"]
  }
- 
-Once subscribed, events will be received as they are produced. To 
+
+Once subscribed, events will be received as they are produced. To
 unsubscribe from events, repeat the request, using "unsubscribe" for the
-"name". 
+"name".
 
 Here is an example reply from the Life Preserver subsystem:
- 
+
 **Websocket Reply**
 
 .. code-block:: json
@@ -72,8 +71,8 @@ Dispatcher
 
 The Dispatcher subsystem is used by SysAdm™ to process external commands
 and return specific information from the utility. This is managed on the
-server as a separate process, and will not interrupt primary server 
-tasks. To subscribe to the Dispatcher subsystem for event updates, use 
+server as a separate process, and will not interrupt primary server
+tasks. To subscribe to the Dispatcher subsystem for event updates, use
 the following:
 
 **Websocket Request**
@@ -145,11 +144,10 @@ reflect the differences between these states:
    }
  }
 
-
-Individual classes such as iohyve will move these dispatcher elements 
-into a "process_details" section. Tailored sample responses will be 
-provided in these classes' individual documentation pages. A generalized
-sample is as follows:
+Individual classes such as iohyve will move these dispatcher elements
+into a "process_details" section. Tailored sample responses will be
+provided in these classes' individual documentation pages. Here is a
+generalized sample:
 
 **Dispatcher Class Event Message**
 
@@ -167,13 +165,13 @@ sample is as follows:
     }
  }
 
-For specific details on these special types of events please refer to 
+For specific details on these special types of events please refer to
 the Classes section of this User Guide.
 
 Life Preserver
 --------------
 
-To subscribe to the Life Preserver subsystem for event updates, use the 
+To subscribe to the Life Preserver subsystem for event updates, use the
 following:
 
 **Websocket Request**
@@ -201,12 +199,11 @@ following:
     "class" : "snapshot/replication"
   }
  }
- 
 
 System State
 ------------
 
-To subscribe to the System State subsystem for event updates, use the 
+To subscribe to the System State subsystem for event updates, use the
 following:
 
 **Websocket Request**
@@ -250,14 +247,14 @@ error has occurred.
     }
   }
  }
- 
+
 Bridge
 ------
 
-Bridge events are automatically received by any system connected to a 
-bridge, with no subscription required. This event will get sent out any 
-time a new connection/disconnection is made from the bridge which 
-impacts the current connection. A client will only get the event when a 
+Bridge events are automatically received by any system connected to a
+bridge, with no subscription required. This event will get sent out any
+time a new connection/disconnection is made from the bridge which
+impacts the current connection. A client will only get the event when a
 server connects/disconnects or vice versa.
 
 **Websocket Reply: Connected Bridge**
@@ -273,6 +270,7 @@ server connects/disconnects or vice versa.
       }
   }
 
-.. note:: Available_connections are **all** the connections available at
-   the time, **not** a difference from a previous state. There may be
-   both new ID's in the list and ID's which are no longer listed.
+.. tip:: Available_connections are **all** the connections available at
+         the time, **not** a difference from a previous state. There may
+         be both new ID's in the list and ID's which are no longer
+         listed.
