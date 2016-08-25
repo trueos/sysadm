@@ -67,11 +67,16 @@ bool UserManager::addUser(QJsonObject* out, QJsonObject obj){
   //OPTIONAL: "personacrypt_import"=<contents of key file - base64 encoded>
   if(obj.contains("password") && obj.contains("name") ){
     QString username = obj.value("name").toString();
+    bool needsHomeCreated = false;
     QStringList args; args << "useradd";
     args << "-n" << username;
     if(obj.contains("uid")){ args << "-u" << obj.value("uid").toString(); }
     if(obj.contains("comment")){ args << "-c" << obj.value("comment").toString(); }
-    if(obj.contains("home_dir")){ args << "-d" << obj.value("home_dir").toString(); }
+    if(obj.contains("home_dir")){ 
+      QString home = obj.value("home_dir").toString();
+      args << "-d" << home;
+      if( !home.endsWith("/nonexistant") && !home.contains("/var/empty") ){ needsHomeCreated = true; }
+    }
     if(obj.contains("expire")){ args << "-e" << obj.value("expire").toString(); }
     if(obj.contains("change")){ args << "-p" << obj.value("change").toString(); }
     if(obj.contains("shell")){ args << "-s" << obj.value("shell").toString(); }
@@ -99,13 +104,20 @@ bool UserManager::addUser(QJsonObject* out, QJsonObject obj){
       pwfile.write( obj.value("password").toString().toUtf8().data() );
       pwfile.close(); //closed but still exists - will go out of scope and get removed in a moment
       args << "-h" << "0"; //read from std input
-      args << "-m"; //automatically create users home dir
+      if(needsHomeCreated){ args << "-m"; }//automatically create users home dir
       ok = (0== system("cat "+pwfile.fileName().toUtf8()+" | pw \""+args.join("\" \"").toUtf8()+"\"") );
       usercreated = ok;
     }else{
       out->insert("error","Could not open temporary file for password"); //should never happen
     }
-
+    if(usercreated && needsHomeCreated){
+      //Verify that the home directory was indeed created - otherwise we might need to create a ZFS dataset for it and mount it
+      QString home = obj.value("home_dir").toString();
+      if(!QFile::exists(home)){
+        //Need to try alternate method for creating home dir
+        // TODO - advanced ZFS functionality
+      }
+    }
     if(usercreated && !PCdev.isEmpty()){
       // INIT PERSONACRYPT DEVICE NOW
       //User created fine - go ahead and initialize the PersonaCrypt device for this user now
