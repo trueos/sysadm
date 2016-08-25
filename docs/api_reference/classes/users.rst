@@ -130,12 +130,12 @@ Group Modify
 required fields: "name": "<desired group>", and any **one** of three
 choices:
 
-* "users": ["<array of users>"] (will set the list of users for this
-  group).
-* "add_users": ["<array of users>"] (will add the listed users to the
-  current users).
-* "remove_users": ["<array of users>"] (will remove the listed users
-  from the current users).
+* **users**: ["<array of users>"] Will set the list of users for this
+  group.
+* **add_users**: ["<array of users>"] Will add the listed users to the
+  current users.
+* **remove_users**: ["<array of users>"] Will remove the listed users
+  from the current users.
 
 **REST Request**
 

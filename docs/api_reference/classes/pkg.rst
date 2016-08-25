@@ -5,28 +5,33 @@ pkg
 
 The pkg class is used to manage software packages.
 
-Every pkg class request contains the following parameters:
+Every pkg class request contains several parameters:
 
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                                                                      |
-|                                 |               |                                                                                                                      |
-+=================================+===============+======================================================================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | pkg           |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | sysadm        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "pkg_info", "pkg_search", "list_categories", "list_repos", "pkg_audit", "pkg_upgrade",     |
-|                                 |               | "pkg_check_upgrade", "pkg_update", "pkg_lock", "pkg_unlock", "pkg_install", "pkg_remove", and "pkg_autoremove"       |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+-----------+-------------------------------------------+
+| **Parameter** | **Value** | **Description**                           |
+|               |           |                                           |
++===============+===========+===========================================+
+| id            |           | Any unique value for the request,         |
+|               |           | including a hash, checksum, or uuid.      |
++---------------+-----------+-------------------------------------------+
+| name          | pkg       |                                           |
+|               |           |                                           |
++---------------+-----------+-------------------------------------------+
+| namespace     | sysadm    |                                           |
+|               |           |                                           |
++---------------+-----------+-------------------------------------------+
+| action        |           | Supported actions include                 |
+|               |           | "list_categories", "list_repos",          |
+|               |           | "pkg_audit", "pkg_autoremove",            |
+|               |           | "pkg_check_upgrade", "pkg_info",          |
+|               |           | "pkg_install", "pkg_lock", "pkg_remove",  |
+|               |           | "pkg_search", "pkg_unlock", "pkg_update", |
+|               |           | and "pkg_upgrade"                         |
+|               |           |                                           |
++---------------+-----------+-------------------------------------------+
 
-The rest of this section provides examples of the available *actions* 
-for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions*
+for each type of request, along with their responses.
 
 .. index:: pkg_info, pkg
 
@@ -35,19 +40,19 @@ for each type of request, along with their responses.
 Package Information
 ===================
 
-The "pkg_info" action reads the pkg database directly and returns any 
+The "pkg_info" action reads the pkg database directly and returns any
 relevant information. The following arguments are optional:
 
-* **"repo"**: unless specified, defaults to the local package repository.
+* **"repo"**: Unless specified, defaults to the local package repository.
 
-* **"pkg_origins"**: unless specified, information for all installed 
+* **"pkg_origins"**: Unless specified, information for all installed
   packages will be listed.
 
-* **"category"**: limits the results to packages within the specified 
+* **"category"**: Limits the results to packages within the specified
   category.
 
-* **"result"**: must be set to "full" to retrieve all of the information
-  with multiple possible values, such as "dependencies", "options", and 
+* **"result"**: Must be set to "full" to retrieve all of the information
+  with multiple possible values, such as "dependencies", "options", and
   "licences".
 
 **REST Request**
@@ -162,20 +167,20 @@ relevant information. The following arguments are optional:
   "namespace": "sysadm"
  }
 
- .. index:: pkg_search, pkg
+.. index:: pkg_search, pkg
 
 .. _Search Packages:
 
 Search Packages
 ===============
 
-The "pkg_search" action searches the package database for pkgs which 
+The "pkg_search" action searches the package database for pkgs which
 match the given "search_term" (required). These parameters are optional:
 
-* **"repo"**: may be used to specifiy searching the specified repository.
+* **"repo"**: May be used to specify searching the specified repository.
   If not specified, the local package database is searched.
 
-* **"category"**: may be used to restrict searches to the specified 
+* **"category"**: May be used to restrict searches to the specified
   package category.
 
 **REST Request**
@@ -353,8 +358,8 @@ match the given "search_term" (required). These parameters are optional:
 List Categories
 ===============
 
-The "list_categories" action lists all the known, non-empty categories 
-within the specified repository or, if no repository is specified, the 
+The "list_categories" action lists all the known, non-empty categories
+within the specified repository or, if no repository is specified, the
 local repository.
 
 **REST Request**
@@ -370,7 +375,7 @@ local repository.
 **WebSocket Request**
 
 .. code-block:: json
- 
+
  {
    "id" : "fooid",
    "args" : {
@@ -384,7 +389,7 @@ local repository.
 **Response**
 
 .. code-block:: json
- 
+
  {
   "args": {
     "list_categories": [
@@ -454,9 +459,9 @@ local repository.
 List Repositories
 =================
 
-The "list_repositories" action scan the package repository configuration
-files and returns the names of the available repositories. All of the 
-repositories returned by this action are valid as the optional "repo" 
+The "list_repositories" action scans the package repository configuration
+files and returns the names of the available repositories. All of the
+repositories returned by this action are valid as the optional "repo"
 argument for the other pkg API actions.
 
 **REST Request**
@@ -504,15 +509,15 @@ argument for the other pkg API actions.
 Audit Packages
 ==============
 
-The "pkg_audit" action performs an audit of all installed packages and 
-reports any packages with known vulnerabilities as well as other 
-packages which are impacted by those vulnerabilities. 
+The "pkg_audit" action performs an audit of all installed packages and
+reports any packages with known vulnerabilities as well as other
+packages which are impacted by those vulnerabilities.
 
-.. note:: the vulnerability information will be returned as a dispatcher
+.. note:: The vulnerability information will be returned as a dispatcher
    event as this action just queues up the results of the :command:`pkg`
-   operation. This is due to a limitation of :command:`pkg`, as it only 
-   supports one process call at a time. Refer to the 
-   :ref:`Dispatcher Subsystem` for instructions on how to subscribe to 
+   operation. This is due to a limitation of :command:`pkg`, as it only
+   supports one process call at a time. Refer to the
+   :ref:`Dispatcher Subsystem` for instructions on how to subscribe to
    and query dispatcher events.
 
 **REST Request**
@@ -576,7 +581,7 @@ packages which are impacted by those vulnerabilities.
       "state" : "finished"
       }
     }
- }  
+ }
 
 .. index:: pkg_upgrade, pkg
 
@@ -585,9 +590,9 @@ packages which are impacted by those vulnerabilities.
 Upgrade Packages
 ================
 
-The "pkg_upgrade" action upgrades all currently installed packages. The 
-messages from the upgrade will be returned as a dispatcher event. Refer 
-to the :ref:`Dispatcher Subsystem` for instructions on how to subscribe 
+The "pkg_upgrade" action upgrades all currently installed packages. The
+messages from the upgrade will be returned as a dispatcher event. Refer
+to the :ref:`Dispatcher Subsystem` for instructions on how to subscribe
 to and query dispatcher events.
 
 **REST Request**
@@ -660,9 +665,9 @@ to and query dispatcher events.
 Check Packages
 ==============
 
-The "pkg_check_upgrade" action checks to see if there are any package 
-updates available and returns that information as a dispatcher event. 
-Refer to the :ref:`Dispatcher Subsystem` for instructions on how to 
+The "pkg_check_upgrade" action checks to see if there are any package
+updates available and returns that information as a dispatcher event.
+Refer to the :ref:`Dispatcher Subsystem` for instructions on how to
 subscribe to and query dispatcher events.
 
 **REST Request**
@@ -703,7 +708,7 @@ subscribe to and query dispatcher events.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 **Dispatcher Events System Reply**
 
 .. code-block:: json
@@ -737,12 +742,12 @@ Update Package Database
 =======================
 
 The "pkg_update" action instructs :command:`pkg` to update its databases.
-This action is typically not required.  It returns any information as a 
-dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for 
+This action is typically not required.  It returns any information as a
+dispatcher event. Refer to the :ref:`Dispatcher Subsystem` for
 instructions on how to subscribe to and query dispatcher events.
 
-If you include "force" = "true", it forces :command:`pkg` to completely 
-resync all of its databases with all known repositories which may take 
+If you include "force" = "true", it forces :command:`pkg` to completely
+resync all of its databases with all known repositories which may take
 some time.
 
 **REST Request**
@@ -785,7 +790,7 @@ some time.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 **Dispatcher Events System Reply**
 
 .. code-block:: json
@@ -808,25 +813,25 @@ some time.
       "state" : "finished"
       }
     }
- }  
+ }
 
 .. index:: pkg_lock, pkg_unlock, pkg
 
-.. _Lock/Unlock Packages:
+.. _LockUnlock Packages:
 
 Lock/Unlock Packages
 ====================
 
-The "pkg_lock" action locks the specified "pkg_origins" so that it will 
-be skipped during a package upgrade and remain at its current version. 
-When using "pkg_origins", specify either a single package origin string 
+The "pkg_lock" action locks the specified "pkg_origins" so that it will
+be skipped during a package upgrade and remain at its current version.
+When using "pkg_origins", specify either a single package origin string
 or an array of package origins.
 
-The "pkg_unlock" action unlocks the previously locked "pkg_origins" so 
-that it is no longer skipped during a package upgrade. 
+The "pkg_unlock" action unlocks the previously locked "pkg_origins" so
+that it is no longer skipped during a package upgrade.
 
-Both actions return any information as a dispatcher event. Refer to the 
-:ref:`Dispatcher Subsystem` for instructions on how to subscribe to and 
+Both actions return any information as a dispatcher event. Refer to the
+:ref:`Dispatcher Subsystem` for instructions on how to subscribe to and
 query dispatcher events.
 
 **REST Request**
@@ -896,8 +901,8 @@ query dispatcher events.
       "state" : "finished"
       }
     }
- } 
- 
+ }
+
 **REST Request**
 
 ::
@@ -938,7 +943,7 @@ query dispatcher events.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 **Dispatcher Events System Reply**
 
 .. code-block:: json
@@ -961,8 +966,8 @@ query dispatcher events.
       "state" : "finished"
       }
     }
- } 
- 
+ }
+
 .. index:: pkg_install, pkg
 
 .. _Install Packages:
@@ -970,12 +975,12 @@ query dispatcher events.
 Install Packages
 ================
 
-The "pkg_install" action installs the specified "pkg_origins" on the 
+The "pkg_install" action installs the specified "pkg_origins" on the
 system. When using "pkg_origins", specify either a single package origin
-string or an array of package origins. Unless the "repo" is specified, 
-:command:`pkg` will automatically determine the repository. The install 
+string or an array of package origins. Unless the "repo" is specified,
+:command:`pkg` will automatically determine the repository. The install
 messages will be returned as a dispatcher event. Refer to the
-:ref:`Dispatcher Subsystem` for instructions on how to subscribe to and 
+:ref:`Dispatcher Subsystem` for instructions on how to subscribe to and
 query dispatcher events.
 
 **REST Request**
@@ -1043,8 +1048,8 @@ query dispatcher events.
       "state" : "finished"
       }
     }
- } 
- 
+ }
+
 .. index:: pkg_remove, pkg
 
 .. _Uninstall Packages:
@@ -1052,16 +1057,16 @@ query dispatcher events.
 Uninstall Packages
 ==================
 
-The "pkg_remove" action uninstalls the specified "pkg_origins" from the 
+The "pkg_remove" action uninstalls the specified "pkg_origins" from the
 system. When using "pkg_origins", specify either a single package origin
 string or an array of package origins.
 
-The optional "recursive" argument can be set to "true" or "false". The 
-default is "true", which means that other packages which depend on this 
+The optional "recursive" argument can be set to "true" or "false". The
+default is "true", which means that other packages which depend on this
 package will also be removed so that there are no broken dependencies.
 
-The uninstall messages will be returned as a dispatcher event. Refer to 
-the :ref:`Dispatcher Subsystem` for instructions on how to subscribe to 
+The uninstall messages will be returned as a dispatcher event. Refer to
+the :ref:`Dispatcher Subsystem` for instructions on how to subscribe to
 and query dispatcher events.
 
 **REST Request**
@@ -1106,7 +1111,7 @@ and query dispatcher events.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 **Dispatcher Events System Reply**
 
 .. code-block:: json
@@ -1129,8 +1134,8 @@ and query dispatcher events.
       "state" : "finished"
       }
     }
- } 
- 
+ }
+
 .. index:: pkg_autoremove, pkg
 
 .. _Prune Packages:

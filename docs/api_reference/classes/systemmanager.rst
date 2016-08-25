@@ -4,27 +4,30 @@ systemmanager
 *************
 
 The systemmanager class is used to retrieve information about the system.
-Every systemmanager class request contains the following parameters:
+Every systemmanager class request contains several parameters:
 
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                                                                      |
-|                                 |               |                                                                                                                      |
-+=================================+===============+======================================================================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | systemmanager |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | sysadm        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "memorystats", "cpupercentage", "cputemps", "procinfo", "killproc", "batteryinfo",         |
-|                                 |               | "externalmounts", "systemmanager", "sysctllist", "setsysctl", "halt", and "reboot"                                   |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+---------------+---------------------------------------+
+| **Parameter** | **Value**     | **Description**                       |
+|               |               |                                       |
++===============+===============+=======================================+
+| id            |               | Any unique value for the request,     |
+|               |               | including a hash, checksum, or uuid.  |
++---------------+---------------+---------------------------------------+
+| name          | systemmanager |                                       |
+|               |               |                                       |
++---------------+---------------+---------------------------------------+
+| namespace     | sysadm        |                                       |
+|               |               |                                       |
++---------------+---------------+---------------------------------------+
+| action        |               | Actions include "batteryinfo",        |
+|               |               | "cpupercentage", "cputemps",          |
+|               |               | "externalmounts", "halt", "killproc", |
+|               |               | "memorystats", "procinfo", "reboot",  |
+|               |               | "setsysctl", "sysctllist", and        |
+|               |               | "systemmanager"                       |
++---------------+---------------+---------------------------------------+
 
-The rest of this section provides examples of the available *actions* 
+The rest of this section provides examples of the available *actions*
 for each type of request, along with their responses.
 
 .. index:: memorystats, systemmanager
@@ -114,7 +117,7 @@ The "cpupercentage" action returns the usage percentage of each CPU.
 
 **REST Response**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
     "args": {
@@ -151,7 +154,7 @@ The "cpupercentage" action returns the usage percentage of each CPU.
 
 **WebSocket Response**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
   "args": {
@@ -175,7 +178,7 @@ The "cpupercentage" action returns the usage percentage of each CPU.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: cputemps, systemmanager
 
 .. _CPU Temperature:
@@ -196,7 +199,7 @@ The "cputemps" action returns the temperature of each CPU.
 
 **REST Response**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
     "args": {
@@ -211,7 +214,7 @@ The "cputemps" action returns the temperature of each CPU.
 
 **WebSocket Request**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
    "args" : {
@@ -224,7 +227,7 @@ The "cputemps" action returns the temperature of each CPU.
 
 **WebSocket Response**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
   "args": {
@@ -239,7 +242,7 @@ The "cputemps" action returns the temperature of each CPU.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: procinfo, systemmanager
 
 .. _Process Information:
@@ -247,9 +250,9 @@ The "cputemps" action returns the temperature of each CPU.
 Process Information
 ===================
 
-The "procinfo" action lists information about each running process. 
-Since a system will have many running processes, the responses in this 
-section only show one process as an example of the type of information 
+The "procinfo" action lists information about each running process.
+Since a system will have many running processes, the responses in this
+section only show one process as an example of the type of information
 listed by this action.
 
 **REST Request**
@@ -263,7 +266,7 @@ listed by this action.
 
 **REST Response**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
     "args": {
@@ -287,7 +290,7 @@ listed by this action.
 
 **WebSocket Request**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
    "id" : "fooid",
@@ -300,7 +303,7 @@ listed by this action.
 
 **WebSocket Response**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
   "args": {
@@ -323,16 +326,16 @@ listed by this action.
   "name": "response",
   "namespace": "sysadm"
  }
- 
-.. index:: killproc, systemmanager 
+
+.. index:: killproc, systemmanager
 
 .. _Kill a Process:
 
 Kill a Process
 ==============
 
-The "killproc" action can be used to send the specified signal to the 
-specified Process ID (PID). The following signals are supported: INT, 
+The "killproc" action can be used to send a specified signal to the
+specified Process ID (PID). The following signals are supported: INT,
 QUIT, ABRT, KILL, ALRM, or TERM.
 
 **REST Request**
@@ -348,7 +351,7 @@ QUIT, ABRT, KILL, ALRM, or TERM.
 
 **REST Response**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
     "args": {
@@ -362,7 +365,7 @@ QUIT, ABRT, KILL, ALRM, or TERM.
 
 **WebSocket Request**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
    "namespace" : "sysadm",
@@ -377,7 +380,7 @@ QUIT, ABRT, KILL, ALRM, or TERM.
 
 **WebSocket Response**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
   "args": {
@@ -391,7 +394,7 @@ QUIT, ABRT, KILL, ALRM, or TERM.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: batteryinfo, systemmanager
 
 .. _Battery Information:
@@ -399,9 +402,9 @@ QUIT, ABRT, KILL, ALRM, or TERM.
 Battery Information
 ===================
 
-The "batteryinfo" action will indicate whether or not a battery exists. 
-If it does, it will also report its current charge percentage level 
-(1-99). its status (offline, charging, on backup, or unknown), and 
+The "batteryinfo" action will indicate whether or not a battery exists.
+If it does, it will also report its current charge percentage level
+(1-99), its status (offline, charging, on backup, or unknown), and
 estimated time left (in seconds).
 
 **REST Request**
@@ -460,9 +463,9 @@ estimated time left (in seconds).
 List External Mounts
 ====================
 
-The "externalmounts" action returns a list of mounted external devices. 
-Supported device types are UNKNOWN, USB, HDRIVE (external hard drive), 
-DVD, and SDCARD. For each mounted device, the response will include the 
+The "externalmounts" action returns a list of mounted external devices.
+Supported device types are UNKNOWN, USB, HDRIVE (external hard drive),
+DVD, and SDCARD. For each mounted device, the response will include the
 device name, filesystem, mount path, and device type.
 
 **REST Request**
@@ -529,9 +532,9 @@ device name, filesystem, mount path, and device type.
 System Information
 ==================
 
-The "systemmanager" action lists system information, including the 
-architecture, number of CPUs, type of CPU, hostname, kernel name and 
-version, system version and patch level, total amount of RAM, and the 
+The "systemmanager" action lists system information, including the
+architecture, number of CPUs, type of CPU, hostname, kernel name and
+version, system version and patch level, total amount of RAM, and the
 system's uptime.
 
 **REST Request**
@@ -598,7 +601,7 @@ system's uptime.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: sysctllist, systemmanager
 
 .. _List Sysctls:
@@ -606,9 +609,9 @@ system's uptime.
 List Sysctls
 ============
 
-The "sysctllist" action lists returns the list of all setable sysctl 
-values. Since there are many, the example responses in this section have
-been truncated to just show a few.
+The "sysctllist" action lists returns the list of all configurable
+sysctl values. Since there are many, the example responses in this
+section have been truncated.
 
 **REST Request**
 
@@ -674,7 +677,7 @@ been truncated to just show a few.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: setsysctl, systemmanager
 
 .. _Set a Sysctl:
@@ -682,8 +685,8 @@ been truncated to just show a few.
 Set a Sysctl
 ============
 
-The "setsysctl" action sets the specified setable sysctl to the 
-specified value. The response indicates that the old value was changed 
+The "setsysctl" action sets the specified configurable sysctl to the
+specified value. The response indicates that the old value was changed
 to the new value.
 
 **REST Request**
@@ -742,7 +745,7 @@ to the new value.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: halt, systemmanager
 
 .. _Halt the System:

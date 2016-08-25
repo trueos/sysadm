@@ -1034,8 +1034,6 @@ The "createjail" action creates a jail.
 In this example, the "tag" property sets the name of the new jail and
 the "release" property specifies which template to use.
 
-.. TODO CONTINUE EDITING BELOW------------------------------------------
-
 **REST Request**
 
 ::
@@ -1048,7 +1046,7 @@ the "release" property specifies which template to use.
 
 **WebSocket Request**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
    "args" : {
@@ -1062,7 +1060,7 @@ the "release" property specifies which template to use.
 
 **Response**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
   "args": {
@@ -1079,8 +1077,9 @@ the "release" property specifies which template to use.
   "namespace": "sysadm"
  }
 
-In this example, the **-e** switch, which creates an empty jail, is 
-specified using "switches". Refer to `iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_
+In this example, the **-e** switch, which creates an empty jail, is
+specified using "switches". Refer to
+`iocage(8) <https://github.com/iocage/iocage/blob/master/iocage.8.txt>`_
 for the list of available switches.
 
 **REST Request**
@@ -1096,7 +1095,7 @@ for the list of available switches.
 
 **WebSocket Request**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
    "namespace" : "sysadm",
@@ -1127,7 +1126,7 @@ for the list of available switches.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
  .. index:: destroyjail, iocage
 
 .. _Destroy a Jail:
@@ -1135,8 +1134,8 @@ for the list of available switches.
 Destroy a Jail
 ==============
 
-The "destroyjail" action destroys the specified jail. This action is 
-irreversible and does not prompt for confirmation, but will fail if the 
+The "destroyjail" action destroys the specified jail. This action is
+irreversible and does not prompt for confirmation, but will fail if the
 jail is running.
 
 **REST Request**
@@ -1151,7 +1150,7 @@ jail is running.
 
 **WebSocket Request**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
    "args" : {
@@ -1165,7 +1164,7 @@ jail is running.
 
 **Response**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
   "args": {
@@ -1179,7 +1178,7 @@ jail is running.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: execjail, iocage
 
 .. _Run Command:
@@ -1187,9 +1186,9 @@ jail is running.
 Run Command
 ===========
 
-The "execjail" action executes the specified "command" under the 
+The "execjail" action executes the specified "command" under the
 privileges of the specified "user" in the specified "jail". The response
-will indicate whether or not command execution succeeded as well as any 
+will indicate whether or not command execution succeeded as well as any
 output from the command.
 
 **REST Request**
@@ -1206,7 +1205,7 @@ output from the command.
 
 **WebSocket Request**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
    "namespace" : "sysadm",
@@ -1222,7 +1221,7 @@ output from the command.
 
 **Response**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
   "args": {
@@ -1236,7 +1235,7 @@ output from the command.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: cleanjails, iocage
 
 .. _Clean Jails:
@@ -1244,7 +1243,7 @@ output from the command.
 Clean Jails
 ===========
 
-The "cleanjails" action destroys all existing jail datasets, including 
+The "cleanjails" action destroys all existing jail datasets, including
 all data stored in the jails.
 
 **REST Request**
@@ -1258,7 +1257,7 @@ all data stored in the jails.
 
 **WebSocket Request**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
    "namespace" : "sysadm",
@@ -1271,7 +1270,7 @@ all data stored in the jails.
 
 **Response**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
   "args": {
@@ -1283,7 +1282,7 @@ all data stored in the jails.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: cleanreleases, iocage
 
 .. _Clean Releases:
@@ -1291,8 +1290,8 @@ all data stored in the jails.
 Clean Releases
 ==============
 
-The "cleanreleases" action deletes all releases that have been fetched. 
-Since basejails rely on releases, do not run this action if any 
+The "cleanreleases" action deletes all releases that have been fetched.
+Since basejails rely on releases, do not run this action if any
 basejails still exist.
 
 **REST Request**
@@ -1308,7 +1307,7 @@ basejails still exist.
 
 **REST Request**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
    "id" : "fooid",
@@ -1323,7 +1322,7 @@ basejails still exist.
 
 **REST Request**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
   "args": {
@@ -1335,7 +1334,7 @@ basejails still exist.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: cleantemplates, iocage
 
 .. _Clean Templates:
@@ -1356,7 +1355,7 @@ The "cleantemplates" action destroys all existing jail templates.
 
 **WebSocket Request**
 
-.. code-block:: json  
+.. code-block:: json
 
  {
    "args" : {
@@ -1381,15 +1380,15 @@ The "cleantemplates" action destroys all existing jail templates.
   "name": "response",
   "namespace": "sysadm"
  }
- 
- .. index:: cleanall, iocage
+
+.. index:: cleanall, iocage
 
 .. _Clean All:
 
 Clean All
-===========
+=========
 
-The "cleanall" action destroys everything associated with iocage. 
+The "cleanall" action destroys everything associated with iocage.
 
 **REST Request**
 
@@ -1402,7 +1401,7 @@ The "cleanall" action destroys everything associated with iocage.
 
 **WebSocket Request**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
    "namespace" : "sysadm",
@@ -1415,7 +1414,7 @@ The "cleanall" action destroys everything associated with iocage.
 
 **Response**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
   "args": {
@@ -1427,7 +1426,7 @@ The "cleanall" action destroys everything associated with iocage.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: activatepool, iocage
 
 .. _Activate a Pool:
@@ -1435,9 +1434,9 @@ The "cleanall" action destroys everything associated with iocage.
 Activate a Pool
 ===============
 
-The "activatepool" action can be used to specify which ZFS pool is used 
-to store jails. If you do not specify the pool, the response will 
-indicate the current setting.
+The "activatepool" action can be used to specify the ZFS pool to store
+jails. If you do not specify the pool, the response will indicate the
+current setting.
 
 These examples specify the pool to use:
 
@@ -1546,19 +1545,19 @@ These examples show responses when the pool is not specified:
   "name": "response",
   "namespace": "sysadm"
  }
- 
- .. index:: deactivatepool, iocage
+
+.. index:: deactivatepool, iocage
 
 .. _Deactivate a Pool:
 
 Deactivate a Pool
 =================
 
-Since only one pool can be active, the "deactivatepool" action can be 
-used to deactivate a currently active pool. This should be done before 
-using the "activatepool" action to activate a different pool. When a 
-pool is deactivated, no data is removed. However, you won't have access 
-to its jails unless you move those datasets to the newly activated pool 
+Since only one pool can be active, the "deactivatepool" action can be
+used to deactivate a currently active pool. This should be done before
+using the "activatepool" action to activate a different pool. When a
+pool is deactivated, no data is removed. However, you won't have access
+to its jails unless you move those datasets to the newly activated pool
 or activate the old pool again.
 
 **REST Request**

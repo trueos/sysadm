@@ -8,26 +8,29 @@ scheduled snapshots and replication.
 
 Every lifepreserver class request contains the following parameters:
 
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                                                                      |
-|                                 |               |                                                                                                                      |
-+=================================+===============+======================================================================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | lifepreserver |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | sysadm        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listcron", "cronsnap", "cronscrub", "createsnap", "listsnap", "revertsnap", "removesnap", |
-|                                 |               | "addreplication", "removereplication", "listreplication", "runreplication", "initreplication", "settings", and       |
-|                                 |               | "savesettings"                                                                                                       |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+---------------+---------------------------------------+
+| **Parameter** | **Value**     | **Description**                       |
+|               |               |                                       |
++===============+===============+=======================================+
+| id            |               | Any unique value for the request,     |
+|               |               | including a hash, checksum, or uuid.  |
++---------------+---------------+---------------------------------------+
+| name          | lifepreserver |                                       |
+|               |               |                                       |
++---------------+---------------+---------------------------------------+
+| namespace     | sysadm        |                                       |
+|               |               |                                       |
++---------------+---------------+---------------------------------------+
+| action        |               | Actions include "addreplication",     |
+|               |               | "createsnap", "cronscrub", "cronsnap" |
+|               |               | "initreplication", "listcron",        |
+|               |               | "listreplication", "listsnap",        |
+|               |               | "removesnap", "removereplication",    |
+|               |               | "revertsnap", "runreplication",       |
+|               |               | "savesettings", and "settings"        |
++---------------+---------------+---------------------------------------+
 
-The rest of this section provides examples of the available *actions* 
+The rest of this section provides examples of the available *actions*
 for each type of request, along with their responses.
 
 .. index:: listcron, Life Preserver
@@ -37,10 +40,10 @@ for each type of request, along with their responses.
 List Schedules
 ==============
 
-The "listcron" action retrieves the information for each Life Preserver 
-scheduled task. If snapshots have been configured for a ZFS pool, it 
-lists the number of snapshots to keep and the time that snapshots are 
-taken. If scrubs have been configured on that ZFS pool, it also lists 
+The "listcron" action retrieves the information for each Life Preserver
+scheduled task. If snapshots have been configured for a ZFS pool, it
+lists the number of snapshots to keep and the time that snapshots are
+taken. If scrubs have been configured on that ZFS pool, it also lists
 the time that ZFS scrubs occur.
 
 **REST Request**
@@ -51,7 +54,6 @@ the time that ZFS scrubs occur.
  {
    "action" : "listcron"
  }
-
 
 **REST Response**
 
@@ -68,7 +70,7 @@ the time that ZFS scrubs occur.
         }
     }
  }
- 
+
 **WebSocket Request**
 
 .. code-block:: json
@@ -102,30 +104,30 @@ the time that ZFS scrubs occur.
  }
 
 .. index:: cronsnap, Life Preserver
- 
+
 .. _Create a Snapshot Schedule:
 
 Create a Snapshot Schedule
 ==========================
 
-The "cronsnap" action is used to create snapshot schedules for Life 
+The "cronsnap" action is used to create snapshot schedules for Life
 Preserver. This action supports the following parameters:
 
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Description**                                                                                                      |
-|                                 |                                                                                                                      |
-+=================================+======================================================================================================================+
-| pool                            | name of ZFS pool to snapshot                                                                                         |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| keep                            | specify the number of snapshots to keep                                                                              |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| frequency                       | specify when to take the snapshots; possible values are "daily@XX" (where XX is the number of the hour),             |
-|                                 | "hourly", "30min", "10min", "5min" or "none" (disables snapshots)                                                    |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-
++---------------+------------------------------------------------------+
+| **Parameter** | **Description**                                      |
+|               |                                                      |
++===============+======================================================+
+| pool          | Name of the ZFS pool to snapshot.                    |
+|               |                                                      |
++---------------+------------------------------------------------------+
+| keep          | Specify the number of snapshots to keep.             |
+|               |                                                      |
++---------------+------------------------------------------------------+
+| frequency     | Specify when to take the snapshots. Possible values  |
+|               | are "daily@XX" (where XX is the number of the hour), |
+|               | "hourly", "30min", "10min", "5min" or "none"         |
+|               | (disables snapshots)                                 |
++---------------+------------------------------------------------------+
 
 **REST Request**
 
@@ -185,29 +187,31 @@ Preserver. This action supports the following parameters:
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: cronscrub, Life Preserver
- 
+
 .. _Create a Scrub Schedule:
 
 Create a Scrub Schedule
-==========================
+=======================
 
-The "cronscrub" action is used to schedule a ZFS scrub. This action 
+The "cronscrub" action is used to schedule a ZFS scrub. This action
 supports the following parameters:
 
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Description**                                                                                                      |
-|                                 |                                                                                                                      |
-+=================================+======================================================================================================================+
-| pool                            | name of ZFS pool to scrub                                                                                            |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| frequency                       | specify when to perform the scrub; possible values are "daily@XX", "weekly@YY@XX", and monthly@ZZ@XX, where "XX" is  |
-|                                 | the hour, "YY" is the day of week ("01" for Monday through "07" for Sunday), "ZZ" is the day of month, and "none"    |
-|                                 | disables scrubs                                                                                                      |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+----------------------------------------------------+
+| **Parameter** | **Description**                                    |
+|               |                                                    |
++===============+====================================================+
+| pool          | Name of ZFS pool to scrub.                         |
+|               |                                                    |
++---------------+----------------------------------------------------+
+| frequency     | Specify when to perform the scrub. Possible values |
+|               | are "daily@XX", "weekly@YY@XX", and monthly@ZZ@XX, |
+|               | where "XX" is the hour, "YY" is the day of week    |
+|               | ("01" for Monday through "07" for Sunday), "ZZ" is |
+|               | the day of month, and "none"disables scrubs.       |
+|               |                                                    |
++---------------+----------------------------------------------------+
 
 **REST Request**
 
@@ -263,15 +267,15 @@ supports the following parameters:
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: createsnap, Life Preserver
- 
+
 .. _Create a Snapshot:
 
 Create a Snapshot
 =================
 
-The "createsnap" action creates a one-time snapshot of the specified 
+The "createsnap" action creates a one-time snapshot of the specified
 dataset.
 
 **REST Request**
@@ -288,7 +292,7 @@ dataset.
 
 **WebSocket Request**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
    "args" : {
@@ -304,7 +308,7 @@ dataset.
 
 **Response**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
   "args": {
@@ -320,7 +324,7 @@ dataset.
  }
 
 .. index:: listsnap, Life Preserver
- 
+
 .. _List Snapshots:
 
 List Snapshots
@@ -402,20 +406,20 @@ The "listsnap" action retrieves the list of saved snapshots.
  }
 
 .. index:: revertsnap, Life Preserver
- 
+
 .. _Revert a Snapshot:
 
 Revert a Snapshot
 =================
 
-The "revertsnap" action is used to rollback the contents of the 
-specified dataset to the point in time that the specified snapshot was 
+The "revertsnap" action is used to rollback the contents of the
+specified dataset to the point in time that the specified snapshot was
 taken.
 
-.. warning:: performing this operation will revert the contents of the 
-             dataset back in time, meaning that all changes to the 
-             dataset's files that occurred since the snapshot was taken 
-             will be lost.
+.. danger:: Performing this operation will revert the contents of the
+            dataset back in time, meaning that all changes to the
+            dataset's files that occurred since the snapshot was taken
+            will be lost.
 
 **REST Request**
 
@@ -473,13 +477,13 @@ taken.
  }
 
 .. index:: removesnap, Life Preserver
- 
+
 .. _Remove a Snapshot:
 
 Remove a Snapshot
 =================
 
-The "removesnap" action is used to remove a ZFS snapshot from the 
+The "removesnap" action is used to remove a ZFS snapshot from the
 specified dataset or pool.
 
 **REST Request**
@@ -538,42 +542,44 @@ specified dataset or pool.
  }
 
 .. index:: addreplication, Life Preserver
- 
+
 .. _Add Replication:
 
 Add Replication
 ===============
 
 The "addreplication" action is used to create a replication task in Life
-Preserver. This action supports the following parameters:
+Preserver. This action supports several parameters:
 
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Description**                                                                                                      |
-|                                 |                                                                                                                      |
-+=================================+======================================================================================================================+
-| host                            | remote hostname or IP address                                                                                        |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| port                            | SSH port number on remote system                                                                                     |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| user                            | user must exist on remote system                                                                                     |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| password                        | the password for *user* on remote system                                                                             |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| dataset                         | name of local dataset to replicate                                                                                   |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| remotedataset                   | path to dataset on remote system                                                                                     |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| frequency                       | when to replicate; supported times are "XX" (hour), "sync" (as snapshot is created, not recommended for frequent     |
-|                                 | snapshots), "hour" (hourly), "30min" (every 30 minutes), "10min" (every 10 minutes), or "manual" (only when          |
-|                                 | requested by user)                                                                                                   |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+-----------------------------------------------------+
+| **Parameter** | **Description**                                     |
+|               |                                                     |
++===============+=====================================================+
+| host          | Remote hostname or IP address.                      |
+|               |                                                     |
++---------------+-----------------------------------------------------+
+| port          | SSH port number on remote system.                   |
+|               |                                                     |
++---------------+-----------------------------------------------------+
+| user          | User must exist on remote system.                   |
+|               |                                                     |
++---------------+-----------------------------------------------------+
+| password      | The password for *user* on remote system.           |
+|               |                                                     |
++---------------+-----------------------------------------------------+
+| dataset       | Name of local dataset to replicate.                 |
+|               |                                                     |
++---------------+-----------------------------------------------------+
+| remotedataset | Path to the dataset on the remote system.           |
+|               |                                                     |
++---------------+-----------------------------------------------------+
+| frequency     | When to replicate. Supported times are "XX" (hour), |
+|               | "sync" (as snapshot is created, not recommended for |
+|               | frequent snapshots), "hour" (hourly), "30min"       |
+|               | (every 30 minutes), "10min" (every 10 minutes), or  |
+|               | "manual" (only when requested by user)              |
+|               |                                                     |
++---------------+-----------------------------------------------------+
 
 **REST Request**
 
@@ -649,28 +655,28 @@ Preserver. This action supports the following parameters:
  }
 
 .. index:: removereplication, Life Preserver
- 
+
 .. _Remove Replication:
 
 Remove Replication
 ==================
 
 The "removereplication" action is used to delete an existing replication
-task. Note that this action only deletes the task--it does not remove 
+task. Note that this action only deletes the task - it does not remove
 any already replicated data from the remote system.
 
-This action supports the following parameters:
+This action supports several parameters:
 
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Description**                                                                                                      |
-|                                 |                                                                                                                      |
-+=================================+======================================================================================================================+
-| host                            | remote hostname or IP address                                                                                        |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| dataset                         | name of local dataset to remove from replication                                                                     |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+-----------------------------------------------------+
+| **Parameter** | **Description**                                     |
+|               |                                                     |
++===============+=====================================================+
+| host          | Remote hostname or IP address.                      |
+|               |                                                     |
++---------------+-----------------------------------------------------+
+| dataset       | Name of local dataset to remove from replication.   |
+|               |                                                     |
++---------------+-----------------------------------------------------+
 
 **REST Request**
 
@@ -728,19 +734,19 @@ This action supports the following parameters:
  }
  
 .. index:: listreplication, Life Preserver
- 
-.. _List Replications: 
+
+.. _List Replications:
 
 List Replications
 =================
 
-The "listreplication" action is used to retrieve the settings of 
-configured replication tasks. For each task, the response includes the 
-name of the local ZFS pool or dataset to replicate, the IP address and 
-listening port number of the remote system to replicate to, when the 
-replication occurs (see the "frequency" description in 
+The "listreplication" action is used to retrieve the settings of
+configured replication tasks. For each task, the response includes the
+name of the local ZFS pool or dataset to replicate, the IP address and
+listening port number of the remote system to replicate to, when the
+replication occurs (see the "frequency" description in
 :ref:`Add Replication`), the name of the dataset on the remote system to
-store the replicated data ("rdset"), and the name of the replication 
+store the replicated data ("rdset"), and the name of the replication
 user account.
 
 **REST Request**
@@ -805,15 +811,15 @@ user account.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: runreplication, Life Preserver
- 
+
 .. _Start Replication:
 
 Start Replication
 =================
 
-The "runreplication" action can be used to manually replicate the 
+The "runreplication" action can be used to manually replicate the
 specified dataset to the specified remote server.
 
 **REST Request**
@@ -870,31 +876,31 @@ specified dataset to the specified remote server.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: initreplication, Life Preserver
- 
+
 .. _Initialize Replication:
 
 Initialize Replication
 ======================
 
-The "initreplication" action can be used to clear the replication data 
-on the remote server. This is useful if a replication becomes stuck. 
-After running this action, issue a "runreplication" action to start a 
+The "initreplication" action can be used to clear the replication data
+on the remote server. This is useful if a replication becomes stuck.
+After running this action, issue a "runreplication" action to start a
 new replication.
 
 The "initreplication" action supports the following parameters:
 
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Description**                                                                                                      |
-|                                 |                                                                                                                      |
-+=================================+======================================================================================================================+
-| host                            | remote hostname or IP address                                                                                        |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| dataset                         | name of local dataset or pool being replicated                                                                       |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+-----------------------------------------------------+
+| **Parameter** | **Description**                                     |
+|               |                                                     |
++===============+=====================================================+
+| host          | Remote hostname or IP address.                      |
+|               |                                                     |
++---------------+-----------------------------------------------------+
+| dataset       | Name of local dataset or pool being replicated.     |
+|               |                                                     |
++---------------+-----------------------------------------------------+
 
 **REST Request**
 
@@ -950,22 +956,22 @@ The "initreplication" action supports the following parameters:
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: settings, Life Preserver
- 
+
 .. _View Settings:
 
 View Settings
 =============
 
-The "settings" action returns the system-wide settings of the Life 
-Preserver utility. The returned settings include the disk percentage 
+The "settings" action returns the system-wide settings of the Life
+Preserver utility. The returned settings include the disk percentage
 used at which Life Preserver will issue a warning, the level at which an
-email will be sent, the email address to send notifications to, and 
-whether or not snapshots are taken recursively (include all child 
+email will be sent, the email address to send notifications to, and
+whether or not snapshots are taken recursively (include all child
 datasets).
 
-Run :command:`lpreserver help set` for more information about each 
+Run :command:`lpreserver help set` for more information about each
 available setting.
 
 **REST Request**
@@ -1024,33 +1030,34 @@ available setting.
  }
 
 .. index:: savesettings, Life Preserver
- 
+
 .. _Save Settings:
 
 Save Settings
 =============
 
 The "savesettings" action can be used to modify the system-wide settings
-of the Life Preserver utility. This action supports the following 
+of the Life Preserver utility. This action supports the following
 parameters:
 
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Description**                                                                                                      |
-|                                 |                                                                                                                      |
-+=================================+======================================================================================================================+
-| duwarn                          | disk percentage (from 0-99) at which to warn of low disk space                                                       |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| email                           | email address to send notifications to                                                                               |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| emailopts                       | conditions which trigger an email notification; possible values are "ALL" (every snapshot, warning and error),       |
-|                                 | "WARN" (warnings and errors--this is the default condition), or "ERROR" (errors only)                                |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
-| recursive                       | whether or not to include all child datasets in the snapshot; possible values are "true" or "false"                  |
-|                                 |                                                                                                                      |
-+---------------------------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+-----------------------------------------------------+
+| **Parameter** | **Description**                                     |
+|               |                                                     |
++===============+=====================================================+
+| duwarn        | Disk percentage (from 0-99) at which to warn of low |
+|               | disk space.                                         |
++---------------+-----------------------------------------------------+
+| email         | Email address to send notifications.                |
+|               |                                                     |
++---------------+-----------------------------------------------------+
+| emailopts     | Conditions which trigger an email notification.     |
+|               | Possible values are "ALL" (every snapshot, warning  |
+|               | and error),"WARN" (warnings and errors--this is the |
+|               | default condition), or "ERROR" (errors only).       |
++---------------+-----------------------------------------------------+
+| recursive     | Whether or not to include all child datasets in the |
+|               | snapshot; possible values are "true" or "false"     |
++---------------+-----------------------------------------------------+
 
 **REST Request**
 

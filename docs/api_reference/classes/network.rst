@@ -3,30 +3,30 @@
 network
 *******
 
-The network class is used to manage and retrieve information from 
+The network class is used to manage and retrieve information from
 Ethernet and wireless network devices.
 
 Every network class request contains the following parameters:
 
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                                                                      |
-|                                 |               |                                                                                                                      |
-+=================================+===============+======================================================================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | network       |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | sysadm        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "list-devices"                                                                             |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+-----------+-------------------------------------------+
+| **Parameter** | **Value** | **Description**                           |
+|               |           |                                           |
++===============+===========+===========================================+
+| id            |           | Any unique value for the request,         |
+|               |           | including a hash, checksum, or uuid.      |
++---------------+-----------+-------------------------------------------+
+| name          | network   |                                           |
+|               |           |                                           |
++---------------+-----------+-------------------------------------------+
+| namespace     | sysadm    |                                           |
+|               |           |                                           |
++---------------+-----------+-------------------------------------------+
+| action        |           | Supported actions include "list-devices". |
+|               |           |                                           |
++---------------+-----------+-------------------------------------------+
 
-The rest of this section provides examples of the available *actions* 
-for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions*
+for each type of request, along with their responses.
 
 .. index:: list-devices, network
 
@@ -35,11 +35,11 @@ for each type of request, along with their responses.
 List Devices
 ============
 
-The "list-devices" action lists information about currently recognized 
-network devices. For each network device, the response includes the 
-device's MAC address, description, IPv4 address, IPv6 address, whether 
-or not the device is active, whether or not the device is configured 
-using DHCP, whether or not the device is wireless, its subnet mask, and 
+The "list-devices" action lists information about currently recognized
+network devices. For each network device, the response includes the
+device's MAC address, description, IPv4 address, IPv6 address, whether
+or not the device is active, whether or not the device is configured
+using DHCP, whether or not the device is wireless, its subnet mask, and
 its current status.
 
 **REST Request**

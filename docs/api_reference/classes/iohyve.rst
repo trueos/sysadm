@@ -8,27 +8,29 @@ bhyve type 2 hypervisor.
 
 Every iohyve class request contains the following parameters:
 
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| **Parameter**                   | **Value**     | **Description**                                                                                                      |
-|                                 |               |                                                                                                                      |
-+=================================+===============+======================================================================================================================+
-| id                              |               | any unique value for the request; examples include a hash, checksum, or uuid                                         |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| name                            | iohyve        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| namespace                       | sysadm        |                                                                                                                      |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
-| action                          |               | supported actions include "listvms", "fetchiso", "listisos", "renameiso", "rmiso", "setup",  "issetup", "create",    |
-|                                 |               | "install", "start", "stop", "delete", "adddisk", "listdisks", "resizedisk", "deletedisk", "version", "getprops",     |
-|                                 |               | and "setprop"                                                                                                        |
-|                                 |               |                                                                                                                      |
-+---------------------------------+---------------+----------------------------------------------------------------------------------------------------------------------+
++---------------+-----------+------------------------------------------------+
+| **Parameter** | **Value** | **Description**                                |
+|               |           |                                                |
++===============+===========+================================================+
+| id            |           | Any unique value for the request,              |
+|               |           | including a hash, checksum, or uuid.           |
++---------------+-----------+------------------------------------------------+
+| name          | iohyve    |                                                |
+|               |           |                                                |
++---------------+-----------+------------------------------------------------+
+| namespace     | sysadm    |                                                |
+|               |           |                                                |
++---------------+-----------+------------------------------------------------+
+| action        |           | Actions include "adddisk", "create",           |
+|               |           | "delete", "deletedisk", "fetchiso",            |
+|               |           | "getprops", "install", "issetup", "listdisks", |
+|               |           | "listisos", "listvms", "renameiso",            |
+|               |           | "resizedisk", "rmiso", "setprop", "setup",     |
+|               |           | "start", "stop", and "version"                 |
++---------------+-----------+------------------------------------------------+
 
-The rest of this section provides examples of the available *actions* 
-for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions*
+for each type of request, along with their responses.
 
 .. index:: listvms, iohyve
 
@@ -37,10 +39,10 @@ for each type of request, along with their responses.
 List VMs
 ========
 
-The "listvms" action lists information about currently installed VMs. 
-For each VM, the response includes the VM's name, description, whether 
-or not it is scheduled to start when the host system boots, whether or 
-not it is currently running, and whether or not the VM is currently 
+The "listvms" action lists information about currently installed VMs.
+For each VM, the response includes the VM's name, description, whether
+or not it is scheduled to start when the host system boots, whether or
+not it is currently running, and whether or not the VM is currently
 loaded into memory.
 
 **REST Request**
@@ -101,7 +103,7 @@ loaded into memory.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: fetchiso, iohyve
 
 .. _Fetch ISO:
@@ -109,8 +111,8 @@ loaded into memory.
 Fetch ISO
 =========
 
-The "fetchiso" action is used to retrieve the installation ISO. It is 
-used with the "url" argument which contains the ISO address beginning 
+The "fetchiso" action is used to retrieve the installation ISO. It is
+used with the "url" argument which contains the ISO address beginning
 with *http://*, *ftp://*, or *file://*.
 
 **REST Request**
@@ -191,7 +193,7 @@ The "listisos" action lists all the known ISO files which iohyve can use.
 **REST Request**
 
 ::
- 
+
  PUT /sysadm/iohyve
  {
    "action" : "listisos"
@@ -200,7 +202,7 @@ The "listisos" action lists all the known ISO files which iohyve can use.
 **WebSocket Request**
 
 .. code-block:: json
- 
+
  {
    "name" : "iohyve",
    "namespace" : "sysadm",
@@ -213,7 +215,7 @@ The "listisos" action lists all the known ISO files which iohyve can use.
 **Response**
 
 .. code-block:: json
- 
+
  {
   "args": {
     "listisos": [
@@ -224,7 +226,7 @@ The "listisos" action lists all the known ISO files which iohyve can use.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: renameiso, iohyve
 
 .. _Rename ISO:
@@ -276,7 +278,7 @@ Specify the existing name with "source" and the new name with "target".
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: rmiso, iohyve
 
 .. _Remove ISO:
@@ -284,7 +286,7 @@ Specify the existing name with "source" and the new name with "target".
 Remove ISO
 ==========
 
-The "rmiso" action is used to to remove an existing ISO file from disk. 
+The "rmiso" action is used to to remove an existing ISO file from disk.
 Specify the ISO's name as the "target".
 
 **REST Request**
@@ -325,7 +327,7 @@ Specify the ISO's name as the "target".
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: setup, iohyve
 
 .. _Setup iohyve:
@@ -334,7 +336,7 @@ Setup iohyve
 ============
 
 The "setup" action performs the initial setup of iohyve. It is mandatory
-to specify the FreeBSD device name of the "nic" and the ZFS "pool" to 
+to specify the FreeBSD device name of the "nic" and the ZFS "pool" to
 use.
 
 **REST Request**
@@ -378,7 +380,7 @@ use.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: issetup, iohyve
 
 .. _Determine iohyve Setup:
@@ -425,7 +427,7 @@ The "issetup" action queries if iohyve has been setup and returns either
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: create, iohyve
 
 .. _Create Guest:
@@ -477,7 +479,7 @@ and "size".
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: install, iohyve
 
 .. _Install Guest:
@@ -485,7 +487,7 @@ and "size".
 Install Guest
 =============
 
-The "install" action starts the iohyve installation of the specified 
+The "install" action starts the iohyve installation of the specified
 guest from the specified ISO. This action only boots the VM with the ISO;
 to do the actual installation, run :command:`iohyve console <name>` from
 the system.
@@ -531,7 +533,7 @@ the system.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: start, iohyve
 
 .. _Start VM:
@@ -579,7 +581,7 @@ The "start" action starts the specified VM.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: stop, iohyve
 
 .. _Stop VM:
@@ -627,7 +629,7 @@ The "stop" action stops the specified VM.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: delete, iohyve
 
 .. _Delete a VM:
@@ -675,7 +677,7 @@ The "delete" action deletes the specified iohyve guest.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: adddisk, iohyve
 
 .. _Add a Disk:
@@ -727,7 +729,7 @@ The "adddisk" action adds and creates a disk for a VM.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: listdisks, iohyve
 
 .. _List Disks:
@@ -775,7 +777,7 @@ The "listdisks" action lists the disks connected to the specified VM.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: resizedisk, iohyve
 
 .. _Resize a Disk:
@@ -783,8 +785,8 @@ The "listdisks" action lists the disks connected to the specified VM.
 Resize a Disk
 =============
 
-The "resizedisk" action **increases** the specified disk in the 
-specified VM. The new specified size must be larger than the current 
+The "resizedisk" action **increases** the specified disk in the
+specified VM. The new specified size must be larger than the current
 size.
 
 **REST Request**
@@ -801,7 +803,7 @@ size.
 
 **WebSocket Request**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
    "name" : "iohyve",
@@ -817,7 +819,7 @@ size.
 
 **Response**
 
-.. code-block:: json 
+.. code-block:: json
 
  {
   "args": {
@@ -831,7 +833,7 @@ size.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: deletedisk, iohyve
 
 .. _Delete a Disk:
@@ -882,7 +884,7 @@ The "deletedisk" action removes the specified disk from the specified VM.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
  .. index:: version, iohyve
 
 .. _List Version:
@@ -928,7 +930,7 @@ The "version" action displays the iohyve version.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: getprops, iohyve
 
 .. _List Guest Properties:
@@ -991,16 +993,16 @@ The "getprops" action lists the properties for the specified guest.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: setprop, iohyve
 
 .. _Set Guest Properties:
 
 Set Guest Properties
-=====================
+====================
 
-The "setprop" action can be used to modify the properties for the 
-specified guest. For each property, specify its name and desired value. 
+The "setprop" action can be used to modify the properties for the
+specified guest. For each property, specify its name and desired value.
 Use "getprops" to see the current properties and values for the guest.
 
 **REST Request**

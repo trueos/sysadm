@@ -3,18 +3,17 @@
 update
 ******
 
-The update class is used to check for and manage system and software 
+The update class is used to check for and manage system and software
 updates.
 
-Every update class request contains the following parameters:
+Every update class request contains several parameters:
 
 +----------------+------------+---------------------------------------+
 | **Parameter**  | **Value**  | **Description**                       |
 |                |            |                                       |
 +================+============+=======================================+
-| id             |            | any unique value for the request;     |
-|                |            | examples include a hash, checksum, or |
-|                |            | uuid                                  |
+| id             |            | Any unique value for the request,     |
+|                |            | including a hash, checksum, or uuid.  |
 +----------------+------------+---------------------------------------+
 | name           | update     |                                       |
 |                |            |                                       |
@@ -22,14 +21,14 @@ Every update class request contains the following parameters:
 | namespace      | sysadm     |                                       |
 |                |            |                                       |
 +----------------+------------+---------------------------------------+
-| action         |            | supported actions include             |
-|                |            | "changesettings", "checkupdates",     |
-|                |            | "listbranches", "listsettings",       |
-|                |            | "startupdate", "stopupdate"           |
+| action         |            | Actions include "changesettings",     |
+|                |            | "checkupdates", "listbranches",       |
+|                |            | "listsettings", "startupdate",        |
+|                |            | "stopupdate"                          |
 +----------------+------------+---------------------------------------+
 
-The rest of this section provides examples of the available *actions* 
-for each type of request, along with their responses. 
+The rest of this section provides examples of the available *actions*
+for each type of request, along with their responses.
 
 .. index:: changesettings, update
 
@@ -87,10 +86,10 @@ settings (maxbe, package_set, package_url, auto_update).
 Check for Updates
 =================
 
-The "checkupdates" action queries the update server to see if any 
-updates are available. If an update is available, the response will 
-indicate if it is a system security update, an upgrade to a newer 
-version of the operating system, a system patch, or an update to 
+The "checkupdates" action queries the update server to see if any
+updates are available. If an update is available, the response will
+indicate if it is a system security update, an upgrade to a newer
+version of the operating system, a system patch, or an update to
 installed software packages.
 
 **REST Request**
@@ -144,7 +143,7 @@ installed software packages.
   "name": "response",
   "namespace": "sysadm"
  }
- 
+
 .. index:: listbranches, update
 
 .. _List Branches:
@@ -152,8 +151,8 @@ installed software packages.
 List Branches
 =============
 
-The "listbranches" action retrieves the list of available branches 
-(operating system versions). The currently installed version will be 
+The "listbranches" action retrieves the list of available branches
+(operating system versions). The currently installed version will be
 listed as "active".
 
 **REST Request**
@@ -262,17 +261,17 @@ Start Updates
 =============
 
 The "startupdate" action starts the specified update. You must specify a
-"target" to indicate the type of update to perform. The available 
+"target" to indicate the type of update to perform. The available
 targets are:
 
-* **chbranch:** will update to the specified "branch" (operating system 
-  version). You can determine which branches are available by using the 
+* **chbranch:** Will update to the specified "branch" (operating system
+  version). You can determine which branches are available by using the
   "listbranches" action.
 
-* **pkgupdate:** only update installed software.
+* **pkgupdate:** Only updates installed software.
 
-* **standalone:** only apply the update specified as a "tag". Use the 
-  "checkupdates" action to determine the name (tag) of the update to 
+* **standalone:** Only apply the update specified as a "tag". Use the
+  "checkupdates" action to determine the name (tag) of the update to
   specify.
 
 **REST Request**
