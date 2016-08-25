@@ -100,7 +100,7 @@ bool UserManager::addUser(QJsonObject* out, QJsonObject obj){
       pwfile.close(); //closed but still exists - will go out of scope and get removed in a moment
       args << "-h" << "0"; //read from std input
       args << "-m"; //automatically create users home dir
-      ok = (0== system("cat "+pwfile.fileName().toUtf8()+" | pw "+args.join(" ").toUtf8()) );
+      ok = (0== system("cat "+pwfile.fileName().toUtf8()+" | pw \""+args.join("\" \"").toUtf8()+"\"") );
       usercreated = ok;
     }else{
       out->insert("error","Could not open temporary file for password"); //should never happen
@@ -187,7 +187,7 @@ bool UserManager::modifyUser(QJsonObject* out, QJsonObject obj){
         pwfile.write( obj.value("password").toString().toUtf8().data() );
         pwfile.close(); //closed but still exists - will go out of scope and get removed in a moment
         args << "-h" << "0"; //read from std input
-        ok = (0== system("cat "+pwfile.fileName().toUtf8()+" | pw "+args.join(" ").toUtf8()) );
+        ok = (0== system("cat "+pwfile.fileName().toUtf8()+" | pw \""+args.join("\" \"").toUtf8()+"\"") );
       }else{
         out->insert("error","Could not open temporary file for password"); //should never happen
       }
