@@ -49,44 +49,11 @@ bool ServiceManager::isRunning(Service service){ //single-item overload
 QList<bool> ServiceManager::isEnabled(QList<Service> services){
    //return list in the same order as the input list
   QList<bool> out;
-  //Read all the rc.conf files in highest-priority order
-  QHash<QString, QString> data;
-  QDir dir("/etc");
-  QStringList confs = dir.entryList(QStringList() << "rc.conf*", QDir::Files, QDir::Name | QDir::Reversed);
-  qDebug() << "Conf file order:" << confs;
-  for(int i=0; i<confs.length(); i++){
-    QFile file(dir.absoluteFilePath(confs[i]));
-    if( file.open(QIODevice::ReadOnly) ){
-      qDebug() << "Read File:" << confs[i];
-      bool insection = true;
-      QTextStream stream(&file);
-      while(!stream.atEnd()){
-        QString info = stream.readLine();
-        //qDebug() << "Read Line:" << info;
-        if(info.contains("=") && insection){
-          data.insert(info.section("=",0,0).simplified(), info.section("=",1,-1));
-          qDebug() << "Got data entry:" << info;
-        }else if(info.simplified()=="fi"){ 
-          insection= true;
-        }else if(info.simplified().startsWith("if [ ") ){
-          QStringList args = info.section("]",0,0).section("[",1,-1).split("\""); //odd numbers are files, even are arguments
-          for(int j=0; j<args.length()-1; j+=2){
-            qDebug() << "Check if arguments:" << args[j] << args[j+1] << insection;
-            if(!args[j].contains("-e")){ insection = false; break; } //don't know how to handle this - skip section
-            if(args[j].contains("-o")){ insection == insection || QFile::exists(args[j+1]); }
-            else if(args[j].contains("-a")){ insection == insection && QFile::exists(args[j+1]); }
-            else{ insection = QFile::exists(args[j+1]); } //typically the first argument check
-            qDebug() << " - Now:" << insection;
-          } //end loop over existance arguments
-        }
-      }//end loop over lines
-      file.close();
-    }
-  }
+  loadRCdata();  
   //Now go through the list of services and report which ones are enabled
   for(int i=0; i<services.length(); i++){
     bool enabled = false;
-    if(data.contains(services[i].Tag)){ enabled = data.value(services[i].Tag)=="\"YES\""; }
+    if(rcdata.contains(services[i].Tag)){ enabled = rcdata.value(services[i].Tag)=="\"YES\""; }
     out << enabled;
   }
   return out;
@@ -103,14 +70,14 @@ void ServiceManager::Start(Service service)
     // Start the process
     QString prog;
     QStringList args;
-
+    bool once = !isEnabled(service);
     if ( chroot.isEmpty() ) {
       prog = "service";
       args << service.Directory;
       args << "start";
     } else {
       prog = "warden";
-      args << "chroot" << ip << "service" << service.Directory << "start";
+      args << "chroot" << ip << "service" << service.Directory << (once ? "one" : "" )+QString("start");
     }
     General::RunCommand(prog,args);
 }
@@ -120,14 +87,14 @@ void ServiceManager::Stop(Service service)
     // Start the process
     QString prog;
     QStringList args;
-
+    bool once = !isEnabled(service);
     if ( chroot.isEmpty() ) {
       prog = "service";
       args << service.Directory;
       args << "stop";
     } else {
       prog = "warden";
-      args << "chroot" << ip << "service" << service.Directory << "stop";
+      args << "chroot" << ip << "service" << service.Directory << (once ? "one" : "" )+QString("stop");
     }
     General::RunCommand(prog,args);
 }
@@ -136,14 +103,14 @@ void ServiceManager::Restart(Service service)
 {
     QString prog;
     QStringList args;
-
+    bool once = !isEnabled(service);
     if ( chroot.isEmpty() ) {
       prog = "service";
       args << service.Directory;
-      args << "restart";
+      args <<(once ? "one" : "" )+ QString("restart");
     } else {
       prog = "warden";
-      args << "chroot" << ip << "service" << service.Directory << "restart";
+      args << "chroot" << ip << "service" << service.Directory << (once ? "one" : "" )+QString("restart");
     }
     General::RunCommand(prog,args);
 }
@@ -250,4 +217,41 @@ Service ServiceManager::loadServices(QString name)
         }
     }
   return Service();
+}
+
+void ServiceManager::loadRCdata(){
+  //Read all the rc.conf files in highest-priority order
+  rcdata.clear();
+  QDir dir("/etc");
+  QStringList confs = dir.entryList(QStringList() << "rc.conf*", QDir::Files, QDir::Name | QDir::Reversed);
+  //qDebug() << "Conf file order:" << confs;
+  for(int i=0; i<confs.length(); i++){
+    QFile file(dir.absoluteFilePath(confs[i]));
+    if( file.open(QIODevice::ReadOnly) ){
+      //qDebug() << "Read File:" << confs[i];
+      bool insection = true;
+      QTextStream stream(&file);
+      while(!stream.atEnd()){
+        QString info = stream.readLine();
+        //qDebug() << "Read Line:" << info;
+        if(info.contains("=") && insection){
+          rcdata.insert(info.section("=",0,0).simplified(), info.section("=",1,-1));
+          //qDebug() << "Got data entry:" << info;
+        }else if(info.simplified()=="fi"){ 
+          insection= true;
+        }else if(info.simplified().startsWith("if [ ") ){
+          QStringList args = info.section("]",0,0).section("[",1,-1).split("\""); //odd numbers are files, even are arguments
+          for(int j=0; j<args.length()-1; j+=2){
+            //qDebug() << "Check if arguments:" << args[j] << args[j+1] << insection;
+            if(!args[j].contains("-e")){ insection = false; break; } //don't know how to handle this - skip section
+            if(args[j].contains("-o")){ insection == insection || QFile::exists(args[j+1]); }
+            else if(args[j].contains("-a")){ insection == insection && QFile::exists(args[j+1]); }
+            else{ insection = QFile::exists(args[j+1]); } //typically the first argument check
+            //qDebug() << " - Now:" << insection;
+          } //end loop over existance arguments
+        }
+      }//end loop over lines
+      file.close();
+    }
+  }
 }

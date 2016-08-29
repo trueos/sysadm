@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QList>
+#include <QHash>
 
 namespace sysadm{
 struct Service{
@@ -77,6 +78,10 @@ public:
 private:
     QList<Service> services;
     Service loadServices(QString service = ""); //Return struct is optional - only used for a single service search
+
+    QHash<QString, QString> rcdata; //rc.conf settings
+    void loadRCdata();
+
     QString chroot;
     QString ip;
 };
