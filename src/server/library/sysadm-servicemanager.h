@@ -16,6 +16,8 @@ struct Service{
     QString Name;
     QString Tag;
     QString Directory;
+    QString Path;
+    QString Description;
 };
 
 class ServiceManager
@@ -39,6 +41,12 @@ public:
      * @return returns the vector of services on the system
      */
     QList<Service> GetServices();
+
+    QList<bool> isRunning(QList<Service> services); //return list in the same order as the input list
+    bool isRunning(Service service); //single-item overload
+
+    QList<bool> isEnabled(QList<Service> services); //return list in the same order as the input list
+    bool isEnabled(Service service); //single-item overload
 
     /**
      * @brief Start starts a service

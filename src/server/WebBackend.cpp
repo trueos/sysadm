@@ -1004,11 +1004,15 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmServiceRequest(const QJsonVa
   sysadm::ServiceManager SMGR;
   if(action=="list_services"){
     QList<sysadm::Service> list = SMGR.GetServices();
+    QList<bool> listEnabled = SMGR.isEnabled(list);
     QJsonObject services;
     for(int i=0; i<list.length(); i++){
       QJsonObject S;
       S.insert("name", list[i].Name);
       S.insert("tag", list[i].Tag);
+      S.insert("path", list[i].Path);
+      S.insert("description", list[i].Description);
+      S.insert("is_enabled", listEnabled[i] ? "true" : "false" );
       //S.insert("filename", list[i].Directory);
       //Need to add status info as well (isRunning, isEnabled);
       services.insert(list[i].Name, S);

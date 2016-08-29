@@ -31,6 +31,73 @@ QList<Service> ServiceManager::GetServices()
     return services;
 }
 
+QList<bool> ServiceManager::isRunning(QList<Service> services){
+   //return list in the same order as the input list
+  QList<bool> out;
+  for(int i=0; i<services.length(); i++){
+    out << false; //TO-DO - need to figure out a way to detect process status
+  }
+  return out;
+}
+
+bool ServiceManager::isRunning(Service service){ //single-item overload
+  QList<bool> run = isRunning( QList<Service>() << service);
+  if(!run.isEmpty()){ return run.first(); }
+  else{ return false; }
+}
+
+QList<bool> ServiceManager::isEnabled(QList<Service> services){
+   //return list in the same order as the input list
+  QList<bool> out;
+  //Read all the rc.conf files in highest-priority order
+  QHash<QString, QString> data;
+  QDir dir("/etc");
+  QStringList confs = dir.entryList(QStringList() << "rc.conf*", QDir::Files, QDir::Name | QDir::Reversed);
+  qDebug() << "Conf file order:" << confs;
+  for(int i=0; i<confs.length(); i++){
+    QFile file(dir.absoluteFilePath(confs[i]));
+    if( file.open(QIODevice::ReadOnly) ){
+      qDebug() << "Read File:" << confs[i];
+      bool insection = true;
+      QTextStream stream(&file);
+      while(!stream.atEnd()){
+        QString info = stream.readLine();
+        //qDebug() << "Read Line:" << info;
+        if(info.contains("=") && insection){
+          data.insert(info.section("=",0,0).simplified(), info.section("=",1,-1));
+          qDebug() << "Got data entry:" << info;
+        }else if(info.simplified()=="fi"){ 
+          insection= true;
+        }else if(info.simplified().startsWith("if [ ") ){
+          QStringList args = info.section("]",0,0).section("[",1,-1).split("\""); //odd numbers are files, even are arguments
+          for(int j=0; j<args.length()-1; j+=2){
+            qDebug() << "Check if arguments:" << args[j] << args[j+1] << insection;
+            if(!args[j].contains("-e")){ insection = false; break; } //don't know how to handle this - skip section
+            if(args[j].contains("-o")){ insection == insection || QFile::exists(args[j+1]); }
+            else if(args[j].contains("-a")){ insection == insection && QFile::exists(args[j+1]); }
+            else{ insection = QFile::exists(args[j+1]); } //typically the first argument check
+            qDebug() << " - Now:" << insection;
+          } //end loop over existance arguments
+        }
+      }//end loop over lines
+      file.close();
+    }
+  }
+  //Now go through the list of services and report which ones are enabled
+  for(int i=0; i<services.length(); i++){
+    bool enabled = false;
+    if(data.contains(services[i].Tag)){ enabled = data.value(services[i].Tag)=="\"YES\""; }
+    out << enabled;
+  }
+  return out;
+}
+
+bool ServiceManager::isEnabled(Service service){ //single-item overload
+  QList<bool> use = isEnabled( QList<Service>() << service);
+  if(!use.isEmpty()){ return use.first(); }
+  else{ return false; }
+}
+
 void ServiceManager::Start(Service service)
 {
     // Start the process
@@ -120,7 +187,8 @@ Service ServiceManager::loadServices(QString name)
             if ( file.open( QIODevice::ReadOnly ) )
             {
                 valid=false;
-                service.Directory=directory[i];
+                service.Directory=directory[i]; //filename only
+                service.Path = dir+"/"+directory[i]; //full path w/ filename
                 QTextStream stream( &file );
                 stream.setCodec("UTF-8");
                 QString line;
@@ -158,6 +226,9 @@ Service ServiceManager::loadServices(QString name)
                         if ( service.Tag.indexOf("_enable") == -1 )
                             service.Tag=service.Tag + "_enable";
                         break;
+                    }
+                    if (line.simplified().startsWith("desc=")) {
+                      service.Description = line.section("=\"",1,-1).section("\"",0,0);
                     }
                 }
                 file.close();
