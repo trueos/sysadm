@@ -65,7 +65,7 @@ bool ServiceManager::isEnabled(Service service){ //single-item overload
   else{ return false; }
 }
 
-void ServiceManager::Start(Service service)
+bool ServiceManager::Start(Service service)
 {
     // Start the process
     QString prog;
@@ -79,10 +79,10 @@ void ServiceManager::Start(Service service)
       prog = "warden";
       args << "chroot" << ip << "service" << service.Directory << (once ? "one" : "" )+QString("start");
     }
-    General::RunCommand(prog,args);
+    return General::RunQuickCommand(prog,args);
 }
 
-void ServiceManager::Stop(Service service)
+bool ServiceManager::Stop(Service service)
 {
     // Start the process
     QString prog;
@@ -96,10 +96,10 @@ void ServiceManager::Stop(Service service)
       prog = "warden";
       args << "chroot" << ip << "service" << service.Directory << (once ? "one" : "" )+QString("stop");
     }
-    General::RunCommand(prog,args);
+    return General::RunQuickCommand(prog,args);
 }
 
-void ServiceManager::Restart(Service service)
+bool ServiceManager::Restart(Service service)
 {
     QString prog;
     QStringList args;
@@ -112,7 +112,7 @@ void ServiceManager::Restart(Service service)
       prog = "warden";
       args << "chroot" << ip << "service" << service.Directory << (once ? "one" : "" )+QString("restart");
     }
-    General::RunCommand(prog,args);
+    return General::RunQuickCommand(prog,args);
 }
 
 void ServiceManager::Enable(Service service)

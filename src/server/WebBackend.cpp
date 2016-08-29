@@ -1020,6 +1020,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmServiceRequest(const QJsonVa
     ok = true;
     out->insert("services",services);
   }
-
+  if(out->keys().isEmpty()){
+    if(ok){ out->insert("result","success"); }
+    else{ out->insert("error","error");
+  }
   return (ok ? RestOutputStruct::OK : RestOutputStruct::BADREQUEST);
 }

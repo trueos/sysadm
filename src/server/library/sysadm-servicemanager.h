@@ -53,17 +53,17 @@ public:
      * @brief Start starts a service
      * @param service the service to start
      */
-    void Start(Service service);
+    bool Start(Service service);
     /**
      * @brief Stop stops a service
      * @param service the service to stop
      */
-    void Stop(Service service);
+    bool Stop(Service service);
     /**
      * @brief Restart restarts a service
      * @param service the service to restart
      */
-    void Restart(Service service);
+    bool Restart(Service service);
 
     /**
      * @brief Enable enable a service
