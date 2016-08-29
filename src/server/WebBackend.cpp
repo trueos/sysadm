@@ -21,7 +21,7 @@
 #include "library/sysadm-zfs.h"
 #include "library/sysadm-pkg.h"
 #include "library/sysadm-users.h"
-
+#include "library/sysadm-servicemanager.h"
 
 
 #define DEBUG 0
@@ -89,6 +89,8 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
 
   // - User Manager
   out->insert("sysadm/users","read/write");
+  //- Service Manager
+  out->insert("sysadm/services","read/write");
 
   return RestOutputStruct::OK;
 }
@@ -141,6 +143,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmPkgRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="users"){
     return EvaluateSysadmUserRequest(IN.fullaccess, AUTHSYSTEM->userForToken(SockAuthToken), IN.args, out);
+  }else if(namesp=="sysadm" && name=="services"){
+    return EvaluateSysadmServiceRequest(IN.args, out);
   }else{
     return RestOutputStruct::BADREQUEST;
   }
@@ -988,6 +992,29 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUserRequest(bool allaccess, 
       out->insert(devs[i].section(":",0,0), devs[i].section(":",1,-1).simplified()); //<device>:<info>
     }
     ok = true;
+  }
+
+  return (ok ? RestOutputStruct::OK : RestOutputStruct::BADREQUEST);
+}
+
+// SERVICE MANAGER (sysadm/services)
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmServiceRequest(const QJsonValue in_args, QJsonObject *out){
+  bool ok = false;
+  QString action = in_args.toObject().value("action").toString();
+  sysadm::ServiceManager SMGR;
+  if(action=="list_services"){
+    QList<sysadm::Service> list = SMGR.GetServices();
+    QJsonObject services;
+    for(int i=0; i<list.length(); i++){
+      QJsonObject S;
+      S.insert("name", list[i].Name);
+      S.insert("tag", list[i].Tag);
+      //S.insert("filename", list[i].Directory);
+      //Need to add status info as well (isRunning, isEnabled);
+      services.insert(list[i].Name, S);
+    }
+    ok = true;
+    out->insert("services",services);
   }
 
   return (ok ? RestOutputStruct::OK : RestOutputStruct::BADREQUEST);

@@ -1,25 +1,33 @@
 #include "sysadm-servicemanager.h"
 #include "sysadm-general.h"
+
+#include <QFile>
+#include <QDir>
+
 using namespace sysadm;
 ServiceManager::ServiceManager(QString chroot, QString ip)
 {
     this->chroot = chroot;
     this->ip = ip;
-    loadServices();
+    //loadServices();
 }
 
 Service ServiceManager::GetService(QString serviceName)
 {
-    for(Service service : services)
-    {
-        if(service.Name == serviceName)
-            return service;
+  if(!services.isEmpty()){
+    for(int i=0; i<services.length(); i++){
+        if(services[i].Name == serviceName)
+            return services[i];
     }
-    return Service();
+  }else{
+    return loadServices(serviceName);
+  }
+  return Service(); //no service found
 }
 
-QVector<Service> ServiceManager::GetServices()
+QList<Service> ServiceManager::GetServices()
 {
+    if(services.isEmpty()){ loadServices(); }
     return services;
 }
 
@@ -83,7 +91,7 @@ void ServiceManager::Disable(Service service)
     General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"NO\"", -1);
 }
 
-void ServiceManager::loadServices()
+Service ServiceManager::loadServices(QString name)
 {
     QString tmp;
     bool valid;
@@ -101,10 +109,11 @@ void ServiceManager::loadServices()
         directory.setSorting( QDir::Name );
 
         if ( directory.count() == 0 )
-            return;
+            return Service();
 
         for (unsigned int i = 0; i < directory.count(); i++ )
         {
+	    if(!name.isEmpty() && directory[i]!=name){ continue; } //not the right service - go to the next one
             service = Service();
 
             QFile file( dir + "/" + directory[i] );
@@ -163,10 +172,11 @@ void ServiceManager::loadServices()
                     service.Tag = service.Directory + "_enable";
                 if ( service.Name.indexOf("$") == 0 )
                     service.Name = service.Directory;
-
+               if(!name.isEmpty() ){ return service; } //found the requested service - return it
                 services << service;
                 //qDebug() << "Added Service:" << cDir << service.Directory << service.Name << service.Tag;
             }
         }
     }
+  return Service();
 }

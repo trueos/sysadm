@@ -1,6 +1,9 @@
 #ifndef SERVICEMANAGER_H
 #define SERVICEMANAGER_H
-#include <QtCore>
+
+#include <QString>
+#include <QList>
+
 namespace sysadm{
 struct Service{
     Service()
@@ -35,7 +38,7 @@ public:
      * @brief GetServices getter for the vector of services
      * @return returns the vector of services on the system
      */
-    QVector<Service> GetServices();
+    QList<Service> GetServices();
 
     /**
      * @brief Start starts a service
@@ -64,8 +67,8 @@ public:
      */
     void Disable(Service service);
 private:
-    QVector<Service> services;
-    void loadServices();
+    QList<Service> services;
+    Service loadServices(QString service = ""); //Return struct is optional - only used for a single service search
     QString chroot;
     QString ip;
 };

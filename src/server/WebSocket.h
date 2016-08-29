@@ -92,7 +92,9 @@ private:
 	RestOutputStruct::ExitCode EvaluateSysadmPkgRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm User Mgmt API
 	RestOutputStruct::ExitCode EvaluateSysadmUserRequest(bool allaccess, QString user, const QJsonValue in_args, QJsonObject *out);
-	
+	// -- sysadm Service Manager API
+	RestOutputStruct::ExitCode EvaluateSysadmServiceRequest(const QJsonValue in_args, QJsonObject *out);
+
 private slots:
 	void sendReply(QString msg);
 	void checkConnection(); //see if the current connection is still open/valid
