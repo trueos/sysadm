@@ -1061,6 +1061,32 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmServiceRequest(const QJsonVa
       }
       out->insert("services_restarted", QJsonArray::fromStringList(success));
     }
+  }else if(action=="enable" && in_args.toObject().contains("services") ){
+    QJsonValue sval = in_args.toObject().value("services");
+    QStringList services;
+    if(sval.isString()){ services << sval.toString(); }
+    else if(sval.isArray()){ services = JsonArrayToStringList(sval.toArray()); }
+    if(!services.isEmpty()){
+      QStringList success;
+      ok = true;
+      for(int i=0; i<services.length(); i++){
+        if( SMGR.Enable( SMGR.GetService(services[i]) ) ){ success << services[i]; }
+      }
+      out->insert("services_enabled", QJsonArray::fromStringList(success));
+    }
+  }else if(action=="disable" && in_args.toObject().contains("services") ){
+    QJsonValue sval = in_args.toObject().value("services");
+    QStringList services;
+    if(sval.isString()){ services << sval.toString(); }
+    else if(sval.isArray()){ services = JsonArrayToStringList(sval.toArray()); }
+    if(!services.isEmpty()){
+      QStringList success;
+      ok = true;
+      for(int i=0; i<services.length(); i++){
+        if( SMGR.Disable( SMGR.GetService(services[i]) ) ){ success << services[i]; }
+      }
+      out->insert("services_disabled", QJsonArray::fromStringList(success));
+    }
   }
 
 
