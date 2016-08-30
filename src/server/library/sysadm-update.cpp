@@ -33,6 +33,8 @@ QJsonObject Update::checkUpdates(bool fast) {
   if(QFile::exists(UP_RBFILE)){
     retObject.insert("status","rebootrequired");
     if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //ensure the next fast update does a full check
+    //Also add the information on what updates are pending
+    retObject.insert("details", sysadm::General::readTextFile(UP_RBFILE).join("\n") );
     return retObject;
   }
   //Check if an update is currently running
@@ -58,15 +60,15 @@ QJsonObject Update::checkUpdates(bool fast) {
   int secs = fdt.secsTo(cdt);
   if(fast && (secs<43200) ){
     //Note: The "fast" check will only be used if the last full check was less than 12 hours earlier.
-    qDebug() << " - UseFast Re-read";
+    //qDebug() << " - UseFast Re-read";
     output = General::readTextFile(UP_UPFILE);
   }else if(secs<600 ){
     //Note: This will re-use the previous check if it was less than 10 minutes ago (prevent hammering servers from user checks)
-    qDebug() << " - Use Fast Re-read (failsafe -  less than 10 minute interval)";
+    //qDebug() << " - Use Fast Re-read (failsafe -  less than 10 minute interval)";
     output = General::readTextFile(UP_UPFILE);
   }else{	  
-    qDebug() << " - Run full check";
-    output = General::RunCommand("pc-updatemanager check").split("\n");
+    //qDebug() << " - Run full check";
+    //output = General::RunCommand("pc-updatemanager check").split("\n");
     output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
     General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
   }
@@ -119,6 +121,7 @@ QJsonObject Update::checkUpdates(bool fast) {
     // Update status that we have updates
     retObject.insert("status", "updatesavailable");
   }
+  retObject.insert("details", output.join("\n") ); //full details of the check for updates
   retObject.insert("last_check",QFileInfo(UP_UPFILE).lastModified().toString(Qt::ISODate) );
   return retObject;
 }
