@@ -1022,7 +1022,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmServiceRequest(const QJsonVa
   }
   if(out->keys().isEmpty()){
     if(ok){ out->insert("result","success"); }
-    else{ out->insert("error","error");
+    else{ out->insert("error","error"); }
   }
   return (ok ? RestOutputStruct::OK : RestOutputStruct::BADREQUEST);
 }
