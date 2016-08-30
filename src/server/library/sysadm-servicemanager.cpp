@@ -67,6 +67,7 @@ bool ServiceManager::isEnabled(Service service){ //single-item overload
 
 bool ServiceManager::Start(Service service)
 {
+    if(service.Directory.isEmpty()){ return false; }
     // Start the process
     QString prog;
     QStringList args;
@@ -84,6 +85,7 @@ bool ServiceManager::Start(Service service)
 
 bool ServiceManager::Stop(Service service)
 {
+    if(service.Directory.isEmpty()){ return false; }
     // Start the process
     QString prog;
     QStringList args;
@@ -101,6 +103,7 @@ bool ServiceManager::Stop(Service service)
 
 bool ServiceManager::Restart(Service service)
 {
+    if(service.Directory.isEmpty()){ return false; }
     QString prog;
     QStringList args;
     bool once = !isEnabled(service);
@@ -117,11 +120,13 @@ bool ServiceManager::Restart(Service service)
 
 void ServiceManager::Enable(Service service)
 {
+    if(service.Tag.isEmpty()){ return; }
     General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"YES\"", -1);
 }
 
 void ServiceManager::Disable(Service service)
 {
+    if(service.Tag.isEmpty()){ return; }
     General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"NO\"", -1);
 }
 

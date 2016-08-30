@@ -1019,7 +1019,50 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmServiceRequest(const QJsonVa
     }
     ok = true;
     out->insert("services",services);
+
+  }else if(action=="start" && in_args.toObject().contains("services") ){
+    QJsonValue sval = in_args.toObject().value("services");
+    QStringList services;
+    if(sval.isString()){ services << sval.toString(); }
+    else if(sval.isArray()){ services = JsonArrayToStringList(sval.toArray()); }
+    if(!services.isEmpty()){
+      QStringList success;
+      ok = true;
+      for(int i=0; i<services.length(); i++){
+        if( SMGR.Start( SMGR.GetService(services[i]) ) ){ success << services[i]; }
+      }
+      out->insert("services_started", QJsonArray::fromStringList(success));
+    }
+
+  }else if(action=="stop" && in_args.toObject().contains("services") ){
+    QJsonValue sval = in_args.toObject().value("services");
+    QStringList services;
+    if(sval.isString()){ services << sval.toString(); }
+    else if(sval.isArray()){ services = JsonArrayToStringList(sval.toArray()); }
+    if(!services.isEmpty()){
+      QStringList success;
+      ok = true;
+      for(int i=0; i<services.length(); i++){
+        if( SMGR.Stop( SMGR.GetService(services[i]) ) ){ success << services[i]; }
+      }
+      out->insert("services_stopped", QJsonArray::fromStringList(success));
+    }
+  }else if(action=="restart" && in_args.toObject().contains("services") ){
+    QJsonValue sval = in_args.toObject().value("services");
+    QStringList services;
+    if(sval.isString()){ services << sval.toString(); }
+    else if(sval.isArray()){ services = JsonArrayToStringList(sval.toArray()); }
+    if(!services.isEmpty()){
+      QStringList success;
+      ok = true;
+      for(int i=0; i<services.length(); i++){
+        if( SMGR.Restart( SMGR.GetService(services[i]) ) ){ success << services[i]; }
+      }
+      out->insert("services_restarted", QJsonArray::fromStringList(success));
+    }
   }
+
+
   if(out->keys().isEmpty()){
     if(ok){ out->insert("result","success"); }
     else{ out->insert("error","error"); }
