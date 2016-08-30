@@ -109,8 +109,9 @@ installed software packages.
     "args": {
         "last_check" : "<ISO date/time stamp>",
         "checkupdates": {
-            "status": "noupdates"
-        }
+            "status": "updatesavailable",
+            "details": "<updatedetails>"
+        },
     }
  }
 
@@ -136,8 +137,9 @@ installed software packages.
   "args": {
     "last_check" : "<ISO date/time stamp>",
     "checkupdates": {
-      "status": "noupdates"
-    }
+      "status": "updatesavailable",
+      "details": "<updatedetails>"
+    },
   },
   "id": "fooid",
   "name": "response",
