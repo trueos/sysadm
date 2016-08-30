@@ -287,6 +287,7 @@ QJsonObject Update::writeSettings(QJsonObject obj){
     info << keys[i]+": "+vals[i];
   }
   if( General::writeTextFile(UP_CONFFILE, info, true) ){
+    QProcess::startDetached("pc-updatemanager syncconf"); //sync up the config files as needed
     ret.insert("result","success");
   }else{
     ret.insert("result","error");

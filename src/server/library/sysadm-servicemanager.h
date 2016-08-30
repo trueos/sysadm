@@ -69,12 +69,12 @@ public:
      * @brief Enable enable a service
      * @param service the service to enable
      */
-    void Enable(Service service);
+   bool Enable(Service service);
     /**
      * @brief Disable disable a service
      * @param service the service to disable
      */
-    void Disable(Service service);
+    bool Disable(Service service);
 private:
     QList<Service> services;
     Service loadServices(QString service = ""); //Return struct is optional - only used for a single service search

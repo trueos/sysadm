@@ -1013,6 +1013,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmServiceRequest(const QJsonVa
       S.insert("path", list[i].Path);
       S.insert("description", list[i].Description);
       S.insert("is_enabled", listEnabled[i] ? "true" : "false" );
+      S.insert("is_running",SMGR.isRunning(list[i]) ? "true" : "false" );
       //S.insert("filename", list[i].Directory);
       //Need to add status info as well (isRunning, isEnabled);
       services.insert(list[i].Name, S);

@@ -35,7 +35,8 @@ QList<bool> ServiceManager::isRunning(QList<Service> services){
    //return list in the same order as the input list
   QList<bool> out;
   for(int i=0; i<services.length(); i++){
-    out << false; //TO-DO - need to figure out a way to detect process status
+    if(services[i].Directory.isEmpty()){ out << false; }
+    else{ out << sysadm::General::RunQuickCommand("service",QStringList() << services[i].Directory << "status"); }
   }
   return out;
 }
@@ -53,7 +54,7 @@ QList<bool> ServiceManager::isEnabled(QList<Service> services){
   //Now go through the list of services and report which ones are enabled
   for(int i=0; i<services.length(); i++){
     bool enabled = false;
-    if(rcdata.contains(services[i].Tag)){ enabled = rcdata.value(services[i].Tag)=="\"YES\""; }
+    if(rcdata.contains(services[i].Tag)){ enabled = rcdata.value(services[i].Tag)=="YES"; }
     out << enabled;
   }
   return out;
@@ -118,16 +119,16 @@ bool ServiceManager::Restart(Service service)
     return General::RunQuickCommand(prog,args);
 }
 
-void ServiceManager::Enable(Service service)
+bool ServiceManager::Enable(Service service)
 {
-    if(service.Tag.isEmpty()){ return; }
-    General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"YES\"", -1);
+    if(service.Tag.isEmpty()){ return false; }
+    return General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"YES\"", -1);
 }
 
-void ServiceManager::Disable(Service service)
+bool ServiceManager::Disable(Service service)
 {
-    if(service.Tag.isEmpty()){ return; }
-    General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"NO\"", -1);
+    if(service.Tag.isEmpty()){ return false; }
+    return General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"NO\"", -1);
 }
 
 Service ServiceManager::loadServices(QString name)
@@ -227,7 +228,14 @@ Service ServiceManager::loadServices(QString name)
 void ServiceManager::loadRCdata(){
   //Read all the rc.conf files in highest-priority order
   rcdata.clear();
-  QDir dir("/etc");
+  QStringList info = sysadm::General::RunCommand("sysrc -A").split("\n");
+  for(int i=0; i<info.length(); i++){
+    if(info[i].contains(": ")){
+      rcdata.insert( info[i].section(": ",0,0), info[i].section(": ",1,-1) );
+    }
+  }
+
+  /*QDir dir("/etc");
   QStringList confs = dir.entryList(QStringList() << "rc.conf*", QDir::Files, QDir::Name | QDir::Reversed);
   //qDebug() << "Conf file order:" << confs;
   for(int i=0; i<confs.length(); i++){
@@ -258,5 +266,5 @@ void ServiceManager::loadRCdata(){
       }//end loop over lines
       file.close();
     }
-  }
+  }*/
 }
