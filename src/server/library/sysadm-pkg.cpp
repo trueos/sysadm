@@ -231,6 +231,7 @@ while(found.isEmpty() && numtry<2){
     q_string = "SELECT origin FROM packages WHERE name = '"+searchterm+"' OR origin LIKE '%/"+searchterm+"'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
     if(!searchexcludes.isEmpty()){ q_string.append(" AND name NOT LIKE '%"+searchexcludes.join("%' AND name NOT LIKE '%")+"%'"); }
+    q_string.append(" COLLATE NOCASE"); // Case insensitive
     QSqlQuery query(q_string, DB);
     while(query.next()){
 	found << query.value("origin").toString(); //need the origin for later
