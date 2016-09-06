@@ -34,6 +34,10 @@ extensions = [
     'sphinx.ext.todo',
 ]
 
+# -- Options for automatic Figure numbering
+numfig = True
+numfig_secnum_depth = (2)
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
