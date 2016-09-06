@@ -1,5 +1,5 @@
 .. index:: configuration
-.. _SysAdm™ Client:
+.. _SysAdm Client:
 
 SysAdm™ Client
 **************
@@ -13,11 +13,16 @@ installed. SysAdm™ is built into TrueOS® and downloadable packages for
 other operating systems are available from the
 `SysAdm Website <https://sysadm.us/>`_.
 
-The following utilities have been removed from Control Panel as they are now available in the SysAdm™ client:
+.. note:: By default, SysAdm™ does not allow for remote access to the
+   system. Please review the SysAdm™ server handbook for instructions
+   on initializing the remote access elements of SysAdm™.
+
+A number of utilities have been removed from Control Panel as they are
+now available in the SysAdm™ client:
 
 **Application Management**
 
-* :ref:`AppCafe®`
+* :ref:`AppCafe`
 
 * :ref:`Update Manager`
 
@@ -37,27 +42,17 @@ The following utilities have been removed from Control Panel as they are now ava
 
 * :ref:`Life Preserver`
 
-The rest of this chapter provides an overview of the SysAdm™
-architecture, how to manage its secure connections, and how to use the
-client's built-in utilities.
+The rest of this handbook provides an overview of the SysAdm™ client
+and all of its functionality, beginning with AppCafe®.
 
 .. note:: Instructions for using the API in your own scripts can be
-   found in the `SysAdm™ API Reference <http://api.sysadm.us/>`_.
-
-SysAdm™ Overview
-================
-
-Managing Connections
-====================
-
-Configuring SysAdm™
-===================
+   found in the `SysAdm™ API Reference Guide <http://api.sysadm.us/>`_.
 
 .. index:: software, configuration, sysadm
-.. _AppCafe®:
+.. _AppCafe:
 
 AppCafe®
-=========
+========
 
 AppCafe® provides a graphical interface for installing and managing
 FreeBSD packages, which are pre-built applications that have been tested
@@ -306,11 +301,14 @@ The following steps occur automatically during an update:
 * Once the update is complete, the new boot environment, or updated
   snapshot, is added as the first entry in the boot menu and activated
   so that the system will boot into it, unless you pause the boot menu
-  and specify otherwise. A pop-up message will indicate that a reboot is required. You can either finish what you are
-  doing and reboot now into the upgraded snapshot, or ask the system to
-  remind you again at a later time. To configure the time of the next warning, click the "Next Reminder" drop-down menu where you can select 1, 5, 12, or 24 hours, 30 minutes, or never (for this login
-  session). Note that the system will not apply any more updates or allow you to start another manual update or install additional software using AppCafe®
-  until you reboot.
+  and specify otherwise. A pop-up message will indicate that a reboot is
+  required. You can either finish what you are doing and reboot now into
+  the upgraded snapshot, or ask the system to remind you again at a
+  later time. To configure the time of the next warning, click the "Next
+  Reminder" drop-down menu where you can select 1, 5, 12, or 24 hours,
+  30 minutes, or never (for this login session). Note that the system
+  will not apply any more updates or allow you to start another manual
+  update or install additional software using AppCafe® until you reboot.
   
 * The default ZFS layout used by TrueOS® ensures that when new boot
   environments are created, the :file:`/usr/local/`, :file:`/usr/home/`,
@@ -355,8 +353,11 @@ The "Latest Check" field indicates the date and time the system last
 checked for updates. To manually check for updates, click the "Check
 for Updates" button.
 
-The "Branches" tab of Update Manager provides a listing of available branches. In the example shown in
-  :numref:`Figure %s: Switching Branches <update3>`, this system is currently running the 10.2 branch and the upcoming 11.0 branch is available for selection.
+The "Branches" tab of Update Manager provides a listing of available
+branches. In the example shown in
+:numref:`Figure %s: Switching Branches <update3>`, this system is
+currently running the 10.2 branch and the upcoming 11.0 branch is
+available for selection.
 
 .. _update3:
 
@@ -382,9 +383,12 @@ This tab contains the following configurable options:
 
 * **Automatically perform updates:** when checked, the automatic
   updater will automatically keep your system and packages up-to-date.
-  You will know that an update has completed when the pop-up menu indicates that a reboot is needed to complete the update process. If you uncheck this box, an update will only occur when
-  You do not need to initiate updates manually. TrueOS® uses an automated updater that automatically checks for updates, no more than once per day, 20
-  minutes after a reboot and then every 24 hours.
+  You will know that an update has completed when the pop-up menu
+  indicates a reboot is needed to complete the update process. If you
+  uncheck this box, an update will only occur when you choose.
+  You are not required to initiate updates manually. TrueOS® uses an
+  automated updater that automatically checks for updates, no more than
+  once per day, 20 minutes after a reboot and then every 24 hours.
   
 * **Custom Package Repository:** if you have a custom package
   repository, check this box. This will activate the "URL" field so
@@ -414,12 +418,13 @@ previous PC-BSD® installation.
    previous PC-BSD® boot environment to copy over any configuration
    files you forgot to backup.
 
-To perform the installation to a new boot environment, start the
-TrueOS® installation as described in :ref:`Installing TrueOS®`. In the
-:ref:`System Selection Screen` select to install either a desktop or a
-server. When you press "Next", the pop-up screen shown in
-:numref:`Figure %s: Install to Boot Environment <upgrade1>` will
-appear.
+To perform the installation to a new boot environment, start the TrueOS®
+installation as described in the
+`TrueOS® Handbook <https://www.trueos.org/handbook/trueos.html>`_. In
+the `System Selection Screen <https://www.trueos.org/handbook/install.html#system-selection-screen>`_,
+select to install either a desktop or a server. Press :guilabel:`Next`
+to view the pop-up screen shown in
+:numref:`Figure %s: Install to Boot Environment <upgrade1>` will appear.
 
 .. _upgrade1:
 
@@ -442,14 +447,15 @@ instead show a summary as seen in
 
 Press "Next" to start the installation. Once the installation is
 complete, reboot the system and remove the installation media. The
-post-installation screens will run as described in
-:ref:`Post Installation Configuration and Installation Troubleshooting`
-so that you can configure the new installation.
+post-installation screens will run as described in the
+`Post Installation Configuration and Installation Troubleshooting <https://www.trueos.org/handbook/postinstall.html>`_
+section of the TrueOS® Handbook so you can configure the new installation.
 
-.. note:: When you get to the :ref:`Create a User Screen`, recreate the
-   primary user account using the same name you used on your PC-BSD®
-   system so that TrueOS® can associate the existing home directory
-   with that user. Once you have logged in, you can use
+.. note:: When you encounter the
+   `Create a User Screen <https://www.trueos.org/handbook/postinstall.html#create-a-user-screen>`_,
+   recreate the primary user account using the same name you used on
+   your PC-BSD® system so that TrueOS® can associate the existing home
+   directory with that user. Once you have logged in, you can use
    :ref:`User Manager` to recreate any other user accounts or to
    reassociate any PersonaCrypt accounts.
 
@@ -637,7 +643,8 @@ The "Standard" view allows you to configure the following:
 * **UID:** this value is greyed out as it is assigned by the operating
   system and cannot be changed after the user is created.
 
-* **Home Dir Path:** if you change the user's home directory, input the full path
+* **Home Dir Path:** if you change the user's home directory, input the
+  full path
 
 * **Shell Path:** if you change the user's default shell, input the
   full path to an installed shell. The paths for each installed shell
@@ -750,7 +757,8 @@ is still  worthless without the system it was paired with.
    important files stored on the PersonaCrypt device to another device
    or system.
 
-The "PersonaCrypt" tab can be used to initialize a PersonaCrypt device for any login user, **except** for the currently logged in user. In the
+The "PersonaCrypt" tab can be used to initialize a PersonaCrypt device
+for any login user, **except** for the currently logged in user. In the
 example shown in
 :numref:`Figure %s: Initialize PersonaCrypt Device <user5>`, a new user,
 named *dlavigne*, has been created and the entry for that user has been
@@ -762,7 +770,8 @@ clicked.
 
 Before a user is configured to use PersonaCrypt on a TrueOS® system, two
 buttons are available in the "PersonaCrypt" section of "Advanced Mode".
-Note that this section is hidden if the currently logged in user is selected. Also, if you have just created a user and do not see these
+Note that this section is hidden if the currently logged in user is
+selected. Also, if you have just created a user and do not see these
 options, click "Apply" then re-highlight the user to display these
 options:
 
@@ -813,13 +822,15 @@ The following options are now available:
   home directory to this system.
 
 Once a user has been initialized for PersonaCrypt on the system, their
-user account will no longer be displayed when :ref:`Logging In`
-**unless** their PersonaCrypt device is inserted. Once the USB device is
-inserted, the login screen will add an extra field, as seen in the
-example shown in Figure 4.8b.
+user account will no longer be displayed when logging in **unless**
+their PersonaCrypt device is inserted. Once the USB device is inserted,
+the login screen will add an extra field, as seen in the example shown
+in Figure 4.8b.
 
-.. note:: when stealth sessions have been configured, PersonaCrypt users will still be displayed in the login menu, even if
-   their USB device is not inserted. This is to allow those users the option to instead login using a stealth session.
+.. note:: When stealth sessions have been configured, PersonaCrypt
+   users will still be displayed in the login menu, even if their USB
+   device is not inserted. This is to allow those users the option to
+   instead login using a stealth session.
 
 In the field with the yellow padlock icon, input the password for the
 user account. In the field with the grey USB stick icon, input the
@@ -893,7 +904,8 @@ provides several benefits:
   Snapshots also provide a convenient way to access previous versions of
   files as you can browse to the point-in-time for the version of the
   file that you need. Life Preserver makes it easy to configure when
-  snapshots are taken and provides a built-in graphical browser for finding and restoring the files within a snapshot.
+  snapshots are taken and provides a built-in graphical browser for
+  finding and restoring the files within a snapshot.
 
 * Replication is an efficient way to keep the files on two systems in
   sync. With Life Preserver, the snapshots taken on the TrueOS® system
@@ -946,7 +958,8 @@ created will be lost.
 **Revert:** if you highlight a snapshot entry, this button and the
 drop-down menu next to it will activate. You can use the drop-down
 menu to specify which pool or dataset you would like to revert.
-**Be aware that a revert will overwrite the current contents of the selected pool or dataset to the point in time the snapshot was created.**
+**Be aware that a revert will overwrite the current contents of the
+selected pool or dataset to the point in time the snapshot was created.**
 This means that files changes that occurred after the snapshot was
 taken will be lost.
 
@@ -976,10 +989,10 @@ the snapshots must first meet the following requirements:
   SSH service.
 
 * If the backup server is running TrueOS® or PC-BSD®, you will need to
-  open TCP port 22 (SSH) using :ref:`Firewall Manager`. If the server
-  is running FreeBSD and a firewall has been configured, add a rule to
-  open this port in the firewall ruleset. FreeNAS® does not run a
-  firewall by default. Also, if there is a network firewall between
+  open TCP port 22 (SSH) using the :guilabel:`Firewall Manager`. If the
+  server is running FreeBSD and a firewall has been configured, add a
+  rule to open this port in the firewall ruleset. FreeNAS® does not run
+  a firewall by default. Also, if there is a network firewall between
   the TrueOS® system and the backup system, make sure it has a rule to
   allow SSH.
 
@@ -1240,26 +1253,36 @@ options provided by the Life Preserver GUI.
 
 **Table 10.10a: Command Line and GUI Equivalents** 
 
-+-------------------+-----------------------------------------------+----------------------------------------------------------------------------------------+
-| **Command Line**  | **GUI**                                       | **Description**                                                                        |
-+===================+===============================================+========================================================================================+
-| **cronsnap**      | "Snapshots" tab                               | schedule when snapshots occur and how long to keep them; the **stop** option can be    |
-|                   |                                               | used to disable snapshot creation                                                      |
-+-------------------+-----------------------------------------------+----------------------------------------------------------------------------------------+
-| **cronscrub**     | "Schedules" tab                               | schedule a ZFS scrub                                                                   |
-+-------------------+-----------------------------------------------+----------------------------------------------------------------------------------------+
-| **get**           | "Settings" tab                                | list Life Preserver options                                                            |
-+-------------------+-----------------------------------------------+----------------------------------------------------------------------------------------+
-| **replicate**     | "Replication" tab                             | used to list, add, and remove backup server; read the **help** for this command for    |
-|                   |                                               | examples                                                                               |
-+-------------------+-----------------------------------------------+----------------------------------------------------------------------------------------+
-| **set**           | "Settings" tab                                | configures Life Preserver options; read **help** for the list of configurable options  |
-+-------------------+-----------------------------------------------+----------------------------------------------------------------------------------------+
-| **snapshot**      | "Snapshots" tab                               | create and replicate a new ZFS snapshot; by default, snapshots are recursive, meaning  |
-|                   |                                               | that a snapshot is taken of every dataset within a pool                                |
-+-------------------+-----------------------------------------------+----------------------------------------------------------------------------------------+
-| **status**        |                                               | lists the last snapshot name and replication status                                    |
-+-------------------+-----------------------------------------------+----------------------------------------------------------------------------------------+
++------------------+-------------------+------------------------------------+
+| **Command Line** | **GUI**           | **Description**                    |
++==================+===================+====================================+
+| **cronsnap**     | "Snapshots" tab   | schedule when snapshots occur      |
+|                  |                   | and how long to keep them; the     |
+|                  |                   | **stop** option can be used to     |
+|                  |                   | disable snapshot creation          |
++------------------+-------------------+------------------------------------+
+| **cronscrub**    | "Schedules" tab   | schedule a ZFS scrub               |
++------------------+-------------------+------------------------------------+
+| **get**          | "Settings" tab    | list Life Preserver options        |
++------------------+-------------------+------------------------------------+
+| **replicate**    | "Replication" tab | used to list, add, and remove      |
+|                  |                   | backup server; read the **help**   |
+|                  |                   | for this command for examples      |
+|                  |                   |                                    |
++------------------+-------------------+------------------------------------+
+| **set**          | "Settings" tab    | configures Life Preserver options; |
+|                  |                   | read **help** for the list of      |
+|                  |                   | configurable options               |
++------------------+-------------------+------------------------------------+
+| **snapshot**     | "Snapshots" tab   | create and replicate a new ZFS     |
+|                  |                   | snapshot; by default, snapshots    |
+|                  |                   | are recursive, meaning that a      |
+|                  |                   | that a snapshot is taken of every  |
+|                  |                   | dataset within a pool              |
++------------------+-------------------+------------------------------------+
+| **status**       |                   | lists the last snapshot name and   |
+|                  |                   | replication status                 |
++------------------+-------------------+------------------------------------+
 
 .. _Restoring the Operating System:
 
@@ -1279,9 +1302,10 @@ installation as usual until you get to the screen shown in
 Before you can perform a restore, the network interface must be
 configured. Click the "network connectivity" icon (second from the
 left) in order to determine if the network connection was
-automatically detected. If it was not, refer to the instructions in
-:ref:`Network Manager` and make sure that networking is working
-before continuing.
+automatically detected. If it was not, refer to the instructions in the
+`Network Manager <https://www.trueos.org/handbook/using.html#network-manager>`_
+section of the TrueOS® handbook and make sure that networking is
+working before continuing.
 
 Once you are ready, click "Restore from Life-Preserver backup" and the
 "Next" button. This will start the Restore Wizard. In the screen shown
@@ -1299,14 +1323,22 @@ Click "Next" and the wizard will provide a summary of your selections.
 If correct, click "Finish"; otherwise, click "Back" to correct them.
 
 Once you click "Finish",
-Once the connection to the backup server succeeds, you will be able to select which host to restore. In the example shown in :numref:`Figure %s: Select the Host to Restore <restore4>`,
+Once the connection to the backup server succeeds, you will be able to
+select which host to restore. In the example shown in
+:numref:`Figure %s: Select the Host to Restore <restore4>`,
 only one host has been backed up to the replication server.
 
 .. _restore4:
 
 .. figure:: images/restore4.png
 
-After making your selection, click "Next". The restore wizard will provide a summary of which host it will restore from, the name of the user account
-associated with the replication, and the hostname of the target system. Click "Finish" and the installer will proceed to the :ref:`Disk Selection Screen`. At
-this point, you can click the "Customize" button to customize the disk options. However, in the screen shown in Figure 3.3h, the ZFS datasets will be greyed
-out as they will be recreated from the backup during the restore. Once you are finished with any customizations, click "Next" to perform the restore.
+After making your selection, click "Next". The restore wizard will
+provide a summary of which host it will restore from, the name of the
+user account associated with the replication, and the hostname of the
+target system. Click "Finish" and the installer will proceed to the
+`Disk Selection Screen <https://www.trueos.org/handbook/install.html#disk-selection-screen>`_.
+At this point, you can click the "Customize" button to customize the
+disk options. However, in the screen shown in Figure 3.3h, the ZFS
+datasets will be greyed out as they will be recreated from the backup
+during the restore. Once you are finished with any customizations, click
+"Next" to perform the restore.
