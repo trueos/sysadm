@@ -3,7 +3,7 @@
 Getting Started
 ===============
 
-Beginning with SysAdm™ is a relatively simple process. 
+Beginning with SysAdm™ is a relatively simple process.
 SysAdm™ files are currently available from the
 `github repository <https://github.com/trueos/sysadm>`_
 
@@ -12,7 +12,7 @@ SysAdm™ files are currently available from the
 Building SysAdm™
 ----------------
 
-Several Qt Modules are required before attempting to build 
+Several Qt Modules are required before attempting to build
 SysAdm™:
 
 .. code-block:: none
@@ -21,7 +21,7 @@ SysAdm™:
   Qt5 Concurrent (# pkg install qt5-concurrent)
   Qt5 Websockets (# pkg install qt5-websockets)
 
-Building the prototype version of SysAdm™ assumes you have access to 
+Building the prototype version of SysAdm™ assumes you have access to
 github.com.
 
 .. code-block:: none
@@ -36,7 +36,7 @@ github.com.
 Starting SysAdm™
 ----------------
 
-SysAdm™ can be started one of two ways: the traditional rc(8) 
+SysAdm™ can be started one of two ways: the traditional rc(8)
 mechanism or using the new jobd(8) mechanism
 
 To run under rc(8)
@@ -51,7 +51,6 @@ To run under rc(8)
  % sudo sysrc -f /etc/rc.conf sysadm_rest_enable="YES"
  % sudo service sysadm-rest start
 
-
 To run under jobd(8)
 
 .. code-block:: none
@@ -61,6 +60,15 @@ To run under jobd(8)
 
  (Optional for REST)
  % sudo jobctl org.pcbsd.sysadm-rest enable
+
+.. danger:: Several ports on the system firewall will need to be opened
+   for SysAdm™ to have remote access functionality:
+   
+   * Port 12149 for WebSocket interaction.
+   * Port 12150 for the REST interface.
+   * Port 12151 for the SysAdm™ bridge server.
+   
+   The user can also designate their own ports for SysAdm™.
 
 .. _bridge init:
 
@@ -75,7 +83,7 @@ process for a new user to configure their client to communicate with the
 now configured server and bridge.
 
 .. tip:: A list of current commands is available by typing :command:`-h`
-          after the utility name (Example: :command:`sysadm-bridge -h`).
+   after the utility name (Example: :command:`sysadm-bridge -h`).
 
 .. _serverbridge init:
 
@@ -87,9 +95,9 @@ To initialize the server and bridge, begin with the server. Run
 This will export the public SSL key the server uses to authenticate with
 the bridge.
 
-.. note:: For both server and client, give SSL key files an easy to 
-          remember name and location to simplify the process of 
-          finding those files for import to the bridge.
+.. note:: For both server and client, give SSL key files an easy to
+   remember name and location to simplify the process of finding those
+   files for import to the bridge.
 
 Now, we must transition to the bridge to import the server key. Login to
 the bridge as the administrator (or root), then type
@@ -98,8 +106,8 @@ replacing <filename> and <filepath> with the server key filename and
 location. Once the server key file is successfully imported, start the
 bridge (if not already running).
 
-.. tip:: The bridge can import SSL files whether it is active or not 
-          with no negative effects.
+.. tip:: The bridge can import SSL files regardless of its active state
+   with no negative effects.
 
 Back on the server, run :command:`sudo sysadm-binary bridge_add <nickname> <URL>`
 to point the server at the bridge. A bridge runs on **port 12149** by
@@ -117,8 +125,8 @@ Adding a Client to the Server/Bridge Connection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. danger:: If you have an old SSL bundle from a pre-alpha version of
-          SysAdm created before June 2016, it will need to be removed
-          prior to proceeding with the client initialization process.
+   SysAdm™ created before June 2016, it will need to be removed prior to
+   proceeding with the client initialization process.
 
 In the client UI, create or import an SSL key bundle as prompted by the
 UI. Once the new SSL keys are created, open
@@ -147,10 +155,3 @@ in the menu tree with a different icon, and will have a sub-menu of
 connections within it. Click on the bridged system to will open the
 standard UI, but note the connection is still being relayed through the
 bridge.
-
-.. _adddoc:
-
-Additional Documentation
-------------------------
-
-API documentation can be found at https://api.sysadm.us/.
