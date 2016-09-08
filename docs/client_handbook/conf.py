@@ -120,6 +120,17 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
+#Option to add text substitutions to all .rst files being built.
+rst_prolog = """
+.. |freenas| replace:: FreeNAS"""u'\u00AE'"""
+.. |truenas| replace:: TrueNAS"""u'\u00AE'"""
+.. |pcbsd| replace:: PC-BSD"""u'\u00AE'"""
+.. |trueos| replace:: TrueOS"""u'\u00AE'"""
+.. |appcafe| replace:: AppCafe"""u'\u00AE'"""
+.. |lumina| replace:: Lumina"""u'\u00AE'"""
+.. |sysadm| replace:: SysAdm"""u'\u2122'"""
+"""
+
 # -- Option to change :menuselection: arrow -----------------------------
 
 from docutils import nodes, utils
