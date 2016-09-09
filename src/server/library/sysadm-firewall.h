@@ -8,7 +8,7 @@
 #define PORTLOOKUP_H
 #include <QtCore>
 #include <tuple>
-#include "sysadm-servicemanager.h"
+
 namespace sysadm
 {
 struct PortInfo{
@@ -52,6 +52,10 @@ public:
      * @ErrorConditions Port Number is set to -1 and a description of the error is stored in the description variable
      */
     PortInfo LookUpPort(int number, QString type);
+
+    //Return all the known ports
+    QList<PortInfo> allPorts();
+
     /**
      * @brief Opens a port
      * @param number a port number between 0 and 2^16 -1
@@ -63,7 +67,7 @@ public:
      * @brief Opens a set of ports
      * @param ports a vector of ports to open
      */
-    void OpenPort(QVector<PortInfo> ports);
+    void OpenPort(QList<PortInfo> ports);
 
     /**
      * @brief ClosePort closes a port
@@ -76,14 +80,14 @@ public:
      * @brief ClosePort closes a set of ports
      * @param ports a vector of ports to close
      */
-    void ClosePort(QVector<PortInfo> ports);
+    void ClosePort(QList<PortInfo> ports);
 
     /**
      * @brief finds a list of ports that are open gets the info about them
      * and returns them
      * @return a QVector of the open ports
      */
-    QVector<PortInfo> OpenPorts();
+    QList<PortInfo> OpenPorts();
     ///#endsection
 
     ///#section: firewall commands
@@ -120,16 +124,11 @@ public:
 
 private:
     void readServicesFile();
-    QStringList* portStrings;
+    QStringList portStrings;
 
-    QVector<PortInfo> openports;
+    QList<PortInfo> LoadOpenPorts();
+    void SaveOpenPorts(QList<PortInfo> ports);
 
-    void LoadOpenPorts();
-    void SaveOpenPorts();
-
-    ServiceManager serviceManager;
-    Service firewallService;
 };
 }
 #endif // PORTLOOKUP_H
-

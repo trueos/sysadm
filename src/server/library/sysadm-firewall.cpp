@@ -5,27 +5,26 @@
 //  See the LICENSE file for full details
 
 #include "sysadm-firewall.h"
+#include "sysadm-servicemanager.h"
 #include "sysadm-general.h"
+
 #include <QtCore>
 #include <algorithm>
 
 using namespace sysadm;
 
-Firewall::Firewall()
-{
-    readServicesFile();
-    LoadOpenPorts();
+Firewall::Firewall(){
 
-    firewallService = serviceManager.GetService("ipfw");
 }
 
-Firewall::~Firewall()
-{
-    delete portStrings;
+Firewall::~Firewall(){
+
 }
 
 PortInfo Firewall::LookUpPort(int port, QString type)
 {
+
+
     //Make sure that the port is valid
     if (port < 0 || port > 65535)
     {
@@ -35,10 +34,7 @@ PortInfo Firewall::LookUpPort(int port, QString type)
         return returnValue;
     }
 
-    //Check to see if things have been initialized
-    if(portStrings == NULL)
-        readServicesFile();
-
+    if(portStrings.isEmpty()){ readServicesFile(); }
 
     PortInfo returnValue;
     //the port number is valid so set it
@@ -63,7 +59,7 @@ PortInfo Firewall::LookUpPort(int port, QString type)
    //Check to see if the port number is listed. The format in the file
    // is portname/portType. ex.: 22/tcp
 
-   QStringList portList = portStrings->filter(QString::number(port) + "/" + type);
+   QStringList portList = portStrings.filter( QRegExp("\\s"+QString::number(port)+"/"+type+"\\s") );
    if(portList.size() > 0)
    {
        //grab the first one, there may be duplicates due to colliding ports in the /etc/services file
@@ -77,15 +73,8 @@ PortInfo Firewall::LookUpPort(int port, QString type)
        returnValue.Keyword = lineList.at(0);
 
        //if the size of the list is less than 3 then there is no description
-       if(lineList.size() > 2)
-       {
-           QString description = lineList.at(2);
-           //String the description back together from the end of the list
-           for(int i = 3; i < lineList.size(); i++)
-           {
-               description += " " + lineList.at(i);
-           }
-           returnValue.Description = description;
+       if(lineList.size() > 2){
+           returnValue.Description = lineList.mid(2,-1).join(" ");
        }
    }
 
@@ -93,40 +82,64 @@ PortInfo Firewall::LookUpPort(int port, QString type)
 
 }
 
-void Firewall::OpenPort(int port, QString type)
-{
-    openports.append(LookUpPort(port,type));
-    SaveOpenPorts();
+
+QList<PortInfo> Firewall::allPorts(){
+  if(portStrings.isEmpty()){ readServicesFile(); }
+  QList<PortInfo> output;
+  for(int i=0; i<portStrings.length(); i++){
+    //Line Format (9/9/16): "<keyword><bunch of whitespace><port>/<type><whitespace><description>
+    QStringList line = portStrings[i].split(" ", QString::SkipEmptyParts);
+    if(line.length()<2){ continue; } //invalid line
+    PortInfo info;
+    info.Keyword = line[0];
+    info.Port = line[1].section("/",0,0).toInt();
+    info.Type = line[1].section("/",1,1).toInt();
+    if(line.length()>2){
+      info.Description = line.mid(2,-1).join(" ");
+    }
+    output << info;
+  }
+  return output;
 }
 
-void Firewall::OpenPort(QVector<PortInfo> ports)
+
+void Firewall::OpenPort(int port, QString type)
 {
+    QList<PortInfo> openports = LoadOpenPorts();
+      openports.append(LookUpPort(port,type));
+    SaveOpenPorts(openports);
+}
+
+void Firewall::OpenPort(QList<PortInfo> ports)
+{
+   QList<PortInfo> openports = LoadOpenPorts();
     for(PortInfo port : ports)
     {
         openports.append(port);
     }
-    SaveOpenPorts();
+    SaveOpenPorts(openports);
 }
 
 void Firewall::ClosePort(int port, QString type)
 {
+    QList<PortInfo> openports = LoadOpenPorts();
     openports.removeAll(LookUpPort(port,type));
-    SaveOpenPorts();
+    SaveOpenPorts(openports);
 }
 
-void Firewall::ClosePort(QVector<PortInfo> ports)
+void Firewall::ClosePort(QList<PortInfo> ports)
 {
+    QList<PortInfo> openports = LoadOpenPorts();
     for(PortInfo port : ports)
     {
         openports.removeAll(port);
     }
-    SaveOpenPorts();
+    SaveOpenPorts(openports);
 }
 
-QVector<PortInfo> Firewall::OpenPorts()
+QList<PortInfo> Firewall::OpenPorts()
 {
-    return openports;
-
+    return LoadOpenPorts();
 }
 
 bool Firewall::IsRunning()
@@ -136,90 +149,69 @@ bool Firewall::IsRunning()
 
 void Firewall::Start()
 {
-    serviceManager.Enable(firewallService);
-    serviceManager.Start(firewallService);
+    ServiceManager serviceManager;
+    serviceManager.Start( serviceManager.GetService("ipfw") );
 }
 
 void Firewall::Stop()
 {
-    serviceManager.Enable(firewallService);
-    serviceManager.Stop(firewallService);
+    ServiceManager serviceManager;
+    serviceManager.Stop( serviceManager.GetService("ipfw") );
 }
 
 void Firewall::Restart()
 {
-    serviceManager.Enable(firewallService);
-    serviceManager.Restart(firewallService);
+    ServiceManager serviceManager;
+    serviceManager.Restart( serviceManager.GetService("ipfw") );
 }
 
 void Firewall::Enable()
 {
-    serviceManager.Enable(firewallService);
+    ServiceManager serviceManager;
+    serviceManager.Enable( serviceManager.GetService("ipfw") );
 }
 
 void Firewall::Disable()
 {
-    serviceManager.Disable(firewallService);
+    ServiceManager serviceManager;
+    serviceManager.Disable( serviceManager.GetService("ipfw") );
 }
 
 void Firewall::RestoreDefaults()
 {
-    const QString ipfwrules = "/etc/ipfw.rules";
-    const QString ipfwrulesprevious = ipfwrules + ".previous";
-
-    const QString ipfwopenports = "/etc/ipfw.openports";
-    const QString ipfwopenportsprevious = ipfwopenports + ".previous";
-
-    //QFile has a rename command that acts like move, however it won't
-    //clobber a file if it already exists, so we have to check if there
-    //already is a .previous and if so delete it before moving the file
-    //to .previous
-
-    //move the files out of the way
-    if(QFile::exists(ipfwrulesprevious))
-        QFile::remove(ipfwrulesprevious);
-    QFile::rename(ipfwrules,ipfwrulesprevious);
-
-    if(QFile::exists(ipfwopenportsprevious))
-        QFile::remove(ipfwopenportsprevious);
-    QFile::rename(ipfwopenports,ipfwopenportsprevious);
-
-
+  if(QFile::exists("/usr/local/share/trueos/scripts/reset-firewall")){
     //refresh/restart the rules files
     QStringList args;
-    args << "/usr/local/share/pcbsd/scripts/reset-firewall";
+    args << "/usr/local/share/trueos/scripts/reset-firewall";
     General::RunCommand("sh",args);
-
-    LoadOpenPorts();
+  }
 }
 
 void Firewall::readServicesFile()
 {
-    portStrings = new QStringList();
+    portStrings.clear();
 
     // /etc/services contains a file that lists the various port numbers
     // and their descriptions
-    QFile* services = new QFile("/etc/services");
-    services->open(QFile::ReadOnly);
-    while(!services->atEnd())
-    {
-        QString line = services->readLine();
-        //jump down past the comments
-        if(line[0] == '#' || line.simplified().isEmpty())
-            continue;
-
-        //remove all of the extraneous whitespace in the line
-        line = line.simplified();
-
-        portStrings->append(line);
+    QFile services("/etc/services");
+    if(services.open(QFile::ReadOnly) ){
+      QTextStream stream(&services);
+      while(!stream.atEnd()){
+        QString line = stream.readLine().simplified();;
+        //jump down past the comments or empty lines
+        if(line.startsWith("#") || line.isEmpty()){ continue; }
+        //Skip any non-[tcp/udp] port types
+        if( !line.contains("/tcp") && !line.contains("/udp") ){ continue; }
+        line = line.replace("\t"," "); //uses a weird mixture of spaces and tabs for separation - just use spaces instead
+        portStrings << line;
+      }
+      services.close();
     }
-    services->close();
-    delete services;
 }
 
-void Firewall::LoadOpenPorts()
+QList<PortInfo> Firewall::LoadOpenPorts()
 {
-  openports.clear();
+  QList<PortInfo> openports;
   QFile file("/etc/ipfw.openports");
   if( file.open(QIODevice::ReadOnly) ){
     QTextStream in(&file);
@@ -227,20 +219,22 @@ void Firewall::LoadOpenPorts()
       QString line = in.readLine();
       if(line.startsWith("#") || line.simplified().isEmpty()){ continue; }
       //File format: "<type> <port>" (nice and simple)
-      openports.append(LookUpPort(line.section(" ",1,1).toInt(),line.section(" ",0,0)));
+      openports << LookUpPort(line.section(" ",1,1).toInt(),line.section(" ",0,0));
     }
     file.close();
   }
   //order them in ascending order by port then port type
   std::sort(openports.begin(),openports.end());
+  
 }
 
-void Firewall::SaveOpenPorts()
+void Firewall::SaveOpenPorts(QList<PortInfo> openports)
 {
     //Convert to file format
       std::sort(openports.begin(), openports.end()); //make sure they are still sorted by port
       QStringList fileout;
       for(PortInfo port : openports){
+        if(port.Port<0){ continue; } //invalid port
         fileout.append("#" + port.Keyword + ": " + port.Description + "\n" +
                    port.Type +" "+QString::number(port.Port));
       }
@@ -261,4 +255,3 @@ void Firewall::SaveOpenPorts()
           General::RunCommand("sh",args);
       }
 }
-
