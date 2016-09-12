@@ -1130,6 +1130,12 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmFirewallRequest(const QJsonV
       oports << QString::number(all[i].Port)+"/"+all[i].Type;
     }
     out->insert("openports", QJsonArray::fromStringList(oports));
+
+  }else if(action=="status"){
+    ok = true;
+    out->insert("is_running", FMGR.IsRunning() ? "true" : "false" );
+    out->insert("is_enabled", FMGR.IsEnabled() ? "true" : "false" );
+
   }
 
 

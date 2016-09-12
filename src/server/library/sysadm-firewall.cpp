@@ -147,6 +147,11 @@ bool Firewall::IsRunning()
     return General::sysctlAsInt("net.inet.ip.fw.enable") == 1;
 }
 
+bool Firewall::IsEnabled(){
+    ServiceManager serviceManager;
+    return serviceManager.isEnabled( serviceManager.GetService("ipfw") );
+}
+
 void Firewall::Start()
 {
     ServiceManager serviceManager;

@@ -96,6 +96,7 @@ public:
      * @return true if the firewall is running, false if not
      */
     bool IsRunning();
+    bool IsEnabled();
     /**
      * @brief Starts the firewall
      */
