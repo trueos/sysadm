@@ -1153,6 +1153,23 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmFirewallRequest(const QJsonV
       FMGR.OpenPort(P);
     }
 
+  }else if(action=="close" && in_args.toObject().contains("ports")){
+    //REQUIRED: "ports" = [<num>/<type>, <num2>/<type2>, etc..]
+    QJsonValue val = in_args.toObject().value("ports");
+    QStringList ports;
+    QList<sysadm::PortInfo> P;
+    if(val.isString()){ ports << val.toString(); }
+    else if(val.isArray()){ ports = JsonArrayToStringList(val.toArray()); }
+    for(int i=0; i<ports.length(); i++){
+      sysadm::PortInfo info = FMGR.LookUpPort(ports[i].section("/",0,0).toInt(), ports[i].section("/",1,1));
+      if(info.Port<0 || (info.Type!="tcp" && info.Type!="udp") ){ continue; }
+      P << info;
+    }
+    if(!P.isEmpty()){
+      ok = true;
+      FMGR.ClosePort(P);
+    }
+
   }
 
 
