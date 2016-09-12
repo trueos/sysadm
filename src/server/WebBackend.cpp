@@ -1121,6 +1121,15 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmFirewallRequest(const QJsonV
         }
       out->insert(obj.value("port").toString(), obj); //use the port number/type as the unique identifier
     }
+
+  }else if(action=="list_open"){
+    ok = true;
+    QList<sysadm::PortInfo> all = FMGR.OpenPorts(); //this is all ports currently opened
+    QStringList oports;
+    for(int i=0; i<all.length(); i++){
+      oports << QString::number(all[i].Port)+"/"+all[i].Type;
+    }
+    out->insert("openports", QJsonArray::fromStringList(oports));
   }
 
 

@@ -211,6 +211,7 @@ void Firewall::readServicesFile()
 
 QList<PortInfo> Firewall::LoadOpenPorts()
 {
+  //qDebug() << "Read open ports";
   QList<PortInfo> openports;
   QFile file("/etc/ipfw.openports");
   if( file.open(QIODevice::ReadOnly) ){
@@ -219,13 +220,13 @@ QList<PortInfo> Firewall::LoadOpenPorts()
       QString line = in.readLine();
       if(line.startsWith("#") || line.simplified().isEmpty()){ continue; }
       //File format: "<type> <port>" (nice and simple)
-      openports << LookUpPort(line.section(" ",1,1).toInt(),line.section(" ",0,0));
+      //qDebug() << "Found Port:" << line;
+      openports << LookUpPort(line.section(" ",1,1).toInt() ,line.section(" ",0,0));
     }
     file.close();
   }
-  //order them in ascending order by port then port type
-  std::sort(openports.begin(),openports.end());
-  
+  //qDebug() << "Finished with open ports";
+  return openports;
 }
 
 void Firewall::SaveOpenPorts(QList<PortInfo> openports)
