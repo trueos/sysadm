@@ -22,7 +22,7 @@
 #include "library/sysadm-pkg.h"
 #include "library/sysadm-users.h"
 #include "library/sysadm-servicemanager.h"
-
+#include "library/sysadm-firewall.h"
 
 #define DEBUG 0
 //#define SCLISTDELIM QString("::::") //SysCache List Delimiter
@@ -91,6 +91,8 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   out->insert("sysadm/users","read/write");
   //- Service Manager
   out->insert("sysadm/services","read/write");
+  // - Firewall Manager
+  out->insert("sysadm/firewall","read/write");
 
   return RestOutputStruct::OK;
 }
@@ -145,6 +147,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmUserRequest(IN.fullaccess, AUTHSYSTEM->userForToken(SockAuthToken), IN.args, out);
   }else if(namesp=="sysadm" && name=="services"){
     return EvaluateSysadmServiceRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="firewall"){
+    return EvaluateSysadmFirewallRequest(IN.args, out);
   }else{
     return RestOutputStruct::BADREQUEST;
   }
@@ -1090,6 +1094,37 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmServiceRequest(const QJsonVa
   }
 
 
+  if(out->keys().isEmpty()){
+    if(ok){ out->insert("result","success"); }
+    else{ out->insert("error","error"); }
+  }
+  return (ok ? RestOutputStruct::OK : RestOutputStruct::BADREQUEST);
+}
+
+// FIREWALL MANAGER (sysadm/firewall)
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmFirewallRequest(const QJsonValue in_args, QJsonObject *out){
+ bool ok = false;
+  QString action = in_args.toObject().value("action").toString();
+  sysadm::Firewall FMGR;
+  //Now perform actions as needed
+  if(action=="known_ports"){
+    ok = true;
+    QList<sysadm::PortInfo> all = FMGR.allPorts(); //this is all known ports (number/type, name, description) - it does not know about open/closed
+    for(int i=0; i<all.length(); i++){
+      QJsonObject obj;
+        obj.insert("name",all[i].Keyword);
+        obj.insert("port", QString::number(all[i].Port)+"/"+all[i].Type);
+        if(all[i].Description.isEmpty() && i>0 && (all[i-1].Keyword == all[i].Keyword) ){
+          obj.insert("description", all[i-1].Description);
+        }else{
+          obj.insert("description", all[i].Description);
+        }
+      out->insert(obj.value("port").toString(), obj); //use the port number/type as the unique identifier
+    }
+  }
+
+
+  //Evaluate outputs
   if(out->keys().isEmpty()){
     if(ok){ out->insert("result","success"); }
     else{ out->insert("error","error"); }

@@ -93,7 +93,7 @@ QList<PortInfo> Firewall::allPorts(){
     PortInfo info;
     info.Keyword = line[0];
     info.Port = line[1].section("/",0,0).toInt();
-    info.Type = line[1].section("/",1,1).toInt();
+    info.Type = line[1].section("/",1,1);
     if(line.length()>2){
       info.Description = line.mid(2,-1).join(" ");
     }
