@@ -256,10 +256,9 @@ void Firewall::SaveOpenPorts(QList<PortInfo> openports)
         file.close();
       }
       //Re-load/start rules (just in case - it is a smart script)
-      if(IsRunning())
-      {
-          QStringList args;
+      if(IsRunning()){ Restart(); }
+         /* QStringList args;
           args << "/usr/local/share/pcbsd/scripts/reset-firewall";
           General::RunCommand("sh",args);
-      }
+      }*/
 }

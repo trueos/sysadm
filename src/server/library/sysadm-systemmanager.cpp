@@ -257,7 +257,7 @@ QJsonObject SysMgmt::memoryStats() {
 QJsonObject SysMgmt::procInfo() {
   QJsonObject retObject;
   QStringList output;
-  output = General::RunCommand("top -t -n all").split("\n");
+  output = General::RunCommand("top -t -n -a all").split("\n");
   bool inSection = false;
   for(int i=0; i<output.length(); i++){
     if (output.at(i).contains("PID") && output.at(i).contains("USERNAME")){
