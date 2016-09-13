@@ -283,7 +283,7 @@ QJsonObject SysMgmt::procInfo() {
     values.insert("cpu", line.section(" ", 8, 8));
     values.insert("time", line.section(" ", 9, 9));
     values.insert("wcpu", line.section(" ", 10, 10));
-    values.insert("command", line.section(" ", 11, 11));
+    values.insert("command", line.section(" ", 11, -1));
 
     // Add the PID object
     retObject.insert(pid, values);
