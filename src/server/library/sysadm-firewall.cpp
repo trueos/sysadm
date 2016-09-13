@@ -148,8 +148,7 @@ bool Firewall::IsRunning()
 }
 
 bool Firewall::IsEnabled(){
-    ServiceManager serviceManager;
-    return serviceManager.isEnabled( serviceManager.GetService("ipfw") );
+  return (0 == system("sysrc -c firewall_enable=\"YES\"") );
 }
 
 void Firewall::Start()
