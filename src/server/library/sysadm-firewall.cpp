@@ -148,8 +148,7 @@ bool Firewall::IsRunning()
 }
 
 bool Firewall::IsEnabled(){
-    ServiceManager serviceManager;
-    return serviceManager.isEnabled( serviceManager.GetService("ipfw") );
+  return (0 == system("sysrc -c firewall_enable=\"YES\"") );
 }
 
 void Firewall::Start()
@@ -256,10 +255,9 @@ void Firewall::SaveOpenPorts(QList<PortInfo> openports)
         file.close();
       }
       //Re-load/start rules (just in case - it is a smart script)
-      if(IsRunning())
-      {
-          QStringList args;
+      if(IsRunning()){ Restart(); }
+         /* QStringList args;
           args << "/usr/local/share/pcbsd/scripts/reset-firewall";
           General::RunCommand("sh",args);
-      }
+      }*/
 }

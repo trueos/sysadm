@@ -257,7 +257,7 @@ QJsonObject SysMgmt::memoryStats() {
 QJsonObject SysMgmt::procInfo() {
   QJsonObject retObject;
   QStringList output;
-  output = General::RunCommand("top -t -n all").split("\n");
+  output = General::RunCommand("top -t -n -a all").split("\n");
   bool inSection = false;
   for(int i=0; i<output.length(); i++){
     if (output.at(i).contains("PID") && output.at(i).contains("USERNAME")){
@@ -283,7 +283,7 @@ QJsonObject SysMgmt::procInfo() {
     values.insert("cpu", line.section(" ", 8, 8));
     values.insert("time", line.section(" ", 9, 9));
     values.insert("wcpu", line.section(" ", 10, 10));
-    values.insert("command", line.section(" ", 11, 11));
+    values.insert("command", line.section(" ", 11, -1));
 
     // Add the PID object
     retObject.insert(pid, values);
