@@ -1170,6 +1170,26 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmFirewallRequest(const QJsonV
       FMGR.ClosePort(P);
     }
 
+  }else if(action=="start"){
+    ok = true;
+    FMGR.Start();
+
+  }else if(action=="stop"){
+    ok = true;
+    FMGR.Stop();
+
+  }else if(action=="restart"){
+    ok = true;
+    FMGR.Restart();
+
+  }else if(action=="enable"){
+    ok = true;
+    FMGR.Enable();
+
+  }else if(action=="disable"){
+    ok = true;
+    FMGR.Disable();
+
   }
 
 
