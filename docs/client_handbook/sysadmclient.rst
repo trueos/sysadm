@@ -1,5 +1,5 @@
 .. index:: configuration
-.. _SysAdm Client:
+.. _SysAdm™ Client:
 
 SysAdm™ Client
 **************
@@ -22,7 +22,7 @@ now available in the |sysadm| client:
 
 **Application Management**
 
-* :ref:`AppCafe`
+* :ref:`AppCafe®`
 
 * :ref:`Update Manager`
 
@@ -49,7 +49,7 @@ client and all of its functionality, beginning with |appcafe|.
    found in the `SysAdm™ API Reference Guide <http://api.sysadm.us/>`_.
 
 .. index:: software, configuration, sysadm
-.. _AppCafe:
+.. _AppCafe®:
 
 AppCafe®
 ========
