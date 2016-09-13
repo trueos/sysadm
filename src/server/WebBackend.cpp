@@ -1190,6 +1190,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmFirewallRequest(const QJsonV
     ok = true;
     FMGR.Disable();
 
+  }else if(action=="reset-defaults"){
+   ok = FMGR.RestoreDefaults();
+
   }
 
 

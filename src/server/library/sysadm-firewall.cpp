@@ -182,14 +182,16 @@ void Firewall::Disable()
     serviceManager.Disable( serviceManager.GetService("ipfw") );
 }
 
-void Firewall::RestoreDefaults()
+bool Firewall::RestoreDefaults()
 {
   if(QFile::exists("/usr/local/share/trueos/scripts/reset-firewall")){
     //refresh/restart the rules files
     QStringList args;
     args << "/usr/local/share/trueos/scripts/reset-firewall";
     General::RunCommand("sh",args);
+    return true;
   }
+  return false;
 }
 
 void Firewall::readServicesFile()

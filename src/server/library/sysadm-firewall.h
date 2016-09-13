@@ -120,7 +120,7 @@ public:
     /**
      * @brief Restores the Default Configuration
      */
-    void RestoreDefaults();
+    bool RestoreDefaults();
     ///#endsection
 
 private:
