@@ -4,8 +4,15 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
+SPHINXINTL    = sphinx-intl
 PAPER         =
 BUILDDIR      = _build
+
+# User-friendly check for sphinx-build
+SPHINXBUILDCHECK= := $(shell which $(SPHINXBUILD) 2>/dev/null)
+.ifndef SPHINXBUILDCHECK
+.error "The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx installed, then set the SPHINXBUILD environment variable to point to the full path of the '$(SPHINXBUILD)' executable. Alternatively you can add the directory with the executable to your PATH. If you don\'t have Sphinx installed, grab it from http://sphinx-doc.org/)"
+.endif
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -29,20 +36,60 @@ help:
 	@echo "  epub       to make an epub"
 	@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 	@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
+	@echo "  latexpdfja to make LaTeX files and run them through platex/dvipdfmx"
 	@echo "  text       to make text files"
 	@echo "  man        to make manual pages"
 	@echo "  texinfo    to make Texinfo files"
 	@echo "  info       to make Texinfo files and run them through makeinfo"
 	@echo "  gettext    to make PO message catalogs"
 	@echo "  changes    to make an overview of all changed/added/deprecated items"
+	@echo "  xml        to make Docutils-native XML files"
+	@echo "  pseudoxml  to make pseudoxml-XML files for display purposes"
 	@echo "  linkcheck  to check all external links for integrity"
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
+	@echo "  i18n       to fetch and prep the i18n files"
+
+i18n:
+	$(MAKE) gettext
+	$(SPHINXINTL) -p $(BUILDDIR)/locale -d ./po update \
+		-l ar \
+		-l bg \
+		-l da \
+		-l de \
+		-l es \
+		-l fr \
+		-l id \
+		-l it \
+		-l pt_BR \
+		-l tr \
+		-l uk \
+		-l zh_CN \
+		-l zh_HK
+	$(SPHINXINTL) -d ./po build
 
 clean:
-	-rm -rf $(BUILDDIR)/*
+	rm -rf $(BUILDDIR)/*
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+.if exists(po)
+.if exists($(BUILDDIR)/locale-po)
+	@rm -rf $(BUILDDIR)/locale-po
+.endif
+	@cp -r ./po $(BUILDDIR)/locale-po
+	$(SPHINXBUILD) -D language='bg' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-bg
+	$(SPHINXBUILD) -D language='da' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-da
+	$(SPHINXBUILD) -D language='de' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-de
+	$(SPHINXBUILD) -D language='es' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-es
+	$(SPHINXBUILD) -D language='fr' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-fr
+	$(SPHINXBUILD) -D language='id' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-id
+	$(SPHINXBUILD) -D language='it' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-it
+	$(SPHINXBUILD) -D language='pt_BR' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-pt_BR
+	$(SPHINXBUILD) -D language='tr' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-tr
+	$(SPHINXBUILD) -D language='uk' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-uk
+	$(SPHINXBUILD) -D language='zh_CN' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-zh_CN
+	$(SPHINXBUILD) -D language='zh_HK' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html-zh_HK
+.endif
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
@@ -77,17 +124,17 @@ qthelp:
 	@echo
 	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
 	      ".qhcp project file in $(BUILDDIR)/qthelp, like this:"
-	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/FreeNAS.qhcp"
+	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/PC-BSDUserGuide.qhcp"
 	@echo "To view the help file:"
-	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/FreeNAS.qhc"
+	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/PC-BSDUserGuide.qhc"
 
 devhelp:
 	$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
 	@echo
 	@echo "Build finished."
 	@echo "To view the help file:"
-	@echo "# mkdir -p $$HOME/.local/share/devhelp/FreeNAS"
-	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/FreeNAS"
+	@echo "# mkdir -p $$HOME/.local/share/devhelp/PC-BSDUserGuide"
+	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/PC-BSDUserGuide"
 	@echo "# devhelp"
 
 epub:
@@ -106,6 +153,12 @@ latexpdf:
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo "Running LaTeX files through pdflatex..."
 	$(MAKE) -C $(BUILDDIR)/latex all-pdf
+	@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
+
+latexpdfja:
+	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
+	@echo "Running LaTeX files through platex and dvipdfmx..."
+	$(MAKE) -C $(BUILDDIR)/latex all-pdf-ja
 	@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
 text:
@@ -152,3 +205,12 @@ doctest:
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
+xml:
+	$(SPHINXBUILD) -b xml $(ALLSPHINXOPTS) $(BUILDDIR)/xml
+	@echo
+	@echo "Build finished. The XML files are in $(BUILDDIR)/xml."
+
+pseudoxml:
+	$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
+	@echo
+	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."

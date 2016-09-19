@@ -69,35 +69,37 @@ Finding Software
 ----------------
 
 The "Browse" tab, shown in
-:numref:`Figure %s: Browse Tab of AppCafe® <appcafe1>`, is used to find
+:numref:`Figure %s <appcafe1>`, is used to find
 available software. 
 
 .. _appcafe1:
 
 .. figure:: images/appcafe1.png
 
+   Browse Tab of AppCafe®
+
 This screen contains the following options:
 
-**Back:** click this button to leave a category or search result and
+**Back:** Click this button to leave a category or search result and
 return to the previous screen.
 
-**Repository drop-down menu:** use this drop-down menu to select the
+**Repository drop-down menu:** Use this drop-down menu to select the
 repository to search or browse. The selections include: "major"
 (applications available for installation), "base" (applications that
 are part of the base operating system), and "local" (all installed
 applications).
 
-**Search:** to see if an application is available, enter its name and
+**Search:** To see if an application is available, enter its name and
 click the "binoculars" icon. Alternately, enter a description. For
 example, a search for "browser" will display software with "browser"
 in the name as well as applications which provide browser
 functionality, such as Firefox. 
 
-**Browse Categories:** this drop-down menu lists the available software
+**Browse Categories:** This drop-down menu lists the available software
 categories. If you select a category, it will only display or show
 search results from that category.
 
-**Popular Searches and Popular Categories:** the buttons in these
+**Popular Searches and Popular Categories:** The buttons in these
 sections can be used to quickly find applications which are recommended
 by other |trueos| users. Click a button to get a curated list of
 applications that match the button's description.
@@ -110,7 +112,7 @@ down arrow icon which can be clicked to install that application.
 
 Click the name of an application to view more information about that
 application. In the example shown in
-:numref:`Figure %s: Viewing the Details of an Installed Application <appcafe2>`,
+:numref:`Figure %s <appcafe2>`,
 the user has clicked :guilabel:`Firefox` on a system that has Firefox
 installed.
 
@@ -126,6 +128,8 @@ installed.
 
 .. figure:: images/appcafe2.png
 
+   AppCafe®: Viewing the Details of an Installed Application
+
 As seen in this example, the information for an application includes
 the application's icon, name, and description. Click the application's
 name to open the website for the application in the default web
@@ -138,11 +142,13 @@ second (bottom) pane displays the message that appears when the
 package is installed.
   
 An example of the "?" tab is shown in 
-:numref:`Figure %s: More Application Details <appcafe3>`
+:numref:`Figure %s <appcafe3>`
 
 .. _appcafe3:
 
 .. figure:: images/appcafe3.png
+
+   AppCafe®: More Application Details
 
 This tab displays a variety of information:
 
@@ -164,18 +170,22 @@ This tab displays a variety of information:
 If the package includes screenshots of the application, you can click
 the next tab, which has an image icon, to view and scroll through the
 screenshots. An example is shown in
-:numref:`Figure %s: Viewing the Application's Screenshots <appcafe4>`
+:numref:`Figure %s <appcafe4>`
 
 .. _appcafe4:
 
 .. figure:: images/appcafe4.png
 
+   AppCafe®: Viewing the Application's Screenshots
+
 An example of the last tab, which has a list icon, is shown in
-:numref:`Figure %s: Viewing the Details of an Installed Application <appcafe5>`.
+:numref:`Figure %s <appcafe5>`.
 
 .. _appcafe5:
 
 .. figure:: images/appcafe5.png
+
+   AppCafe®: Viewing the Details of an Installed Application
 
 This tab contains the following information. Click the right arrow next
 to an entry to expand its information and the down arrow to collapse
@@ -198,11 +208,13 @@ Managing Installed Software
 
 To view and manage the applications which are installed on the system,
 click the :guilabel:`Installed` tab.  An example is seen in
-:numref:`Figure %s: Installed Tab of AppCafe® <appcafe6>`.
+:numref:`Figure %s <appcafe6>`.
 
 .. _appcafe6:
 
 .. figure:: images/appcafe6.png
+
+   AppCafe®: Installed Tab
 
 This screen offers several actions:
 
@@ -245,7 +257,7 @@ allows you to select or deselect a number of options:
   automatically uninstall.
 
 In the example shown in 
-:numref:`Figure %s: Viewing Applications With All Options Checked <appcafe7>`,
+:numref:`Figure %s <appcafe7>`,
 the user has checked all available options. In this example,
 :guilabel:`aalib` has dependencies (banner icon), :guilabel:`alsa-lib`
 has been locked, and :guilabel:`alsa-plugins` is an orphan (flag icon).
@@ -253,10 +265,12 @@ has been locked, and :guilabel:`alsa-plugins` is an orphan (flag icon).
 .. _appcafe7:
 
 .. figure:: images/appcafe7.png
-  
+
+   AppCafe®: Viewing Applications With All Options Checked
+
 If you install or uninstall any software, click the :guilabel:`Pending`
 tab to view the details of the operation. In the example shown in
-:numref:`Figure %s: Viewing the Status of the Operation <appcafe8>`,
+:numref:`Figure %s <appcafe8>`,
 this system has had a package install and a package locking operation,
 and each has a dated entry in the process log. Highlight an entry and
 check the :guilabel:`View Process Log` box to review the log for the
@@ -265,6 +279,8 @@ operation.
 .. _appcafe8:
 
 .. figure:: images/appcafe8.png
+
+   AppCafe®: Viewing the Status of the Operation
 
 .. index:: updates
 .. _Update Manager:
@@ -326,11 +342,13 @@ Managing Updates
 ----------------
 
 An example of the :guilabel:`Updates` tab is shown in
-:numref:`Figure %s: Managing Updates <update1>`.
+:numref:`Figure %s <update1>`.
 
 .. _update1:
 
 .. figure:: images/update1.png
+
+   Managing Updates
 
 In this example, updates are available for installed packages. If a
 security update is available, it will be listed as such. Apply the
@@ -357,22 +375,25 @@ system last checked for updates. To manually check for updates, click
 
 The :guilabel:`Branches` tab of Update Manager provides a listing of
 available branches. In the example shown in
-:numref:`Figure %s: Switching Branches <update3>`, this system is
-currently running the 10.2 branch and the upcoming 11.0 branch is
-available for selection.
+:numref:`Figure %s <update3>`, this system is currently running the 10.2
+branch and the upcoming 11.0 branch is available for selection.
 
 .. TODO update3.png needs to be added to images file.
 
 .. _update3:
 
-.. figure:: images/update3.png  
+.. figure:: images/update3.png
+
+   Switching Branches
 
 The :guilabel:`Settings` tab is shown in
-:numref:`Figure %s: Settings Tab <update4>`.
+:numref:`Figure %s <update4>`.
 
 .. _update4:
 
 .. figure:: images/update4.png
+
+   Settings Tab
 
 This tab contains several configurable options:
 
@@ -426,12 +447,13 @@ To perform the installation to a new boot environment, start the
 `TrueOS® Handbook <https://www.trueos.org/handbook/trueos.html>`_. In
 the `System Selection Screen <https://www.trueos.org/handbook/install.html#system-selection-screen>`_,
 choose to install either a desktop or a server. Press :guilabel:`Next`
-to view the pop-up screen shown in
-:numref:`Figure %s: Install to Boot Environment <upgrade1>`.
+to view the pop-up screen shown in :numref:`Figure %s <upgrade1>`.
 
 .. _upgrade1:
 
 .. figure:: images/upgrade1.png
+
+   Install to Boot Environment
 
 To upgrade, select the existing pool to install into and press
 :guilabel:`OK`.
@@ -443,11 +465,13 @@ To upgrade, select the existing pool to install into and press
 If you press :guilabel:`OK` to proceed with an installation into a new
 boot environment, the installer will skip the "Disk Selection" screen
 and instead show a summary, seen in
-:numref:`Figure %s: Start the Install to Boot Environment <upgrade2>`.
+:numref:`Figure %s <upgrade2>`.
 
 .. _upgrade2:
 
 .. figure:: images/upgrade2.png
+
+   Start the Install to Boot Environment
 
 Press :guilabel:`Next` to start the installation. Once the installation
 is complete, reboot the system and remove the installation media. The
@@ -517,13 +541,14 @@ which boot environment is selected at system boot.
 To view, manage, and create boot environments using the |sysadm|
 graphical client, go to
 :menuselection:`System Management --> Boot Environment Manager`. In the
-example shown in :numref:`Figure %s: Managing Boot Environments <be1>`,
-there is an entry named *initial* that represents the original |trueos|
-installation.
+example shown in :numref:`Figure %s <be1>`, there is an entry named
+*initial* that represents the original |trueos| installation.
 
 .. _be1:
 
 .. figure:: images/be1.png
+
+   Managing Boot Environments
 
 Each entry contains the same information:
 
@@ -579,22 +604,78 @@ column to *R*.
 
    .. figure:: images/install1b.png
 
+      TrueOS® Boot Menu
+
 To boot into another boot environment, press :kbd:`7` at the
 :numref:`Figure %s: TrueOS® Boot Menu <install1b>` to access the boot
 menu selection screen. In the example shown in
-:numref:`Figure %s: Boot Environments Menu <be2>`, two boot environments
-are available in the "Boot Environments" section: the entry named
-"initial" represents the initial installation and the entry named
-"mybootenvironment" was manually created using Boot Environment Manager.
-The upper section of this menu indicates the "initial" boot environment
-is set to active, or the one the system has been configured to boot into
-unless another BE is manually selected in this menu. Use the arrow keys
-to highlight the boot environment you would like to boot into, and press
-:kbd:`Enter` to continue booting into the selected boot environment.
+:numref:`Figure %s <be2>`, two boot environments are available in the
+"Boot Environments" section: the entry named "initial" represents the
+initial installation and the entry named "mybootenvironment" was
+manually created using Boot Environment Manager. The upper section of
+this menu indicates the "initial" boot environment is set to active, or
+the one the system has been configured to boot into unless another BE is
+manually selected in this menu. Use the arrow keys to highlight the boot
+environment you would like to boot into, and press :kbd:`Enter` to
+continue booting into the selected boot environment.
 
 .. _be2:
 
 .. figure:: images/be2.png
+
+   Boot Environments Menu
+
+.. index:: sysadm, configuration
+.. _Firewall Manager:
+
+Firewall Manager
+================
+
+This section to be filled in when the firewall manager is operational.
+
+.. index:: sysadm, configuration
+.. _Server Manager:
+
+Service Manager
+===============
+
+The Service Manager offers a view of all the system's installed
+services, as seen in :numref:`Figure %s <service1>`. There are also
+several options to configure these services.
+
+.. _service1:
+
+.. figure:: images/service1.png
+
+   SysAdm™ Service Manager
+
+Services are listed in a chart with four columns:
+
+* **Name:** The name of the service. All services are listed
+  alphabetically by name.
+
+* **Running:** Indicates if the service is active. "True" means the
+  service is running, "false" means it is not.
+
+* **Start on Boot:** Shows with "true" or "false" if the service will be
+  automatically activated when the system is initialized.
+
+* **Description:** If available, displays text describing the server.
+
+Underneath the chart is a row with multiple buttons:
+
+* **Play Icon:** Starts the selected service.
+
+* **Pause Icon:** Stops the selected service.
+
+* **Reload Icon:** Restarts the selected service.
+
+* **Power On Icon:** Enables the service to automatically start on boot.
+
+* **Power Off Icon:** Disables the service from starting on boot.
+
+Hovering over any of these icons will display a helpful description
+across the bottom of the window.
 
 .. index:: sysadm, configuration
 .. _Task Manager:
@@ -604,13 +685,15 @@ Task Manager
 
 Task Manager provides a graphical view of memory use, per-CPU use and
 a listing of currently running applications. An example is shown in
-:numref:`Figure %s: Task Manager <task1>`.
+:numref:`Figure %s <task1>`.
 
 .. _task1:
 
 .. figure:: images/task1.png
 
-The "Running Programs: section provides a graphical front-end to
+   SysAdm™ Task Manager
+
+The "Running Programs:" section provides a graphical front-end to
 `top(1) <https://www.freebsd.org/cgi/man.cgi?query=top>`_.
 
 The :guilabel:`Kill Selected Process` button can be used to terminate
@@ -626,14 +709,15 @@ The |trueos| User Manager utility allows you to easily add, configure,
 and delete users and groups. To access this utility in |sysadm|, click
 :menuselection:`System Management --> User Manager`.
 
-In the example shown in
-:numref:`Figure %s: Viewing User Accounts in User Manager <user1>`,
-the system has one user account that was created in the "Create a User
-Screen" during installation.
+In the example shown in :numref:`Figure %s <user1>`, the system has one
+user account that was created in the "Create a User" screen during
+installation.
 
 .. _user1:
 
 .. figure:: images/user1.png
+
+   Viewing User Accounts in User Manager
 
 The :guilabel:`Standard` view allows you to configure the following:
 
@@ -662,12 +746,14 @@ The :guilabel:`Standard` view allows you to configure the following:
 If you make any changes to a user's "Details", click the
 :guilabel:`Save` button to save them.
 
-:numref:`Figure %s: Creating a New User Account <user2>` demonstrates
-how this screen changes when you click the :guilabel:`New User` button.
+:numref:`Figure %s <user2>` demonstrates how this screen changes when
+clicking :guilabel:`New User`.
 
 .. _user2:
 
 .. figure:: images/user2.png
+
+   Creating a New User Account
 
 Fields outlined in red are required when creating a user. The
 :guilabel:`User Name`, :guilabel:`Full Name`, and :guilabel:`Password`
@@ -712,14 +798,15 @@ highlight the user that started |sysadm|. It will also be greyed out if
 there is only one user account, as you need at least one user to login
 to the |trueos| system.
 
-If you click :guilabel:`Advanced View`, this screen will change to show
-all of the accounts on the system, not just the user accounts you
-created. An example is seen in
-:numref:`Figure %s: Viewing All Accounts and Their Details <user3>`.
+Click :guilabel:`Advanced View` to show all of the accounts on the
+system, not just the user accounts you created. An example is seen in
+:numref:`Figure %s <user3>`.
 
 .. _user3:
 
 .. figure:: images/user3.png
+
+   Viewing All Accounts and Their Details
 
 The accounts you did not create are known as system accounts and are
 needed by the operating system or installed applications. Do **not**
@@ -766,15 +853,16 @@ worthless without the system it was paired with.
 The :guilabel:`PersonaCrypt` tab can be used to initialize a
 PersonaCrypt device for any login user, **except** for the currently
 logged in user. In the example shown in
-:numref:`Figure %s: Initialize PersonaCrypt Device <user5>`, a new user,
-named *dlavigne*, has been created and the entry for the user has been
-clicked.
+:numref:`Figure %s <user5>`, a new user, named *dlavigne*, has been
+created and the entry for the user has been clicked.
 
 .. TODO Add user5.png to images folder.
 
 .. _user5: 
 
 .. figure:: images/user5.png
+
+   Initialize PersonaCrypt Device
 
 Before a user is configured to use PersonaCrypt on a |trueos| system,
 two buttons are available in the "PersonaCrypt" section of "Advanced
@@ -809,13 +897,15 @@ will ask if you are ready. Click :guilabel:`Yes` to initialize the
 device. The User Manager screen will be greyed out while the device is
 prepared. Once the initialization is complete, the User Manager screen
 will change to display the device's key options, as seen in
-:numref:`Figure %s: PersonaCrypt Key Options <user6>`.
+:numref:`Figure %s <user6>`.
 
 .. TODO Add user6.png to images folder.
 
 .. _user6:
 
 .. figure:: images/user6.png
+
+   PersonaCrypt Key Options
 
 Several options are now available:
 
@@ -857,12 +947,14 @@ Managing Groups
 
 Click the :guilabel:`Groups` tab to view and manage the groups on the
 system. The :guilabel:`Standard` tab, seen in
-:numref:`Figure %s: Managing Groups Using User Manager <user4>`,
-shows the group membership for the *operator* and *wheel* groups:
+:numref:`Figure %s <user4>`, shows the group membership for the
+*operator* and *wheel* groups:
 
 .. _user4: 
 
 .. figure:: images/user4.png
+
+   Managing Groups Using User Manager
 
 This screen has 2 columns:
 
@@ -938,13 +1030,14 @@ Life Preserver.
 Snapshots Tab
 -------------
 
-:numref:`Figure %s: Snapshot Tab <lpreserver1>` shows the
-:guilabel:`Snapshots` tab on a system not yet configured. This system
-has a "ZFS Pool" named "tank".
+:numref:`Figure %s <lpreserver1>` shows the :guilabel:`Snapshots` tab on
+a system not yet configured. This system has a "ZFS Pool" named "tank".
 
 .. _lpreserver1:
 
 .. figure:: images/lpreserver1.png
+
+   Snapshot Tab
 
 This screen will display any created snapshots and provides buttons to:
 
@@ -1005,7 +1098,7 @@ the snapshots must first meet several requirements:
   the |trueos| system and the backup system, make sure it has a rule to
   allow SSH.
 
-:numref:`Figure %s: Replication Tab <lpreserver2>` shows the initial
+:numref:`Figure %s <lpreserver2>` shows the initial
 :guilabel:`Replication` tab on a system that has not yet been configured
 for replication. This screen is used to create, view, remove, and
 configure the replication schedule.
@@ -1014,13 +1107,17 @@ configure the replication schedule.
 
 .. figure:: images/lpreserver2.png
 
+   Replication Tab
+
 To schedule the replication, click :guilabel:`+` to display the
 "Setup Replication" screen shown in
-:numref:`Figure %s: Scheduling a Replication <lpreserver3>`.
+:numref:`Figure %s <lpreserver3>`.
 
 .. _lpreserver3:
 
 .. figure:: images/lpreserver3.png
+
+   Scheduling a Replication
 
 Input the following information:
 
@@ -1088,12 +1185,13 @@ pools.
 
 To create a snapshot schedule, click the :guilabel:`camera` icon in the
 lower left corner of this tab. This will activate the "Setup Snapshot
-Schedule" pane as seen in
-:numref:`Figure %s: Scheduling a Snapshot <lpreserver4>`.
+Schedule" pane as seen in :numref:`Figure %s <lpreserver4>`.
 
 .. _lpreserver4:
 
 .. figure:: images/lpreserver4.png
+
+   Scheduling a Snapshot
 
 This pane contains several options:
 
@@ -1124,18 +1222,20 @@ have multiple pools, create a scrub schedule for each pool.
 
 To schedule when the scrub occurs, click the third icon from the right
 which will activate the "Setup Scrub Schedule" screen shown in
-:numref:`Figure %s: Scheduling a Scrub <lpreserver5>`.
+:numref:`Figure %s <lpreserver5>`.
 
 .. _lpreserver5:
 
 .. figure:: images/lpreserver5.png
 
-Select the pool from the "ZPool" drop-down menu, then select the
-"Frequency". Supported frequencies are  "Daily", "Weekly", or
-"Monthly". If you select "Daily", you can configure the "Hour". If you
-select "Weekly", you can configure the "Day of week" and the "Hour". If
-you select "Monthly", you can configure the "Date" and "Hour". Since a
-scrub can be disk I/O intensive, it is recommended to pick a time when
+   Scheduling a Scrub
+
+Select the pool from the :guilabel:`ZPool` drop-down menu, then select
+the :guilabel:`Frequency`. Supported frequencies are "Daily", "Weekly",
+or "Monthly". If you select "Daily", you can configure the "Hour". If
+you select "Weekly", you can configure the "Day of week" and the "Hour".
+If you select "Monthly", you can configure the "Date" and "Hour". Since
+a scrub can be disk I/O intensive, it is recommended to pick a time when
 the system will not be in heavy use.
 
 Once you have created a scrub schedule, you can use the "gear" icon
@@ -1149,11 +1249,13 @@ Settings Tab
 -------------
 
 The :guilabel:`Settings` tab is shown in
-:numref:`Figure %s: Life Preserver Settings <lpreserver6>`.
+:numref:`Figure %s <lpreserver6>`.
 
 .. _lpreserver6:
 
 .. figure:: images/lpreserver6.png
+
+   Life Preserver Settings
 
 Many settings are configurable:
 
@@ -1260,41 +1362,43 @@ the :command:`lpreserver cronsnap` command, type:
   listexclude <dataset>
   List which datasets are excluded from schedule snapshots.
 
-Table 10.10a shows the command line equivalents to the graphical
-options provided by the Life Preserver GUI.
+:numref:`Table %s <table_1>` shows the command line equivalents to the
+graphical options provided by the Life Preserver GUI.
 
-**Table 10.10a: Command Line and GUI Equivalents** 
+.. _table_1:
 
-+------------------+-------------------+------------------------------------+
-| **Command Line** | **GUI**           | **Description**                    |
-+==================+===================+====================================+
-| **cronsnap**     | "Snapshots" tab   | schedule when snapshots occur      |
-|                  |                   | and how long to keep them; the     |
-|                  |                   | **stop** option can be used to     |
-|                  |                   | disable snapshot creation          |
-+------------------+-------------------+------------------------------------+
-| **cronscrub**    | "Schedules" tab   | schedule a ZFS scrub               |
-+------------------+-------------------+------------------------------------+
-| **get**          | "Settings" tab    | list Life Preserver options        |
-+------------------+-------------------+------------------------------------+
-| **replicate**    | "Replication" tab | used to list, add, and remove      |
-|                  |                   | backup server; read the **help**   |
-|                  |                   | for this command for examples      |
-|                  |                   |                                    |
-+------------------+-------------------+------------------------------------+
-| **set**          | "Settings" tab    | configures Life Preserver options; |
-|                  |                   | read **help** for the list of      |
-|                  |                   | configurable options               |
-+------------------+-------------------+------------------------------------+
-| **snapshot**     | "Snapshots" tab   | create and replicate a new ZFS     |
-|                  |                   | snapshot; by default, snapshots    |
-|                  |                   | are recursive, meaning that a      |
-|                  |                   | that a snapshot is taken of every  |
-|                  |                   | dataset within a pool              |
-+------------------+-------------------+------------------------------------+
-| **status**       |                   | lists the last snapshot name and   |
-|                  |                   | replication status                 |
-+------------------+-------------------+------------------------------------+
+.. table:: Command Line and GUI Equivalents
+
+   +------------------+-------------------+------------------------------------+
+   | **Command Line** | **GUI**           | **Description**                    |
+   +==================+===================+====================================+
+   | **cronsnap**     | "Snapshots" tab   | schedule when snapshots occur      |
+   |                  |                   | and how long to keep them; the     |
+   |                  |                   | **stop** option can be used to     |
+   |                  |                   | disable snapshot creation          |
+   +------------------+-------------------+------------------------------------+
+   | **cronscrub**    | "Schedules" tab   | schedule a ZFS scrub               |
+   +------------------+-------------------+------------------------------------+
+   | **get**          | "Settings" tab    | list Life Preserver options        |
+   +------------------+-------------------+------------------------------------+
+   | **replicate**    | "Replication" tab | used to list, add, and remove      |
+   |                  |                   | backup server; read the **help**   |
+   |                  |                   | for this command for examples      |
+   |                  |                   |                                    |
+   +------------------+-------------------+------------------------------------+
+   | **set**          | "Settings" tab    | configures Life Preserver options; |
+   |                  |                   | read **help** for the list of      |
+   |                  |                   | configurable options               |
+   +------------------+-------------------+------------------------------------+
+   | **snapshot**     | "Snapshots" tab   | create and replicate a new ZFS     |
+   |                  |                   | snapshot; by default, snapshots    |
+   |                  |                   | are recursive, meaning that a      |
+   |                  |                   | that a snapshot is taken of every  |
+   |                  |                   | dataset within a pool              |
+   +------------------+-------------------+------------------------------------+
+   | **status**       |                   | lists the last snapshot name and   |
+   |                  |                   | replication status                 |
+   +------------------+-------------------+------------------------------------+
 
 .. _Restoring the Operating System:
 
@@ -1305,11 +1409,13 @@ If you have replicated the system's snapshots to a remote backup
 server, you can use a |trueos| installation media to perform an
 operating system restore or to clone another system. Start the
 installation as usual until you get to the screen shown in
-:numref:`Figure %s: Selecting to Restore/Clone From Backup <restore1>`.
+:numref:`Figure %s <restore1>`.
 
 .. _restore1:
 
 .. figure:: images/restore1.png
+
+   Selecting to Restore/Clone From Backup
 
 Before you can perform a restore, the network interface must be
 configured. Click :guilabel:`Network Connectivity` (second icon from the
@@ -1322,7 +1428,7 @@ working before continuing.
 Once you are ready, click :guilabel:`Restore from Life-Preserver backup`
 and :guilabel:`Next`. This will start the Restore Wizard. In the screen
 shown in
-:numref:`Figure %s: Input the Information for a SSH Restore <restore2>`,
+:numref:`Figure %s <restore2>`,
 input the IP address of the backup server and the name of the user
 account used to replicate the snapshots. If the server is listening on
 a non-standard SSH port, change the "SSH port" number.
@@ -1331,20 +1437,24 @@ a non-standard SSH port, change the "SSH port" number.
 
 .. figure:: images/restore2.png
 
+   Input the Information for a SSH Restore
+
 Click :guilabel:`Next` and the wizard will provide a summary of your
 selections. If correct, click :guilabel:`Finish`; otherwise, click
 :guilabel:`Back` to correct them.
 
 Once the connection to the backup server succeeds, you will be able to
 select which host to restore. In the example shown in
-:numref:`Figure %s: Select the Host to Restore <restore4>`,
-only one host has been backed up to the replication server.
+:numref:`Figure %s <restore4>`, only one host has been backed up to the
+replication server.
 
 .. TODO Add restore4.png to images folder.
 
 .. _restore4:
 
 .. figure:: images/restore4.png
+
+   Select the Host to Restore
 
 After making your selection, click :guilabel:`Next`. The restore wizard
 will provide a summary of which host it will restore from, the name of
