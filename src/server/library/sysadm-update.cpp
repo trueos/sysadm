@@ -259,8 +259,10 @@ QJsonObject Update::writeSettings(QJsonObject obj){
   knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE";// << "CDN_TYPE";
   QStringList keys = obj.keys();
   QStringList vals;
+  bool clearlastCheck = false;
   for(int i=0; i<keys.length(); i++){
     if(knownsettings.contains(keys[i].toUpper())){
+      if(keys[i].toUpper().startsWith("PACKAGE_")){ clearlastCheck = true; }
       vals << obj.value(keys[i]).toString();
       keys[i] = keys[i].toUpper();
     }else{
@@ -289,8 +291,12 @@ QJsonObject Update::writeSettings(QJsonObject obj){
   if( General::writeTextFile(UP_CONFFILE, info, true) ){
     QProcess::startDetached("pc-updatemanager syncconf"); //sync up the config files as needed
     ret.insert("result","success");
+    if(clearlastCheck){
+      if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //ensure the next fast update does a full check
+    }
   }else{
     ret.insert("result","error");
   }
+
   return ret;
 }

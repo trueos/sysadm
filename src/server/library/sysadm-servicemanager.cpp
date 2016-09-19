@@ -234,37 +234,4 @@ void ServiceManager::loadRCdata(){
       rcdata.insert( info[i].section(": ",0,0), info[i].section(": ",1,-1) );
     }
   }
-
-  /*QDir dir("/etc");
-  QStringList confs = dir.entryList(QStringList() << "rc.conf*", QDir::Files, QDir::Name | QDir::Reversed);
-  //qDebug() << "Conf file order:" << confs;
-  for(int i=0; i<confs.length(); i++){
-    QFile file(dir.absoluteFilePath(confs[i]));
-    if( file.open(QIODevice::ReadOnly) ){
-      //qDebug() << "Read File:" << confs[i];
-      bool insection = true;
-      QTextStream stream(&file);
-      while(!stream.atEnd()){
-        QString info = stream.readLine();
-        //qDebug() << "Read Line:" << info;
-        if(info.contains("=") && insection){
-          rcdata.insert(info.section("=",0,0).simplified(), info.section("=",1,-1));
-          //qDebug() << "Got data entry:" << info;
-        }else if(info.simplified()=="fi"){ 
-          insection= true;
-        }else if(info.simplified().startsWith("if [ ") ){
-          QStringList args = info.section("]",0,0).section("[",1,-1).split("\""); //odd numbers are files, even are arguments
-          for(int j=0; j<args.length()-1; j+=2){
-            //qDebug() << "Check if arguments:" << args[j] << args[j+1] << insection;
-            if(!args[j].contains("-e")){ insection = false; break; } //don't know how to handle this - skip section
-            if(args[j].contains("-o")){ insection == insection || QFile::exists(args[j+1]); }
-            else if(args[j].contains("-a")){ insection == insection && QFile::exists(args[j+1]); }
-            else{ insection = QFile::exists(args[j+1]); } //typically the first argument check
-            //qDebug() << " - Now:" << insection;
-          } //end loop over existance arguments
-        }
-      }//end loop over lines
-      file.close();
-    }
-  }*/
 }
