@@ -34,6 +34,10 @@ now available in the |sysadm| client:
 
 * :ref:`Boot Environment Manager`
 
+* :ref:`Firewall Manager`
+
+* :ref:`Service Manager`
+
 * :ref:`Task Manager`
 
 * :ref:`User Manager`
@@ -631,10 +635,57 @@ continue booting into the selected boot environment.
 Firewall Manager
 ================
 
-This section to be filled in when the firewall manager is operational.
+The Firewall Manager is a simple interface used to configure ports and
+firewalls. In :numref:`Figure %s <firewall1>`, the Multicast DNS service
+is active and using port 5353 is open, with the firewall started.
+
+.. _firewall1:
+
+.. figure:: images/firewall1.png
+
+   |sysadm| Firewall Manager
+
+The top row of the interface has options to configure the firewall.
+:guilabel:`Start` turns on the firewall, :guilabel:`Restart` will turn
+the firewall off and on again, and :guilabel:`Stop` turns the firewall
+off. On the right side of the row are two buttons, :guilabel:`Power On`
+and :guilabel:`Power Off`. 
+
+.. note:: In :numref:`Figure %s <firewall1>`, the :guilabel:`Start`
+   option is greyed out, as the firewall is currently active. Additionally,
+   :guilabel:`Power On` is also greyed out as the firewall is configured
+   to start on bootup.
+
+The central window describes all added services. The list can be sorted
+by clicking :guilabel:`Open Ports`. Next, the :guilabel:`Used By` column
+displays the name of the service using the open ports. Finally, the
+:guilabel:`Description` column offers more information about the service
+name in the same row.
+
+The bottom portion of the interface provides options to open and close
+ports. There are two options to open a port: :guilabel:`Find by Service`
+and :guilabel:`Number/Type`:
+
+**Find by Service:** Click :guilabel:`Select a Service...` to
+open a drop down menu of alphabetized services. Click the desired
+service, and the Firewall Manager will automatically add it to the list
+of open ports.
+
+.. tip:: The services list can be navigated quickly by typing the name
+   of the desired service while the list is open.
+
+**Number/Type:** Manually designate a port to open by typing the number
+in the :guilabel:`Number` field. The :guilabel:`Arrow` icons can be
+pressed to either increase or decrease the number by one. The next drop
+down menu allows for designating between **tcp** or **udp**. Once the
+number and type of port are chosen, click the :guilabel:`Keyhole` icon
+to confirm the selections and open the desired port.
+
+To close a port, select a port from the :guilabel:`Open Ports`
+column and press :guilabel:`Close Ports`.
 
 .. index:: sysadm, configuration
-.. _Server Manager:
+.. _Service Manager:
 
 Service Manager
 ===============
