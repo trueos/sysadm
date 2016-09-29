@@ -1130,6 +1130,10 @@ your snapshots on another system.
 In order to configure replication, the remote system to hold a copy of
 the snapshots must first meet several requirements:
 
+* Snapshots occurring too frequently can introduce errors in
+  replication. To avoid errors, ensure snapshots are configured to take
+  place slower than the desired pace of replication.
+
 * The backup server
   **must be formatted with the latest version of ZFS,** also known as
   ZFS feature flags or ZFSv5000. Operating systems that support this
