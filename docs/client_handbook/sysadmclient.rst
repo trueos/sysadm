@@ -412,16 +412,17 @@ This tab contains several configurable options:
 
 * **Automatically perform updates:** When checked, the automatic
   updater automatically keeps your system and packages up-to-date.
-  You will know an update has completed when the pop-up menu indicates a
-  reboot is needed to complete the update process. If you uncheck this
-  box, an update will only occur when you choose. You are not required
-  to initiate updates manually. |trueos| uses an automated updater that
+  An update has completed when the pop-up menu indicates a reboot is
+  needed to complete the update process. If
+  :guilabel:`Automatically perform updates` is unchecked, an update will
+  only occur at the user's discretion. Updates are not required to be
+  initiated manually. |trueos| uses an automated updater which
   automatically checks for updates, no more than once per day, 20
   minutes after a reboot and then every 24 hours.
 
-* **Custom Package Repository:** If you have a custom package
-  repository, check this box. This will activate the :guilabel:`URL`
-  field so you can input the URL to the custom repository.
+* **Custom Package Repository:** To use a custom package repository for
+  updates, check this box. This will activate the :guilabel:`URL`
+  field so the user can input the URL to the custom repository.
 
 .. index:: updates
 .. _Upgrading from PC-BSD® 10.x to TrueOS®:
@@ -429,33 +430,39 @@ This tab contains several configurable options:
 Upgrading from |pcbsd| 10.x to |trueos|
 ---------------------------------------
 
-If you are currently using |pcbsd| 10.x, the option to update to
-|trueos| will not appear in the Control Panel version of Update Manager.
-This is because a new installation is required in order to migrate to
-|trueos|. However, the |trueos| installer allows you to keep all your
+.. warning:: If any user account uses PersonaCrypt, please be sure to
+   save any encryption keys to a safe place (e.g. a thumb drive) before
+   beginning the upgrade process. Loss of encryption keys may result in
+   being unable to import the home directory after the upgrade is
+   complete.
+
+If the system is using |pcbsd| 10.x, the option to update to |trueos|
+will not appear in the Control Panel version of Update Manager. This is
+because a new installation is required in order to migrate to |trueos|.
+However, the |trueos| installer allows the user to keep all their
 existing data and home directories, as it provides the ability to
 install |trueos| into a new boot environment. In other words, the new
 operating system and updated applications are installed while the ZFS
 pool and any existing boot environments are preserved. Since the new
-install is in a boot environment, you retain the option to boot back
-into your previous |pcbsd| installation.
+install is in a boot environment, the option to boot back into the
+previous |pcbsd| installation will remain.
 
-.. note:: This option overwrites the contents of :file:`/etc`. If you
-   have any custom configurations, save them to a backup or your home
+.. note:: This option overwrites the contents of :file:`/etc`. If any
+   custom configurations exist, save them to a backup or the home
    directory first. Alternately, use :ref:`Boot Environment Manager`
-   post-installation to mount your previous |pcbsd| boot environment to
-   copy over any configuration files you may forget to backup.
+   post-installation to mount the previous |pcbsd| boot environment to
+   copy over any configuration files which may not have been backed up.
 
 To perform the installation to a new boot environment, start the
 |trueos| installation as described in the
 `TrueOS® Handbook <https://www.trueos.org/handbook/trueos.html>`_. In
 the `System Selection Screen <https://www.trueos.org/handbook/install.html#system-selection-screen>`_,
 choose to install either a desktop or a server. Press :guilabel:`Next`
-to view the pop-up screen shown in :numref:`Figure %s <upgrade1>`.
+to view the pop-up screen shown in :numref:`Figure %s <upgrade1a>`.
 
-.. _upgrade1:
+.. _upgrade1a:
 
-.. figure:: images/upgrade1.png
+.. figure:: images/upgrade1a.png
 
    Install to Boot Environment
 
@@ -484,11 +491,11 @@ post-installation screens will run as described in the
 section of the |trueos| Handbook so you can configure the new
 installation.
 
-.. note:: When you encounter the
-   `Create a User Screen <https://www.trueos.org/handbook/postinstall.html#create-a-user-screen>`_,
-   recreate the primary user account using the same name you used on
-   your |pcbsd| system so |trueos| can associate the existing home
-   directory with that user. Once you have logged in, you can use
+.. note:: During the
+   `Create a User Screen <https://www.trueos.org/handbook/postinstall.html#create-a-user-screen>`_
+   process, recreate the primary user account using the same name used
+   on the previous |pcbsd| system so |trueos| can associate the
+   existing home directory with that user. Once logged in, use
    :ref:`User Manager` to recreate any other user accounts or to
    reassociate any PersonaCrypt accounts.
 
@@ -1043,9 +1050,9 @@ schedule snapshots of a ZFS pool and to optionally replicate those
 snapshots to another system over an encrypted connection. This design
 provides several benefits:
 
-* A snapshot provides a "point-in-time" image of the ZFS pool. In one
-  way, this is similar to a full system backup as the snapshot contains
-  the information for the entire filesystem. However, it has several
+* A snapshot provides a "point-in-time" image of the ZFS pool. This
+  is similar to a full system backup as the snapshot contains the
+  information for the entire filesystem. However, it has several
   advantages over a full backup. Snapshots occur instantaneously,
   meaning the filesystem does not need to be unmounted and you can
   continue to use applications on your system as the snapshot is
@@ -1250,7 +1257,8 @@ Schedule" pane as seen in :numref:`Figure %s <lpreserver4>`.
 
 This pane contains several options:
 
-**ZPool:** Select the ZFS pool to snapshot.
+**Storage Pool:** Select the ZFS storage pool that contains the datasets
+that you wish to snapshot.
 
 **Snapshots to keep:** Snapshots are automatically pruned after the
 specified number of snapshots to prevent snapshots from eventually
@@ -1272,8 +1280,10 @@ next to the "camera" icon to modify the highlighted schedule or the
 
 This screen can also be used to manage the ZFS scrub schedule. Scrubs
 are recommended as they can provide an early indication of a potential
-disk failure. Since scrubs can be scheduled on a per-pool basis, if you
-have multiple pools, create a scrub schedule for each pool.
+disk failure. Scrubs can be scheduled on a per-pool basis. 
+
+.. tip:: If you have multiple pools, be sure to create a scrub schedule
+   for each pool.
 
 To schedule when the scrub occurs, click the third icon from the right
 which will activate the "Setup Scrub Schedule" screen shown in
@@ -1285,13 +1295,13 @@ which will activate the "Setup Scrub Schedule" screen shown in
 
    Scheduling a Scrub
 
-Select the pool from the :guilabel:`ZPool` drop-down menu, then select
-the :guilabel:`Frequency`. Supported frequencies are "Daily", "Weekly",
-or "Monthly". If you select "Daily", you can configure the "Hour". If
-you select "Weekly", you can configure the "Day of week" and the "Hour".
-If you select "Monthly", you can configure the "Date" and "Hour". Since
-a scrub can be disk I/O intensive, it is recommended to pick a time when
-the system will not be in heavy use.
+Select the pool from the :guilabel:`Storage Pool` drop-down menu, then
+select the :guilabel:`Frequency`. Supported frequencies are "Daily",
+"Weekly", or "Monthly". If you select "Daily", you can configure the
+"Hour". If you select "Weekly", you can configure the "Day of week" and
+the "Hour".  If you select "Monthly", you can configure the "Date" and
+"Hour". Since a scrub can be disk I/O intensive, it is recommended to
+pick a time when the system will not be in heavy use.
 
 Once you have created a scrub schedule, you can use the "gear" icon
 next to the "schedule scrub" icon to modify the highlighted schedule or
@@ -1386,8 +1396,8 @@ the :command:`lpreserver cronsnap` command, type:
   * A hourly snapshot will be kept for a day.
   * A daily snapshot will be kept for a month.
   * A Monthly snapshot will be kept for a year.
-  * The life-preserver daemon will also keep track of the zpool disk space,
-    if the capacity falls below 75%, the oldest snapshot will be auto-pruned.
+  * The life-preserver daemon will also keep track of the storage pool disk space.
+    If the capacity falls below 75%, the oldest snapshot will be auto-pruned.
  Examples:
   lpreserver cronsnap start tank1/usr/home/kris daily@22 10
   Schedule snapshots of dataset tank1/usr/home/kris daily at 22:00.
