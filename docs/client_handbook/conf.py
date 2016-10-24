@@ -122,13 +122,13 @@ todo_include_todos = True
 
 #Option to add text substitutions to all .rst files being built.
 rst_prolog = """
-.. |freenas| replace:: FreeNAS"""u'\u00AE'"""
-.. |truenas| replace:: TrueNAS"""u'\u00AE'"""
-.. |pcbsd| replace:: PC-BSD"""u'\u00AE'"""
-.. |trueos| replace:: TrueOS"""u'\u00AE'"""
-.. |appcafe| replace:: AppCafe"""u'\u00AE'"""
-.. |lumina| replace:: Lumina"""u'\u00AE'"""
-.. |sysadm| replace:: SysAdm"""u'\u2122'"""
+.. |freenas| replace:: FreeNAS\ :sup:`"""u'\u00AE'"""`
+.. |truenas| replace:: TrueNAS\ :sup:`"""u'\u00AE'"""`
+.. |pcbsd| replace:: PC-BSD\ :sup:`"""u'\u00AE'"""`
+.. |trueos| replace:: TrueOS\ :sup:`"""u'\u00AE'"""`
+.. |appcafe| replace:: AppCafe\ :sup:`"""u'\u00AE'"""`
+.. |lumina| replace:: Lumina\ :sup:`"""u'\u00AE'"""`
+.. |sysadm| replace:: SysAdm\ :sup:`"""u'\u2122'"""`
 """
 
 # -- Option to change :menuselection: arrow -----------------------------

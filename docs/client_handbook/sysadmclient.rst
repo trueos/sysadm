@@ -962,7 +962,13 @@ Once a user has been initialized for PersonaCrypt on the system, their
 user account will no longer be displayed when logging in, **unless**
 their PersonaCrypt device is inserted. Once the USB device is inserted,
 the login screen will add an extra field, as seen in the example shown
-in :ref:`login5`.
+in :numref:`Figure %s <troslogin5>`.
+
+.. _troslogin5:
+
+.. figure:: images/login5.png
+
+   : |trueos| Login Screen with PersonaCrypt
 
 .. note:: When stealth sessions have been configured, PersonaCrypt
    users will still be displayed in the login menu, even if their USB
