@@ -25,6 +25,11 @@ QDateTime Update::lastFullCheck(){
   return QFileInfo(UP_UPFILE).lastModified();
 }
 
+QDateTime Update::rebootRequiredSince(){
+  if(!QFile::exists(UP_RBFILE)){ return QDateTime(); } //null time - no file exists
+  return QFileInfo(UP_RBFILE).lastModified();
+}
+
 // Return a list of updates available
 QJsonObject Update::checkUpdates(bool fast) {
   //NOTE: The "fast" option should only be used for automated/timed checks (to prevent doing this long check too frequently)
@@ -243,7 +248,7 @@ QJsonObject Update::stopUpdate() {
 QJsonObject Update::readSettings(){
   QJsonObject ret;
   QStringList knownsettings;
-  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE";// << "CDN_TYPE";
+  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE" << "AUTO_UPDATE_REBOOT";// << "CDN_TYPE";
 
   QStringList info = General::readTextFile(UP_CONFFILE);
   for(int i=0; i<info.length(); i++){
@@ -261,7 +266,7 @@ QJsonObject Update::writeSettings(QJsonObject obj){
   QJsonObject ret;
   //Check inputs
   QStringList knownsettings;
-  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE";// << "CDN_TYPE";
+  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE" << "AUTO_UPDATE_REBOOT";// << "CDN_TYPE";
   QStringList keys = obj.keys();
   QStringList vals;
   bool clearlastCheck = false;
