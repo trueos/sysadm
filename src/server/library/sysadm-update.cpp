@@ -20,6 +20,11 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+//Return the date/time that the last full check for updates was run
+QDateTime Update::lastFullCheck(){
+  return QFileInfo(UP_UPFILE).lastModified();
+}
+
 // Return a list of updates available
 QJsonObject Update::checkUpdates(bool fast) {
   //NOTE: The "fast" option should only be used for automated/timed checks (to prevent doing this long check too frequently)
