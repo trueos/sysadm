@@ -5,7 +5,7 @@ SysAdm™ API Reference Guide
    :numbered:
    :maxdepth: 4
 
-   connection
+   getstarted
    events
    classes/index
 

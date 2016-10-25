@@ -270,7 +270,7 @@ QJsonObject LifePreserver::listReplication() {
       user = parseline.section("@", 0, 0);
       host = parseline.section("@", 1, 1).section("[", 0, 0);
       port = parseline.section("@", 1, 1).section("[", 1, 1).section("]", 0, 0);
-      rdset = parseline.section(":", 1, 1);
+      rdset = parseline.section(":", 1, 1).section(" ", 0, 0);
       time = output.at(i).section(" Time:", -1).simplified();
 
       values.insert("dataset", dset);

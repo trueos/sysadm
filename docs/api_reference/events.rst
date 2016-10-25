@@ -10,28 +10,32 @@ updates about system status and other types of system notifications.
              which was not designed for asynchronous events. For this
              reason, only Websocket examples are used in this section.
 
-Every events request contains several parameters:
+Every events request contains several parameters, seen here in
+:numref:`Table %s <eventpar>`.
 
-+---------------+-----------+--------------------------------------+
-| **Parameter** | **Value** | **Description**                      |
-|               |           |                                      |
-+===============+===========+======================================+
-| id            |           | Any unique value for the request,    |
-|               |           | including a hash, checksum, or uuid. |
-+---------------+-----------+--------------------------------------+
-| name          |           | Supported values are "subscribe" or  |
-|               |           | "unsubscribe".                       |
-+---------------+-----------+--------------------------------------+
-| namespace     | events    |                                      |
-|               |           |                                      |
-+---------------+-----------+--------------------------------------+
-| args          |           | Values vary by type of class.        |
-|               |           |                                      |
-+---------------+-----------+--------------------------------------+
+.. _eventpar:
+.. table:: Event Request Parameters
+
+   +---------------+-----------+--------------------------------------+
+   | **Parameter** | **Value** | **Description**                      |
+   |               |           |                                      |
+   +===============+===========+======================================+
+   | id            |           | Any unique value for the request,    |
+   |               |           | including a hash, checksum, or uuid. |
+   +---------------+-----------+--------------------------------------+
+   | name          |           | Supported values are "subscribe" or  |
+   |               |           | "unsubscribe".                       |
+   +---------------+-----------+--------------------------------------+
+   | namespace     | events    |                                      |
+   |               |           |                                      |
+   +---------------+-----------+--------------------------------------+
+   | args          |           | Values vary by type of class.        |
+   |               |           |                                      |
+   +---------------+-----------+--------------------------------------+
 
 Subsystems can also be tracked using the events namespace. Currently,
 there are three trackable subsystems: Dispatcher, Life Preserver, and
-System State. Use the template to subscribe to various subsystem event
+System State. Use this template to subscribe to various subsystem event
 notifications:
 
 **Websocket Request**
@@ -46,8 +50,8 @@ notifications:
  }
 
 Once subscribed, events will be received as they are produced. To
-unsubscribe from events, repeat the request, using "unsubscribe" for the
-"name".
+unsubscribe from events, repeat the request, using
+:command:`"unsubscribe"` for the :command:`"name"`.
 
 Here is an example reply from the Life Preserver subsystem:
 
@@ -69,11 +73,11 @@ Here is an example reply from the Life Preserver subsystem:
 Dispatcher
 ----------
 
-The Dispatcher subsystem is used by SysAdm™ to process external commands
-and return specific information from the utility. This is managed on the
-server as a separate process, and will not interrupt primary server
-tasks. To subscribe to the Dispatcher subsystem for event updates, use
-the following:
+The Dispatcher subsystem is used by |sysadm| to process external
+commands and return specific information from the utility. This is
+managed on the server as a separate process, and will not interrupt
+primary server tasks. Subscribe to the Dispatcher subsystem for event
+updates with this request:
 
 **Websocket Request**
 
@@ -86,12 +90,16 @@ the following:
   "args" : ["dispatcher"]
  }
 
-The Dispatcher event log will display three different states: "pending",
-"running", and "finished". Depending upon the current state, the log can
+The Dispatcher event log will display three different states: *pending*,
+*running*, and *finished*. Depending upon the current state, the log can
 change in some minor but noteworthy ways. The following sample logs will
 reflect the differences between these states:
 
-**Dispatcher Response: "Pending" state**
+.. note:: The variable **event_system** will only appear when one of
+   the three available systems initiates the request and response.
+   Additional elements tied to these systems will also appear.
+
+**Dispatcher Response: Pending**
 
 .. code-block:: json
 
@@ -101,12 +109,11 @@ reflect the differences between these states:
  "id" : "none",
  "args" : {
    "state" : "pending",
-   "cmd_list" : ["<command 1>", "<command 2>"],
    "process_id" : "<random>"
    }
  }
 
-**Dispatcher Response: "Running" state**
+**Dispatcher Response: Running**
 
 .. code-block:: json
 
@@ -115,18 +122,22 @@ reflect the differences between these states:
  "name" : "dispatcher",
  "id" : "none",
  "args" : {
+   "event_system" : "<sysadm with /pkg, /update, or /iohyve]>",
    "state" : "running",
-   "cmd_list" : ["<command 1>", "<command 2>"],
    "process_id" : "<random>",
-   "time_started" : "<ISO 8601 time date string>",
-   "current_cmd" : "<command 2>",
-   "<command1>" : "<log after running command1>",
-   "<command2>" : "<log for command2>",
-   "return_codes/<command1>" : "<integer return code>"
+   "process_details" : {
+     "state" : "running",
+     "process_id" : "<random id>",
+     "time_started" : "<ISO 8601 time date string>",
+     "cmd_list" : ["<command 1>", "<command 2>"],
+     "<command1>" : "<log after running command1>",
+     "return_codes/<command1>" : "<integer return code>",
+     "current_cmd" : "<command 2>",
+     }
    }
  }
 
-**Dispatcher Response: "Finished" state**
+**Dispatcher Response: Finished**
 
 .. code-block:: json
 
@@ -135,12 +146,20 @@ reflect the differences between these states:
  "name" : "dispatcher",
  "id" : "none",
  "args" : {
+   "event_system" : "<sysadm with /pkg, /update, or /iohyve]>",
    "state" : "finished",
-   "time_finished" : "<ISO 8601 time date string>",
-   "cmd_list" : ["<command 1>", "<command 2>"],
-   "return_codes/<command 1>" : "<code 1>",
-   "return_codes/<command 2>" : "<code 2>",
-   "process_id" : "<random>"
+   "process_id" : "<random>",
+   "process_details" : {
+     "state" : "finished",
+     "process_id" : "<random id>",
+     "time_started" : "<ISO 8601 time date string>",
+     "time_finished" : "<ISO 8601 time date string>",
+     "cmd_list" : ["<command 1>", "<command 2>"],
+     "<command1>" : "<log after running command1>",
+     "<command2>" : "<log after running command2>",
+     "return_codes/<command1>" : "<integer return code>",
+     "return_codes/<command2>" : "<integer return code>"
+     }
    }
  }
 
@@ -166,13 +185,12 @@ generalized sample:
  }
 
 For specific details on these special types of events please refer to
-the Classes section of this User Guide.
+the :ref:`classes` section of this guide.
 
 Life Preserver
 --------------
 
-To subscribe to the Life Preserver subsystem for event updates, use the
-following:
+Subscribe to the Life Preserver subsystem for event updates with this:
 
 **Websocket Request**
 
@@ -203,8 +221,7 @@ following:
 System State
 ------------
 
-To subscribe to the System State subsystem for event updates, use the
-following:
+Subscribe to the System State subsystem for event updates with this:
 
 **Websocket Request**
 
@@ -220,7 +237,7 @@ following:
 **Websocket Event Message**
 
 This message will appear if the host name has changed and a priority
-error has occurred.
+error has occurred:
 
 .. code-block:: json
 

@@ -34,6 +34,10 @@ now available in the |sysadm| client:
 
 * :ref:`Boot Environment Manager`
 
+* :ref:`Firewall Manager`
+
+* :ref:`Service Manager`
+
 * :ref:`Task Manager`
 
 * :ref:`User Manager`
@@ -76,7 +80,7 @@ available software.
 
 .. figure:: images/appcafe1.png
 
-   Browse Tab of AppCafe®
+   : Browse Tab of AppCafe®
 
 This screen contains the following options:
 
@@ -108,12 +112,11 @@ Displayed applications will be listed in alphabetical order.
 Applications which are already installed and which are not required by
 other applications have a trashcan icon which can be clicked to
 uninstall that application. Applications which are not installed have a
-down arrow icon which can be clicked to install that application. 
+down arrow icon which can be clicked to install that application.
 
-Click the name of an application to view more information about that
-application. In the example shown in
-:numref:`Figure %s <appcafe2>`,
-the user has clicked :guilabel:`Firefox` on a system that has Firefox
+Click the name of an application to view more information about the
+application. In the example shown in :numref:`Figure %s <appcafe2>`, the
+user has clicked :guilabel:`Firefox` on a system that has Firefox
 installed.
 
 .. note:: |appcafe| provides a graphical front-end for displaying the
@@ -128,7 +131,7 @@ installed.
 
 .. figure:: images/appcafe2.png
 
-   AppCafe®: Viewing the Details of an Installed Application
+   :AppCafe® - Viewing the Details of an Installed Application
 
 As seen in this example, the information for an application includes
 the application's icon, name, and description. Click the application's
@@ -148,7 +151,7 @@ An example of the "?" tab is shown in
 
 .. figure:: images/appcafe3.png
 
-   AppCafe®: More Application Details
+   : AppCafe® - More Application Details
 
 This tab displays a variety of information:
 
@@ -176,7 +179,7 @@ screenshots. An example is shown in
 
 .. figure:: images/appcafe4.png
 
-   AppCafe®: Viewing the Application's Screenshots
+   : AppCafe® - Viewing the Application's Screenshots
 
 An example of the last tab, which has a list icon, is shown in
 :numref:`Figure %s <appcafe5>`.
@@ -185,7 +188,7 @@ An example of the last tab, which has a list icon, is shown in
 
 .. figure:: images/appcafe5.png
 
-   AppCafe®: Viewing the Details of an Installed Application
+   : AppCafe® - Viewing the Details of an Installed Application
 
 This tab contains the following information. Click the right arrow next
 to an entry to expand its information and the down arrow to collapse
@@ -214,7 +217,7 @@ click the :guilabel:`Installed` tab.  An example is seen in
 
 .. figure:: images/appcafe6.png
 
-   AppCafe®: Installed Tab
+   : AppCafe® - Installed Tab
 
 This screen offers several actions:
 
@@ -266,7 +269,7 @@ has been locked, and :guilabel:`alsa-plugins` is an orphan (flag icon).
 
 .. figure:: images/appcafe7.png
 
-   AppCafe®: Viewing Applications With All Options Checked
+   : AppCafe® - Viewing Applications With All Options Checked
 
 If you install or uninstall any software, click the :guilabel:`Pending`
 tab to view the details of the operation. In the example shown in
@@ -280,7 +283,7 @@ operation.
 
 .. figure:: images/appcafe8.png
 
-   AppCafe®: Viewing the Status of the Operation
+   : AppCafe® - Viewing the Status of the Operation
 
 .. index:: updates
 .. _Update Manager:
@@ -348,7 +351,7 @@ An example of the :guilabel:`Updates` tab is shown in
 
 .. figure:: images/update1.png
 
-   Managing Updates
+   : Managing Updates
 
 In this example, updates are available for installed packages. If a
 security update is available, it will be listed as such. Apply the
@@ -373,19 +376,6 @@ The :guilabel:`Latest Check` field indicates the date and time the
 system last checked for updates. To manually check for updates, click
 :guilabel:`Check for Updates`.
 
-The :guilabel:`Branches` tab of Update Manager provides a listing of
-available branches. In the example shown in
-:numref:`Figure %s <update3>`, this system is currently running the 10.2
-branch and the upcoming 11.0 branch is available for selection.
-
-.. TODO update3.png needs to be added to images file.
-
-.. _update3:
-
-.. figure:: images/update3.png
-
-   Switching Branches
-
 The :guilabel:`Settings` tab is shown in
 :numref:`Figure %s <update4>`.
 
@@ -393,7 +383,7 @@ The :guilabel:`Settings` tab is shown in
 
 .. figure:: images/update4.png
 
-   Settings Tab
+   : Settings Tab
 
 This tab contains several configurable options:
 
@@ -408,16 +398,17 @@ This tab contains several configurable options:
 
 * **Automatically perform updates:** When checked, the automatic
   updater automatically keeps your system and packages up-to-date.
-  You will know an update has completed when the pop-up menu indicates a
-  reboot is needed to complete the update process. If you uncheck this
-  box, an update will only occur when you choose. You are not required
-  to initiate updates manually. |trueos| uses an automated updater that
+  An update has completed when the pop-up menu indicates a reboot is
+  needed to complete the update process. If
+  :guilabel:`Automatically perform updates` is unchecked, an update will
+  only occur at the user's discretion. Updates are not required to be
+  initiated manually. |trueos| uses an automated updater which
   automatically checks for updates, no more than once per day, 20
   minutes after a reboot and then every 24 hours.
 
-* **Custom Package Repository:** If you have a custom package
-  repository, check this box. This will activate the :guilabel:`URL`
-  field so you can input the URL to the custom repository.
+* **Custom Package Repository:** To use a custom package repository for
+  updates, check this box. This will activate the :guilabel:`URL`
+  field so the user can input the URL to the custom repository.
 
 .. index:: updates
 .. _Upgrading from PC-BSD® 10.x to TrueOS®:
@@ -425,35 +416,41 @@ This tab contains several configurable options:
 Upgrading from |pcbsd| 10.x to |trueos|
 ---------------------------------------
 
-If you are currently using |pcbsd| 10.x, the option to update to
-|trueos| will not appear in the Control Panel version of Update Manager.
-This is because a new installation is required in order to migrate to
-|trueos|. However, the |trueos| installer allows you to keep all your
+.. warning:: If any user account uses PersonaCrypt, please be sure to
+   save any encryption keys to a safe place (e.g. a thumb drive) before
+   beginning the upgrade process. Loss of encryption keys may result in
+   being unable to import the home directory after the upgrade is
+   complete.
+
+If the system is using |pcbsd| 10.x, the option to update to |trueos|
+will not appear in the Control Panel version of Update Manager. This is
+because a new installation is required in order to migrate to |trueos|.
+However, the |trueos| installer allows the user to keep all their
 existing data and home directories, as it provides the ability to
 install |trueos| into a new boot environment. In other words, the new
 operating system and updated applications are installed while the ZFS
 pool and any existing boot environments are preserved. Since the new
-install is in a boot environment, you retain the option to boot back
-into your previous |pcbsd| installation.
+install is in a boot environment, the option to boot back into the
+previous |pcbsd| installation will remain.
 
-.. note:: This option overwrites the contents of :file:`/etc`. If you
-   have any custom configurations, save them to a backup or your home
+.. note:: This option overwrites the contents of :file:`/etc`. If any
+   custom configurations exist, save them to a backup or the home
    directory first. Alternately, use :ref:`Boot Environment Manager`
-   post-installation to mount your previous |pcbsd| boot environment to
-   copy over any configuration files you may forget to backup.
+   post-installation to mount the previous |pcbsd| boot environment to
+   copy over any configuration files which may not have been backed up.
 
 To perform the installation to a new boot environment, start the
 |trueos| installation as described in the
 `TrueOS® Handbook <https://www.trueos.org/handbook/trueos.html>`_. In
 the `System Selection Screen <https://www.trueos.org/handbook/install.html#system-selection-screen>`_,
 choose to install either a desktop or a server. Press :guilabel:`Next`
-to view the pop-up screen shown in :numref:`Figure %s <upgrade1>`.
+to view the pop-up screen shown in :numref:`Figure %s <upgrade1a>`.
 
-.. _upgrade1:
+.. _upgrade1a:
 
-.. figure:: images/upgrade1.png
+.. figure:: images/upgrade1a.png
 
-   Install to Boot Environment
+   : Install to Boot Environment
 
 To upgrade, select the existing pool to install into and press
 :guilabel:`OK`.
@@ -471,7 +468,7 @@ and instead show a summary, seen in
 
 .. figure:: images/upgrade2.png
 
-   Start the Install to Boot Environment
+   : Start the Install to Boot Environment
 
 Press :guilabel:`Next` to start the installation. Once the installation
 is complete, reboot the system and remove the installation media. The
@@ -480,11 +477,11 @@ post-installation screens will run as described in the
 section of the |trueos| Handbook so you can configure the new
 installation.
 
-.. note:: When you encounter the
-   `Create a User Screen <https://www.trueos.org/handbook/postinstall.html#create-a-user-screen>`_,
-   recreate the primary user account using the same name you used on
-   your |pcbsd| system so |trueos| can associate the existing home
-   directory with that user. Once you have logged in, you can use
+.. note:: During the
+   `Create a User Screen <https://www.trueos.org/handbook/postinstall.html#create-a-user-screen>`_
+   process, recreate the primary user account using the same name used
+   on the previous |pcbsd| system so |trueos| can associate the
+   existing home directory with that user. Once logged in, use
    :ref:`User Manager` to recreate any other user accounts or to
    reassociate any PersonaCrypt accounts.
 
@@ -519,16 +516,15 @@ boot environment. Other examples of using boot environments include:
 * Move a boot environment to another machine, physical or virtual, in
   order to check hardware support.
 
-.. note:: For boot environments to work properly, 
-   **do not delete the default ZFS mount points during installation.** 
-   The default ZFS layout ensures when boot environments are created,
-   the :file:`/usr/local/`, :file:`/usr/home/`,
-   :file:`/usr/ports/`, :file:`/usr/src/` and :file:`/var/` directories
-   remain untouched. This way, if you rollback to a previous boot
-   environment, you will not lose data in your home directories, any
-   installed applications, or downloaded source files or ports. During
-   installation, you can add additional mount points, just don't delete
-   the default ones.
+.. note:: For boot environments to work properly, **do not** delete the
+   default ZFS mount points during installation. The default ZFS layout
+   ensures when boot environments are created, the :file:`/usr/local/`,
+   :file:`/usr/home/`, :file:`/usr/ports/`, :file:`/usr/src/` and
+   :file:`/var/` directories remain untouched. This way, if you rollback
+   to a previous boot environment, you will not lose data in your home
+   directories, any installed applications, or downloaded source files
+   or ports. During installation, you can add additional mount points,
+   just don't delete the default ones.
 
 To ensure the files the operating system needs are included when the
 system boots, all boot environments on a |trueos| system include
@@ -548,7 +544,7 @@ example shown in :numref:`Figure %s <be1>`, there is an entry named
 
 .. figure:: images/be1.png
 
-   Managing Boot Environments
+   : Managing Boot Environments
 
 Each entry contains the same information:
 
@@ -598,32 +594,30 @@ are browseable. Note this setting only applies to inactive BEs.
 environment next system boot. This will change the :guilabel:`Active`
 column to *R*.
 
-.. TODO Add/update screenshot install1b - copy/paste commented note to
-   correct place in text.
-   .. _install1b
+.. _install1b(1):
 
-   .. figure:: images/install1b.png
+.. figure:: images/install1b.png
 
-      TrueOS® Boot Menu
+   : TrueOS® Boot Menu
 
 To boot into another boot environment, press :kbd:`7` at the
-:numref:`Figure %s: TrueOS® Boot Menu <install1b>` to access the boot
-menu selection screen. In the example shown in
-:numref:`Figure %s <be2>`, two boot environments are available in the
-"Boot Environments" section: the entry named "initial" represents the
-initial installation and the entry named "mybootenvironment" was
-manually created using Boot Environment Manager. The upper section of
-this menu indicates the "initial" boot environment is set to active, or
-the one the system has been configured to boot into unless another BE is
-manually selected in this menu. Use the arrow keys to highlight the boot
-environment you would like to boot into, and press :kbd:`Enter` to
-continue booting into the selected boot environment.
+:numref:`Figure %s <install1b(1)>` to access the boot menu selection
+screen. In the example shown in :numref:`Figure %s <be2>`, two boot
+environments are available in :guilabel:`Boot Environments`:
+:guilabel:`initial` represents the initial installation and
+:guilabel:`mybootenvironment` was manually created using Boot
+Environment Manager. The upper section of this menu indicates the
+"initial" boot environment is set to active, or the one the system has
+been configured to boot into unless another BE is manually selected in
+this menu. Use the arrow keys to highlight the boot environment you
+would like to boot into, and press :kbd:`Enter` to continue booting into
+the selected boot environment.
 
 .. _be2:
 
 .. figure:: images/be2.png
 
-   Boot Environments Menu
+   : Boot Environments Menu
 
 .. index:: sysadm, configuration
 .. _Firewall Manager:
@@ -631,10 +625,57 @@ continue booting into the selected boot environment.
 Firewall Manager
 ================
 
-This section to be filled in when the firewall manager is operational.
+The Firewall Manager is a simple interface used to configure ports and
+firewalls. In :numref:`Figure %s <firewall1>`, the Multicast DNS service
+is active and using port 5353 is open, with the firewall started.
+
+.. _firewall1:
+
+.. figure:: images/firewall1.png
+
+   : |sysadm| Firewall Manager
+
+The top row of the interface has options to configure the firewall.
+:guilabel:`Start` turns on the firewall, :guilabel:`Restart` will turn
+the firewall off and on again, and :guilabel:`Stop` turns the firewall
+off. On the right side of the row are two buttons, :guilabel:`Power On`
+and :guilabel:`Power Off`. 
+
+.. note:: In :numref:`Figure %s <firewall1>`, the :guilabel:`Start`
+   option is greyed out, as the firewall is currently active. Additionally,
+   :guilabel:`Power On` is also greyed out as the firewall is configured
+   to start on bootup.
+
+The central window describes all added services. The list can be sorted
+by clicking :guilabel:`Open Ports`. Next, the :guilabel:`Used By` column
+displays the name of the service using the open ports. Finally, the
+:guilabel:`Description` column offers more information about the service
+name in the same row.
+
+The bottom portion of the interface provides options to open and close
+ports. There are two options to open a port: :guilabel:`Find by Service`
+and :guilabel:`Number/Type`:
+
+**Find by Service:** Click :guilabel:`Select a Service...` to
+open a drop down menu of alphabetized services. Click the desired
+service, and the Firewall Manager will automatically add it to the list
+of open ports.
+
+.. tip:: The services list can be navigated quickly by typing the name
+   of the desired service while the list is open.
+
+**Number/Type:** Manually designate a port to open by typing the number
+in the :guilabel:`Number` field. The :guilabel:`Arrow` icons can be
+pressed to either increase or decrease the number by one. The next drop
+down menu allows for designating between **tcp** or **udp**. Once the
+number and type of port are chosen, click the :guilabel:`Keyhole` icon
+to confirm the selections and open the desired port.
+
+To close a port, select a port from the :guilabel:`Open Ports`
+column and press :guilabel:`Close Ports`.
 
 .. index:: sysadm, configuration
-.. _Server Manager:
+.. _Service Manager:
 
 Service Manager
 ===============
@@ -647,7 +688,7 @@ several options to configure these services.
 
 .. figure:: images/service1.png
 
-   SysAdm™ Service Manager
+   : SysAdm™ Service Manager
 
 Services are listed in a chart with four columns:
 
@@ -691,7 +732,7 @@ a listing of currently running applications. An example is shown in
 
 .. figure:: images/task1.png
 
-   SysAdm™ Task Manager
+   : SysAdm™ Task Manager
 
 The "Running Programs:" section provides a graphical front-end to
 `top(1) <https://www.freebsd.org/cgi/man.cgi?query=top>`_.
@@ -717,7 +758,7 @@ installation.
 
 .. figure:: images/user1.png
 
-   Viewing User Accounts in User Manager
+   : Viewing User Accounts in User Manager
 
 The :guilabel:`Standard` view allows you to configure the following:
 
@@ -753,7 +794,7 @@ clicking :guilabel:`New User`.
 
 .. figure:: images/user2.png
 
-   Creating a New User Account
+   : Creating a New User Account
 
 Fields outlined in red are required when creating a user. The
 :guilabel:`User Name`, :guilabel:`Full Name`, and :guilabel:`Password`
@@ -806,7 +847,7 @@ system, not just the user accounts you created. An example is seen in
 
 .. figure:: images/user3.png
 
-   Viewing All Accounts and Their Details
+   : Viewing All Accounts and Their Details
 
 The accounts you did not create are known as system accounts and are
 needed by the operating system or installed applications. Do **not**
@@ -856,19 +897,17 @@ logged in user. In the example shown in
 :numref:`Figure %s <user5>`, a new user, named *dlavigne*, has been
 created and the entry for the user has been clicked.
 
-.. TODO Add user5.png to images folder.
-
 .. _user5: 
 
 .. figure:: images/user5.png
 
-   Initialize PersonaCrypt Device
+   : Initialize PersonaCrypt Device
 
 Before a user is configured to use PersonaCrypt on a |trueos| system,
 two buttons are available in the "PersonaCrypt" section of "Advanced
 Mode". Note this section is hidden if the currently logged in user is
 selected. Also, if you have just created a user and do not see these
-options, click :guilabel:`Apply` then re-highlight the user to display
+options, click :guilabel:`Save` then re-highlight the user to display
 these options:
 
 * **Initialize Device:** Used to prepare the USB device which will be
@@ -880,9 +919,7 @@ these options:
   imported, the user can now login to this computer using PersonaCrypt.
 
 To prepare a PersonaCrypt device for this user, insert a USB stick and
-click :guilabel:`Initialize Device`. A pop-up menu will indicate the
-current contents of the device will be wiped and the device must be
-larger than the user's current home directory.
+click :guilabel:`Initialize Device`.
 
 .. warning:: Since the USB stick will hold the user's home directory and
    files, ensure the stick is large enough to meet the anticipated
@@ -891,40 +928,47 @@ larger than the user's current home directory.
    data on the stick you need has been copied elsewhere. Also, the
    faster the stick, the better the user experience while logged in.
 
-Press :guilabel:`OK` in the pop-up menu. This will prompt you to input
-and confirm the password to associate with the device. Another message
-will ask if you are ready. Click :guilabel:`Yes` to initialize the
-device. The User Manager screen will be greyed out while the device is
-prepared. Once the initialization is complete, the User Manager screen
-will change to display the device's key options, as seen in
-:numref:`Figure %s <user6>`.
+Type a password to associate with the device. Click :guilabel:`Save` to
+initialize the device. The User Manager may take a moment to prepare the
+device. Once initialization is complete, the User Manager screen
+will change to allow removal of PersonaCrypt.
 
-.. TODO Add user6.png to images folder.
+.. Leave this commented as the current development may use some of these
+   options from the old personacrypt initializer.
+   
+   display the device's key options, as seen in
+   :numref:`Figure %s <user6>`.
 
-.. _user6:
+   .. _user6:
 
-.. figure:: images/user6.png
+   .. figure:: images/user6.png
 
    PersonaCrypt Key Options
 
-Several options are now available:
+   Several options are now available:
 
-* **Export Key:** Used to create a copy of the encryption key so it can
-  be imported for use on another |trueos| system.
+   * **Export Key:** Used to create a copy of the encryption key so it can
+   be imported for use on another |trueos| system.
 
-* **Disable Key (No Data):** Used to uninitialize the PersonaCrypt
-  device on this system. Note the device can still be used to login to
-  other |trueos| systems.
+   * **Disable Key (No Data):** Used to uninitialize the PersonaCrypt
+   device on this system. Note the device can still be used to login to
+   other |trueos| systems.
 
-* **Disable Key (Import Data):** In addition to uninitializing the
-  PersonaCrypt device on this system, copy the contents of the user's
-  home directory to this system.
+   * **Disable Key (Import Data):** In addition to uninitializing the
+   PersonaCrypt device on this system, copy the contents of the user's
+   home directory to this system.
 
 Once a user has been initialized for PersonaCrypt on the system, their
 user account will no longer be displayed when logging in, **unless**
 their PersonaCrypt device is inserted. Once the USB device is inserted,
 the login screen will add an extra field, as seen in the example shown
-in Figure 4.8b.
+in :numref:`Figure %s <troslogin5>`.
+
+.. _troslogin5:
+
+.. figure:: images/login5.png
+
+   : |trueos| Login Screen with PersonaCrypt
 
 .. note:: When stealth sessions have been configured, PersonaCrypt
    users will still be displayed in the login menu, even if their USB
@@ -950,11 +994,11 @@ system. The :guilabel:`Standard` tab, seen in
 :numref:`Figure %s <user4>`, shows the group membership for the
 *operator* and *wheel* groups:
 
-.. _user4: 
+.. _user4:
 
 .. figure:: images/user4.png
 
-   Managing Groups Using User Manager
+   : Managing Groups Using User Manager
 
 This screen has 2 columns:
 
@@ -992,9 +1036,9 @@ schedule snapshots of a ZFS pool and to optionally replicate those
 snapshots to another system over an encrypted connection. This design
 provides several benefits:
 
-* A snapshot provides a "point-in-time" image of the ZFS pool. In one
-  way, this is similar to a full system backup as the snapshot contains
-  the information for the entire filesystem. However, it has several
+* A snapshot provides a "point-in-time" image of the ZFS pool. This
+  is similar to a full system backup as the snapshot contains the
+  information for the entire filesystem. However, it has several
   advantages over a full backup. Snapshots occur instantaneously,
   meaning the filesystem does not need to be unmounted and you can
   continue to use applications on your system as the snapshot is
@@ -1037,7 +1081,7 @@ a system not yet configured. This system has a "ZFS Pool" named "tank".
 
 .. figure:: images/lpreserver1.png
 
-   Snapshot Tab
+   : Snapshot Tab
 
 This screen will display any created snapshots and provides buttons to:
 
@@ -1079,6 +1123,10 @@ your snapshots on another system.
 In order to configure replication, the remote system to hold a copy of
 the snapshots must first meet several requirements:
 
+* Snapshots occurring too frequently can introduce errors in
+  replication. To avoid errors, ensure snapshots are configured to take
+  place slower than the desired pace of replication.
+
 * The backup server
   **must be formatted with the latest version of ZFS,** also known as
   ZFS feature flags or ZFSv5000. Operating systems that support this
@@ -1107,7 +1155,7 @@ configure the replication schedule.
 
 .. figure:: images/lpreserver2.png
 
-   Replication Tab
+   : Replication Tab
 
 To schedule the replication, click :guilabel:`+` to display the
 "Setup Replication" screen shown in
@@ -1117,7 +1165,7 @@ To schedule the replication, click :guilabel:`+` to display the
 
 .. figure:: images/lpreserver3.png
 
-   Scheduling a Replication
+   : Scheduling a Replication
 
 Input the following information:
 
@@ -1191,11 +1239,12 @@ Schedule" pane as seen in :numref:`Figure %s <lpreserver4>`.
 
 .. figure:: images/lpreserver4.png
 
-   Scheduling a Snapshot
+   : Scheduling a Snapshot
 
 This pane contains several options:
 
-**ZPool:** Select the ZFS pool to snapshot.
+**Storage Pool:** Select the ZFS storage pool that contains the datasets
+that you wish to snapshot.
 
 **Snapshots to keep:** Snapshots are automatically pruned after the
 specified number of snapshots to prevent snapshots from eventually
@@ -1217,8 +1266,10 @@ next to the "camera" icon to modify the highlighted schedule or the
 
 This screen can also be used to manage the ZFS scrub schedule. Scrubs
 are recommended as they can provide an early indication of a potential
-disk failure. Since scrubs can be scheduled on a per-pool basis, if you
-have multiple pools, create a scrub schedule for each pool.
+disk failure. Scrubs can be scheduled on a per-pool basis. 
+
+.. tip:: If you have multiple pools, be sure to create a scrub schedule
+   for each pool.
 
 To schedule when the scrub occurs, click the third icon from the right
 which will activate the "Setup Scrub Schedule" screen shown in
@@ -1228,15 +1279,15 @@ which will activate the "Setup Scrub Schedule" screen shown in
 
 .. figure:: images/lpreserver5.png
 
-   Scheduling a Scrub
+   : Scheduling a Scrub
 
-Select the pool from the :guilabel:`ZPool` drop-down menu, then select
-the :guilabel:`Frequency`. Supported frequencies are "Daily", "Weekly",
-or "Monthly". If you select "Daily", you can configure the "Hour". If
-you select "Weekly", you can configure the "Day of week" and the "Hour".
-If you select "Monthly", you can configure the "Date" and "Hour". Since
-a scrub can be disk I/O intensive, it is recommended to pick a time when
-the system will not be in heavy use.
+Select the pool from the :guilabel:`Storage Pool` drop-down menu, then
+select the :guilabel:`Frequency`. Supported frequencies are "Daily",
+"Weekly", or "Monthly". If you select "Daily", you can configure the
+"Hour". If you select "Weekly", you can configure the "Day of week" and
+the "Hour".  If you select "Monthly", you can configure the "Date" and
+"Hour". Since a scrub can be disk I/O intensive, it is recommended to
+pick a time when the system will not be in heavy use.
 
 Once you have created a scrub schedule, you can use the "gear" icon
 next to the "schedule scrub" icon to modify the highlighted schedule or
@@ -1255,7 +1306,7 @@ The :guilabel:`Settings` tab is shown in
 
 .. figure:: images/lpreserver6.png
 
-   Life Preserver Settings
+   : Life Preserver Settings
 
 Many settings are configurable:
 
@@ -1331,8 +1382,8 @@ the :command:`lpreserver cronsnap` command, type:
   * A hourly snapshot will be kept for a day.
   * A daily snapshot will be kept for a month.
   * A Monthly snapshot will be kept for a year.
-  * The life-preserver daemon will also keep track of the zpool disk space,
-    if the capacity falls below 75%, the oldest snapshot will be auto-pruned.
+  * The life-preserver daemon will also keep track of the storage pool disk space.
+    If the capacity falls below 75%, the oldest snapshot will be auto-pruned.
  Examples:
   lpreserver cronsnap start tank1/usr/home/kris daily@22 10
   Schedule snapshots of dataset tank1/usr/home/kris daily at 22:00.
@@ -1362,10 +1413,10 @@ the :command:`lpreserver cronsnap` command, type:
   listexclude <dataset>
   List which datasets are excluded from schedule snapshots.
 
-:numref:`Table %s <table_1>` shows the command line equivalents to the
+:numref:`Table %s <cmdgui>` shows the command line equivalents to the
 graphical options provided by the Life Preserver GUI.
 
-.. _table_1:
+.. _cmdgui:
 
 .. table:: Command Line and GUI Equivalents
 
@@ -1415,7 +1466,7 @@ installation as usual until you get to the screen shown in
 
 .. figure:: images/restore1.png
 
-   Selecting to Restore/Clone From Backup
+   : Selecting to Restore/Clone From Backup
 
 Before you can perform a restore, the network interface must be
 configured. Click :guilabel:`Network Connectivity` (second icon from the
@@ -1437,30 +1488,18 @@ a non-standard SSH port, change the "SSH port" number.
 
 .. figure:: images/restore2.png
 
-   Input the Information for a SSH Restore
+   : Input the Information for a SSH Restore
 
 Click :guilabel:`Next` and the wizard will provide a summary of your
 selections. If correct, click :guilabel:`Finish`; otherwise, click
 :guilabel:`Back` to correct them.
 
 Once the connection to the backup server succeeds, you will be able to
-select which host to restore. In the example shown in
-:numref:`Figure %s <restore4>`, only one host has been backed up to the
-replication server.
-
-.. TODO Add restore4.png to images folder.
-
-.. _restore4:
-
-.. figure:: images/restore4.png
-
-   Select the Host to Restore
-
-After making your selection, click :guilabel:`Next`. The restore wizard
-will provide a summary of which host it will restore from, the name of
-the user account associated with the replication, and the hostname of
-the target system. Click :guilabel:`Finish` and the installer will
-proceed to the
+select which host to restore. After making your selection, click
+:guilabel:`Next`. The restore wizard will provide a summary of which
+host it will restore from, the name of the user account associated with
+the replication, and the hostname of the target system. Click
+:guilabel:`Finish` and the installer will proceed to the
 `Disk Selection Screen <https://www.trueos.org/handbook/install.html#disk-selection-screen>`_.
 At this point, you can click the :guilabel:`Customize` button to
 customize the disk options. However, in the screen shown in Figure 3.3h,
