@@ -10,8 +10,6 @@ COMMENT=	PC-BSD SysAdm API server
 
 LICENSE=	BSD3CLAUSE
 
-RUN_DEPENDS=	${LOCALBASE}/bin/jobctl:sysutils/jobd
-
 WRKSRC_SUBDIR=	src
 USE_QT5=	concurrent core network buildtools qmake gui websockets
 USES=		pkgconfig tar:xz qmake
