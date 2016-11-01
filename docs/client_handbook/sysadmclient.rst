@@ -1,8 +1,8 @@
 .. index:: configuration
 .. _SysAdm™ Client:
 
-SysAdm™ Client
-**************
+|sysadm| Client
+***************
 
 Beginning with |trueos| 11, most of the system management utilities that
 were previously available in the |pcbsd| Control Panel have been
@@ -55,8 +55,8 @@ client and all of its functionality, beginning with |appcafe|.
 .. index:: software, configuration, sysadm
 .. _AppCafe®:
 
-AppCafe®
-========
+|appcafe|
+=========
 
 |appcafe| provides a graphical interface for installing and managing
 FreeBSD packages, which are pre-built applications that have been tested
@@ -131,7 +131,7 @@ installed.
 
 .. figure:: images/appcafe2.png
 
-   :AppCafe® - Viewing the Details of an Installed Application
+   : |appcafe| - Viewing the Details of an Installed Application
 
 As seen in this example, the information for an application includes
 the application's icon, name, and description. Click the application's
@@ -151,7 +151,7 @@ An example of the "?" tab is shown in
 
 .. figure:: images/appcafe3.png
 
-   : AppCafe® - More Application Details
+   : |appcafe| - More Application Details
 
 This tab displays a variety of information:
 
@@ -179,7 +179,7 @@ screenshots. An example is shown in
 
 .. figure:: images/appcafe4.png
 
-   : AppCafe® - Viewing the Application's Screenshots
+   : |appcafe| - Viewing the Application's Screenshots
 
 An example of the last tab, which has a list icon, is shown in
 :numref:`Figure %s <appcafe5>`.
@@ -188,7 +188,7 @@ An example of the last tab, which has a list icon, is shown in
 
 .. figure:: images/appcafe5.png
 
-   : AppCafe® - Viewing the Details of an Installed Application
+   : |appcafe| - Viewing the Details of an Installed Application
 
 This tab contains the following information. Click the right arrow next
 to an entry to expand its information and the down arrow to collapse
@@ -217,7 +217,7 @@ click the :guilabel:`Installed` tab.  An example is seen in
 
 .. figure:: images/appcafe6.png
 
-   : AppCafe® - Installed Tab
+   : |appcafe| - Installed Tab
 
 This screen offers several actions:
 
@@ -269,7 +269,7 @@ has been locked, and :guilabel:`alsa-plugins` is an orphan (flag icon).
 
 .. figure:: images/appcafe7.png
 
-   : AppCafe® - Viewing Applications With All Options Checked
+   : |appcafe| - Viewing Applications With All Options Checked
 
 If you install or uninstall any software, click the :guilabel:`Pending`
 tab to view the details of the operation. In the example shown in
@@ -283,7 +283,7 @@ operation.
 
 .. figure:: images/appcafe8.png
 
-   : AppCafe® - Viewing the Status of the Operation
+   : |appcafe| - Viewing the Status of the Operation
 
 .. index:: updates
 .. _Update Manager:
@@ -598,7 +598,7 @@ column to *R*.
 
 .. figure:: images/install1b.png
 
-   : TrueOS® Boot Menu
+   : |trueos| Boot Menu
 
 To boot into another boot environment, press :kbd:`7` at the
 :numref:`Figure %s <install1b(1)>` to access the boot menu selection
@@ -688,7 +688,7 @@ several options to configure these services.
 
 .. figure:: images/service1.png
 
-   : SysAdm™ Service Manager
+   : |sysadm| Service Manager
 
 Services are listed in a chart with four columns:
 
@@ -732,7 +732,7 @@ a listing of currently running applications. An example is shown in
 
 .. figure:: images/task1.png
 
-   : SysAdm™ Task Manager
+   : |sysadm| Task Manager
 
 The "Running Programs:" section provides a graphical front-end to
 `top(1) <https://www.freebsd.org/cgi/man.cgi?query=top>`_.
