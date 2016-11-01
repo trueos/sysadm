@@ -11,10 +11,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../../sysadmclient.rst:14
-msgid "SysAdm™ Client"
-msgstr ""
-
 #: ../../sysadmclient.rst:16
 msgid ""
 "Beginning with |trueos| 11, most of the system management utilities that "
@@ -93,10 +89,6 @@ msgstr ""
 msgid ""
 "Instructions for using the API in your own scripts can be found in the "
 "`SysAdm™ API Reference Guide <http://api.sysadm.us/>`_."
-msgstr ""
-
-#: ../../sysadmclient.rst:68
-msgid "AppCafe®"
 msgstr ""
 
 #: ../../sysadmclient.rst:70
@@ -1788,34 +1780,6 @@ msgid ""
 "user has clicked :guilabel:`Firefox` on a system that has Firefox installed."
 msgstr ""
 
-#: ../../sysadmclient.rst:143
-msgid ":AppCafe® - Viewing the Details of an Installed Application"
-msgstr ""
-
-#: ../../sysadmclient.rst:163
-msgid ": AppCafe® - More Application Details"
-msgstr ""
-
-#: ../../sysadmclient.rst:191
-msgid ": AppCafe® - Viewing the Application's Screenshots"
-msgstr ""
-
-#: ../../sysadmclient.rst:200
-msgid ": AppCafe® - Viewing the Details of an Installed Application"
-msgstr ""
-
-#: ../../sysadmclient.rst:229
-msgid ": AppCafe® - Installed Tab"
-msgstr ""
-
-#: ../../sysadmclient.rst:281
-msgid ": AppCafe® - Viewing Applications With All Options Checked"
-msgstr ""
-
-#: ../../sysadmclient.rst:295
-msgid ": AppCafe® - Viewing the Status of the Operation"
-msgstr ""
-
 #: ../../sysadmclient.rst:363
 msgid ": Managing Updates"
 msgstr ""
@@ -1848,10 +1812,6 @@ msgstr ""
 msgid ": Managing Boot Environments"
 msgstr ""
 
-#: ../../sysadmclient.rst:610
-msgid ": TrueOS® Boot Menu"
-msgstr ""
-
 #: ../../sysadmclient.rst:612
 msgid ""
 "To boot into another boot environment, press :kbd:`7` at the :numref:`Figure"
@@ -1873,14 +1833,6 @@ msgstr ""
 
 #: ../../sysadmclient.rst:645
 msgid ": |sysadm| Firewall Manager"
-msgstr ""
-
-#: ../../sysadmclient.rst:700
-msgid ": SysAdm™ Service Manager"
-msgstr ""
-
-#: ../../sysadmclient.rst:744
-msgid ": SysAdm™ Task Manager"
 msgstr ""
 
 #: ../../sysadmclient.rst:770
@@ -1992,6 +1944,86 @@ msgstr ""
 #: ../../sysadmclient.rst:980
 msgid ": |trueos| Login Screen with PersonaCrypt"
 msgstr ""
+
+#: ../../sysadmclient.rst:14
+msgid "|sysadm| Client"
+msgstr ""
+
+#: ../../sysadmclient.rst:68
+msgid "|appcafe|"
+msgstr ""
+
+#: ../../sysadmclient.rst:143 ../../sysadmclient.rst:200
+msgid ": |appcafe| - Viewing the Details of an Installed Application"
+msgstr ""
+
+#: ../../sysadmclient.rst:163
+msgid ": |appcafe| - More Application Details"
+msgstr ""
+
+#: ../../sysadmclient.rst:191
+msgid ": |appcafe| - Viewing the Application's Screenshots"
+msgstr ""
+
+#: ../../sysadmclient.rst:229
+msgid ": |appcafe| - Installed Tab"
+msgstr ""
+
+#: ../../sysadmclient.rst:281
+msgid ": |appcafe| - Viewing Applications With All Options Checked"
+msgstr ""
+
+#: ../../sysadmclient.rst:295
+msgid ": |appcafe| - Viewing the Status of the Operation"
+msgstr ""
+
+#: ../../sysadmclient.rst:610
+msgid ": |trueos| Boot Menu"
+msgstr ""
+
+#: ../../sysadmclient.rst:700
+msgid ": |sysadm| Service Manager"
+msgstr ""
+
+#: ../../sysadmclient.rst:744
+msgid ": |sysadm| Task Manager"
+msgstr ""
+
+#~ msgid "SysAdm™ Client"
+#~ msgstr ""
+
+#~ msgid "AppCafe®"
+#~ msgstr ""
+
+#~ msgid ":AppCafe® - Viewing the Details of an Installed Application"
+#~ msgstr ""
+
+#~ msgid ": AppCafe® - More Application Details"
+#~ msgstr ""
+
+#~ msgid ": AppCafe® - Viewing the Application's Screenshots"
+#~ msgstr ""
+
+#~ msgid ": AppCafe® - Viewing the Details of an Installed Application"
+#~ msgstr ""
+
+#~ msgid ": AppCafe® - Installed Tab"
+#~ msgstr ""
+
+#~ msgid ": AppCafe® - Viewing Applications With All Options Checked"
+#~ msgstr ""
+
+#~ msgid ": AppCafe® - Viewing the Status of the Operation"
+#~ msgstr ""
+
+#~ msgid ": TrueOS® Boot Menu"
+#~ msgstr ""
+
+#~ msgid ": SysAdm™ Service Manager"
+#~ msgstr ""
+
+#~ msgid ": SysAdm™ Task Manager"
+#~ msgstr ""
 
 #~ msgid ""
 #~ "Once a user has been initialized for PersonaCrypt on the system, their user "
