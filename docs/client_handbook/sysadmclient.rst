@@ -1075,7 +1075,7 @@ Snapshots Tab
 -------------
 
 :numref:`Figure %s <lpreserver1>` shows the :guilabel:`Snapshots` tab on
-a system not yet configured. This system has a "ZFS Pool" named "tank".
+a system not yet configured. This system has a "ZFS Pool" named "tank1".
 
 .. _lpreserver1:
 
