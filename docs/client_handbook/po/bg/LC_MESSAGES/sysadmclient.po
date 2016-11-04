@@ -1118,12 +1118,6 @@ msgstr ""
 msgid "Snapshots Tab"
 msgstr ""
 
-#: ../../sysadmclient.rst:1086
-msgid ""
-":numref:`Figure %s <lpreserver1>` shows the :guilabel:`Snapshots` tab on a "
-"system not yet configured. This system has a \"ZFS Pool\" named \"tank\"."
-msgstr ""
-
 #: ../../sysadmclient.rst:1095
 msgid ""
 "This screen will display any created snapshots and provides buttons to:"
@@ -1988,6 +1982,17 @@ msgstr ""
 #: ../../sysadmclient.rst:744
 msgid ": |sysadm| Task Manager"
 msgstr ""
+
+#: ../../sysadmclient.rst:1086
+msgid ""
+":numref:`Figure %s <lpreserver1>` shows the :guilabel:`Snapshots` tab on a "
+"system not yet configured. This system has a \"ZFS Pool\" named \"tank1\"."
+msgstr ""
+
+#~ msgid ""
+#~ ":numref:`Figure %s <lpreserver1>` shows the :guilabel:`Snapshots` tab on a "
+#~ "system not yet configured. This system has a \"ZFS Pool\" named \"tank\"."
+#~ msgstr ""
 
 #~ msgid "SysAdm™ Client"
 #~ msgstr ""
