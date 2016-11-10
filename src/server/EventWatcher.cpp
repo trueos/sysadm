@@ -9,6 +9,7 @@
 #include "library/sysadm-general.h"
 #include "library/sysadm-zfs.h"
 #include "library/sysadm-update.h"
+#include "library/sysadm-systemmanager.h"
 
 // === PUBLIC ===
 EventWatcher::EventWatcher(){
@@ -370,7 +371,34 @@ void EventWatcher::CheckSystemState(){
   if(!updates.isEmpty()){
     if(updates.value("status").toString()!="noupdates"){
       int tmp = 2;
-      if(updates.value("status").toString()=="rebootrequired"){ tmp = 9; } //user input required
+      if(updates.value("status").toString()=="rebootrequired"){ 
+        tmp = 9; //user input required
+        //Check if the auto_update_reboot flag is set, and reboot as needed
+        QJsonObject upset = sysadm::Update::readSettings();
+        if(upset.contains("auto_update_reboot")){
+          bool ok = false;
+          int hour = upset.value("auto_update_reboot").toString().toInt(&ok);
+          if(ok){ //got a valid number
+            //Check if that time has recently happened
+            QDateTime finished = sysadm::Update::rebootRequiredSince();
+            QDateTime cdt = QDateTime::currentDateTime();
+            if( (finished.addSecs(60*60*24)<cdt) || cdt.time().hour() == hour){ //more than 24 hours have passed, or time has come
+              sysadm::SysMgmt::systemReboot();
+            }
+          }
+        }
+      }else if(updates.value("status").toString()!="updaterunning"){
+        //updates are available - see if the auto-update flag is set, and start the updates as needed
+        QJsonObject upset = sysadm::Update::readSettings();
+        QDateTime last = sysadm::Update::lastFullCheck().addSecs(60); //wait one interval before starting auto-updates (15 min intervals usually)
+        if( (!upset.contains("auto_update") || updates.value("auto_update").toString().toLower()!="all") && (QDateTime::currentDateTime() > last) ){
+           QJsonObject obj;
+           obj.insert("target", "pkgupdate"); //since everything is run with pkg now
+           sysadm::Update::startUpdate(obj);
+           QCoreApplication::processEvents(); //make sure everything gets started
+           updates = sysadm::Update::checkUpdates(true); //will be almost instant - updates should already be running now
+        }
+      }
       if(priority<tmp){priority = tmp;} //bump up the priority to the top of the "Information" range (updates available/running)
     }
     obj.insert("updates",updates);
@@ -385,4 +413,3 @@ void EventWatcher::CheckSystemState(){
   HASH.insert(SYSSTATE, obj);
   emit NewEvent(SYSSTATE, obj);
 }
-

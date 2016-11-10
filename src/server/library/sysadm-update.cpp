@@ -20,6 +20,16 @@ using namespace sysadm;
 
 //PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
+//Return the date/time that the last full check for updates was run
+QDateTime Update::lastFullCheck(){
+  return QFileInfo(UP_UPFILE).lastModified();
+}
+
+QDateTime Update::rebootRequiredSince(){
+  if(!QFile::exists(UP_RBFILE)){ return QDateTime(); } //null time - no file exists
+  return QFileInfo(UP_RBFILE).lastModified();
+}
+
 // Return a list of updates available
 QJsonObject Update::checkUpdates(bool fast) {
   //NOTE: The "fast" option should only be used for automated/timed checks (to prevent doing this long check too frequently)
@@ -238,7 +248,7 @@ QJsonObject Update::stopUpdate() {
 QJsonObject Update::readSettings(){
   QJsonObject ret;
   QStringList knownsettings;
-  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE";// << "CDN_TYPE";
+  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE" << "AUTO_UPDATE_REBOOT";// << "CDN_TYPE";
 
   QStringList info = General::readTextFile(UP_CONFFILE);
   for(int i=0; i<info.length(); i++){
@@ -256,11 +266,13 @@ QJsonObject Update::writeSettings(QJsonObject obj){
   QJsonObject ret;
   //Check inputs
   QStringList knownsettings;
-  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE";// << "CDN_TYPE";
+  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE" << "AUTO_UPDATE_REBOOT";// << "CDN_TYPE";
   QStringList keys = obj.keys();
   QStringList vals;
+  bool clearlastCheck = false;
   for(int i=0; i<keys.length(); i++){
     if(knownsettings.contains(keys[i].toUpper())){
+      if(keys[i].toUpper().startsWith("PACKAGE_")){ clearlastCheck = true; }
       vals << obj.value(keys[i]).toString();
       keys[i] = keys[i].toUpper();
     }else{
@@ -289,8 +301,12 @@ QJsonObject Update::writeSettings(QJsonObject obj){
   if( General::writeTextFile(UP_CONFFILE, info, true) ){
     QProcess::startDetached("pc-updatemanager syncconf"); //sync up the config files as needed
     ret.insert("result","success");
+    if(clearlastCheck){
+      if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //ensure the next fast update does a full check
+    }
   }else{
     ret.insert("result","error");
   }
+
   return ret;
 }

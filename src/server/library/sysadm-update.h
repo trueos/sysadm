@@ -14,6 +14,10 @@ namespace sysadm{
 
 class Update{
 public:
+	//Time stamps
+	static QDateTime lastFullCheck();
+	static QDateTime rebootRequiredSince();
+	//Listing routines
 	static QJsonObject checkUpdates(bool fast = false);
 	static QJsonObject listBranches();
 	//Start/stop update routine
