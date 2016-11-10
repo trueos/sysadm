@@ -3,7 +3,7 @@
 # Released under the 2-clause BSD license
 
 command="/usr/local/bin/sysadm-server"
-command_args=""
+command_args="&"
 pid=/var/run/sysadm.pid
 name="SysAdm Server (WebSocket)"
 
