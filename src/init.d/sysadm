@@ -2,8 +2,7 @@
 # Copyright (c) 2016 Ken Moore <ken@ixsystems.com>
 # Released under the 2-clause BSD license
 
-command="/usr/local/bin/sysadm-server"
-command_args="&"
+command="%%PREFIX%%/bin/sysadm-server"
 pid=/var/run/sysadm.pid
 name="SysAdm Server (WebSocket)"
 
