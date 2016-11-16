@@ -3,6 +3,7 @@
 # Released under the 2-clause BSD license
 
 command="%%PREFIX%%/bin/sysadm-bridge"
+command_args="&"
 pid=/var/run/sysadm-bridge.pid
 name="SysAdm Bridge"
 
