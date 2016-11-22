@@ -1,0 +1,13 @@
+#!/sbin/openrc-run
+# Copyright (c) 2016 Ken Moore <ken@ixsystems.com>
+# Released under the 2-clause BSD license
+
+command="%%PREFIX%%/bin/sysadm-server"
+command_args="&"
+pid=/var/run/sysadm.pid
+name="SysAdm Server (WebSocket)"
+
+depend() { 
+	need syscons network
+	after bootmisc
+}

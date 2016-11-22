@@ -15,6 +15,8 @@ USE_QT5=	concurrent core network buildtools qmake gui websockets
 USES=		pkgconfig tar:xz qmake
 MAKE_ARGS=	PREFIX=${STAGEDIR}${PREFIX}
 
+USE_OPENRC_SUBR=	sysadm sysadm-bridge sysadm-rest
+
 USE_GITHUB=	yes
 GH_ACCOUNT=	pcbsd
 GH_PROJECT=	sysadm
