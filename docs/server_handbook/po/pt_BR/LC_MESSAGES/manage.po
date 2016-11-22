@@ -11,13 +11,17 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: ../../manage.rst:32
+msgid "This default configuration also has blacklist options:"
+msgstr ""
+
 #: ../../manage.rst:13
-msgid "Managing SysAdm™"
+msgid "Managing |sysadm|"
 msgstr ""
 
 #: ../../manage.rst:15
 msgid ""
-"SysAdm™ comes with a standard configuration file located in "
+"|sysadm| comes with a standard configuration file located in "
 ":file:`/usr/local/etc/sysadm.conf.dist`."
 msgstr ""
 
@@ -25,15 +29,30 @@ msgstr ""
 msgid ""
 "It is possible to edit this file for a custom configuration, but the result "
 "will need to be saved as :file:`sysadm.conf`. Here are the current default "
-"settings for SysAdm™:"
-msgstr ""
-
-#: ../../manage.rst:32
-msgid "This default configuration also has blacklist options:"
+"settings for |sysadm|:"
 msgstr ""
 
 #: ../../manage.rst:48
 msgid ""
-"Please note these default options are subject to change as the SysAdm™ "
+"Please note these default options are subject to change as the |sysadm| "
 "utility is developed."
 msgstr ""
+
+#~ msgid "Managing SysAdm™"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "SysAdm™ comes with a standard configuration file located in "
+#~ ":file:`/usr/local/etc/sysadm.conf.dist`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "It is possible to edit this file for a custom configuration, but the result "
+#~ "will need to be saved as :file:`sysadm.conf`. Here are the current default "
+#~ "settings for SysAdm™:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Please note these default options are subject to change as the SysAdm™ "
+#~ "utility is developed."
+#~ msgstr ""
