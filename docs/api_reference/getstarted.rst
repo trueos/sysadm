@@ -14,6 +14,13 @@ JSON (JavaScript Object Notation) format. For detailed descriptions of
 these items, please refer to their respective websites at
 http://www.websocket.org and http://json.org/.
 
+The |sysadm| API Reference Guide is freely available for sharing and
+redistribution under the terms of the
+`Creative Commons Attribution License <https://creativecommons.org/licenses/by/4.0/>`_.
+This means you have permission to copy, distribute, translate, and adapt
+the work as long as you attribute the |lumina| Project as the original
+source of the Handbook.
+
 .. _Authentication:
 
 Authentication

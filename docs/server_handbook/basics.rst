@@ -9,11 +9,11 @@ SysAdm™ files are currently available from the
 
 .. _building:
 
-Building SysAdm™
-----------------
+Building |sysadm|
+-----------------
 
 Several Qt Modules are required before attempting to build
-SysAdm™:
+|sysadm|:
 
 .. code-block:: none
 
@@ -21,7 +21,7 @@ SysAdm™:
   Qt5 Concurrent (# pkg install qt5-concurrent)
   Qt5 Websockets (# pkg install qt5-websockets)
 
-Building the prototype version of SysAdm™ assumes you have access to
+Building the prototype version of |sysadm| assumes you have access to
 github.com.
 
 .. code-block:: none
@@ -33,10 +33,10 @@ github.com.
 
 .. _starting:
 
-Starting SysAdm™
-----------------
+Starting |sysadm|
+-----------------
 
-SysAdm™ can be started one of two ways: the traditional rc(8)
+|sysadm| can be started one of two ways: the traditional rc(8)
 mechanism or using the new jobd(8) mechanism
 
 To run under rc(8)
@@ -62,13 +62,13 @@ To run under jobd(8)
  % sudo jobctl org.pcbsd.sysadm-rest enable
 
 .. danger:: Several ports on the system firewall will need to be opened
-   for SysAdm™ to have remote access functionality:
+   for |sysadm| to have remote access functionality:
    
    * Port 12149 for WebSocket interaction.
    * Port 12150 for the REST interface.
-   * Port 12151 for the SysAdm™ bridge server.
+   * Port 12151 for the |sysadm| bridge server.
    
-   The user can also designate their own ports for SysAdm™.
+   The user can also designate their own ports for |sysadm|.
 
 .. _bridge init:
 
@@ -77,7 +77,7 @@ Bridge Initialization
 
 Configuring and connecting to a bridge can be a complicated process.
 Thankfully, there are several steps that are done the first time a
-server and bridge are configured with SysAdm™ but do not need to be
+server and bridge are configured with |sysadm| but do not need to be
 repeated later. Once these steps are complete, it becomes a much simpler
 process for a new user to configure their client to communicate with the
 now configured server and bridge.
@@ -125,7 +125,7 @@ Adding a Client to the Server/Bridge Connection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. danger:: If you have an old SSL bundle from a pre-alpha version of
-   SysAdm™ created before June 2016, it will need to be removed prior to
+   |sysadm| created before June 2016, it will need to be removed prior to
    proceeding with the client initialization process.
 
 In the client UI, create or import an SSL key bundle as prompted by the
