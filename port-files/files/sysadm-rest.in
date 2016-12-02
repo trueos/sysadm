@@ -8,6 +8,7 @@ pid=/var/run/sysadm-rest.pid
 name="SysAdm Server (REST)"
 
 depend() { 
-	need syscons network
+	need syscons net
 	after bootmisc
+	keyword -shutdown
 }
