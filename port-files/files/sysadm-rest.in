@@ -2,13 +2,42 @@
 # Copyright (c) 2016 Ken Moore <ken@ixsystems.com>
 # Released under the 2-clause BSD license
 
-command="%%PREFIX%%/bin/sysadm-server"
-command_args="-rest &"
-pid=/var/run/sysadm-rest.pid
 name="SysAdm Server (REST)"
 
 depend() { 
-	need syscons net
+	need net
 	after bootmisc
 	keyword -shutdown
+}
+
+start()
+{
+	ebegin "Starting $name"
+	start-stop-daemon --start -m -b -p /var/run/sysadm-rest.pid \
+		%%PREFIX%%/bin/sysadm-binary -- -rest
+	eend $?
+}
+
+stop()
+{
+	ebegin "Stopping $name"
+	start-stop-daemon --stop --exec %%PREFIX%%/bin/sysadm-binary \
+		-p /var/run/sysadm-rest.pid
+	eend $?
+}
+
+ssl_keygen()
+{
+	if [ ! -d "%%PREFIX%%/etc/sysadm" ] ; then
+    		mkdir -p %%PREFIX%%/etc/sysadm
+	fi
+	openssl req -x509 -nodes -newkey rsa:2048 \
+		-keyout %%PREFIX%%/etc/sysadm/restserver.key \
+		-out %%PREFIX%%/etc/sysadm/restserver.crt -days 1024 \
+		-subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
+}
+
+start_pre()
+{
+	ssl_keygen "$1"
 }
