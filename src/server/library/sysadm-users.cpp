@@ -92,10 +92,12 @@ bool UserManager::addUser(QJsonObject* out, QJsonObject obj){
       QString dev = obj.value("personacrypt_init").toString();
       if(dev.startsWith("/dev/")){ dev = dev.remove(0,5); }
       //Verify that the given device is valid
-      QStringList valid = getAvailablePersonaCryptDevices();
-      for(int i=0; i<valid.length(); i++){
-        if(valid[i].startsWith(dev+": ")){ PCdev = dev; } //this is a valid device
-      }
+      if(dev!="PEFS"){
+        QStringList valid = getAvailablePersonaCryptDevices();
+        for(int i=0; i<valid.length(); i++){
+          if(valid[i].startsWith(dev+": ")){ PCdev = dev; } //this is a valid device
+        }
+      }else{ PCdev = dev; } //PEFS device
       if(PCdev!=dev){ return false; } //invalid inputs - invalid device for PersonaCrypt
     }
     QTemporaryFile pwfile("/tmp/.XXXXXXXXXXXXXXX");
@@ -169,10 +171,12 @@ bool UserManager::modifyUser(QJsonObject* out, QJsonObject obj){
       QString dev = obj.value("personacrypt_init").toString();
       if(dev.startsWith("/dev/")){ dev = dev.remove(0,5); }
       //Verify that the given device is valid
-      QStringList valid = getAvailablePersonaCryptDevices();
-      for(int i=0; i<valid.length(); i++){
-        if(valid[i].startsWith(dev+": ")){ PCdev = dev; } //this is a valid device
-      }
+      if(dev!="PEFS"){
+        QStringList valid = getAvailablePersonaCryptDevices();
+        for(int i=0; i<valid.length(); i++){
+          if(valid[i].startsWith(dev+": ")){ PCdev = dev; } //this is a valid device
+        }
+      }else{ PCdev = dev; } //PEFS device
       if(PCdev!=dev){ return false; } //invalid inputs - invalid device for PersonaCrypt
     }
     //Now start assembling the external command
