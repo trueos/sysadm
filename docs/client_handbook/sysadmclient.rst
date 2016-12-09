@@ -381,37 +381,54 @@ The :guilabel:`Settings` tab is shown in
 
 .. _update4:
 
-.. figure:: images/update4.png
+.. figure:: images/update4a.png
 
-   : Settings Tab
+   : Update Manager Settings Tab
 
 This tab contains several configurable options:
 
 * **Max Boot Environments:** |trueos| automatically creates a boot
   environment before updating any software, the operating system, or
   applying a system update. Once the configured maximum number of boot
-  environments is reached, |trueos| will automatically prune (delete)
-  the oldest automatically created boot environment. However, it will
-  not delete any boot environments created manually using
+  environments is reached, |trueos| will automatically delete the oldest
+  automatically created boot environment. However, it will not delete
+  any boot environments created manually using the
   :ref:`Boot Environment Manager`. The default number of boot
   environments is *5*, with an allowable range from *1* to *10*.
 
 * **Automatically perform updates:** When checked, the automatic
-  updater automatically keeps your system and packages up-to-date.
-  An update has completed when the pop-up menu indicates a reboot is
-  needed to complete the update process. If
+  updater keeps the system and packages up-to-date. An update has
+  completed when the pop-up menu indicates a reboot is needed to
+  complete the update process. If
   :guilabel:`Automatically perform updates` is unchecked, an update will
-  only occur at the user's discretion. Updates are not required to be
-  initiated manually. |trueos| uses an automated updater which
-  automatically checks for updates, no more than once per day, 20
-  minutes after a reboot and then every 24 hours.
+  only occur at the user's discretion. By default, updates will **not**
+  be automatic. |trueos| uses an automated updater which checks for
+  updates no more than once per day, 20 minutes after a reboot and then
+  every 24 hours.
 
-* **Custom Package Repository:** To use a custom package repository for
-  updates, check this box. This will activate the :guilabel:`URL`
-  field so the user can input the URL to the custom repository.
+* **Automatically reboot to finish updates:** This selection initiates
+  a system reboot at a designated time in order to finish the update
+  process. By default, this selection is **unchecked**. Once checked,
+  the reboot time can be configured to a specific hour of the day.
+  Highlight the hour number and either type a new hour, or use the
+  :guilabel:`arrows` to increase or decrease the hour. Highlight
+  :guilabel:`AM/PM` to adjust this value. 
+
+* **Repositories:** |trueos| uses two repositories for updates,
+  :guilabel:`STABLE` and :guilabel:`UNSTABLE`. :guilabel:`STABLE` will
+  only update to formally released updates. :guilabel:`UNSTABLE` is the
+  testing location for upcoming updates. It is recommended only for
+  advanced users or those who wish to help test |trueos| and |lumina|.
+
+  To use a custom package repository for updates, check
+  :guilabel:`CUSTOM`. This will activate the :guilabel:`URL` field so
+  the user can input the URL to the custom repository.
+
+Once all options are configured to their desired settings, click
+:guilabel:`Save Settings`.
 
 .. index:: updates
-.. _Upgrading from PC-BSD® 10.x to TrueOS®:
+.. _Upgrading from PCBSD 10.x to TrueOS:
 
 Upgrading from |pcbsd| 10.x to |trueos|
 ---------------------------------------
