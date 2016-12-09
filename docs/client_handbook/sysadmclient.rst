@@ -876,21 +876,22 @@ home directory, default shell, and primary group. System accounts
 usually have a shell of *nologin* for security reasons, indicating an
 attacker can not login to the system using that account name.
 
-.. index:: users
+.. index:: users, personacrypt
 .. _PersonaCrypt:
 
 PersonaCrypt
 ------------
 
 |trueos| provides support for a security feature known as PersonaCrypt.
-A PersonaCrypt device is a removable USB media, such as a USB stick,
-formatted with ZFS and encrypted with GELI. This device is used to hold
-a specific user's home directory, meaning they can securely transport
-and access their personal files on any |trueos| or |pcbsd| 10.1.2 or
-higher system. For example, this can be used to securely access one's
-home directory from a laptop, home computer, and work computer. The
-device is protected by an encryption key and a password which is, and
-should be, separate from the user's login password.
+A PersonaCrypt device is a removable USB media, such as a USB flash
+drive, formatted with ZFS and encrypted with either GELI or PEFS. This
+device is used to hold a specific user's home directory, meaning they
+can securely transport and access their personal files on any |trueos|
+or |pcbsd| 10.1.2 or higher system. For example, this can be used to
+securely access one's home directory from a laptop, home computer, and
+work computer. The device is protected by an encryption key and a
+different (recommended) password separate from the user's login
+password.
 
 .. note:: When a user is configured to use a PersonaCrypt device, that
    user can not login using an unencrypted session on the same system.
@@ -899,14 +900,21 @@ should be, separate from the user's login password.
    unencrypted sessions on the same system, create two different user
    accounts, one for each type of session.
 
+.. index:: users, personacrypt, geli
+.. _GELI:
+
+GELI
+^^^^
+
 PersonaCrypt uses GELI's ability to split the key into two parts: one
 being your passphrase, and the other being a key stored on disk.
 Without both of these parts, the media cannot be decrypted. This means
 if somebody steals the key and manages to get your password, it is still
-worthless without the system it was paired with.
+worthless without the system it was paired with. GELI is used by default
+in |trueos| as it is more fully featured over PEFS.
 
 .. warning:: USB devices do eventually fail. Always backup any important
-   files stored on the PersonaCrypt device to another device or system.
+   files stored on the PersonaCrypt device to another device or system. 
 
 The :guilabel:`PersonaCrypt` tab can be used to initialize a
 PersonaCrypt device for any login user, **except** for the currently
@@ -921,11 +929,11 @@ created and the entry for the user has been clicked.
    : Initialize PersonaCrypt Device
 
 Before a user is configured to use PersonaCrypt on a |trueos| system,
-two buttons are available in the "PersonaCrypt" section of "Advanced
-Mode". Note this section is hidden if the currently logged in user is
-selected. Also, if you have just created a user and do not see these
-options, click :guilabel:`Save` then re-highlight the user to display
-these options:
+two buttons are available in the :guilabel:`PersonaCrypt` tab of
+:guilabel:`Advanced Mode`. Note this section is hidden if the currently
+logged in user is selected. Also, if you have just created a user and do
+not see these options, click :guilabel:`Save`, then re-highlight the
+user to display these options:
 
 * **Initialize Device:** Used to prepare the USB device which will be
   used as the user's home directory.
@@ -949,31 +957,6 @@ Type a password to associate with the device. Click :guilabel:`Save` to
 initialize the device. The User Manager may take a moment to prepare the
 device. Once initialization is complete, the User Manager screen
 will change to allow removal of PersonaCrypt.
-
-.. Leave this commented as the current development may use some of these
-   options from the old personacrypt initializer.
-   
-   display the device's key options, as seen in
-   :numref:`Figure %s <user6>`.
-
-   .. _user6:
-
-   .. figure:: images/user6.png
-
-   PersonaCrypt Key Options
-
-   Several options are now available:
-
-   * **Export Key:** Used to create a copy of the encryption key so it can
-   be imported for use on another |trueos| system.
-
-   * **Disable Key (No Data):** Used to uninitialize the PersonaCrypt
-   device on this system. Note the device can still be used to login to
-   other |trueos| systems.
-
-   * **Disable Key (Import Data):** In addition to uninitializing the
-   PersonaCrypt device on this system, copy the contents of the user's
-   home directory to this system.
 
 Once a user has been initialized for PersonaCrypt on the system, their
 user account will no longer be displayed when logging in, **unless**
@@ -999,6 +982,52 @@ password associated with the PersonaCrypt device.
 .. warning:: To prevent data corruption and freezing the system
    **DO NOT** remove the PersonaCrypt device while logged in! Always log
    out of your session before physically removing the device.
+
+.. index:: users, personacrypt, pefs
+.. _PEFS Encryption:
+
+PEFS
+^^^^
+
+`PEFS <http://pefs.io/>`_ stands for Private Encrypted File System. It
+is open source software freely available under the BSD license, and is
+included in |trueos| by default. PEFS runs on top of any existing file
+system, providing an encryption layer independent of the underlying file
+system. PersonaCrypt can be configured to use PEFS in place of GELI,
+which eliminates the need for external media, as the encrypted PEFS
+database is stored on the local disk.
+
+.. warning:: While PEFS does not use a USB drive, be sure to print or
+   otherwise backup the PEFS generated key fragment stored on the disk.
+
+**Initialize PEFS with the Command Line**
+
+Because PEFS does not use a USB drive with its encryption, the user will
+need a password file (pfile) containing the desired password, **before**
+initializing PEFS for a user account. Once this pfile is created,
+enabling PEFS through PersonaCrypt is accomplished in a CLI with
+:command:`personacrypt init <username> <pfile> PEFS`.
+
+For example, the user account **test** has a pfile named
+:file:`testpfile.txt`, which contains the single text string of **test's**
+chosen password. Next, the administrator adds PEFS encryption to the
+**test** acount by opening a CLI, logging in as root, and typing:
+
+.. code-block:: none
+
+ # personacrypt init test testpfile.txt PEFS
+
+PersonaCrypt will initialize the account **test** with PEFS, using the
+string in :file:`testpfile.txt` as the new password.
+
+The |sysadm| User Manager can also initialize a user account with PEFS
+by choosing :guilabel:`on-disk encryption (PEFS)` in the
+:guilabel:`Device` drop down menu of the :guilabel:`PersonaCrypt` tab.
+
+In addition to initializing an account with PEFS, PersonaCrypt also
+supports importing and exporting PEFS on-disk keyfiles with
+:command:`personacrypt export <username>` and
+:command:`personacrypt import <keyfile>`, respectively.
 
 .. index:: users
 .. _Managing Groups:
