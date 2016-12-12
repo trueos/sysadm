@@ -12,6 +12,9 @@ struct Service{
         Name = "";
         Tag = "";
         Directory = "";
+	Path = "";
+	Description = "";
+	Runlevel = "";
     }
 
     QString Name;
@@ -19,6 +22,7 @@ struct Service{
     QString Directory;
     QString Path;
     QString Description;
+    QString Runlevel;
 };
 
 class ServiceManager
@@ -79,9 +83,16 @@ private:
     QList<Service> services;
     Service loadServices(QString service = ""); //Return struct is optional - only used for a single service search
 
-    QHash<QString, QString> rcdata; //rc.conf settings
+    QHash<QString, QString> rcdata; //output of rc-status
     void loadRCdata();
 
+    QHash<QString, QString> unuseddata;
+    void loadUnusedData();
+
+    void loadRunlevels();
+
+    bool enableDisableService(QString name, bool enable=false);
+    
     QString chroot;
     QString ip;
 };
