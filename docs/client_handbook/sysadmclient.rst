@@ -452,7 +452,7 @@ previous |pcbsd| installation will remain.
 
 .. note:: This option overwrites the contents of :file:`/etc`. If any
    custom configurations exist, save them to a backup or the home
-   directory first. Alternately, use :ref:`Boot Environment Manager`
+   directory first. Alternately, use the :ref:`Boot Environment Manager`
    post-installation to mount the previous |pcbsd| boot environment to
    copy over any configuration files which may not have been backed up.
 
@@ -461,46 +461,42 @@ To perform the installation to a new boot environment, start the
 `TrueOS® Handbook <https://www.trueos.org/handbook/trueos.html>`_. In
 the `System Selection Screen <https://www.trueos.org/handbook/install.html#system-selection-screen>`_,
 choose to install either a desktop or a server. Press :guilabel:`Next`
-to view the pop-up screen shown in :numref:`Figure %s <upgrade1a>`.
+to view the :guilabel:`Disk Selection` screen, shown in
+:numref:`Figure %s <upgrade1>`.
 
-.. _upgrade1a:
+.. _upgrade1:
 
-.. figure:: images/upgrade1a.png
+.. figure:: images/upgrade1b.png
 
-   : Install to Boot Environment
+   : Disk Selection
 
-To upgrade, select the existing pool to install into and press
-:guilabel:`OK`.
+|trueos| automatically detects if the drive has an existing boot
+environment, filling in the data as necessary. If no boot environments
+are detected, :guilabel:`Install into Boot Environment` will be greyed
+out. To upgrade, select :guilabel:`Install into Boot Environment` and
+choose which existing pool to install into from the drop-down menu. In
+the :ref:`Disk Selection Screen <upgrade1>`, the user is installing into
+the existing **tank** pool. Press :guilabel:`Next` when ready.
 
-.. warning:: If you instead press :guilabel:`Cancel`, the installation
-   will continue as usual and reformat the disks, destroying any
-   existing data.
+.. warning:: Be sure :guilabel:`Install into Boot Environment` is
+   checked before proceeding, or data can be lost.
 
-If you press :guilabel:`OK` to proceed with an installation into a new
-boot environment, the installer will skip the "Disk Selection" screen
-and instead show a summary, seen in
-:numref:`Figure %s <upgrade2>`.
+A pop-up will appear, asking to start the default Full-Disk
+installation. Click :guilabel:`Yes` to start the installation.
 
-.. _upgrade2:
-
-.. figure:: images/upgrade2.png
-
-   : Start the Install to Boot Environment
-
-Press :guilabel:`Next` to start the installation. Once the installation
-is complete, reboot the system and remove the installation media. The
-post-installation screens will run as described in the
+Once the installation is complete, reboot the system and remove the
+installation media. The post-installation screens will run as described
+in the
 `Post Installation Configuration and Installation Troubleshooting <https://www.trueos.org/handbook/postinstall.html>`_
-section of the |trueos| Handbook so you can configure the new
-installation.
+section of the |trueos| Handbook to configure the new installation.
 
 .. note:: During the
    `Create a User Screen <https://www.trueos.org/handbook/postinstall.html#create-a-user-screen>`_
-   process, recreate the primary user account using the same name used
-   on the previous |pcbsd| system so |trueos| can associate the
-   existing home directory with that user. Once logged in, use
-   :ref:`User Manager` to recreate any other user accounts or to
-   reassociate any PersonaCrypt accounts.
+   process, recreate the primary user account using the same name user
+   name and user id (UID) from the previous |pcbsd| system. This allows
+   |trueos| to associate the existing home directory with that user.
+   Once logged in, use :ref:`User Manager` to recreate any other user
+   accounts or to reassociate any PersonaCrypt accounts.
 
 .. index:: sysadm, configuration
 .. _Manage SSL Keys:
@@ -520,10 +516,10 @@ becomes a low-risk operation as the updates are applied to a different
 boot environment. If needed, there is an option to reboot into a backup
 boot environment. Other examples of using boot environments include:
 
-* When making software changes, you can take a snapshot of that
+* When making software changes, it is possible to take a snapshot of the
   boot environment at any stage during the modifications.
 
-* Save multiple boot environments on your system and perform various
+* Save multiple boot environments on the system and perform various
   updates on each of them as needed. Install, test, and update different
   software packages on each.
 
