@@ -22,42 +22,12 @@ msgid ""
 "<https://github.com/trueos/sysadm>`_"
 msgstr ""
 
-#: ../../basics.rst:22
-msgid "Building SysAdm™"
-msgstr ""
-
-#: ../../basics.rst:24
-msgid "Several Qt Modules are required before attempting to build SysAdm™:"
-msgstr ""
-
-#: ../../basics.rst:33
-msgid ""
-"Building the prototype version of SysAdm™ assumes you have access to "
-"github.com."
-msgstr ""
-
-#: ../../basics.rst:46
-msgid "Starting SysAdm™"
-msgstr ""
-
-#: ../../basics.rst:48
-msgid ""
-"SysAdm™ can be started one of two ways: the traditional rc(8) mechanism or "
-"using the new jobd(8) mechanism"
-msgstr ""
-
 #: ../../basics.rst:51
 msgid "To run under rc(8)"
 msgstr ""
 
 #: ../../basics.rst:63
 msgid "To run under jobd(8)"
-msgstr ""
-
-#: ../../basics.rst:73
-msgid ""
-"Several ports on the system firewall will need to be opened for SysAdm™ to "
-"have remote access functionality:"
 msgstr ""
 
 #: ../../basics.rst:76
@@ -68,26 +38,8 @@ msgstr ""
 msgid "Port 12150 for the REST interface."
 msgstr ""
 
-#: ../../basics.rst:78
-msgid "Port 12151 for the SysAdm™ bridge server."
-msgstr ""
-
-#: ../../basics.rst:80
-msgid "The user can also designate their own ports for SysAdm™."
-msgstr ""
-
 #: ../../basics.rst:85
 msgid "Bridge Initialization"
-msgstr ""
-
-#: ../../basics.rst:87
-msgid ""
-"Configuring and connecting to a bridge can be a complicated process. "
-"Thankfully, there are several steps that are done the first time a server "
-"and bridge are configured with SysAdm™ but do not need to be repeated later."
-" Once these steps are complete, it becomes a much simpler process for a new "
-"user to configure their client to communicate with the now configured server"
-" and bridge."
 msgstr ""
 
 #: ../../basics.rst:94
@@ -146,13 +98,6 @@ msgstr ""
 msgid "Adding a Client to the Server/Bridge Connection"
 msgstr ""
 
-#: ../../basics.rst:136
-msgid ""
-"If you have an old SSL bundle from a pre-alpha version of SysAdm™ created "
-"before June 2016, it will need to be removed prior to proceeding with the "
-"client initialization process."
-msgstr ""
-
 #: ../../basics.rst:140
 msgid ""
 "In the client UI, create or import an SSL key bundle as prompted by the UI. "
@@ -190,3 +135,103 @@ msgid ""
 " within it. Click on the bridged system to will open the standard UI, but "
 "note the connection is still being relayed through the bridge."
 msgstr ""
+
+#: ../../basics.rst:22
+msgid "Building |sysadm|"
+msgstr ""
+
+#: ../../basics.rst:24
+msgid "Several Qt Modules are required before attempting to build |sysadm|:"
+msgstr ""
+
+#: ../../basics.rst:33
+msgid ""
+"Building the prototype version of |sysadm| assumes you have access to "
+"github.com."
+msgstr ""
+
+#: ../../basics.rst:46
+msgid "Starting |sysadm|"
+msgstr ""
+
+#: ../../basics.rst:48
+msgid ""
+"|sysadm| can be started one of two ways: the traditional rc(8) mechanism or "
+"using the new jobd(8) mechanism"
+msgstr ""
+
+#: ../../basics.rst:73
+msgid ""
+"Several ports on the system firewall will need to be opened for |sysadm| to "
+"have remote access functionality:"
+msgstr ""
+
+#: ../../basics.rst:78
+msgid "Port 12151 for the |sysadm| bridge server."
+msgstr ""
+
+#: ../../basics.rst:80
+msgid "The user can also designate their own ports for |sysadm|."
+msgstr ""
+
+#: ../../basics.rst:87
+msgid ""
+"Configuring and connecting to a bridge can be a complicated process. "
+"Thankfully, there are several steps that are done the first time a server "
+"and bridge are configured with |sysadm| but do not need to be repeated "
+"later. Once these steps are complete, it becomes a much simpler process for "
+"a new user to configure their client to communicate with the now configured "
+"server and bridge."
+msgstr ""
+
+#: ../../basics.rst:136
+msgid ""
+"If you have an old SSL bundle from a pre-alpha version of |sysadm| created "
+"before June 2016, it will need to be removed prior to proceeding with the "
+"client initialization process."
+msgstr ""
+
+#~ msgid "Building SysAdm™"
+#~ msgstr ""
+
+#~ msgid "Several Qt Modules are required before attempting to build SysAdm™:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Building the prototype version of SysAdm™ assumes you have access to "
+#~ "github.com."
+#~ msgstr ""
+
+#~ msgid "Starting SysAdm™"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "SysAdm™ can be started one of two ways: the traditional rc(8) mechanism or "
+#~ "using the new jobd(8) mechanism"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Several ports on the system firewall will need to be opened for SysAdm™ to "
+#~ "have remote access functionality:"
+#~ msgstr ""
+
+#~ msgid "Port 12151 for the SysAdm™ bridge server."
+#~ msgstr ""
+
+#~ msgid "The user can also designate their own ports for SysAdm™."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Configuring and connecting to a bridge can be a complicated process. "
+#~ "Thankfully, there are several steps that are done the first time a server "
+#~ "and bridge are configured with SysAdm™ but do not need to be repeated later."
+#~ " Once these steps are complete, it becomes a much simpler process for a new "
+#~ "user to configure their client to communicate with the now configured server"
+#~ " and bridge."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If you have an old SSL bundle from a pre-alpha version of SysAdm™ created "
+#~ "before June 2016, it will need to be removed prior to proceeding with the "
+#~ "client initialization process."
+#~ msgstr ""

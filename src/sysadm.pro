@@ -6,9 +6,6 @@ SUBDIRS+= server bridge
 rcd.path = /usr/local/etc/rc.d/
 rcd.files = rc.d/sysadm rc.d/sysadm-rest rc.d/sysadm-bridge
 
-openrc.path = /usr/local/etc/init.d
-openrc.files = init.d/sysadm init.d/sysadm-rest init.d/sysadm-bridge
-
 #dconf.path = /usr/local/etc/job.d/
 #dconf.extra = cp job.d/* $(INSTALL_ROOT)/usr/local/etc/job.d/
 
@@ -21,4 +18,4 @@ openrc.files = init.d/sysadm init.d/sysadm-rest init.d/sysadm-bridge
 conf.path = /usr/local/etc/
 conf.extra = cp conf/sysadm.conf ${INSTALL_ROOT}/usr/local/etc/sysadm.conf.dist
 
-INSTALLS += rcd openrc conf 
+INSTALLS += rcd conf 

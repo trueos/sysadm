@@ -9,6 +9,7 @@ ServiceManager::ServiceManager(QString chroot, QString ip)
 {
     this->chroot = chroot;
     this->ip = ip;
+    loadRCdata();  
     //loadServices();
 }
 
@@ -31,11 +32,12 @@ QList<Service> ServiceManager::GetServices()
     return services;
 }
 
+// look at rcdata now
 QList<bool> ServiceManager::isRunning(QList<Service> services){
    //return list in the same order as the input list
   QList<bool> out;
   for(int i=0; i<services.length(); i++){
-    if(services[i].Directory.isEmpty()){ out << false; }
+    if(!rcdata.contains(services[i].Name)){ out << false; }
     else{ out << sysadm::General::RunQuickCommand("service",QStringList() << services[i].Directory << "status"); }
   }
   return out;
@@ -47,14 +49,14 @@ bool ServiceManager::isRunning(Service service){ //single-item overload
   else{ return false; }
 }
 
+// see if service is in rcdata and not in unuseddata
 QList<bool> ServiceManager::isEnabled(QList<Service> services){
    //return list in the same order as the input list
   QList<bool> out;
-  loadRCdata();  
   //Now go through the list of services and report which ones are enabled
   for(int i=0; i<services.length(); i++){
     bool enabled = false;
-    if(rcdata.contains(services[i].Tag)){ enabled = rcdata.value(services[i].Tag)=="YES"; }
+    enabled = (rcdata.contains(services[i].Name) && !unuseddata.contains(services[i].Name));
     out << enabled;
   }
   return out;
@@ -66,6 +68,7 @@ bool ServiceManager::isEnabled(Service service){ //single-item overload
   else{ return false; }
 }
 
+// onestart doesn't matter anymore
 bool ServiceManager::Start(Service service)
 {
     if(service.Directory.isEmpty()){ return false; }
@@ -84,6 +87,7 @@ bool ServiceManager::Start(Service service)
     return General::RunQuickCommand(prog,args);
 }
 
+// onestop doesn't matter anymore
 bool ServiceManager::Stop(Service service)
 {
     if(service.Directory.isEmpty()){ return false; }
@@ -119,26 +123,36 @@ bool ServiceManager::Restart(Service service)
     return General::RunQuickCommand(prog,args);
 }
 
+// Enable is rc-update add name runlevel
 bool ServiceManager::Enable(Service service)
 {
-    if(service.Tag.isEmpty()){ return false; }
-    return General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"YES\"", -1);
+  if(!rcdata.contains(service.Name)){ return false; }
+  return enableDisableService(service.Name, true);
 }
 
+// Disable is rc-update del name runlevel
 bool ServiceManager::Disable(Service service)
 {
-    if(service.Tag.isEmpty()){ return false; }
-    return General::setConfFileValue( chroot + "/etc/rc.conf", service.Tag, service.Tag + "=\"NO\"", -1);
+  if(!rcdata.contains(service.Name)){ return false; }
+  return enableDisableService(service.Name, false);
 }
 
+// get list of files from /etc/init.d and /usr/local/etc/init.d
+// Service::Name is pure filename
+// Service::Tag is nto used anymore
+// Service::Description is from file "name=", "desc=", "description="
+// rc-status --nocolor --servicelist indicates "isRunning"
+// rc-status --nocolor --unused indicates services not enabled
+//
 Service ServiceManager::loadServices(QString name)
 {
     QString tmp;
     bool valid;
     Service service;
 
+    // OpenRC directories are /etc/init.d and /usr/local/etc/init.d
     QStringList stringDirs;
-    stringDirs << chroot + "/etc/rc.d" << chroot + "/usr/local/etc/rc.d";
+    stringDirs << chroot + "/etc/init.d" << chroot + "/usr/local/etc/init.d";
 
     for ( QString dir: stringDirs)
     {
@@ -159,7 +173,8 @@ Service ServiceManager::loadServices(QString name)
             QFile file( dir + "/" + directory[i] );
             if ( file.open( QIODevice::ReadOnly ) )
             {
-                valid=false;
+	      valid=true; //false;
+		service.Name = directory[i];  // filename is the service name now
                 service.Directory=directory[i]; //filename only
                 service.Path = dir+"/"+directory[i]; //full path w/ filename
                 QTextStream stream( &file );
@@ -169,51 +184,20 @@ Service ServiceManager::loadServices(QString name)
                 {
                     line = stream.readLine(); // line of text excluding '\n'
 
-                    if ( line.indexOf("name=") == 0)
-                    {
-                        valid=true;
-                        tmp = line.replace("name=", "");
-                        service.Name = tmp.replace('"', "");
-                    }
-                    if ( line.indexOf("rcvar=") == 0)
-                    {
-                        if ( tmp.isEmpty() )
-                            continue;
-
-                        tmp = line.replace("rcvar=", "");
-                        tmp = tmp.replace('"', "");
-                        tmp = tmp.replace("'", "");
-                        tmp = tmp.replace("`", "");
-                        tmp = tmp.replace("$(set_rcvar)", "");
-                        tmp = tmp.replace("$set_rcvar", "");
-                        tmp = tmp.replace("set_rcvar", "");
-                        tmp = tmp.replace("${name}", "");
-                        tmp = tmp.replace("_enable", "");
-                        tmp = tmp.replace(" ", "");
-
-                        if (tmp.isEmpty())
-                            service.Tag = service.Name + "_enable";
-                        else
-                            service.Tag = tmp;
-
-                        if ( service.Tag.indexOf("_enable") == -1 )
-                            service.Tag=service.Tag + "_enable";
-                        break;
-                    }
-                    if (line.simplified().startsWith("desc=")) {
+                    if (line.simplified().startsWith("description=") ||
+			line.simplified().startsWith("desc=") ||
+			line.simplified().startsWith("name=")) {
                       service.Description = line.section("=\"",1,-1).section("\"",0,0);
                     }
                 }
                 file.close();
 
-                if ( !valid || service.Tag.isEmpty() )
+                if ( !valid )
                     continue;
 
                 QString cDir = dir;
                 if ( ! chroot.isEmpty() )
                     cDir.replace(chroot, "");
-                if ( service.Tag.indexOf("$") == 0 )
-                    service.Tag = service.Directory + "_enable";
                 if ( service.Name.indexOf("$") == 0 )
                     service.Name = service.Directory;
                if(!name.isEmpty() ){ return service; } //found the requested service - return it
@@ -222,16 +206,78 @@ Service ServiceManager::loadServices(QString name)
             }
         }
     }
+    loadRunlevels();
   return Service();
 }
 
+// rc-status --nocolor --servicelist to get all services
 void ServiceManager::loadRCdata(){
-  //Read all the rc.conf files in highest-priority order
   rcdata.clear();
-  QStringList info = sysadm::General::RunCommand("sysrc -A").split("\n");
+  // output is spNAMEsp...[spSTATUSsp]\n
+  QStringList info = sysadm::General::RunCommand("rc-status --nocolor --servicelist").split("\n");
   for(int i=0; i<info.length(); i++){
-    if(info[i].contains(": ")){
-      rcdata.insert( info[i].section(": ",0,0), info[i].section(": ",1,-1) );
+    if (info[i].length()){
+      QString name = info[i].section(" ",0,0,QString::SectionSkipEmpty);
+      QString status = info[i].section(" ",-2,-2,QString::SectionSkipEmpty);
+      rcdata.insert( name, status);
+      //qDebug() << "load rc data " << name << " status " << status;
     }
   }
+  loadUnusedData();
+}
+
+// rc-status --nocolor --unused to find services not in any runlevel
+void ServiceManager::loadUnusedData() {
+  //Read all the rc.conf files in highest-priority order
+  unuseddata.clear();
+  // output is spNAMEsp...[spSTATUSsp]\n
+  // with runlevel lines mixed
+  QStringList info = sysadm::General::RunCommand("rc-status --nocolor --unused").split("\n");
+  for(int i=0; i<info.length(); i++){
+    if (info[i].length()){
+      QString name = info[i].section(" ",0,0,QString::SectionSkipEmpty);
+      QString status = info[i].section(" ",-2,-2,QString::SectionSkipEmpty);
+      unuseddata.insert( name, status);
+      //qDebug() << "load unused data " << name << " status " << status;
+    }
+  }
+}
+
+// get the services enabled for all runlevels so we can update services
+void ServiceManager::loadRunlevels() {
+  QStringList info = sysadm::General::RunCommand("rc-status --nocolor --all").split("\n");
+  QString runlevel = "default";
+  for (int i=0; i<info.length(); i++) {
+    if (info[i].contains("Runlevel")) {
+      runlevel = info[i].section(": ", -1,-1);
+      continue;
+    }
+    QString name = info[i].section(" ",0,0,QString::SectionSkipEmpty);
+    // search services for name and update runlevel
+    for (int j=0; j < services.length(); j++){
+      if (services[j].Name == name) {
+	services[j].Runlevel = runlevel;
+	//qDebug() << "Updating " << services[j].Name << " runlevel " << runlevel;
+      }
+    }
+  }
+}
+
+bool ServiceManager::enableDisableService(QString name, bool enable) {
+  QString runlevel = "default";
+  // look in services for name, see if there is a runlevel set
+  // if not, use default
+  QString prog = "rc-update";
+  QStringList args;
+  if (enable)
+    args << "add";
+  else
+    args << "delete";
+  
+  args << name;
+  args << runlevel;
+  qDebug() << prog << " " << args;
+  bool ret = sysadm::General::RunQuickCommand(prog,args);
+  loadUnusedData();
+  return ret;
 }

@@ -21,15 +21,14 @@ Every dispatcher class request contains several parameters:
 | namespace     | rpc        |                                      |
 |               |            |                                      |
 +---------------+------------+--------------------------------------+
-| action        |            | Actions include "list" and "kill".   |
-|               |            |                                      |
+| action        |            | Actions include "list", "kill", and  |
+|               |            | "run".                               |
 +---------------+------------+--------------------------------------+
 
 The rest of this section provides examples of the available *actions*
 for each type of request, along with their responses.
 
 .. index:: list, dispatcher
-
 .. _List Processes:
 
 List Processes
@@ -127,6 +126,54 @@ running jobs within the dispatcher system.
     "killed": {
       "jobs": ["sysadm_pkg_install-{9c079421-ace9-4b6e-8870-d023b48f4c49}"]
     }
+  },
+  "id": "fooid",
+  "name": "response",
+  "namespace": "rpc"
+ }
+
+.. index:: run, dispatcher
+.. _Run Processes:
+
+Run Process(es)
+===============
+
+The "run" action allows a user with full access to create new jobs
+within the dispatcher system.
+
+**REST Request**
+
+::
+
+ PUT /rpc/dispatcher
+ {
+   "action" : "run",
+   "job_id" : "<some_command -with_flags>",
+   "multi_job_id" : ["<command1>", "<command2>", "<command3>"]
+ }
+
+**WebSocket Request**
+
+.. code-block:: json
+
+ {
+   "args" : {
+      "action" : "run",
+      "job_id" : "<some_command -with_flags>",
+      "multi_job_id" : ["<command1>", "<command2>", "<command3>"]
+   },
+   "namespace" : "rpc",
+   "name" : "dispatcher",
+   "id" : "fooid"
+ }
+
+**Response**
+
+.. code-block:: json
+
+ {
+  "args": {
+    "started": ["job_id", "multi-job_id"]
   },
   "id": "fooid",
   "name": "response",

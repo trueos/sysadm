@@ -381,37 +381,54 @@ The :guilabel:`Settings` tab is shown in
 
 .. _update4:
 
-.. figure:: images/update4.png
+.. figure:: images/update4a.png
 
-   : Settings Tab
+   : Update Manager Settings Tab
 
 This tab contains several configurable options:
 
 * **Max Boot Environments:** |trueos| automatically creates a boot
   environment before updating any software, the operating system, or
   applying a system update. Once the configured maximum number of boot
-  environments is reached, |trueos| will automatically prune (delete)
-  the oldest automatically created boot environment. However, it will
-  not delete any boot environments created manually using
+  environments is reached, |trueos| will automatically delete the oldest
+  automatically created boot environment. However, it will not delete
+  any boot environments created manually using the
   :ref:`Boot Environment Manager`. The default number of boot
   environments is *5*, with an allowable range from *1* to *10*.
 
 * **Automatically perform updates:** When checked, the automatic
-  updater automatically keeps your system and packages up-to-date.
-  An update has completed when the pop-up menu indicates a reboot is
-  needed to complete the update process. If
+  updater keeps the system and packages up-to-date. An update has
+  completed when the pop-up menu indicates a reboot is needed to
+  complete the update process. If
   :guilabel:`Automatically perform updates` is unchecked, an update will
-  only occur at the user's discretion. Updates are not required to be
-  initiated manually. |trueos| uses an automated updater which
-  automatically checks for updates, no more than once per day, 20
-  minutes after a reboot and then every 24 hours.
+  only occur at the user's discretion. By default, updates will **not**
+  be automatic. |trueos| uses an automated updater which checks for
+  updates no more than once per day, 20 minutes after a reboot and then
+  every 24 hours.
 
-* **Custom Package Repository:** To use a custom package repository for
-  updates, check this box. This will activate the :guilabel:`URL`
-  field so the user can input the URL to the custom repository.
+* **Automatically reboot to finish updates:** This selection initiates
+  a system reboot at a designated time in order to finish the update
+  process. By default, this selection is **unchecked**. Once checked,
+  the reboot time can be configured to a specific hour of the day.
+  Highlight the hour number and either type a new hour, or use the
+  :guilabel:`arrows` to increase or decrease the hour. Highlight
+  :guilabel:`AM/PM` to adjust this value. 
+
+* **Repositories:** |trueos| uses two repositories for updates,
+  :guilabel:`STABLE` and :guilabel:`UNSTABLE`. :guilabel:`STABLE` will
+  only update to formally released updates. :guilabel:`UNSTABLE` is the
+  testing location for upcoming updates. It is recommended only for
+  advanced users or those who wish to help test |trueos| and |lumina|.
+
+  To use a custom package repository for updates, check
+  :guilabel:`CUSTOM`. This will activate the :guilabel:`URL` field so
+  the user can input the URL to the custom repository.
+
+Once all options are configured to their desired settings, click
+:guilabel:`Save Settings`.
 
 .. index:: updates
-.. _Upgrading from PC-BSD® 10.x to TrueOS®:
+.. _Upgrading from PCBSD 10.x to TrueOS:
 
 Upgrading from |pcbsd| 10.x to |trueos|
 ---------------------------------------
@@ -435,7 +452,7 @@ previous |pcbsd| installation will remain.
 
 .. note:: This option overwrites the contents of :file:`/etc`. If any
    custom configurations exist, save them to a backup or the home
-   directory first. Alternately, use :ref:`Boot Environment Manager`
+   directory first. Alternately, use the :ref:`Boot Environment Manager`
    post-installation to mount the previous |pcbsd| boot environment to
    copy over any configuration files which may not have been backed up.
 
@@ -444,46 +461,42 @@ To perform the installation to a new boot environment, start the
 `TrueOS® Handbook <https://www.trueos.org/handbook/trueos.html>`_. In
 the `System Selection Screen <https://www.trueos.org/handbook/install.html#system-selection-screen>`_,
 choose to install either a desktop or a server. Press :guilabel:`Next`
-to view the pop-up screen shown in :numref:`Figure %s <upgrade1a>`.
+to view the :guilabel:`Disk Selection` screen, shown in
+:numref:`Figure %s <upgrade1>`.
 
-.. _upgrade1a:
+.. _upgrade1:
 
-.. figure:: images/upgrade1a.png
+.. figure:: images/upgrade1b.png
 
-   : Install to Boot Environment
+   : Disk Selection
 
-To upgrade, select the existing pool to install into and press
-:guilabel:`OK`.
+|trueos| automatically detects if the drive has an existing boot
+environment, filling in the data as necessary. If no boot environments
+are detected, :guilabel:`Install into Boot Environment` will be greyed
+out. To upgrade, select :guilabel:`Install into Boot Environment` and
+choose which existing pool to install into from the drop-down menu. In
+the :ref:`Disk Selection Screen <upgrade1>`, the user is installing into
+the existing **tank** pool. Press :guilabel:`Next` when ready.
 
-.. warning:: If you instead press :guilabel:`Cancel`, the installation
-   will continue as usual and reformat the disks, destroying any
-   existing data.
+.. warning:: Be sure :guilabel:`Install into Boot Environment` is
+   checked before proceeding, or data can be lost.
 
-If you press :guilabel:`OK` to proceed with an installation into a new
-boot environment, the installer will skip the "Disk Selection" screen
-and instead show a summary, seen in
-:numref:`Figure %s <upgrade2>`.
+A pop-up will appear, asking to start the default Full-Disk
+installation. Click :guilabel:`Yes` to start the installation.
 
-.. _upgrade2:
-
-.. figure:: images/upgrade2.png
-
-   : Start the Install to Boot Environment
-
-Press :guilabel:`Next` to start the installation. Once the installation
-is complete, reboot the system and remove the installation media. The
-post-installation screens will run as described in the
+Once the installation is complete, reboot the system and remove the
+installation media. The post-installation screens will run as described
+in the
 `Post Installation Configuration and Installation Troubleshooting <https://www.trueos.org/handbook/postinstall.html>`_
-section of the |trueos| Handbook so you can configure the new
-installation.
+section of the |trueos| Handbook to configure the new installation.
 
 .. note:: During the
    `Create a User Screen <https://www.trueos.org/handbook/postinstall.html#create-a-user-screen>`_
-   process, recreate the primary user account using the same name used
-   on the previous |pcbsd| system so |trueos| can associate the
-   existing home directory with that user. Once logged in, use
-   :ref:`User Manager` to recreate any other user accounts or to
-   reassociate any PersonaCrypt accounts.
+   process, recreate the primary user account using the same name user
+   name and user id (UID) from the previous |pcbsd| system. This allows
+   |trueos| to associate the existing home directory with that user.
+   Once logged in, use :ref:`User Manager` to recreate any other user
+   accounts or to reassociate any PersonaCrypt accounts.
 
 .. index:: sysadm, configuration
 .. _Manage SSL Keys:
@@ -503,10 +516,10 @@ becomes a low-risk operation as the updates are applied to a different
 boot environment. If needed, there is an option to reboot into a backup
 boot environment. Other examples of using boot environments include:
 
-* When making software changes, you can take a snapshot of that
+* When making software changes, it is possible to take a snapshot of the
   boot environment at any stage during the modifications.
 
-* Save multiple boot environments on your system and perform various
+* Save multiple boot environments on the system and perform various
   updates on each of them as needed. Install, test, and update different
   software packages on each.
 
@@ -859,21 +872,22 @@ home directory, default shell, and primary group. System accounts
 usually have a shell of *nologin* for security reasons, indicating an
 attacker can not login to the system using that account name.
 
-.. index:: users
+.. index:: users, personacrypt
 .. _PersonaCrypt:
 
 PersonaCrypt
 ------------
 
 |trueos| provides support for a security feature known as PersonaCrypt.
-A PersonaCrypt device is a removable USB media, such as a USB stick,
-formatted with ZFS and encrypted with GELI. This device is used to hold
-a specific user's home directory, meaning they can securely transport
-and access their personal files on any |trueos| or |pcbsd| 10.1.2 or
-higher system. For example, this can be used to securely access one's
-home directory from a laptop, home computer, and work computer. The
-device is protected by an encryption key and a password which is, and
-should be, separate from the user's login password.
+A PersonaCrypt device is a removable USB media, such as a USB flash
+drive, formatted with ZFS and encrypted with either GELI or PEFS. This
+device is used to hold a specific user's home directory, meaning they
+can securely transport and access their personal files on any |trueos|
+or |pcbsd| 10.1.2 or higher system. For example, this can be used to
+securely access one's home directory from a laptop, home computer, and
+work computer. The device is protected by an encryption key and a
+different (recommended) password separate from the user's login
+password.
 
 .. note:: When a user is configured to use a PersonaCrypt device, that
    user can not login using an unencrypted session on the same system.
@@ -882,14 +896,21 @@ should be, separate from the user's login password.
    unencrypted sessions on the same system, create two different user
    accounts, one for each type of session.
 
+.. index:: users, personacrypt, geli
+.. _GELI:
+
+GELI
+^^^^
+
 PersonaCrypt uses GELI's ability to split the key into two parts: one
 being your passphrase, and the other being a key stored on disk.
 Without both of these parts, the media cannot be decrypted. This means
 if somebody steals the key and manages to get your password, it is still
-worthless without the system it was paired with.
+worthless without the system it was paired with. GELI is used by default
+in |trueos| as it is more fully featured over PEFS.
 
 .. warning:: USB devices do eventually fail. Always backup any important
-   files stored on the PersonaCrypt device to another device or system.
+   files stored on the PersonaCrypt device to another device or system. 
 
 The :guilabel:`PersonaCrypt` tab can be used to initialize a
 PersonaCrypt device for any login user, **except** for the currently
@@ -904,11 +925,11 @@ created and the entry for the user has been clicked.
    : Initialize PersonaCrypt Device
 
 Before a user is configured to use PersonaCrypt on a |trueos| system,
-two buttons are available in the "PersonaCrypt" section of "Advanced
-Mode". Note this section is hidden if the currently logged in user is
-selected. Also, if you have just created a user and do not see these
-options, click :guilabel:`Save` then re-highlight the user to display
-these options:
+two buttons are available in the :guilabel:`PersonaCrypt` tab of
+:guilabel:`Advanced Mode`. Note this section is hidden if the currently
+logged in user is selected. Also, if you have just created a user and do
+not see these options, click :guilabel:`Save`, then re-highlight the
+user to display these options:
 
 * **Initialize Device:** Used to prepare the USB device which will be
   used as the user's home directory.
@@ -932,31 +953,6 @@ Type a password to associate with the device. Click :guilabel:`Save` to
 initialize the device. The User Manager may take a moment to prepare the
 device. Once initialization is complete, the User Manager screen
 will change to allow removal of PersonaCrypt.
-
-.. Leave this commented as the current development may use some of these
-   options from the old personacrypt initializer.
-   
-   display the device's key options, as seen in
-   :numref:`Figure %s <user6>`.
-
-   .. _user6:
-
-   .. figure:: images/user6.png
-
-   PersonaCrypt Key Options
-
-   Several options are now available:
-
-   * **Export Key:** Used to create a copy of the encryption key so it can
-   be imported for use on another |trueos| system.
-
-   * **Disable Key (No Data):** Used to uninitialize the PersonaCrypt
-   device on this system. Note the device can still be used to login to
-   other |trueos| systems.
-
-   * **Disable Key (Import Data):** In addition to uninitializing the
-   PersonaCrypt device on this system, copy the contents of the user's
-   home directory to this system.
 
 Once a user has been initialized for PersonaCrypt on the system, their
 user account will no longer be displayed when logging in, **unless**
@@ -982,6 +978,52 @@ password associated with the PersonaCrypt device.
 .. warning:: To prevent data corruption and freezing the system
    **DO NOT** remove the PersonaCrypt device while logged in! Always log
    out of your session before physically removing the device.
+
+.. index:: users, personacrypt, pefs
+.. _PEFS Encryption:
+
+PEFS
+^^^^
+
+`PEFS <http://pefs.io/>`_ stands for Private Encrypted File System. It
+is open source software freely available under the BSD license, and is
+included in |trueos| by default. PEFS runs on top of any existing file
+system, providing an encryption layer independent of the underlying file
+system. PersonaCrypt can be configured to use PEFS in place of GELI,
+which eliminates the need for external media, as the encrypted PEFS
+database is stored on the local disk.
+
+.. warning:: While PEFS does not use a USB drive, be sure to print or
+   otherwise backup the PEFS generated key fragment stored on the disk.
+
+**Initialize PEFS with the Command Line**
+
+Because PEFS does not use a USB drive with its encryption, the user will
+need a password file (pfile) containing the desired password, **before**
+initializing PEFS for a user account. Once this pfile is created,
+enabling PEFS through PersonaCrypt is accomplished in a CLI with
+:command:`personacrypt init <username> <pfile> PEFS`.
+
+For example, the user account **test** has a pfile named
+:file:`testpfile.txt`, which contains the single text string of **test's**
+chosen password. Next, the administrator adds PEFS encryption to the
+**test** acount by opening a CLI, logging in as root, and typing:
+
+.. code-block:: none
+
+ # personacrypt init test testpfile.txt PEFS
+
+PersonaCrypt will initialize the account **test** with PEFS, using the
+string in :file:`testpfile.txt` as the new password.
+
+The |sysadm| User Manager can also initialize a user account with PEFS
+by choosing :guilabel:`on-disk encryption (PEFS)` in the
+:guilabel:`Device` drop down menu of the :guilabel:`PersonaCrypt` tab.
+
+In addition to initializing an account with PEFS, PersonaCrypt also
+supports importing and exporting PEFS on-disk keyfiles with
+:command:`personacrypt export <username>` and
+:command:`personacrypt import <keyfile>`, respectively.
 
 .. index:: users
 .. _Managing Groups:
