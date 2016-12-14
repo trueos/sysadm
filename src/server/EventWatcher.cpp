@@ -391,7 +391,7 @@ void EventWatcher::CheckSystemState(){
         //updates are available - see if the auto-update flag is set, and start the updates as needed
         QJsonObject upset = sysadm::Update::readSettings();
         QDateTime last = sysadm::Update::lastFullCheck().addSecs(60); //wait one interval before starting auto-updates (15 min intervals usually)
-        if( (!upset.contains("auto_update") || updates.value("auto_update").toString().toLower()!="all") && (QDateTime::currentDateTime() > last) ){
+        if( (!upset.contains("auto_update") || upset.value("auto_update").toString().toLower()=="all") && (QDateTime::currentDateTime() > last) ){
            QJsonObject obj;
            obj.insert("target", "pkgupdate"); //since everything is run with pkg now
            sysadm::Update::startUpdate(obj);
