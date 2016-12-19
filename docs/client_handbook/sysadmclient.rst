@@ -67,7 +67,7 @@ applications.
 The rest of this section describes how to manage software using |appcafe|.
 
 .. index:: AppCafe®
-.. _Software Management:
+.. _Finding Software:
 
 Finding Software
 ----------------
@@ -79,10 +79,11 @@ available software.
 .. _appcafe1:
 
 .. figure:: images/appcafe1.png
+   :scale: 100%
 
-   : Browse Tab of AppCafe®
+   : Browse Tab of |appcafe|
 
-This screen contains the following options:
+This screen contains these options:
 
 **Back:** Click this button to leave a category or search result and
 return to the previous screen.
@@ -130,6 +131,7 @@ installed.
 .. _appcafe2:
 
 .. figure:: images/appcafe2.png
+   :scale: 100%
 
    : |appcafe| - Viewing the Details of an Installed Application
 
@@ -150,6 +152,7 @@ An example of the "?" tab is shown in
 .. _appcafe3:
 
 .. figure:: images/appcafe3.png
+   :scale: 100%
 
    : |appcafe| - More Application Details
 
@@ -178,6 +181,7 @@ screenshots. An example is shown in
 .. _appcafe4:
 
 .. figure:: images/appcafe4.png
+   :scale: 100%
 
    : |appcafe| - Viewing the Application's Screenshots
 
@@ -187,6 +191,7 @@ An example of the last tab, which has a list icon, is shown in
 .. _appcafe5:
 
 .. figure:: images/appcafe5.png
+   :scale: 100%
 
    : |appcafe| - Viewing the Details of an Installed Application
 
@@ -205,7 +210,9 @@ the information.
 
 * **Shared Libraries (Required):** lists the names of the libraries
   that this application requires.
-  
+
+.. _Manage Installed Software:
+
 Managing Installed Software
 ---------------------------
 
@@ -268,6 +275,7 @@ has been locked, and :guilabel:`alsa-plugins` is an orphan (flag icon).
 .. _appcafe7:
 
 .. figure:: images/appcafe7.png
+   :scale: 100%
 
    : |appcafe| - Viewing Applications With All Options Checked
 
@@ -282,6 +290,7 @@ operation.
 .. _appcafe8:
 
 .. figure:: images/appcafe8.png
+   :scale: 100%
 
    : |appcafe| - Viewing the Status of the Operation
 
@@ -341,6 +350,8 @@ The following steps occur automatically during an update:
   you will return the system to its previous state, before the update
   was applied.
 
+.. _Managing Updates:
+
 Managing Updates
 ----------------
 
@@ -350,6 +361,7 @@ An example of the :guilabel:`Updates` tab is shown in
 .. _update1:
 
 .. figure:: images/update1.png
+   :scale: 100%
 
    : Managing Updates
 
@@ -382,6 +394,7 @@ The :guilabel:`Settings` tab is shown in
 .. _update4:
 
 .. figure:: images/update4a.png
+   :scale: 100%
 
    : Update Manager Settings Tab
 
@@ -556,6 +569,7 @@ example shown in :numref:`Figure %s <be1>`, there is an entry named
 .. _be1:
 
 .. figure:: images/be1.png
+   :scale: 100%
 
    : Managing Boot Environments
 
@@ -607,14 +621,15 @@ are browseable. Note this setting only applies to inactive BEs.
 environment next system boot. This will change the :guilabel:`Active`
 column to *R*.
 
-.. _install1b(1):
+.. _install1(1):
 
 .. figure:: images/install1b.png
+   :scale: 100%
 
    : |trueos| Boot Menu
 
 To boot into another boot environment, press :kbd:`7` at the
-:numref:`Figure %s <install1b(1)>` to access the boot menu selection
+:numref:`Figure %s <install1(1)>` to access the boot menu selection
 screen. In the example shown in :numref:`Figure %s <be2>`, two boot
 environments are available in :guilabel:`Boot Environments`:
 :guilabel:`initial` represents the initial installation and
@@ -629,6 +644,7 @@ the selected boot environment.
 .. _be2:
 
 .. figure:: images/be2.png
+   :scale: 100%
 
    : Boot Environments Menu
 
@@ -645,6 +661,7 @@ is active and using port 5353 is open, with the firewall started.
 .. _firewall1:
 
 .. figure:: images/firewall1.png
+   :scale: 100%
 
    : |sysadm| Firewall Manager
 
@@ -700,6 +717,7 @@ several options to configure these services.
 .. _service1:
 
 .. figure:: images/service1.png
+   :scale: 100%
 
    : |sysadm| Service Manager
 
@@ -744,6 +762,7 @@ a listing of currently running applications. An example is shown in
 .. _task1:
 
 .. figure:: images/task1.png
+   :scale: 100%
 
    : |sysadm| Task Manager
 
@@ -770,6 +789,7 @@ installation.
 .. _user1:
 
 .. figure:: images/user1.png
+   :scale: 100%
 
    : Viewing User Accounts in User Manager
 
@@ -806,6 +826,7 @@ clicking :guilabel:`New User`.
 .. _user2:
 
 .. figure:: images/user2.png
+   :scale: 100%
 
    : Creating a New User Account
 
@@ -859,6 +880,7 @@ system, not just the user accounts you created. An example is seen in
 .. _user3:
 
 .. figure:: images/user3.png
+   :scale: 100%
 
    : Viewing All Accounts and Their Details
 
@@ -921,6 +943,7 @@ created and the entry for the user has been clicked.
 .. _user5: 
 
 .. figure:: images/user5.png
+   :scale: 100%
 
    : Initialize PersonaCrypt Device
 
@@ -963,6 +986,7 @@ in :numref:`Figure %s <troslogin5>`.
 .. _troslogin5:
 
 .. figure:: images/login5.png
+   :scale: 100%
 
    : |trueos| Login Screen with PersonaCrypt
 
@@ -1039,6 +1063,7 @@ system. The :guilabel:`Standard` tab, seen in
 .. _user4:
 
 .. figure:: images/user4.png
+   :scale: 100%
 
    : Managing Groups Using User Manager
 
@@ -1122,6 +1147,7 @@ a system not yet configured. This system has a "ZFS Pool" named "tank1".
 .. _lpreserver1:
 
 .. figure:: images/lpreserver1.png
+   :scale: 100%
 
    : Snapshot Tab
 
@@ -1196,6 +1222,7 @@ configure the replication schedule.
 .. _lpreserver2:
 
 .. figure:: images/lpreserver2.png
+   :scale: 100%
 
    : Replication Tab
 
@@ -1206,6 +1233,7 @@ To schedule the replication, click :guilabel:`+` to display the
 .. _lpreserver3:
 
 .. figure:: images/lpreserver3.png
+   :scale: 100%
 
    : Scheduling a Replication
 
@@ -1280,6 +1308,7 @@ Schedule" pane as seen in :numref:`Figure %s <lpreserver4>`.
 .. _lpreserver4:
 
 .. figure:: images/lpreserver4.png
+   :scale: 100%
 
    : Scheduling a Snapshot
 
@@ -1320,6 +1349,7 @@ which will activate the "Setup Scrub Schedule" screen shown in
 .. _lpreserver5:
 
 .. figure:: images/lpreserver5.png
+   :scale: 100%
 
    : Scheduling a Scrub
 
@@ -1347,6 +1377,7 @@ The :guilabel:`Settings` tab is shown in
 .. _lpreserver6:
 
 .. figure:: images/lpreserver6.png
+   :scale: 100%
 
    : Life Preserver Settings
 
@@ -1460,38 +1491,38 @@ graphical options provided by the Life Preserver GUI.
 
 .. _cmdgui:
 
-.. table:: Command Line and GUI Equivalents
+.. table:: : Command Line and GUI Equivalents
 
-   +------------------+-------------------+------------------------------------+
-   | **Command Line** | **GUI**           | **Description**                    |
-   +==================+===================+====================================+
-   | **cronsnap**     | "Snapshots" tab   | schedule when snapshots occur      |
-   |                  |                   | and how long to keep them; the     |
-   |                  |                   | **stop** option can be used to     |
-   |                  |                   | disable snapshot creation          |
-   +------------------+-------------------+------------------------------------+
-   | **cronscrub**    | "Schedules" tab   | schedule a ZFS scrub               |
-   +------------------+-------------------+------------------------------------+
-   | **get**          | "Settings" tab    | list Life Preserver options        |
-   +------------------+-------------------+------------------------------------+
-   | **replicate**    | "Replication" tab | used to list, add, and remove      |
-   |                  |                   | backup server; read the **help**   |
-   |                  |                   | for this command for examples      |
-   |                  |                   |                                    |
-   +------------------+-------------------+------------------------------------+
-   | **set**          | "Settings" tab    | configures Life Preserver options; |
-   |                  |                   | read **help** for the list of      |
-   |                  |                   | configurable options               |
-   +------------------+-------------------+------------------------------------+
-   | **snapshot**     | "Snapshots" tab   | create and replicate a new ZFS     |
-   |                  |                   | snapshot; by default, snapshots    |
-   |                  |                   | are recursive, meaning that a      |
-   |                  |                   | that a snapshot is taken of every  |
-   |                  |                   | dataset within a pool              |
-   +------------------+-------------------+------------------------------------+
-   | **status**       |                   | lists the last snapshot name and   |
-   |                  |                   | replication status                 |
-   +------------------+-------------------+------------------------------------+
+   +--------------+-------------+------------------------------------+
+   | Command Line | GUI Tab     | Description                        |
+   +==============+=============+====================================+
+   | cronsnap     | Snapshots   | Schedule when snapshots occur      |
+   |              |             | and how long to keep them; the     |
+   |              |             | **stop** option can be used to     |
+   |              |             | disable snapshot creation          |
+   +--------------+-------------+------------------------------------+
+   | cronscrub    | Schedules   | Schedule a ZFS scrub               |
+   +--------------+-------------+------------------------------------+
+   | get          | Settings    | List Life Preserver options        |
+   +--------------+-------------+------------------------------------+
+   | replicate    | Replication | Used to list, add, and remove      |
+   |              |             | backup server; read the **help**   |
+   |              |             | for this command for examples      |
+   |              |             |                                    |
+   +--------------+-------------+------------------------------------+
+   | set          | Settings    | Configures Life Preserver options; |
+   |              |             | read **help** for the list of      |
+   |              |             | configurable options               |
+   +--------------+-------------+------------------------------------+
+   | snapshot     | Snapshots   | Create and replicate a new ZFS     |
+   |              |             | snapshot; by default, snapshots    |
+   |              |             | are recursive, meaning that a      |
+   |              |             | that a snapshot is taken of every  |
+   |              |             | dataset within a pool              |
+   +--------------+-------------+------------------------------------+
+   | status       |             | Lists the last snapshot name and   |
+   |              |             | replication status                 |
+   +--------------+-------------+------------------------------------+
 
 .. _Restoring the Operating System:
 
@@ -1507,6 +1538,7 @@ installation as usual until you get to the screen shown in
 .. _restore1:
 
 .. figure:: images/restore1.png
+   :scale: 100%
 
    : Selecting to Restore/Clone From Backup
 
@@ -1529,6 +1561,7 @@ a non-standard SSH port, change the "SSH port" number.
 .. _restore2:
 
 .. figure:: images/restore2.png
+   :scale: 100%
 
    : Input the Information for a SSH Restore
 
