@@ -51,10 +51,6 @@ msgstr ""
 msgid "**SysAdm Server Settings**"
 msgstr ""
 
-#: ../../sysadmclient.rst:40
-msgid ":ref:`Manage SSL Keys`"
-msgstr ""
-
 #: ../../sysadmclient.rst:42
 msgid "**System Management**"
 msgstr ""
@@ -2225,6 +2221,13 @@ msgid ""
 " test, the settings area greys out and the only option is to click "
 ":guilabel:`Finished`."
 msgstr ""
+
+#: ../../sysadmclient.rst:40
+msgid ":ref:`Managing Remote Connections`"
+msgstr ""
+
+#~ msgid ":ref:`Manage SSL Keys`"
+#~ msgstr ""
 
 #~ msgid "Manage SSL Keys"
 #~ msgstr ""
