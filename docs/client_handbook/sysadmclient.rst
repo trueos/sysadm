@@ -28,7 +28,7 @@ now available in the |sysadm| client:
 
 **SysAdm Server Settings**
 
-* :ref:`Manage SSL Keys`
+* :ref:`Managing Remote Connections`
 
 **System Management**
 
