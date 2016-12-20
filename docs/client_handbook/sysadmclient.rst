@@ -512,10 +512,107 @@ section of the |trueos| Handbook to configure the new installation.
    accounts or to reassociate any PersonaCrypt accounts.
 
 .. index:: sysadm, configuration
-.. _Manage SSL Keys:
+.. _Managing Remote Connections:
 
-Manage SSL Keys
-===============
+Managing Remote Connections
+===========================
+
+Use the |sysadm| GUI to create and manage an SSL key or certificate
+bundle, as seen in :numref:`Figure %s <ssl1>`.
+
+.. _ssl1:
+
+.. figure:: images/ssl1.png
+   :scale: 100%
+   
+   : Configure Certificates tab of the Setup SSL menu
+
+This window is accessible by clicking the |sysadm| tray icon, then
+:guilabel:`Manage Connections`. Press :guilabel:`Import Certificate`
+to open a window to choose an :file:`.export` file. Type a valid Email
+Address and memorable nickname for :guilabel:`Create Certificate` to
+activate. Click :guilabel:`Create Certificate` to open the
+:guilabel:`SSL Passphrase` window. This window requests a password, then
+requests the password to be re-entered for confirmation. Enter the
+second password and click :guilabel:`Ok` to create the certificate.
+Upon certificate creation, the user can navigate to
+:menuselection:`Setup SSL --> View Public Certificates` to view and
+export a public key for a Server or Bridge Certificate, seen in
+:numref:`Figure %s <ssl2>`.
+
+.. _ssl2:
+
+.. figure:: images/ssl2.png
+   :scale: 100%
+   
+   : View Public Certificates tab of the Setup SSL menu
+
+Once a certificate is created, the :guilabel:`Connections` Tab, seen in
+:numref:`Figure %s <ssl3>`, immediately opens.
+
+.. _ssl3:
+
+.. figure:: images/ssl3.png
+   :scale: 100%
+   
+   : |sysadm| SSL Connections Tab
+
+:guilabel:`Connections` aids the user in creating and managing
+secure connections. A column on the left side of the window contains all
+management options, described in :numref:`Table %s <conops>`
+
+.. _conops:
+
+.. table:: : SSL Connection tab Options
+
+   +--------------------+---------------------------------------------------+
+   | Option             | Description                                       |
+   +====================+===================================================+
+   | Add Group          | Creates an overarching group for bundling         |
+   |                    | connections.                                      |
+   +--------------------+---------------------------------------------------+
+   | Remove Group       | Deletes a created group.                          |
+   +--------------------+---------------------------------------------------+
+   | Add Connection     | Opens windows to nickname and configure a         |
+   |                    | new server connection or bridge relay.            |
+   +--------------------+---------------------------------------------------+
+   | Remove Connection  | Deletes a single created connection.              |
+   +--------------------+---------------------------------------------------+
+   | Reset Settings     | Opens the connection setup window to              |
+   |                    | reconfigure a created connection.                 |
+   +--------------------+---------------------------------------------------+
+   | Rename Selection   | Renames a created group or connection.            |
+   +--------------------+---------------------------------------------------+
+   | Export Connections | Exports the SysAdm settings to a default          |
+   |                    | location:                                         |
+   |                    | :file:`/usr/home/<username>/sysadm_client.export` |
+   +--------------------+---------------------------------------------------+
+
+Creating groups or connections adds their respective nicknames to the
+large box to the left of the options column. Highlight an existing group
+to create new subgroups with :guilabel:`Add Group`. Groups and
+connections can be organized by clicking the desired entry and dragging
+it to the desired location. The entries in this area update |sysadm| in
+real time, immediately displaying any groups or connections within the
+tray icon area.
+
+When creating a new connection with :guilabel:`Add Connection`, a pop-up
+window requests a nickname for the new connection. A configuration
+screen, seen in :numref:`Figure %s <addconconf>`
+
+.. _addconconf:
+
+.. figure:: images/ssl4.png
+   :scale: 100%
+
+   : |sysadm| new connection configuration
+
+The first element to configuring a new connection is to input a Host IP
+address. Then, choose the connection type: :guilabel:`Server Connection`
+or :guilabel:`Bridge Relay`. Type a valid Username and Password, then
+click :guilabel:`Test Settings` to test the settings. Upon a successful
+connection test, the settings area greys out and the only option is to
+click :guilabel:`Finished`.
 
 .. index:: sysadm, boot environments, ZFS
 .. _Boot Environment Manager:
