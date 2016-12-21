@@ -5,7 +5,6 @@
 name="SysAdm Server (Bridge)"
 
 depend() { 
-	need net
 	after bootmisc
 	keyword -shutdown
 }
