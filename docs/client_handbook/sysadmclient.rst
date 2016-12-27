@@ -631,8 +631,8 @@ environment. Other examples of using boot environments include:
 * When making software changes, it is possible to take a snapshot of the
   boot environment at any stage during the modifications. In the event
   of undesirable results, the user can roll back to a previous BE by
-  activating a different BE according to the instructions under
-  :ref:`Figure 17 <install1(1)>`.
+  activating a different BE according to the instructions under the
+  :ref:`TrueOS Boot Menu image <install1(1)>`.
 
 * Save multiple boot environments on the system and perform various
   updates on each of them as needed. Install, test, and update different
