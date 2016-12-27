@@ -313,7 +313,9 @@ The following steps occur automatically during an update:
   snapshot. This means you can safely continue to use your system while
   it is updating, as no changes are being made to the running version of
   the operating system or any of the applications currently in use.
-  Instead, all changes are being made to the mounted copy.
+  Instead, all changes are being made to the mounted copy. See
+  :ref:`Boot Environment Manager` for more information related to boot
+  environments.
 
 .. note:: If the system is getting low on disk space and there is not
    enough space to create a new BE, the update will fail with a message
@@ -621,13 +623,16 @@ Boot Environment Manager
 ========================
 
 |trueos| supports a feature of ZFS known as multiple boot environments
-(BEs). With multiple boot environments, the process of updating software
-becomes a low-risk operation as the updates are applied to a different
-boot environment. If needed, there is an option to reboot into a backup
-boot environment. Other examples of using boot environments include:
+(BEs). With multiple BEs, the process of updating software becomes a
+low-risk operation as the updates are applied to a different boot
+environment. If needed, there is an option to reboot into a backup boot
+environment. Other examples of using boot environments include:
 
 * When making software changes, it is possible to take a snapshot of the
-  boot environment at any stage during the modifications.
+  boot environment at any stage during the modifications. In the event
+  of undesirable results, the user can roll back to a previous BE by
+  activating a different BE according to the instructions under
+  :ref:`Figure 17 <install1(1)>`.
 
 * Save multiple boot environments on the system and perform various
   updates on each of them as needed. Install, test, and update different
@@ -643,11 +648,11 @@ boot environment. Other examples of using boot environments include:
    default ZFS mount points during installation. The default ZFS layout
    ensures when boot environments are created, the :file:`/usr/local/`,
    :file:`/usr/home/`, :file:`/usr/ports/`, :file:`/usr/src/` and
-   :file:`/var/` directories remain untouched. This way, if you rollback
-   to a previous boot environment, you will not lose data in your home
-   directories, any installed applications, or downloaded source files
-   or ports. During installation, you can add additional mount points,
-   just don't delete the default ones.
+   :file:`/var/` directories remain untouched. This method allows
+   rolling back to a previous boot environment while preserving data in
+   your home directories, any installed applications, or downloaded
+   source files or ports. During installation, you can add more mount
+   points, but avoid deleting the default points.
 
 To ensure the files the operating system needs are included when the
 system boots, all boot environments on a |trueos| system include
@@ -659,64 +664,83 @@ which boot environment is selected at system boot.
 
 To view, manage, and create boot environments using the |sysadm|
 graphical client, go to
-:menuselection:`System Management --> Boot Environment Manager`. In the
-example shown in :numref:`Figure %s <be1>`, there is an entry named
-*initial* that represents the original |trueos| installation.
+:menuselection:`Local System --> System Management --> Boot Environment Manager`.
+In the example shown in :numref:`Figure %s <be1>`, there is an entry
+named *initial* that represents the original |trueos| installation.
 
 .. _be1:
 
-.. figure:: images/be1.png
+.. figure:: images/be1a.png
    :scale: 100%
 
    : Managing Boot Environments
 
-Each entry contains the same information:
+Each entry contains the same information, displayed here in
+:numref:`Table %s <mbetable1>`:
 
-* **Name:** The name of the boot entry as it will appear in the boot
-  menu.
+.. _mbetable1:
 
-* **Nickname:** A description, which can be different from the
-  :guilabel:`Name`.
+.. table:: : Individual Boot Environment information
 
-* **Active:** The possible values of this field are :guilabel:`R`
-  (active on reboot), :guilabel:`N` (active now), or :guilabel:`-`
-  (inactive). In this example, the system booted from
-  :guilabel:`initial` and is set to boot from :guilabel:`initial` on
-  the next boot.
+   +------------+---------------------------------------------------------+
+   | Column     | Description                                             |
+   +============+=========================================================+
+   | Name       | The name of the boot entry as it appears in the boot    |
+   |            | menu.                                                   |
+   +------------+---------------------------------------------------------+
+   | Nickname   | A description which can be different from the           |
+   |            | :guilabel:`Name`.                                       |
+   +------------+---------------------------------------------------------+
+   | Active     | The possible values of this field are *R* (active on    |
+   |            | reboot), *N* (active now), *NR* (active now and on      |
+   |            | reboot), or *-* (inactive). In this                     |
+   |            | :ref:`example <be1>`, the system booted from            |
+   |            | :guilabel:`initial` and is set to boot from             |
+   |            | :guilabel:`initial` on the next boot.                   |
+   +------------+---------------------------------------------------------+
+   | Space      | The size of the boot environment.                       |
+   +------------+---------------------------------------------------------+
+   | Mountpoint | Indicates whether or not the BE is mounted, and if so,  |
+   |            | where.                                                  |
+   +------------+---------------------------------------------------------+
+   | Date       | The date and time the BE was created.                   |
+   +------------+---------------------------------------------------------+
 
-* **Space:** The size of the boot environment.
+Sort the list of BEs by clicking the column names.
+   
+Manage these boot environments using the buttons across the top bar as
+described in :numref:`Table %s <mbetable2>`
 
-* **Mountpoint:** Indicates whether or not the BE is mounted, and if
-  so, where.
+.. _mbetable2:
 
-* **Date:** The date and time the BE was created.
+.. table:: : Options for managing boot environments (BE)
 
-From left to right, the buttons on the top bar are used to:
-
-**Create BE:** Creates a new boot environment. Do this before making any
-changes to the system that may impact on your current boot environment.
-You will be prompted for a name which can only contain letters or
-numbers. Click :guilabel:`OK` to create the environment, then the system
-will add it to the list of boot environments.
-
-**Clone BE:** Creates a copy of the highlighted boot environment.
-
-**Delete BE:** Deletes the highlighted boot environment. You can not
-delete the boot environment which is marked as *N* or as *R* in the
-:guilabel:`Active` column.
-
-**Rename BE:** Renames the highlighted boot environment. The name will
-appear in the boot menu when the system boots. You cannot rename the BE
-which is currently booted.
-
-**Mount BE:** Mounts the highlighted BE in :file:`/tmp` so its contents
-are browseable. Note this setting only applies to inactive BEs.
-
-**Unmount BE:** Unmounts the previously mounted BE.
-
-**Activate BE:** Notifies the system to boot into the highlighted boot
-environment next system boot. This will change the :guilabel:`Active`
-column to *R*.
+   +-------------+---------------------------------------------------------+
+   | Button      | Description                                             |
+   +=============+=========================================================+
+   | Create BE   | Creates a new BE. Fill the prompt with a name           |
+   |             | containing only letters or numbers and click            |
+   |             | :guilabel:`Ok` to create the BE and add it to the list. |
+   +-------------+---------------------------------------------------------+
+   | Clone BE    | Creates a copy of the highlighted BE.                   |
+   +-------------+---------------------------------------------------------+
+   | Delete BE   | Deletes the highlighted BE. The boot environment(s)     |
+   |             | marked as *N*, *R*, or *NR* in the :guilabel:`Active`   |
+   |             | column cannot be deleted.                               |
+   +-------------+---------------------------------------------------------+
+   | Rename BE   | Renames the highlighed BE. The name appears in the boot |
+   |             | menu when the system boots. The currently booted BE     |
+   |             | cannot be renamed.                                      |
+   +-------------+---------------------------------------------------------+
+   | Mount BE    | Mounts the highlighted BE in :file:`/tmp` to browse     |
+   |             | its contents. This option only applies to inactive BEs. |
+   +-------------+---------------------------------------------------------+
+   | Unmount BE  | Unmounts the previously mounted BE.                     |
+   +-------------+---------------------------------------------------------+
+   | Activate BE | Notifies the system to boot into the highlighted BE     |
+   |             | next system boot. This alters the :guilabel:`Active`    |
+   |             | column to *R*.                                          |
+   +-------------+---------------------------------------------------------+
 
 .. _install1(1):
 
@@ -726,17 +750,15 @@ column to *R*.
    : |trueos| Boot Menu
 
 To boot into another boot environment, press :kbd:`7` at the
-:numref:`Figure %s <install1(1)>` to access the boot menu selection
+:ref:`TrueOS Boot Menu <install1(1)>` to access the boot menu selection
 screen. In the example shown in :numref:`Figure %s <be2>`, two boot
-environments are available in :guilabel:`Boot Environments`:
-:guilabel:`initial` represents the initial installation and
-:guilabel:`mybootenvironment` was manually created using Boot
-Environment Manager. The upper section of this menu indicates the
-"initial" boot environment is set to active, or the one the system has
-been configured to boot into unless another BE is manually selected in
-this menu. Use the arrow keys to highlight the boot environment you
-would like to boot into, and press :kbd:`Enter` to continue booting into
-the selected boot environment.
+environments are available in :guilabel:`Boot Environments`: *initial*
+represents the initial installation and *mybootenvironment* was manually
+created using the Boot Environment Manager.
+
+.. tip:: An automatically generated boot environment is generally named
+   with a version and date stamp. It is recommended to note the desired
+   date when choosing to activate a different BE.
 
 .. _be2:
 
@@ -744,6 +766,12 @@ the selected boot environment.
    :scale: 100%
 
    : Boot Environments Menu
+
+The upper section of this menu indicates the *initial* boot environment
+is set to **active**, or the one the system is configured to boot into,
+unless another BE is manually selected in this menu. Use the arrow keys
+to highlight the desired boot environment and press :kbd:`Enter` to
+continue booting into the selected boot environment.
 
 .. index:: sysadm, configuration
 .. _Firewall Manager:
