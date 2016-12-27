@@ -665,8 +665,9 @@ which boot environment is selected at system boot.
 To view, manage, and create boot environments using the |sysadm|
 graphical client, go to
 :menuselection:`Local System --> System Management --> Boot Environment Manager`.
-In the example shown in :numref:`Figure %s <be1>`, there is an entry
-named *initial* that represents the original |trueos| installation.
+In the example shown in :numref:`Figure %s <be1>`, there is a
+highlighted entry named *initial* which represents the original |trueos|
+installation.
 
 .. _be1:
 
@@ -674,6 +675,10 @@ named *initial* that represents the original |trueos| installation.
    :scale: 100%
 
    : Managing Boot Environments
+
+.. tip:: An automatically generated boot environment is generally named
+   with a version and date stamp. It is recommended to note the desired
+   date when choosing to activate a different BE.
 
 Each entry contains the same information, displayed here in
 :numref:`Table %s <mbetable1>`:
@@ -695,8 +700,8 @@ Each entry contains the same information, displayed here in
    |            | reboot), *N* (active now), *NR* (active now and on      |
    |            | reboot), or *-* (inactive). In this                     |
    |            | :ref:`example <be1>`, the system booted from            |
-   |            | :guilabel:`initial` and is set to boot from             |
-   |            | :guilabel:`initial` on the next boot.                   |
+   |            | *12.0-CURRENT-up-20161215_101908* and also uses this BE |
+   |            | for the next boot.                                      |
    +------------+---------------------------------------------------------+
    | Space      | The size of the boot environment.                       |
    +------------+---------------------------------------------------------+
@@ -749,16 +754,12 @@ described in :numref:`Table %s <mbetable2>`
 
    : |trueos| Boot Menu
 
-To boot into another boot environment, press :kbd:`7` at the
-:ref:`TrueOS Boot Menu <install1(1)>` to access the boot menu selection
-screen. In the example shown in :numref:`Figure %s <be2>`, two boot
-environments are available in :guilabel:`Boot Environments`: *initial*
-represents the initial installation and *mybootenvironment* was manually
-created using the Boot Environment Manager.
-
-.. tip:: An automatically generated boot environment is generally named
-   with a version and date stamp. It is recommended to note the desired
-   date when choosing to activate a different BE.
+Boot into another boot environment at startup by pressing :kbd:`7` at
+the :ref:`TrueOS Boot Menu <install1(1)>` to access the boot menu
+selection screen. In the example shown in :numref:`Figure %s <be2>`, two
+boot environments are available in :guilabel:`Boot Environments`:
+*initial* represents the initial installation and *mybootenvironment*
+was manually created using the Boot Environment Manager.
 
 .. _be2:
 
