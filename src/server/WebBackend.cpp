@@ -603,6 +603,14 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
       }else if(act=="changesettings"){
 	ok = true;
 	out->insert("changesettings", sysadm::Update::writeSettings(in_args.toObject()) );
+
+      }else if(act=="listlogs"){
+        ok = true;
+        out->insert("listlogs", sysadm::Update::listLogs() );
+
+      }else if(act=="readlogs" && in_args.toObject().contains("logs") ){
+        ok = true;
+        out->insert("readlogs", sysadm::Update::readLog(in_args.toObject()) );
       }
 
     } //end of "action" key usage
