@@ -26,10 +26,12 @@ public:
 	//Read/write update settings
 	static QJsonObject readSettings();
 	static QJsonObject writeSettings(QJsonObject);
-
+	//List/Read update logs
+	static QJsonObject listLogs();
+	static QJsonObject readLog(QJsonObject);
 
 };
 	
-} //end of pcbsd namespace
+}
 
 #endif

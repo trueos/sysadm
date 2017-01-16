@@ -12,7 +12,7 @@ depend() {
 start()
 {
 	ebegin "Starting $name"
-	start-stop-daemon --start -m -b -p /var/run/sysadm.pid \
+	supervise-daemon --start -p /var/run/sysadm.pid \
 		%%PREFIX%%/bin/sysadm-binary
 	eend $?
 }
