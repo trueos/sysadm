@@ -80,7 +80,9 @@ QJsonObject Update::checkUpdates(bool fast) {
     //qDebug() << " - Run full check";
     //output = General::RunCommand("pc-updatemanager check").split("\n");
     output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
-    General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
+    if(!output.last().contains("ERROR:")){ //make sure there was network access available first -  otherwise let it try again soon
+      General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
+    }
   }
   //qDebug() << "pc-updatemanager checks:" << output;
   
@@ -308,5 +310,40 @@ QJsonObject Update::writeSettings(QJsonObject obj){
     ret.insert("result","error");
   }
 
+  return ret;
+}
+
+//List/Read update logs
+QJsonObject Update::listLogs(){
+  QJsonObject out;
+  QDir logdir("/var/log");
+  QFileInfoList logs = logdir.entryInfoList(QStringList() << "pc-updatemanager*", QDir::Files, QDir::Time);
+  for(int i=0; i<logs.length(); i++){
+    QJsonObject tmp;
+    tmp.insert("started", QString::number( logs[i].created().toTime_t() ) );
+    tmp.insert("finished", QString::number( logs[i].lastModified().toTime_t() ) );
+    tmp.insert("name", logs[i].fileName());
+    out.insert(logs[i].fileName(), tmp);
+  }
+  return out;
+}
+
+QJsonObject Update::readLog(QJsonObject obj){
+  QJsonObject ret;
+  //Check Inputs
+  if(obj.contains("logs")){
+    QJsonValue val = obj.value("logs");
+    QStringList logs;
+    if(val.isString()){ logs << val.toString(); }
+    else if(val.isArray()){ logs = General::JsonArrayToStringList(obj.value("logs").toArray()); }
+    QString logdir = "/var/log/";
+    for(int i=0; i<logs.length(); i++){
+      if(!logs[i].startsWith("pc-updatemanager")){ continue; } //wrong type of log file - this only handles pc-updatemanager logs
+      QStringList info = General::readTextFile(logdir+logs[i]);
+      if(!info.isEmpty()){
+        ret.insert(logs[i], info.join("\n"));
+      }
+    }
+  }
   return ret;
 }

@@ -5,7 +5,6 @@
 name="SysAdm Server (Bridge)"
 
 depend() { 
-	need net
 	after bootmisc
 	keyword -shutdown
 }
@@ -13,7 +12,7 @@ depend() {
 start()
 {
 	ebegin "Starting $name"
-	start-stop-daemon --start -m -b -p /var/run/sysadm-bridge.pid \
+	supervise-daemon --start -p /var/run/sysadm-bridge.pid \
 		%%PREFIX%%/bin/sysadm-bridge
 	eend $?
 }
