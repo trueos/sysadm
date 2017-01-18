@@ -96,6 +96,8 @@ private:
 	RestOutputStruct::ExitCode EvaluateSysadmServiceRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm Firewall Manager API
 	RestOutputStruct::ExitCode EvaluateSysadmFirewallRequest(const QJsonValue in_args, QJsonObject *out);
+	// -- sysadm moused API
+	RestOutputStruct::ExitCode EvaluateSysadmMousedRequest(const QJsonValue in_args, QJsonObject *out);
 
 private slots:
 	void sendReply(QString msg);
