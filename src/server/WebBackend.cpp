@@ -1226,7 +1226,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmMousedRequest(const QJsonVal
   if(action == "list_devices"){
     outobj = sysadm::moused::listDevices();
   }else if(action == "list_device_options"){
-
+    outobj = sysadm::moused::listOptions();
   }else if(action == "read_device_options"){
 
   }else if(action == "set_device_options"){
