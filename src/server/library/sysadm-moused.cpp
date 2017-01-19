@@ -10,6 +10,8 @@
 #include "globals.h"
 
 #define _MOUSED_CONF QString("/etc/conf.d/moused")
+#define _MOUSED_SYS_CONF QString("/etc/rc.conf")
+#define _MOUSED_DEFAULT_CONF QString("/etc/defaults/rc.conf")
 
 using namespace sysadm;
 
@@ -52,7 +54,9 @@ QJsonObject moused::readOptions(QJsonObject obj){
   if(device.isEmpty()){ return QJsonObject(); } //invalid inputs
   
   QStringList args = General::getConfFileValue(_MOUSED_CONF, "moused_args_"+device+"=" ).section("\"",1,-2).split(" ");
-  if(args.isEmpty()){ General::getConfFileValue(_MOUSED_CONF, "moused_args=" ).section("\"",1,-2).split(" "); }
+  if(args.isEmpty()){ General::getConfFileValue(_MOUSED_SYS_CONF, "moused_flags=" ).section("\"",1,-2).split(" "); }
+  if(args.isEmpty()){ General::getConfFileValue(_MOUSED_DEFAULT_CONF, "moused_flags=" ).section("\"",1,-2).split(" "); }
+
   //qDebug() << " - Arguments:" << args;
   QJsonObject out;
   //Now parse the arguments and list them in the output object
