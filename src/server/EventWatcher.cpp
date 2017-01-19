@@ -403,6 +403,9 @@ void EventWatcher::CheckSystemState(){
     }
     obj.insert("updates",updates);
   }
+  //Also start a pkg DB update here - need to make sure this is done regularly in the background rather than make the user wait to use the AppCafe
+  QProcess::startDetached("pkg update"); //normal DB update check - no need to force rebuild it
+
   // Priority 0-10
   obj.insert("priority", DisplayPriority(priority) );
 
