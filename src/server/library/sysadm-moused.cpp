@@ -59,11 +59,14 @@ QJsonObject moused::readOptions(QJsonObject obj){
   //qDebug() << "Read Options for Device:" << device;
   if(device.isEmpty()){ return QJsonObject(); } //invalid inputs
   
-  QStringList args = General::getConfFileValue(_MOUSED_CONF, "moused_args_"+device+"=" ).section("\"",1,-2).split(" ");
-  if(args.isEmpty()){ General::getConfFileValue(_MOUSED_SYS_CONF, "moused_flags=" ).section("\"",1,-2).split(" "); }
-  if(args.isEmpty()){ General::getConfFileValue(_MOUSED_DEFAULT_CONF, "moused_flags=" ).section("\"",1,-2).split(" "); }
-
-  //qDebug() << " - Arguments:" << args;
+  QString val = General::getConfFileValue(_MOUSED_CONF, "moused_args_"+device+"=" );
+  if(val.isEmpty()){ General::getConfFileValue(_MOUSED_SYS_CONF, "moused_flags=" ); }
+  if(val.isEmpty()){ General::getConfFileValue(_MOUSED_DEFAULT_CONF, "moused_flags=" ); }
+  val = val.simplified();
+  if(val.startsWith("\"")){ val.remove(0,1); }
+  if(val.endsWith("\"")){ val.chop(1); }
+  QStringList args = val.split(" ");
+  qDebug() << " - Arguments:" << args;
   QJsonObject out;
   //Now parse the arguments and list them in the output object
   out.insert("emulate_button_3", args.contains("-3") ? "true" : "false");
@@ -77,7 +80,7 @@ QJsonObject moused::readOptions(QJsonObject obj){
   out.insert("virtual_scrolling", args.contains("-V") ? "true" : "false" );
 
   index = args.indexOf("-A");
-  QString val = "1.0";
+   val = "1.0";
   if(index>=0 && args.length()>(index+1)){ val = args[index+1].section(",",0,0); }
   out.insert("accel_exponential", val);
 
