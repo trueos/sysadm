@@ -21,11 +21,11 @@ public:
 	static QJsonObject readOptions(QJsonObject);	//current values for device
 	static QJsonObject setOptions(QJsonObject); 	//change values for device
 
-	//sysctl changes for classes of devices
-	/*static QJsonObject listSysctlDevices();
-	static QJsonObject listSysctls(QJsonObject);
-	static QJsonObject readSysctls(QJsonObject);
-	static QJsonObject setSysctls(QJsonObject);*/
+	//Service status for devices (enable/disable device)
+	static QJsonObject listActiveDevices();
+	static QJsonObject enableDevice(QJsonObject);
+	static QJsonObject disableDevice(QJsonObject);
+
 };
 	
 } //end of namespace

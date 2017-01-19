@@ -17,11 +17,16 @@ using namespace sysadm;
 
 QJsonObject moused::listDevices(){
   QJsonObject out;
+  //First find all the active devices
   QDir dir("/var/run");
-  QStringList devs = dir.entryList(QStringList() << "moused-*.pid", QDir::Files, QDir::Name);
+  QStringList devsactive = dir.entryList(QStringList() << "moused-*.pid", QDir::Files, QDir::Name);
+  for(int i=0; i<devsactive.length(); i++){ devsactive[i] = devsactive[i].section("-",1,-1).section(".pid",0,0); }
+  //Now find *all* the devices
+  dir.cd("/dev");
+  QStringList devs = dir.entryList(QStringList() << "psm*" << "ums*" << "mse*", QDir::System, QDir::Name);
   //qDebug() << "Found moused devices:" << devs;
   for(int i=0; i<devs.length(); i++){
-    QString dev = devs[i].section("-",1,-1).section(".pid",0,0);
+    QString dev = devs[i];
     QString sysctlprefix = "dev."+dev.left(dev.length()-1)+"."+dev.right(1)+".";
     //qDebug() << " - Device:" << dev << "Sysctl Prefix:" << sysctlprefix;
     QJsonObject devObj;
@@ -29,6 +34,7 @@ QJsonObject moused::listDevices(){
       devObj.insert("description", General::sysctl(sysctlprefix+"%desc"));
       devObj.insert("parent", General::sysctl(sysctlprefix+"%parent"));
       devObj.insert("driver", General::sysctl(sysctlprefix+"%driver"));
+      devObj.insert("active", (devsactive.contains(dev)) ? "true" : "false");
     out.insert(dev, devObj);
   }
   //qDebug() << "Device List:" << out;
@@ -127,19 +133,32 @@ QJsonObject moused::setOptions(QJsonObject obj){
   return Cobj; //return the object for the settings we just used
 }
 
-//sysctl changes for classes of devices
-/*QJsonObject moused::listSysctlDevices(){
-
+//Service status for devices (enable/disable device)
+QJsonObject moused::listActiveDevices(){
+  QDir dir("/var/run");
+  QJsonObject out;
+  QStringList devsactive = dir.entryList(QStringList() << "moused-*.pid", QDir::Files, QDir::Name);
+  for(int i=0; i<devsactive.length(); i++){ 
+    devsactive[i] = devsactive[i].section("-",1,-1).section(".pid",0,0); 
+  }
+  out.insert("active_devices", QJsonArray::fromStringList(devsactive));
+  return out;
 }
 
-QJsonObject moused::listSysctls(QJsonObject){
-
+QJsonObject moused::enableDevice(QJsonObject obj){
+  if(!obj.contains("device")){ return QJsonObject(); }
+  QString device = obj.value("device").toString();
+  General::RunQuickCommand("service moused."+device+" start");
+  QJsonObject out;
+  out.insert("started", device);
+  return out;
 }
 
-QJsonObject moused::readSysctls(QJsonObject){
-
+QJsonObject moused::disableDevice(QJsonObject obj){
+  if(!obj.contains("device")){ return QJsonObject(); }
+  QString device = obj.value("device").toString();
+  General::RunQuickCommand("service moused."+device+" stop");
+  QJsonObject out;
+  out.insert("stopped", device);
+  return out;
 }
-
-QJsonObject moused::setSysctls(QJsonObject){
-
-}*/
