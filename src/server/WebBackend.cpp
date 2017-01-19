@@ -1233,6 +1233,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmMousedRequest(const QJsonVal
     outobj = sysadm::moused::readOptions(in_args.toObject());
   }else if(action == "set_device_options"){
     outobj = sysadm::moused::setOptions(in_args.toObject());
+  }else if(action == "set_device_active"){
+    //outobj = sysadm::moused::enableDevice(in_args.toObject());
+  }else if(action == "set_device_inactive"){
+    outobj = sysadm::moused::disableDevice(in_args.toObject());
   }
 
   //check return structure for validity

@@ -148,6 +148,7 @@ QJsonObject moused::listActiveDevices(){
 QJsonObject moused::enableDevice(QJsonObject obj){
   if(!obj.contains("device")){ return QJsonObject(); }
   QString device = obj.value("device").toString();
+  if(!QFile::exists("/dev/"+device)){ return QJsonObject(); }
   General::RunQuickCommand("service moused."+device+" start");
   QJsonObject out;
   out.insert("started", device);
@@ -157,6 +158,7 @@ QJsonObject moused::enableDevice(QJsonObject obj){
 QJsonObject moused::disableDevice(QJsonObject obj){
   if(!obj.contains("device")){ return QJsonObject(); }
   QString device = obj.value("device").toString();
+  if(!QFile::exists("/dev/"+device)){ return QJsonObject(); }
   General::RunQuickCommand("service moused."+device+" stop");
   QJsonObject out;
   out.insert("stopped", device);
