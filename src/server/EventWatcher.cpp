@@ -10,6 +10,7 @@
 #include "library/sysadm-zfs.h"
 #include "library/sysadm-update.h"
 #include "library/sysadm-systemmanager.h"
+#include "library/sysadm-pkg.h"
 
 // === PUBLIC ===
 EventWatcher::EventWatcher(){
@@ -404,7 +405,9 @@ void EventWatcher::CheckSystemState(){
     obj.insert("updates",updates);
   }
   //Also start a pkg DB update here - need to make sure this is done regularly in the background rather than make the user wait to use the AppCafe
-  QProcess::startDetached("pkg update"); //normal DB update check - no need to force rebuild it
+  if(!sysadm::Update::lastFullCheck().isNull()){ //make sure we have network connection first
+    sysadm::PKG::list_repos(false); //check/update repo databases
+  }
 
   // Priority 0-10
   obj.insert("priority", DisplayPriority(priority) );
