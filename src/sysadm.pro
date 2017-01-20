@@ -3,11 +3,16 @@ CONFIG += recursive
 
 SUBDIRS+= server bridge
 
+#Standard FreeBSD RC
 rcd.path = /usr/local/etc/rc.d/
 rcd.files = rc.d/sysadm rc.d/sysadm-rest rc.d/sysadm-bridge
 
-#dconf.path = /usr/local/etc/job.d/
-#dconf.extra = cp job.d/* $(INSTALL_ROOT)/usr/local/etc/job.d/
+#OpenRC for TrueOS
+initd.path = /usr/local/etc/init.d/
+initd.files = init.d/sysadm init.d/sysadm-rest init.d/sysadm-bridge
+
+#jobd.path = /usr/local/etc/job.d/
+#jobd.extra = cp job.d/* $(INSTALL_ROOT)/usr/local/etc/job.d/
 
 #wsdaemon.path = /usr/local/etc/job.d/
 #wsdaemon.extra = cp job.d/org.pcbsd.sysadm.json $(INSTALL_ROOT)/usr/local/etc/job.d/org.pcbsd.sysadm.json
@@ -18,4 +23,4 @@ rcd.files = rc.d/sysadm rc.d/sysadm-rest rc.d/sysadm-bridge
 conf.path = /usr/local/etc/
 conf.extra = cp conf/sysadm.conf ${INSTALL_ROOT}/usr/local/etc/sysadm.conf.dist
 
-INSTALLS += rcd conf 
+INSTALLS += rcd initd conf 

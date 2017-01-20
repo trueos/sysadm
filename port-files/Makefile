@@ -6,7 +6,7 @@ PORTVERSION=	%%CHGVERSION%%
 CATEGORIES=	sysutils
 
 MAINTAINER=	kmoore@FreeBSD.org
-COMMENT=	PC-BSD SysAdm API server
+COMMENT=	SysAdm API server
 
 LICENSE=	BSD3CLAUSE
 
@@ -15,10 +15,8 @@ USE_QT5=	concurrent core network buildtools qmake gui websockets
 USES=		pkgconfig tar:xz qmake
 MAKE_ARGS=	PREFIX=${STAGEDIR}${PREFIX}
 
-USE_OPENRC_SUBR=	sysadm sysadm-bridge sysadm-rest
-
 USE_GITHUB=	yes
-GH_ACCOUNT=	pcbsd
+GH_ACCOUNT=	trueos
 GH_PROJECT=	sysadm
 GH_TAGNAME=	%%GHTAG%%
 
