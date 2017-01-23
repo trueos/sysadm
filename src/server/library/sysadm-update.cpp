@@ -80,6 +80,7 @@ QJsonObject Update::checkUpdates(bool fast) {
     //qDebug() << " - Run full check";
     //output = General::RunCommand("pc-updatemanager check").split("\n");
     output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
+    while(output.last().simplified()==""){ output.removeLast(); }
     if(!output.last().contains("ERROR:")){ //make sure there was network access available first -  otherwise let it try again soon
       General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
     }
