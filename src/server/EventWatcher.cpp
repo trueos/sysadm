@@ -43,7 +43,7 @@ void EventWatcher::start(){
   
   filechecktimer->start();
   syschecktimer->start();
-  QTimer::singleShot(0, this, SLOT(CheckSystemState()) );
+  QTimer::singleShot(60000, this, SLOT(CheckSystemState()) ); //wait 1 minute for networking to settle down first
   starting = false;
 }
 
