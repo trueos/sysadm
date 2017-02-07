@@ -24,6 +24,7 @@
 #include "library/sysadm-servicemanager.h"
 #include "library/sysadm-firewall.h"
 #include "library/sysadm-moused.h"
+#include "library/sysadm-powerd.h"
 
 #define DEBUG 0
 //#define SCLISTDELIM QString("::::") //SysCache List Delimiter
@@ -99,6 +100,10 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   if(QFile::exists("/usr/sbin/moused")){
     out->insert("sysadm/moused", "read/write");
   }
+  // - powerd
+  if(QFile::exists("/usr/sbin/powerd")){
+    out->insert("sysadm/powerd", "read/write");
+  }
 
   return RestOutputStruct::OK;
 }
@@ -157,6 +162,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmFirewallRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="moused"){
     return EvaluateSysadmMousedRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="powerd"){
+    return EvaluateSysadmPowerdRequest(IN.args, out);
   }else{
     return RestOutputStruct::BADREQUEST;
   }
@@ -1247,4 +1254,34 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmMousedRequest(const QJsonVal
     return RestOutputStruct::BADREQUEST;
   }
 
+}
+
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPowerdRequest(const QJsonValue in_args, QJsonObject *out){
+  QString action = in_args.toObject().value("action").toString();
+  QJsonObject outobj;
+   if(action == "list_options"){
+    outobj = sysadm::powerd::listOptions();
+  }else if(action == "read_options"){
+    outobj = sysadm::powerd::readOptions();
+  }else if(action == "set_options"){
+    outobj = sysadm::powerd::setOptions(in_args.toObject());
+  }else if(action == "list_status"){
+    outobj = sysadm::powerd::listStatus();
+  }else if(action == "set_active"){
+    outobj = sysadm::powerd::enableService();
+  }else if(action == "set_inactive"){
+    outobj = sysadm::powerd::disableService();
+  }else if(action == "start"){
+    outobj = sysadm::powerd::startService();
+  }else if(action == "stop"){
+    outobj = sysadm::powerd::stopService();
+  }
+
+  //check return structure for validity
+  if(!outobj.keys().isEmpty()){
+    out->insert(action, outobj);
+    return RestOutputStruct::OK;
+  }else{
+    return RestOutputStruct::BADREQUEST;
+  }
 }
