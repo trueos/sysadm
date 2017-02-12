@@ -31,3 +31,13 @@ start_pre()
 {
 	ssl_keygen "$1"
 }
+
+stop()
+{
+        t=$(mktemp)
+        for pid in $(cat $pidfile) ; do
+          echo $pid >$t
+          pidfile=$t default_stop
+        done
+        rm -f $t
+}
