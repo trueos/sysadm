@@ -1,0 +1,43 @@
+#!/sbin/openrc-run
+# Copyright (c) 2016 Ken Moore <ken@ixsystems.com>
+# Released under the 2-clause BSD license
+
+name="SysAdm Server (Bridge)"
+pidfile=/var/run/sysadm-bridge.pid
+prefix=/usr/local/
+command=${prefix}bin/sysadm-bridge
+command_args=
+supervisor=supervise-daemon
+
+depend() { 
+	after bootmisc
+	keyword -shutdown
+}
+
+ssl_keygen()
+{
+	if [ ! -d "${prefix}/etc/sysadm" ] ; then
+    		mkdir -p ${prefix}/etc/sysadm
+	fi
+	if [ ! -e "${prefix}/etc/sysadm/ws_bridge.key" ] ; then
+		openssl req -x509 -nodes -newkey rsa:2048 \
+		-keyout ${prefix}/etc/sysadm/ws_bridge.key \
+		-out ${prefix}/etc/sysadm/ws_bridge.crt -days 102400 \
+		-subj "/C=US/ST=MY/L=NULL/O=SysAdm/OU=SysAdm/CN=SysAdm/emailAddress=none@example.org" 2>/dev/null
+	fi
+}
+
+start_pre()
+{
+	ssl_keygen "$1"
+}
+
+stop()
+{
+        t=$(mktemp)
+        for pid in $(cat $pidfile) ; do
+          echo $pid >$t
+          pidfile=$t default_stop
+        done
+        rm -f $t
+}

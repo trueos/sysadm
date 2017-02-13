@@ -10,6 +10,7 @@
 #include "library/sysadm-zfs.h"
 #include "library/sysadm-update.h"
 #include "library/sysadm-systemmanager.h"
+#include "library/sysadm-pkg.h"
 
 // === PUBLIC ===
 EventWatcher::EventWatcher(){
@@ -42,7 +43,7 @@ void EventWatcher::start(){
   
   filechecktimer->start();
   syschecktimer->start();
-  QTimer::singleShot(0, this, SLOT(CheckSystemState()) );
+  QTimer::singleShot(60000, this, SLOT(CheckSystemState()) ); //wait 1 minute for networking to settle down first
   starting = false;
 }
 
@@ -391,7 +392,7 @@ void EventWatcher::CheckSystemState(){
         //updates are available - see if the auto-update flag is set, and start the updates as needed
         QJsonObject upset = sysadm::Update::readSettings();
         QDateTime last = sysadm::Update::lastFullCheck().addSecs(60); //wait one interval before starting auto-updates (15 min intervals usually)
-        if( (!upset.contains("auto_update") || updates.value("auto_update").toString().toLower()!="all") && (QDateTime::currentDateTime() > last) ){
+        if( (!upset.contains("auto_update") || upset.value("auto_update").toString().toLower()=="all") && (QDateTime::currentDateTime() > last) ){
            QJsonObject obj;
            obj.insert("target", "pkgupdate"); //since everything is run with pkg now
            sysadm::Update::startUpdate(obj);
@@ -403,6 +404,11 @@ void EventWatcher::CheckSystemState(){
     }
     obj.insert("updates",updates);
   }
+  //Also start a pkg DB update here - need to make sure this is done regularly in the background rather than make the user wait to use the AppCafe
+  if(!sysadm::Update::lastFullCheck().isNull()){ //make sure we have network connection first
+    sysadm::PKG::list_repos(false); //check/update repo databases
+  }
+
   // Priority 0-10
   obj.insert("priority", DisplayPriority(priority) );
 

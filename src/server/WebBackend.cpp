@@ -23,6 +23,8 @@
 #include "library/sysadm-users.h"
 #include "library/sysadm-servicemanager.h"
 #include "library/sysadm-firewall.h"
+#include "library/sysadm-moused.h"
+#include "library/sysadm-powerd.h"
 
 #define DEBUG 0
 //#define SCLISTDELIM QString("::::") //SysCache List Delimiter
@@ -82,7 +84,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   // - Generic system information
   out->insert("sysadm/systemmanager","read/write");
 
-  // - PC-BSD Updater
+  // - PC-BSD/TrueOS Updater
   if(QFile::exists("/usr/local/bin/pc-updatemanager")){
     out->insert("sysadm/update", "read/write");
   }
@@ -93,6 +95,15 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   out->insert("sysadm/services","read/write");
   // - Firewall Manager
   out->insert("sysadm/firewall","read/write");
+
+  // - moused
+  if(QFile::exists("/usr/sbin/moused")){
+    out->insert("sysadm/moused", "read/write");
+  }
+  // - powerd
+  if(QFile::exists("/usr/sbin/powerd")){
+    out->insert("sysadm/powerd", "read/write");
+  }
 
   return RestOutputStruct::OK;
 }
@@ -149,6 +160,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmServiceRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="firewall"){
     return EvaluateSysadmFirewallRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="moused"){
+    return EvaluateSysadmMousedRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="powerd"){
+    return EvaluateSysadmPowerdRequest(IN.args, out);
   }else{
     return RestOutputStruct::BADREQUEST;
   }
@@ -603,6 +618,14 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
       }else if(act=="changesettings"){
 	ok = true;
 	out->insert("changesettings", sysadm::Update::writeSettings(in_args.toObject()) );
+
+      }else if(act=="listlogs"){
+        ok = true;
+        out->insert("listlogs", sysadm::Update::listLogs() );
+
+      }else if(act=="readlogs" && in_args.toObject().contains("logs") ){
+        ok = true;
+        out->insert("readlogs", sysadm::Update::readLog(in_args.toObject()) );
       }
 
     } //end of "action" key usage
@@ -1202,4 +1225,63 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmFirewallRequest(const QJsonV
     else{ out->insert("error","error"); }
   }
   return (ok ? RestOutputStruct::OK : RestOutputStruct::BADREQUEST);
+}
+
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmMousedRequest(const QJsonValue in_args, QJsonObject *out){
+  QString action = in_args.toObject().value("action").toString();
+  QJsonObject outobj;
+  if(action == "list_devices"){
+    outobj = sysadm::moused::listDevices();
+  }else if(action == "list_devices_active"){
+    outobj = sysadm::moused::listActiveDevices();
+  }else if(action == "list_device_options"){
+    outobj = sysadm::moused::listOptions();
+  }else if(action == "read_device_options"){
+    outobj = sysadm::moused::readOptions(in_args.toObject());
+  }else if(action == "set_device_options"){
+    outobj = sysadm::moused::setOptions(in_args.toObject());
+  }else if(action == "set_device_active"){
+    outobj = sysadm::moused::enableDevice(in_args.toObject());
+  }else if(action == "set_device_inactive"){
+    outobj = sysadm::moused::disableDevice(in_args.toObject());
+  }
+
+  //check return structure for validity
+  if(!outobj.keys().isEmpty()){
+    out->insert(action, outobj);
+    return RestOutputStruct::OK;
+  }else{
+    return RestOutputStruct::BADREQUEST;
+  }
+
+}
+
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPowerdRequest(const QJsonValue in_args, QJsonObject *out){
+  QString action = in_args.toObject().value("action").toString();
+  QJsonObject outobj;
+   if(action == "list_options"){
+    outobj = sysadm::powerd::listOptions();
+  }else if(action == "read_options"){
+    outobj = sysadm::powerd::readOptions();
+  }else if(action == "set_options"){
+    outobj = sysadm::powerd::setOptions(in_args.toObject());
+  }else if(action == "list_status"){
+    outobj = sysadm::powerd::listStatus();
+  }else if(action == "set_active"){
+    outobj = sysadm::powerd::enableService();
+  }else if(action == "set_inactive"){
+    outobj = sysadm::powerd::disableService();
+  }else if(action == "start"){
+    outobj = sysadm::powerd::startService();
+  }else if(action == "stop"){
+    outobj = sysadm::powerd::stopService();
+  }
+
+  //check return structure for validity
+  if(!outobj.keys().isEmpty()){
+    out->insert(action, outobj);
+    return RestOutputStruct::OK;
+  }else{
+    return RestOutputStruct::BADREQUEST;
+  }
 }
