@@ -60,7 +60,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   }
 
   // - iocage
-  if(QFile::exists("/usr/local/sbin/iocage")){
+  if(QFile::exists("/usr/local/bin/iocage")){
     out->insert("sysadm/iocage", "read/write");
   }
 
