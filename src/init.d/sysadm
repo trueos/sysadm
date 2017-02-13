@@ -39,13 +39,3 @@ stop()
         done
         rm -f $t
 }
-
-stop()
-{
-        t=$(mktemp)
-        for pid in $(cat $pidfile) ; do
-          echo $pid >$t
-          pidfile=$t default_stop
-        done
-        rm -f $t
-}

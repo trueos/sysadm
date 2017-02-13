@@ -3,7 +3,7 @@
 # Released under the 2-clause BSD license
 
 name="SysAdm Server (REST)"
-pid=/var/run/sysadm-rest.pid
+pidfile=/var/run/sysadm-rest.pid
 prefix=/usr/local/
 command=${prefix}bin/sysadm-binary
 command_args="--rest"
@@ -28,4 +28,14 @@ ssl_keygen()
 start_pre()
 {
 	ssl_keygen "$1"
+}
+
+stop()
+{
+        t=$(mktemp)
+        for pid in $(cat $pidfile) ; do
+          echo $pid >$t
+          pidfile=$t default_stop
+        done
+        rm -f $t
 }
