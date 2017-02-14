@@ -1,6 +1,6 @@
 //===========================================
 //  PC-BSD source code
-//  Copyright (c) 2015, PC-BSD Software/iXsystems
+//  Copyright (c) 2015-2017, PC-BSD Software/iXsystems
 //  Available under the 3-clause BSD license
 //  See the LICENSE file for full details
 //===========================================
@@ -9,8 +9,6 @@
 #include "sysadm-global.h"
 
 using namespace sysadm;
-
-//PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
 
 // Execute a process in a jail on the box
 QJsonObject Iocage::execJail(QJsonObject jsin) {
@@ -345,19 +343,15 @@ QJsonObject Iocage::deactivatePool(QJsonObject jsin) {
 
   // Get the key values
   QString pool = jsin.value("pool").toString();
-  QStringList output = General::RunCommand("iocage deactivate " + pool).split("\n");
+  bool success = false;
+  QStringList output = General::RunCommand(success, "iocage deactivate " + pool).split("\n");
   QJsonObject vals;
 
-  for ( int i = 0; i < output.size(); i++)
-  {
-    if ( ! output.at(i).isEmpty())
-      break;
-
-    // When a pool deactivation is successful, iocage doesn't return anything,
-    // so we have to fudge the output a bit.
+  if (success){
     retObject.insert("success", "pool " + pool + " deactivated.");
+  }else{
+    retObject.insert("error", output.join("\n"));
   }
-
   return retObject;
 }
 
@@ -368,37 +362,13 @@ QJsonObject Iocage::activatePool(QJsonObject jsin) {
 
   // Get the key values
   QString pool = jsin.value("pool").toString();
-  QStringList output = General::RunCommand("iocage activate " + pool).split("\n");
-  QJsonObject vals;
-
-  for ( int i = 0; i < output.size(); i++)
-  {
-    // Otherwise we get null output before the actual active pool
-    if ( i > 0 )
-      break;
-
-    // When a pool activation is successful, iocage doesn't return anything,
-    // so we have to fudge the output a bit.
-    if ( output.at(i).isEmpty())
-    {
+  bool success = false;
+  QStringList output = General::RunCommand(success, "iocage activate " + pool).split("\n");
+  if(success){
       retObject.insert("success", "pool " + pool + " activated.");
-      break;
-    } else {
-        QString key = output.at(i).simplified().section(":", 0, 0);
-        QString value = output.at(i).simplified().section(":", 1, 1);
-
-        vals.insert(key, value);
-
-        // This means no pool exists, give them the error.
-        if ( output.at(i).indexOf("ERROR:") != -1 ) {
-          retObject.insert("error", output.at(i));
-          break;
-
-        retObject.insert("currently active", vals);
-      }
-    }
+  } else {
+      retObject.insert("error", output.join("\n"));
   }
-
   return retObject;
 }
 
