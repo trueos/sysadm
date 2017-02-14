@@ -651,67 +651,67 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
 	ok = true;
         out->insert("execjail", sysadm::Iocage::execJail(in_args.toObject()));
       }
-      if(act=="df"){
+      else if(act=="df"){
 	ok = true;
         out->insert("df", sysadm::Iocage::df());
       }
-      if(act=="destroyjail"){
+      else if(act=="destroyjail"){
 	ok = true;
         out->insert("destroyjail", sysadm::Iocage::destroyJail(in_args.toObject()));
       }
-      if(act=="createjail"){
+      else if(act=="createjail"){
 	ok = true;
         out->insert("createjail", sysadm::Iocage::createJail(in_args.toObject()));
       }
-      if(act=="clonejail"){
+      else if(act=="clonejail"){
 	ok = true;
         out->insert("clonejail", sysadm::Iocage::cloneJail(in_args.toObject()));
       }
-      if(act=="cleanall"){
+      else if(act=="cleanall"){
 	ok = true;
         out->insert("cleanall", sysadm::Iocage::cleanAll());
       }
-      if(act=="cleantemplates"){
+      else if(act=="cleantemplates"){
 	ok = true;
         out->insert("cleantemplates", sysadm::Iocage::cleanTemplates());
       }
-      if(act=="cleanreleases"){
+      else if(act=="cleanreleases"){
 	ok = true;
         out->insert("cleanreleases", sysadm::Iocage::cleanReleases());
       }
-      if(act=="cleanjails"){
+      else if(act=="cleanjails"){
 	ok = true;
         out->insert("cleanjails", sysadm::Iocage::cleanJails());
       }
-      if(act=="capjail"){
+      else if(act=="capjail"){
 	ok = true;
         out->insert("capjail", sysadm::Iocage::capJail(in_args.toObject()));
       }
-      if(act=="deactivatepool"){
+      else if(act=="deactivatepool"){
 	ok = true;
         out->insert("deactivatepool", sysadm::Iocage::deactivatePool(in_args.toObject()));
       }
-      if(act=="activatepool"){
+      else if(act=="activatepool"){
 	ok = true;
         out->insert("activatepool", sysadm::Iocage::activatePool(in_args.toObject()));
       }
-      if(act=="stopjail"){
+      else if(act=="stopjail"){
 	ok = true;
         out->insert("stopjail", sysadm::Iocage::stopJail(in_args.toObject()));
       }
-      if(act=="startjail"){
+      else if(act=="startjail"){
 	ok = true;
         out->insert("startjail", sysadm::Iocage::startJail(in_args.toObject()));
       }
-      if(act=="getdefaultsettings"){
+      /*if(act=="getdefaultsettings"){
 	ok = true;
         out->insert("getdefaultsettings", sysadm::Iocage::getDefaultSettings());
-      }
-      if(act=="getjailsettings"){
+      }*/
+      else if(act=="getjailsettings"){
 	ok = true;
         out->insert("getjailsettings", sysadm::Iocage::getJailSettings(in_args.toObject()));
       }
-      if(act=="listjails"){
+      else if(act=="listjails"){
 	ok = true;
         out->insert("listjails", sysadm::Iocage::listJails());
       }

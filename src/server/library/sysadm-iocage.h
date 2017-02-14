@@ -28,7 +28,7 @@ public:
 	static QJsonObject activatePool(QJsonObject);
 	static QJsonObject stopJail(QJsonObject);
 	static QJsonObject startJail(QJsonObject);
-	static QJsonObject getDefaultSettings();
+	//static QJsonObject getDefaultSettings();
 	static QJsonObject getJailSettings(QJsonObject);
 	static QJsonObject listJails();
 };

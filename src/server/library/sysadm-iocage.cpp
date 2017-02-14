@@ -435,7 +435,7 @@ QJsonObject Iocage::startJail(QJsonObject jsin) {
 }
 
 // Return all the default iocage settings
-QJsonObject Iocage::getDefaultSettings() {
+/*QJsonObject Iocage::getDefaultSettings() {
   QJsonObject retObject;
 
   QStringList output = General::RunCommand("iocage defaults").split("\n");
@@ -457,7 +457,7 @@ QJsonObject Iocage::getDefaultSettings() {
 
   retObject.insert("defaults", vals);
   return retObject;
-}
+}*/
 
 // Return all of the jail settings
 QJsonObject Iocage::getJailSettings(QJsonObject jsin) {
