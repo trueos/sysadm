@@ -30,23 +30,23 @@ public:
 	static QJsonObject cleanReleases();
 
 	//Jail management
-
-	static QJsonObject execJail(QJsonObject);
+	static QJsonObject listJails();
 	static QJsonObject df();
-	static QJsonObject destroyJail(QJsonObject);
+	//  - create/destroy jails
 	static QJsonObject createJail(QJsonObject);
-	static QJsonObject cloneJail(QJsonObject);
-
-
+	static QJsonObject destroyJail(QJsonObject);
 	static QJsonObject cleanJails();
-	static QJsonObject capJail(QJsonObject);
 
-
+	// - actions on jails
 	static QJsonObject stopJail(QJsonObject);
 	static QJsonObject startJail(QJsonObject);
-	//static QJsonObject getDefaultSettings();
+	static QJsonObject execJail(QJsonObject); //execute command in jail
+
+
+	static QJsonObject capJail(QJsonObject);
+
 	static QJsonObject getJailSettings(QJsonObject);
-	static QJsonObject listJails();
+	
 };
 
 } //end of namespace

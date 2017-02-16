@@ -647,7 +647,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
-      if(act=="execjail"){
+      /*if(act=="execjail"){
 	ok = true;
         out->insert("execjail", sysadm::Iocage::execJail(in_args.toObject()));
       }
@@ -703,10 +703,6 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
 	ok = true;
         out->insert("startjail", sysadm::Iocage::startJail(in_args.toObject()));
       }
-      /*if(act=="getdefaultsettings"){
-	ok = true;
-        out->insert("getdefaultsettings", sysadm::Iocage::getDefaultSettings());
-      }*/
       else if(act=="getjailsettings"){
 	ok = true;
         out->insert("getjailsettings", sysadm::Iocage::getJailSettings(in_args.toObject()));
@@ -722,7 +718,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
       else if(act=="listreleases"){
 	ok = true;
         out->insert("listjails", sysadm::Iocage::listReleases());
-      }
+      }*/
 
     } //end of "action" key usage
 
