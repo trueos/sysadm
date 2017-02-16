@@ -7,8 +7,202 @@
 #include "sysadm-general.h"
 #include "sysadm-iocage.h"
 #include "sysadm-global.h"
+//need access to the global DISPATCHER object
+#include "globals.h" 
 
 using namespace sysadm;
+
+// ============ GLOBAL OPTIONS ==============
+//  Current activation status
+QJsonObject Iocage::activateStatus(){
+  QJsonObject retObject;
+  bool success = false;
+  QString output = General::RunCommand(success, "iocage activate --status");
+  retObject.insert("activated", success ? "true" : "false");
+  if(success){
+    //Grab the currently activated pool out of the return, and list that
+    QString pool = output.simplified();
+      retObject.insert("pool", pool);
+  }
+  return retObject;
+}
+
+// Activate a zpool for iocage on the box
+QJsonObject Iocage::activatePool(QJsonObject jsin) {
+  QJsonObject retObject;
+  QStringList keys = jsin.keys();
+
+  // Get the key values
+  QString pool = jsin.value("pool").toString();
+  bool success = false;
+  QStringList output = General::RunCommand(success, "iocage activate " + pool).split("\n");
+  if(success){
+      retObject.insert("success", "pool " + pool + " activated.");
+  } else {
+      retObject.insert("error", output.join("\n"));
+  }
+  return retObject;
+}
+
+
+// Deactivate a zpool for iocage on the box
+QJsonObject Iocage::deactivatePool(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList keys = jsin.keys();
+  if (! keys.contains("pool") ) {
+    retObject.insert("error", "Missing required keys");
+    return retObject;
+  }
+
+  // Get the key values
+  QString pool = jsin.value("pool").toString();
+  bool success = false;
+  QStringList output = General::RunCommand(success, "iocage deactivate " + pool).split("\n");
+  QJsonObject vals;
+
+  if (success){
+    retObject.insert("success", "pool " + pool + " deactivated.");
+  }else{
+    retObject.insert("error", output.join("\n"));
+  }
+  return retObject;
+}
+
+// Clean everything iocage related on a box
+QJsonObject Iocage::cleanAll() {
+  QJsonObject retObject;
+  bool success = false;
+  QStringList output = General::RunCommand(success, "iocage clean -fa ").split("\n");
+
+  if(!success) {
+    retObject.insert("error", output.join("\n"));
+  } else {
+    retObject.insert("success", "All iocage datasets have been cleaned.");
+  }
+
+  return retObject;
+}
+
+//================TEMPLATE MANAGEMENT===================
+QJsonObject Iocage::listTemplates(){
+  QJsonObject retObject;
+  QStringList local = General::RunCommand("iocage list -tlh ").split("\n");
+  for(int i=0; i<local.length(); i++){
+    QStringList info = local[i].split("\t"); //the -h flag is for scripting use (tabs as separators)
+    //NOTE ABOUT FORMAT:
+    // [JID, UUID, BOOT, STATE, TAG, TYPE, IP4, RELEASE, TEMPLATE]
+    if(info.length()!=9){ continue; } //invalid line
+    QJsonObject obj;
+    obj.insert("jid",info[0]);
+    obj.insert("uuid",info[1]);
+    obj.insert("boot",info[2]);
+    obj.insert("state",info[3]);
+    obj.insert("tag",info[4]);
+    obj.insert("type",info[5]);
+    obj.insert("ip4",info[6]);
+    obj.insert("release",info[7]);
+    obj.insert("template",info[8]);
+    retObject.insert(info[8], obj);
+  }
+  
+  return retObject;
+}
+
+QJsonObject Iocage::listReleases(){
+  QJsonObject retObject;
+  // Locally-available releases
+  QStringList local = General::RunCommand("iocage list -rh").split("\n");
+  retObject.insert("local", QJsonArray::fromStringList(local) );
+  //Remote releases available for download
+  QStringList remote = General::RunCommand("iocage list -Rh").split("\n");
+  for(int i=0; i<remote.length(); i++){
+    if(remote[i].startsWith("[")){ remote[i] = remote[i].section("]",1,-1); }
+    else{  remote.removeAt(i); i--; }
+  }
+  retObject.insert("remote", QJsonArray::fromStringList(remote));
+  return retObject;
+}
+
+QJsonObject Iocage::listPlugins(){
+  QJsonObject retObject;
+  //Not sure about format of this yet (just commited upstream) - just treat it as line-delimited for now. (2/16/17)
+  //locally downloaded plugins
+  QStringList local = General::RunCommand("iocage list -ph ").split("\n");
+  retObject.insert("local", QJsonArray::fromStringList(local) );
+  //Remote plugins available for download/use
+  QStringList remote = General::RunCommand("iocage list -Ph").split("\n");
+  retObject.insert("remote", QJsonArray::fromStringList(remote));
+  return retObject;
+}
+
+QJsonObject Iocage::fetchReleases(QJsonObject inobj){
+  QJsonObject retObject;
+  if(!inobj.contains("releases")){ return retObject; } //nothing to do
+  QStringList releases; 
+  if(inobj.value("releases").isArray()){ releases = General::JsonArrayToString(inobj.value("releases").toArray()); }
+  else if(inobj.value("releases").isString()){ releases << inobj.value("releases").toString(); }
+  //Now start up each of these downloads as appropriate
+  QStringList cids = DISPATCHER->listJobs().value("no_queue").toObject().keys(); //all currently running/pending jobs
+  QString jobprefix = "sysadm_iocage_fetch_release_";
+  QJsonArray started;
+  for(int i=0; i<releases.length(); i++){
+    releases[i] = releases[i].section(" ",0,0, QString::SectionSkipEmpty); //all valid releases are a single word - do not allow injection of other commands
+    if(cids.contains(jobprefix+releases[i]) ){ continue; } //this fetch job is already running - skip it for now
+    DISPATCHER->queueProcess(jobprefix+releases[i], "iocage fetch --verify -r "+releases[i]);
+    started << jobprefix+releases[i];
+  }
+  if(started.length>0){ retObject.insert("started_dispatcher_id", started); }
+  return retObject;
+}
+
+QJsonObject Iocage::fetchPlugins(QJsonObject inobj){
+  QJsonObject retObject;
+  if(!inobj.contains("plugins")){ return retObject; } //nothing to do
+  QStringList plugins; 
+  if(inobj.value("plugins").isArray()){ plugins = General::JsonArrayToString(inobj.value("plugins").toArray()); }
+  else if(inobj.value("plugins").isString()){ plugins << inobj.value("plugins").toString(); }
+  //Now start up each of these downloads as appropriate
+  QStringList cids = DISPATCHER->listJobs().value("no_queue").toObject().keys(); //all currently running/pending jobs
+  QString jobprefix = "sysadm_iocage_fetch_plugin_";
+  QJsonArray started;
+  for(int i=0; i<plugins.length(); i++){
+    plugins[i] = plugins[i].section(" ",0,0, QString::SectionSkipEmpty); //all valid releases are a single word - do not allow injection of other commands
+    if(cids.contains(jobprefix+plugins[i]) ){ continue; } //this fetch job is already running - skip it for now
+    DISPATCHER->queueProcess(jobprefix+plugins[i], "iocage fetch --verify -P "+plugins[i]);
+    started << jobprefix+plugins[i];
+  }
+  if(started.length>0){ retObject.insert("started_dispatcher_id", started); }
+  return retObject;
+}
+// Clean all templates on a box
+QJsonObject Iocage::cleanTemplates() {
+  QJsonObject retObject;
+  bool success = false;
+  QString output = General::RunCommand(success, "iocage clean -ft ");
+  if(!success) {
+    retObject.insert("error", output);
+  } else {
+    retObject.insert("success", "All templates have been cleaned.");
+  }
+  return retObject;
+}
+
+// Clean all RELEASEs on a box
+QJsonObject Iocage::cleanReleases() {
+  QJsonObject retObject;
+  bool success = false;
+  QString output = General::RunCommand(success, "iocage clean -fr ");
+  if(!success) {
+    retObject.insert("error", output);
+  } else {
+    retObject.insert("success", "All RELEASEs have been cleaned.");
+  }
+  return retObject;
+}
+
+// =================JAIL MANAGEMENT====================
+
 
 // Execute a process in a jail on the box
 QJsonObject Iocage::execJail(QJsonObject jsin) {
@@ -211,74 +405,7 @@ QJsonObject Iocage::cloneJail(QJsonObject jsin) {
   return retObject;
 }
 
-// Clean everything iocage related on a box
-QJsonObject Iocage::cleanAll() {
-  QJsonObject retObject;
 
-  QStringList output = General::RunCommand("iocage clean -fa ").split("\n");
-
-  for ( int i = 0; i < output.size(); i++)
-  {
-    // This means either a mount is stuck or a jail cannot be stopped,
-    // give them the error.
-    if ( output.at(i).indexOf("ERROR:") != -1 ) {
-      retObject.insert("error", output.at(i));
-      break;
-    } else {
-      // iocage does a spinner for these that is distracting to see returned,
-      // returning what a user wants to actually see.
-      retObject.insert("success", "All iocage datasets have been cleaned.");
-    }
-  }
-
-  return retObject;
-}
-
-// Clean all templates on a box
-QJsonObject Iocage::cleanTemplates() {
-  QJsonObject retObject;
-
-  QStringList output = General::RunCommand("iocage clean -ft ").split("\n");
-
-  for ( int i = 0; i < output.size(); i++)
-  {
-    // This means either a mount is stuck or a jail cannot be stopped,
-    // give them the error.
-    if ( output.at(i).indexOf("ERROR:") != -1 ) {
-      retObject.insert("error", output.at(i));
-      break;
-    } else {
-      // iocage does a spinner for these that is distracting to see returned,
-      // returning what a user wants to actually see.
-      retObject.insert("success", "All templates have been cleaned.");
-    }
-  }
-
-  return retObject;
-}
-
-// Clean all RELEASEs on a box
-QJsonObject Iocage::cleanReleases() {
-  QJsonObject retObject;
-
-  QStringList output = General::RunCommand("iocage clean -fr ").split("\n");
-
-  for ( int i = 0; i < output.size(); i++)
-  {
-    // This means either a mount is stuck or a jail cannot be stopped,
-    // give them the error.
-    if ( output.at(i).indexOf("ERROR:") != -1 ) {
-      retObject.insert("error", output.at(i));
-      break;
-    } else {
-      // iocage does a spinner for these that is distracting to see returned,
-      // returning what a user wants to actually see.
-      retObject.insert("success", "All RELEASEs have been cleaned.");
-    }
-  }
-
-  return retObject;
-}
 
 // Clean all jails on a box
 QJsonObject Iocage::cleanJails() {
@@ -328,47 +455,6 @@ QJsonObject Iocage::capJail(QJsonObject jsin) {
     retObject.insert("success", "jail " + jail + " capped.");
   }
 
-  return retObject;
-}
-
-// Deactivate a zpool for iocage on the box
-QJsonObject Iocage::deactivatePool(QJsonObject jsin) {
-  QJsonObject retObject;
-
-  QStringList keys = jsin.keys();
-  if (! keys.contains("pool") ) {
-    retObject.insert("error", "Missing required keys");
-    return retObject;
-  }
-
-  // Get the key values
-  QString pool = jsin.value("pool").toString();
-  bool success = false;
-  QStringList output = General::RunCommand(success, "iocage deactivate " + pool).split("\n");
-  QJsonObject vals;
-
-  if (success){
-    retObject.insert("success", "pool " + pool + " deactivated.");
-  }else{
-    retObject.insert("error", output.join("\n"));
-  }
-  return retObject;
-}
-
-// Activate a zpool for iocage on the box
-QJsonObject Iocage::activatePool(QJsonObject jsin) {
-  QJsonObject retObject;
-  QStringList keys = jsin.keys();
-
-  // Get the key values
-  QString pool = jsin.value("pool").toString();
-  bool success = false;
-  QStringList output = General::RunCommand(success, "iocage activate " + pool).split("\n");
-  if(success){
-      retObject.insert("success", "pool " + pool + " activated.");
-  } else {
-      retObject.insert("error", output.join("\n"));
-  }
   return retObject;
 }
 

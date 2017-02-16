@@ -715,6 +715,14 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
 	ok = true;
         out->insert("listjails", sysadm::Iocage::listJails());
       }
+      else if(act=="listtemplates"){
+	ok = true;
+        out->insert("listtemplates", sysadm::Iocage::listTemplates());
+      }
+      else if(act=="listreleases"){
+	ok = true;
+        out->insert("listjails", sysadm::Iocage::listReleases());
+      }
 
     } //end of "action" key usage
 
