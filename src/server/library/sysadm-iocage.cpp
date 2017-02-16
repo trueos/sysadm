@@ -140,7 +140,7 @@ QJsonObject Iocage::fetchReleases(QJsonObject inobj){
   QJsonObject retObject;
   if(!inobj.contains("releases")){ return retObject; } //nothing to do
   QStringList releases; 
-  if(inobj.value("releases").isArray()){ releases = General::JsonArrayToString(inobj.value("releases").toArray()); }
+  if(inobj.value("releases").isArray()){ releases = General::JsonArrayToStringList(inobj.value("releases").toArray()); }
   else if(inobj.value("releases").isString()){ releases << inobj.value("releases").toString(); }
   //Now start up each of these downloads as appropriate
   QStringList cids = DISPATCHER->listJobs().value("no_queue").toObject().keys(); //all currently running/pending jobs
@@ -152,7 +152,7 @@ QJsonObject Iocage::fetchReleases(QJsonObject inobj){
     DISPATCHER->queueProcess(jobprefix+releases[i], "iocage fetch --verify -r "+releases[i]);
     started << jobprefix+releases[i];
   }
-  if(started.length>0){ retObject.insert("started_dispatcher_id", started); }
+  if(started.count()>0){ retObject.insert("started_dispatcher_id", started); }
   return retObject;
 }
 
@@ -160,7 +160,7 @@ QJsonObject Iocage::fetchPlugins(QJsonObject inobj){
   QJsonObject retObject;
   if(!inobj.contains("plugins")){ return retObject; } //nothing to do
   QStringList plugins; 
-  if(inobj.value("plugins").isArray()){ plugins = General::JsonArrayToString(inobj.value("plugins").toArray()); }
+  if(inobj.value("plugins").isArray()){ plugins = General::JsonArrayToStringList(inobj.value("plugins").toArray()); }
   else if(inobj.value("plugins").isString()){ plugins << inobj.value("plugins").toString(); }
   //Now start up each of these downloads as appropriate
   QStringList cids = DISPATCHER->listJobs().value("no_queue").toObject().keys(); //all currently running/pending jobs
@@ -172,7 +172,7 @@ QJsonObject Iocage::fetchPlugins(QJsonObject inobj){
     DISPATCHER->queueProcess(jobprefix+plugins[i], "iocage fetch --verify -P "+plugins[i]);
     started << jobprefix+plugins[i];
   }
-  if(started.length>0){ retObject.insert("started_dispatcher_id", started); }
+  if(started.count()>0){ retObject.insert("started_dispatcher_id", started); }
   return retObject;
 }
 // Clean all templates on a box
