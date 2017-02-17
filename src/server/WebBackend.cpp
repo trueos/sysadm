@@ -647,6 +647,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      QJsonObject retObj;
+      if(act=="activatepool"){  retObj = sysadm::Iocage::activatePool(in_args.toObject());  }
+
       /*if(act=="execjail"){
 	ok = true;
         out->insert("execjail", sysadm::Iocage::execJail(in_args.toObject()));
@@ -691,10 +694,6 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
 	ok = true;
         out->insert("deactivatepool", sysadm::Iocage::deactivatePool(in_args.toObject()));
       }
-      else if(act=="activatepool"){
-	ok = true;
-        out->insert("activatepool", sysadm::Iocage::activatePool(in_args.toObject()));
-      }
       else if(act=="stopjail"){
 	ok = true;
         out->insert("stopjail", sysadm::Iocage::stopJail(in_args.toObject()));
@@ -719,11 +718,12 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
 	ok = true;
         out->insert("listjails", sysadm::Iocage::listReleases());
       }*/
-
+      ok = !retObj.keys().isEmpty();
+      if(ok){ out->insert(act,retObj); }
     } //end of "action" key usage
 
     //If nothing done - return the proper code
-    if(!ok){
+    if(!ok ){
       return RestOutputStruct::BADREQUEST;
     }
   }else{  // if(in_args.isArray()){
