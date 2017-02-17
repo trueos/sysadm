@@ -691,10 +691,6 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
 	ok = true;
         out->insert("capjail", sysadm::Iocage::capJail(in_args.toObject()));
       }
-      else if(act=="deactivatepool"){
-	ok = true;
-        out->insert("deactivatepool", sysadm::Iocage::deactivatePool(in_args.toObject()));
-      }
       else if(act=="stopjail"){
 	ok = true;
         out->insert("stopjail", sysadm::Iocage::stopJail(in_args.toObject()));
