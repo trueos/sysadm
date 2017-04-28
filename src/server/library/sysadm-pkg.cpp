@@ -343,7 +343,8 @@ QJsonArray PKG::list_repos(bool updated){
   }
   if(found.length()<2 && !updated){
     //Only the local repo could be found - update the package repos and try again
-    QProcess::execute("pkg update");
+    DProcess* proc = DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, "internal_sysadm_pkg_repo_update_sync", "pkg update");
+    proc->waitForFinished();
     return list_repos(true); //try again recursively (will not try to update again)
   }
   return QJsonArray::fromStringList(found);
