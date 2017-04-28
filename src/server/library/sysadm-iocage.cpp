@@ -303,6 +303,32 @@ QJsonObject Iocage::cleanJails() {
   return retObject;
 }
 
+// Stop a jail on the box
+QJsonObject Iocage::stopJail(QJsonObject jsin) {
+  QJsonObject retObject;
+  if(!jsin.contains("jail_uuid")){ return retObject; }
+  // Get the key values
+  QString jail = jsin.value("jail_uuid").toString();
+  bool success = false;
+  QString output = General::RunCommand(success, "iocage stop " + jail);
+  if(success){ retObject.insert("success","jail "+jail+" stopped"); }
+  else{ retObject.insert("error",output); }
+  return retObject;
+}
+
+// Start a jail on the box
+QJsonObject Iocage::startJail(QJsonObject jsin) {
+  QJsonObject retObject;
+  if(!jsin.contains("jail_uuid")){ return retObject; }
+  // Get the key values
+  QString jail = jsin.value("jail_uuid").toString();
+  bool success = false;
+  QString output = General::RunCommand(success, "iocage start " + jail);
+  if(success){ retObject.insert("success","jail "+jail+" started"); }
+  else{ retObject.insert("error",output); }
+  return retObject;
+}
+
 // Execute a process in a jail on the box
 QJsonObject Iocage::execJail(QJsonObject jsin) {
   QJsonObject retObject;
@@ -371,68 +397,6 @@ QJsonObject Iocage::capJail(QJsonObject jsin) {
     retObject.insert("success", "jail " + jail + " capped.");
   }
 
-  return retObject;
-}
-
-// Stop a jail on the box
-QJsonObject Iocage::stopJail(QJsonObject jsin) {
-  QJsonObject retObject;
-
-  QStringList keys = jsin.keys();
-  if (! keys.contains("jail") ) {
-    retObject.insert("error", "Missing required keys");
-    return retObject;
-  }
-
-  // Get the key values
-  QString jail = jsin.value("jail").toString();
-
-  QStringList output = General::RunCommand("iocage stop " + jail).split("\n");
-
-  QJsonObject vals;
-  for ( int i = 0; i < output.size(); i++)
-  {
-    if ( output.at(i).isEmpty() )
-      break;
-
-    QString key = output.at(i).simplified().section(":", 0, 0);
-    QString value = output.at(i).simplified().section(":", 1, 1);
-
-    vals.insert(key, value);
-  }
-
-  retObject.insert(jail, vals);
-  return retObject;
-}
-
-// Start a jail on the box
-QJsonObject Iocage::startJail(QJsonObject jsin) {
-  QJsonObject retObject;
-
-  QStringList keys = jsin.keys();
-  if (! keys.contains("jail") ) {
-    retObject.insert("error", "Missing required keys");
-    return retObject;
-  }
-
-  // Get the key values
-  QString jail = jsin.value("jail").toString();
-
-  QStringList output = General::RunCommand("iocage start " + jail).split("\n");
-
-  QJsonObject vals;
-  for ( int i = 0; i < output.size(); i++)
-  {
-    if ( output.at(i).isEmpty() )
-      break;
-
-    QString key = output.at(i).simplified().section(":", 0, 0);
-    QString value = output.at(i).simplified().section(":", 1, 1);
-
-    vals.insert(key, value);
-  }
-
-  retObject.insert(jail, vals);
   return retObject;
 }
 
