@@ -118,7 +118,7 @@ QJsonObject Iocage::listReleases(){
   //Remote releases available for download
   QStringList remote = General::RunCommand("iocage list -Rh").split("\n");
   for(int i=0; i<remote.length(); i++){
-    if(remote[i].startsWith("[")){ remote[i] = remote[i].section("]",1,-1); }
+    if(remote[i].startsWith("[")){ remote[i] = remote[i].section("]",1,-1).simplified(); }
     else{  remote.removeAt(i); i--; }
   }
   retObject.insert("remote", QJsonArray::fromStringList(remote));
