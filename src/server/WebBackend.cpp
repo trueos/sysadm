@@ -715,6 +715,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
 	ok = true;
         out->insert("listjails", sysadm::Iocage::listReleases());
       }*/
+      else if(act=="listplugins"){  retObj = sysadm::Iocage::listPlugins(); }
       ok = !retObj.keys().isEmpty();
       if(ok){ out->insert(act,retObj); }
     } //end of "action" key usage

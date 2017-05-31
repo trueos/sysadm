@@ -13,7 +13,8 @@
 using namespace sysadm;
 
 // ============ GLOBAL OPTIONS ==============
-//  Current activation status
+//  Current activation status 
+// ##NOT-WORKING in 5/23/17 build of iocage (0.9.8.1)##
 QJsonObject Iocage::activateStatus(){
   QJsonObject retObject;
   bool success = false;
@@ -126,13 +127,20 @@ QJsonObject Iocage::listReleases(){
 
 QJsonObject Iocage::listPlugins(){
   QJsonObject retObject;
-  //Not sure about format of this yet (just commited upstream) - just treat it as line-delimited for now. (2/16/17)
-  //locally downloaded plugins
-  QStringList local = General::RunCommand("iocage list -ph ").split("\n");
-  retObject.insert("local", QJsonArray::fromStringList(local) );
   //Remote plugins available for download/use
   QStringList remote = General::RunCommand("iocage list -Ph").split("\n");
-  retObject.insert("remote", QJsonArray::fromStringList(remote));
+  QJsonObject plugins;
+  for(int i=0; i<remote.length(); i++){
+    if(remote[i].startsWith("[")){ remote[i] = remote[i].section("]",1,-1); }
+    else{  remote.removeAt(i); i--; continue; }
+    //Now parse the line and put it into the plugins object
+    QJsonObject obj;
+    obj.insert("name", remote[i].section(" - ",0,0).simplified());
+    obj.insert("description", remote[i].section(" - ",1,-1).section("(",0,-2).simplified());
+    obj.insert("id", remote[i].section("(",-1).section(")",0,0).simplified());
+    plugins.insert(obj.value("id").toString(), obj);
+  }
+  retObject.insert("remote", plugins);
   return retObject;
 }
 
