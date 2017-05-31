@@ -177,12 +177,13 @@ QJsonObject Iocage::fetchPlugins(QJsonObject inobj){
   for(int i=0; i<plugins.length(); i++){
     plugins[i] = plugins[i].section(" ",0,0, QString::SectionSkipEmpty); //all valid releases are a single word - do not allow injection of other commands
     if(cids.contains(jobprefix+plugins[i]) ){ continue; } //this fetch job is already running - skip it for now
-    DISPATCHER->queueProcess(jobprefix+plugins[i], "iocage fetch --verify -P "+plugins[i]);
+    DISPATCHER->queueProcess(jobprefix+plugins[i], "iocage fetch --plugins --verify "+plugins[i]);
     started << jobprefix+plugins[i];
   }
   if(started.count()>0){ retObject.insert("started_dispatcher_id", started); }
   return retObject;
 }
+
 // Clean all templates on a box
 QJsonObject Iocage::cleanTemplates() {
   QJsonObject retObject;
