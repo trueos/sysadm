@@ -127,7 +127,14 @@ QJsonObject Iocage::listReleases(){
 QJsonObject Iocage::listPlugins(){
   QJsonObject retObject;
   //Remote plugins available for download/use
-  QStringList remote = General::RunCommand("iocage list -Ph").split("\n");
+  bool ok = false;
+  QStringList remote = General::RunCommand(ok,"iocage list -PhR").split("\n");
+  QStringList local = General::RunCommand("iocage list -Ph").split("\n");
+  if(!ok && remote.first().startsWith("Traceback")){ 
+    //older version of iocage - no local browsing (remote uses the local syntax)
+    remote = local;
+    local.clear();
+  }
   QJsonObject plugins;
   for(int i=0; i<remote.length(); i++){
     if(remote[i].startsWith("[")){ remote[i] = remote[i].section("]",1,-1); }
@@ -140,6 +147,27 @@ QJsonObject Iocage::listPlugins(){
     plugins.insert(obj.value("id").toString(), obj);
   }
   retObject.insert("remote", plugins);
+  //Now do the local plugins
+  plugins = QJsonObject(); //clear it
+  for(int i=0; i<local.length(); i++){
+    QStringList info = local[i].split("\t"); //the -h flag is for scripting use (tabs as separators)
+    //NOTE ABOUT FORMAT:
+    // [JID, UUID, BOOT, STATE, TAG, TYPE, RELEASE, IP4, IP6, TEMPLATE]
+    if(info.length()!=10){ continue; } //invalid line
+    QJsonObject obj;
+    obj.insert("jid",info[0]);
+    obj.insert("uuid",info[1]);
+    obj.insert("boot",info[2]);
+    obj.insert("state",info[3]);
+    obj.insert("tag",info[4]); //name of the plugin used (non-unique)
+    obj.insert("type",info[5]);
+    obj.insert("release",info[6]);
+    obj.insert("ip4",info[7]);
+    obj.insert("ip6",info[8]);
+    obj.insert("template",info[9]);
+    plugins.insert(info[4]+"_"+info[0], obj);
+  }
+  retObject.insert("local",plugins);
   return retObject;
 }
 
