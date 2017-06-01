@@ -14,15 +14,14 @@ using namespace sysadm;
 
 // ============ GLOBAL OPTIONS ==============
 //  Current activation status 
-// ##NOT-WORKING in 5/23/17 build of iocage (0.9.8.1)##
 QJsonObject Iocage::activateStatus(){
   QJsonObject retObject;
   bool success = false;
-  QString output = General::RunCommand(success, "iocage activate --status");
+  QStringList info = General::RunCommand(success, "iocage get -p").split("\n");
   retObject.insert("activated", success ? "true" : "false");
   if(success){
     //Grab the currently activated pool out of the return, and list that
-    QString pool = output.simplified();
+    QString pool = info.last().simplified();
       retObject.insert("pool", pool);
   }
   return retObject;

@@ -650,7 +650,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
       QJsonObject retObj;
       if(act=="activatepool"){  retObj = sysadm::Iocage::activatePool(in_args.toObject());  }
       else if(act=="deactivatepool"){retObj = sysadm::Iocage::deactivatePool(in_args.toObject()); }
-
+      else if(act=="activatestatus"){ retObj = sysadm::Iocage::activateStatus(); }
       /*if(act=="execjail"){
 	ok = true;
         out->insert("execjail", sysadm::Iocage::execJail(in_args.toObject()));
