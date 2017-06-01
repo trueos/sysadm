@@ -702,11 +702,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
       else if(act=="getjailsettings"){
 	ok = true;
         out->insert("getjailsettings", sysadm::Iocage::getJailSettings(in_args.toObject()));
-      }
-      else if(act=="listjails"){
-	ok = true;
-        out->insert("listjails", sysadm::Iocage::listJails());
       }*/
+      else if(act=="listjails"){ retObj = sysadm::Iocage::listJails(); }
       else if(act=="listtemplates"){ retObj = sysadm::Iocage::listTemplates(); }
       else if(act=="listreleases"){ retObj = sysadm::Iocage::listReleases(); }
       else if(act=="listplugins"){  retObj = sysadm::Iocage::listPlugins(); }

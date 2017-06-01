@@ -251,23 +251,31 @@ QJsonObject Iocage::cleanReleases() {
 // List the jails on the box
 QJsonObject Iocage::listJails() {
   QJsonObject retObject;
-  QStringList output = General::RunCommand("iocage list -lh").split("\n");
-  for(int i=0; i<output.length(); i++){
-    QStringList info = output[i].split("\t");
-    //FORMAT NOTE: (long output: "-l" flag)
-    // [JID, UUID, BOOT, STATE, TAG, TYPE, IP4, RELEASE, TEMPLATE]
-    if(info.length()!=9){ continue; } //invalid line
-    QJsonObject obj;
-    obj.insert("jid",info[0]);
-    obj.insert("uuid",info[1]);
-    obj.insert("boot",info[2]);
-    obj.insert("state",info[3]);
-    obj.insert("tag",info[4]);
-    obj.insert("type",info[5]);
-    obj.insert("ip4",info[6]);
-    obj.insert("release",info[7]);
-    obj.insert("template",info[8]);
-    retObject.insert(info[1], obj); //use uuid as main id tag
+  bool ok = false;
+  QStringList local = General::RunCommand(ok, "iocage list -lh").split("\n");
+  if(ok){
+    QJsonObject temp;
+    for(int i=0; i<local.length(); i++){
+      QStringList info = local[i].split("\t"); //the -h flag is for scripting use (tabs as separators)
+      //NOTE ABOUT FORMAT:
+      // [JID, UUID, BOOT, STATE, TAG, TYPE, RELEASE, IP4, IP6, TEMPLATE]
+      if(info.length()!=10){ continue; } //invalid line
+      QJsonObject obj;
+      obj.insert("jid",info[0]);
+      obj.insert("uuid",info[1]);
+      obj.insert("boot",info[2]);
+      obj.insert("state",info[3]);
+      obj.insert("tag",info[4]);
+      obj.insert("type",info[5]);
+      obj.insert("release",info[6]);
+      obj.insert("ip4",info[7]);
+      obj.insert("ip6",info[8]);
+      obj.insert("template",info[9]);
+      temp.insert(info[0], obj);
+    }
+    retObject.insert("jails", temp);
+  }else{
+    retObject.insert("error",local.join("\n"));
   }
   return retObject;
 }
