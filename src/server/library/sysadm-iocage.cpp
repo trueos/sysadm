@@ -87,40 +87,50 @@ QJsonObject Iocage::cleanAll() {
 //================TEMPLATE MANAGEMENT===================
 QJsonObject Iocage::listTemplates(){
   QJsonObject retObject;
-  QStringList local = General::RunCommand("iocage list -tlh ").split("\n");
-  for(int i=0; i<local.length(); i++){
-    QStringList info = local[i].split("\t"); //the -h flag is for scripting use (tabs as separators)
-    //NOTE ABOUT FORMAT:
-    // [JID, UUID, BOOT, STATE, TAG, TYPE, IP4, RELEASE, TEMPLATE]
-    if(info.length()!=9){ continue; } //invalid line
-    QJsonObject obj;
-    obj.insert("jid",info[0]);
-    obj.insert("uuid",info[1]);
-    obj.insert("boot",info[2]);
-    obj.insert("state",info[3]);
-    obj.insert("tag",info[4]);
-    obj.insert("type",info[5]);
-    obj.insert("ip4",info[6]);
-    obj.insert("release",info[7]);
-    obj.insert("template",info[8]);
-    retObject.insert(info[8], obj);
+  bool ok = false;
+  QStringList local = General::RunCommand(ok, "iocage list -tlh ").split("\n");
+  if(ok){
+    QJsonObject temp;
+    for(int i=0; i<local.length(); i++){
+      QStringList info = local[i].split("\t"); //the -h flag is for scripting use (tabs as separators)
+      //NOTE ABOUT FORMAT:
+      // [JID, UUID, BOOT, STATE, TAG, TYPE, RELEASE, IP4, IP6, TEMPLATE]
+      if(info.length()!=10){ continue; } //invalid line
+      QJsonObject obj;
+      obj.insert("jid",info[0]);
+      obj.insert("uuid",info[1]);
+      obj.insert("boot",info[2]);
+      obj.insert("state",info[3]);
+      obj.insert("tag",info[4]);
+      obj.insert("type",info[5]);
+      obj.insert("release",info[6]);
+      obj.insert("ip4",info[7]);
+      obj.insert("ip6",info[8]);
+      obj.insert("template",info[9]);
+      temp.insert(info[9], obj);
+    }
+    retObject.insert("templates", temp);
+  }else{
+    retObject.insert("error",local.join("\n"));
   }
-  
   return retObject;
 }
 
 QJsonObject Iocage::listReleases(){
   QJsonObject retObject;
   // Locally-available releases
-  QStringList local = General::RunCommand("iocage list -rh").split("\n");
-  retObject.insert("local", QJsonArray::fromStringList(local) );
+  bool ok = false;
+  QStringList local = General::RunCommand(ok, "iocage list -rh").split("\n");
+  if(ok){ retObject.insert("local", QJsonArray::fromStringList(local) ); }
   //Remote releases available for download
-  QStringList remote = General::RunCommand("iocage list -Rh").split("\n");
-  for(int i=0; i<remote.length(); i++){
-    if(remote[i].startsWith("[")){ remote[i] = remote[i].section("]",1,-1).simplified(); }
-    else{  remote.removeAt(i); i--; }
+  QStringList remote = General::RunCommand(ok, "iocage list -rRh").split("\n");
+  if(ok){
+    for(int i=0; i<remote.length(); i++){
+      if(remote[i].startsWith("[")){ remote[i] = remote[i].section("]",1,-1).simplified(); }
+      else{ remote.removeAt(i); i--; }
+    }
+    retObject.insert("remote", QJsonArray::fromStringList(remote));
   }
-  retObject.insert("remote", QJsonArray::fromStringList(remote));
   return retObject;
 }
 
