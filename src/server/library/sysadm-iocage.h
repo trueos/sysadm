@@ -25,7 +25,7 @@ public:
 	static QJsonObject listReleases();
 	static QJsonObject listPlugins();
 	static QJsonObject fetchReleases(QJsonObject);
-	static QJsonObject fetchPlugins(QJsonObject);
+	static QJsonObject fetchPlugin(QJsonObject);
 	static QJsonObject cleanTemplates();
 	static QJsonObject cleanReleases();
 

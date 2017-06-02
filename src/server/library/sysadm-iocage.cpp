@@ -201,23 +201,25 @@ QJsonObject Iocage::fetchReleases(QJsonObject inobj){
   return retObject;
 }
 
-QJsonObject Iocage::fetchPlugins(QJsonObject inobj){
+QJsonObject Iocage::fetchPlugin(QJsonObject inobj){
   QJsonObject retObject;
-  if(!inobj.contains("plugins")){ return retObject; } //nothing to do
-  QStringList plugins; 
-  if(inobj.value("plugins").isArray()){ plugins = General::JsonArrayToStringList(inobj.value("plugins").toArray()); }
-  else if(inobj.value("plugins").isString()){ plugins << inobj.value("plugins").toString(); }
+  if(!inobj.contains("plugin") || !inobj.contains("net_device") || ! (inobj.contains("ip4") || inobj.contains("ip6")) ){ return retObject; } //nothing to do
+  QString plugin = inobj.value("plugin").toString();
+  QString dev = inobj.value("net_device").toString();
+  QString inet;
+  if(inobj.contains("ip6")){
+    inet = "ip6_addr=\""+dev+"|"+inobj.value("ip6").toString()+"\"";
+  }else{
+    inet = "ip4_addr=\""+dev+"|"+inobj.value("ip4").toString()+"\"";
+  }
+
   //Now start up each of these downloads as appropriate
   QStringList cids = DISPATCHER->listJobs().value("no_queue").toObject().keys(); //all currently running/pending jobs
   QString jobprefix = "sysadm_iocage_fetch_plugin_";
-  QJsonArray started;
-  for(int i=0; i<plugins.length(); i++){
-    plugins[i] = plugins[i].section(" ",0,0, QString::SectionSkipEmpty); //all valid releases are a single word - do not allow injection of other commands
-    if(cids.contains(jobprefix+plugins[i]) ){ continue; } //this fetch job is already running - skip it for now
-    DISPATCHER->queueProcess(jobprefix+plugins[i], "iocage fetch --plugins --verify "+plugins[i]);
-    started << jobprefix+plugins[i];
-  }
-  if(started.count()>0){ retObject.insert("started_dispatcher_id", started); }
+    plugin = plugin.section(" ",0,0, QString::SectionSkipEmpty); //all valid releases are a single word - do not allow injection of other commands
+    if(cids.contains(jobprefix+plugin) ){ return QJsonObject(); } //this fetch job is already running
+    DISPATCHER->queueProcess(jobprefix+plugin, "iocage fetch -P "+plugin+" "+inet);
+  retObject.insert("started_dispatcher_id", jobprefix+plugin);
   return retObject;
 }
 

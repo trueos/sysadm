@@ -703,11 +703,18 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
 	ok = true;
         out->insert("getjailsettings", sysadm::Iocage::getJailSettings(in_args.toObject()));
       }*/
+
+      //JAILS (GENERIC)
       else if(act=="listjails"){ retObj = sysadm::Iocage::listJails(); }
+      //TEMPLATES
       else if(act=="listtemplates"){ retObj = sysadm::Iocage::listTemplates(); }
+      //RELEASES
       else if(act=="listreleases"){ retObj = sysadm::Iocage::listReleases(); }
       else if(act=="fetchreleases"){ retObj = sysadm::Iocage::fetchReleases(in_args.toObject()); }
+      //PLUGINS
       else if(act=="listplugins"){  retObj = sysadm::Iocage::listPlugins(); }
+      else if(act=="createplugin"){ retObj = sysadm::Iocage::fetchPlugin(in_args.toObject()); }
+
       ok = !retObj.keys().isEmpty();
       if(ok){ out->insert(act,retObj); }
     } //end of "action" key usage
