@@ -218,7 +218,7 @@ QJsonObject Iocage::fetchPlugin(QJsonObject inobj){
   QString jobprefix = "sysadm_iocage_fetch_plugin_";
     plugin = plugin.section(" ",0,0, QString::SectionSkipEmpty); //all valid releases are a single word - do not allow injection of other commands
     if(cids.contains(jobprefix+plugin) ){ return QJsonObject(); } //this fetch job is already running
-    DISPATCHER->queueProcess(jobprefix+plugin, "iocage fetch -P "+plugin+" "+inet);
+    DISPATCHER->queueProcess(jobprefix+plugin, "iocage fetch -P --name "+plugin+" "+inet);
   retObject.insert("started_dispatcher_id", jobprefix+plugin);
   return retObject;
 }
