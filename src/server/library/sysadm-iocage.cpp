@@ -192,7 +192,7 @@ QJsonObject Iocage::fetchReleases(QJsonObject inobj){
   QString jobprefix = "sysadm_iocage_fetch_release_";
   QJsonArray started;
   for(int i=0; i<releases.length(); i++){
-    releases[i] = releases[i].section(" ",0,0, QString::SectionSkipEmpty); //all valid releases are a single word - do not allow injection of other commands
+    releases[i] = releases[i].section(" ",0,0, QString::SectionSkipEmpty); //all valid releases are a single word - do not allow injection of other commands (or "(EOL)" tags on end)
     if(cids.contains(jobprefix+releases[i]) ){ continue; } //this fetch job is already running - skip it for now
     DISPATCHER->queueProcess(jobprefix+releases[i], "iocage fetch --verify -r "+releases[i]);
     started << jobprefix+releases[i];

@@ -706,6 +706,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
       else if(act=="listjails"){ retObj = sysadm::Iocage::listJails(); }
       else if(act=="listtemplates"){ retObj = sysadm::Iocage::listTemplates(); }
       else if(act=="listreleases"){ retObj = sysadm::Iocage::listReleases(); }
+      else if(act=="fetchreleases"){ retObj = sysadm::Iocage::fetchReleases(in_args.toObject()); }
       else if(act=="listplugins"){  retObj = sysadm::Iocage::listPlugins(); }
       ok = !retObj.keys().isEmpty();
       if(ok){ out->insert(act,retObj); }
