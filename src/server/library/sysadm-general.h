@@ -21,7 +21,8 @@ public:
     static QString RunCommand(QString command, QStringList arguments = QStringList(), QString workdir = "", QStringList env = QStringList() );
     // - success output only
     static bool RunQuickCommand(QString command, QStringList arguments = QStringList(), QString workdir = "", QStringList env = QStringList() );
-
+    static QStringList gitCMD(QString dir, QString cmd, QStringList args = QStringList());
+    static void emptyDir(QString dir);
     //File Access Functions
     static QStringList readTextFile(QString filename);
     static bool writeTextFile(QString filename, QStringList contents, bool overwrite = true);

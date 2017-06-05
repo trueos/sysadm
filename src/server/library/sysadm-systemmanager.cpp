@@ -391,3 +391,60 @@ QJsonObject SysMgmt::systemReboot() {
 
   return retObject;
 }
+
+// Source Management
+/*
+void SysMgmt::fetchPortsTree(QStringList &cmds, QStringList &dirs){
+  //Clear the output variables
+  cmds.clear(); dirs.clear();
+  //Does Ports tree exist?  If not create it.
+  if(!QFile::exists("/usr/ports")){
+    cmds << "mkdir /usr/ports"; dirs << ""; 
+  }
+  //Does a local git repo exist? If not create it.
+  QString URL = "https://www.github.com/trueos/freebsd-ports.git";
+  if(QFile::exists("/usr/ports/.git")){
+    //Check if the remote URL is correct
+    QString origin = General::gitCMD("/usr/ports", "git remote show -n origin").filter("Fetch URL:").join("").section("URL:",1,30).simplified();
+    if(origin != URL){
+      cmds << "git remote remove origin"; dirs <<"/usr/ports";
+      cmds << "git remote add origin "+URL; dirs << "/usr/ports/.git";
+    }
+  }else{
+    //new GIT setup
+    General::emptyDir("/usr/ports");
+    cmds << "git init"; dirs << "/usr/ports"; //setup git
+    cmds << "git remote add origin "+URL; dirs << "/usr/ports/.git"; //setup TrueOS git repo
+  }
+  //Now update the tree with git
+  cmds << "git fetch --depth=1"; dirs << "/usr/ports/.git";
+  cmds << "git checkout master"; dirs << "/usr/ports"; 
+}
+
+void SysMgmt::fetchSourceTree(QString branch, QStringList &cmds, QStringList &dirs, QStringList &info){
+  //Clear the output variables
+  cmds.clear(); dirs.clear();
+  //Check if the source directory even exists
+  if(!QFile::exists("/usr/src")){
+    cmds << "mkdir /usr/src"; dirs << ""; //Create the ports tree
+  }
+  //Now check if the git directory exists
+  QString URL = "https://www.github.com/pcbsd/freebsd.git";
+  if(QFile::exists("/usr/src/.git")){
+    //Check if the remote URL is correct
+    QString origin = General::gitCMD("/usr/src", "git remote show -n origin").filter("Fetch URL:").join("").section("URL:",1,30).simplified();
+    if(origin != URL){
+      cmds << "git remote remove origin"; dirs <<"/usr/src";
+      cmds << "git remote add origin "+URL; dirs << "/usr/src/.git"; //setup PC-BSD git repo
+    }
+  }else{
+    //new GIT setup
+    General::emptyDir("/usr/src");
+    cmds << "git init"; dirs << "/usr/src"; //setup git
+    cmds << "git remote add origin "+URL; dirs << "/usr/src/.git"; //setup PC-BSD git repo
+  }
+  //Now update the tree with git
+  cmds << "git fetch --depth=1"; dirs << "/usr/src/.git";
+  cmds << "git checkout "+branch; dirs << "/usr/src"; 	
+}
+*/

@@ -58,6 +58,21 @@ bool General::RunQuickCommand(QString command, QStringList arguments,QString wor
   return success;
 }
 
+QStringList General::gitCMD(QString dir, QString cmd, QStringList args){
+  //Run a quick command in the proper dir and return the output
+  QProcess proc;
+  proc.setProcessChannelMode(QProcess::MergedChannels);
+  if( !dir.isEmpty() && QFile::exists(dir) ){ proc.setWorkingDirectory(dir); }
+  if(args.isEmpty()){ proc.start(cmd); }
+  else{ proc.start(cmd, args); }
+  while(!proc.waitForFinished(300)){ QCoreApplication::processEvents(); }
+  QStringList out;
+  while(proc.canReadLine()){
+    out << QString( proc.readLine() );
+  }
+  return out;
+}
+
 //=================
 // TEXT FILE INTERACTION
 //=================
@@ -311,3 +326,18 @@ QString General::bytesToHumanReadable(long long bytes)
    return QString().setNum(num,'f',2)+" "+unit;
 }
 
+void General::emptyDir(QString dir){
+  QDir d(dir);
+  if(!d.exists()){ return; } //quick check to make sure directory exists first
+  //Remove all the files in this directory
+  QStringList tmp = d.entryList(QDir::Files | QDir::NoDotAndDotDot);
+  for(int i=0; i<tmp.length(); i++){
+    d.remove(tmp[i]);
+  }
+  //Now remove all the directories in this directory (recursive)
+  tmp = d.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+  for(int i=0; i<tmp.length(); i++){
+    General::emptyDir(d.absoluteFilePath(tmp[i])); //Empty this directory first
+    d.rmdir(tmp[i]); //Now try to remove it
+  }
+}
