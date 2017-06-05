@@ -55,6 +55,10 @@ public:
     //Retrieve a number-based sysctl
     static long long sysctlAsInt(QString var);
 
+static QString bytesToHumanReadable(long long bytes);
+static QString getValFromTOConf(QString conf, QString key);
+static QString getValFromTrueOSConf(QString key);
+
 };
 
 } //end of pcbsd namespace

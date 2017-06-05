@@ -10,6 +10,10 @@
 #include "sysadm-global.h"
 
 using namespace sysadm;
+
+#define PREFIX QString("/usr/local")
+QString TRUEOS_ETCCONF(PREFIX + "/etc/trueos.conf");  // The default trueos.conf file
+
 //=================
 // RunCommand() variations
 //=================
@@ -241,6 +245,30 @@ bool General::setConfFileValue(QString fileName, QString oldKey, QString newKey,
     return true;
 }
 
+QString General::getValFromTrueOSConf(QString key) {
+	return getValFromTOConf(TRUEOS_ETCCONF, key);
+}
+
+QString General::getValFromTOConf(QString conf, QString key) {
+  
+  // Load from conf the requested key
+  QFile confFile(conf);
+  if ( confFile.open( QIODevice::ReadOnly ) ) {
+        QTextStream stream( &confFile );
+        stream.setCodec("UTF-8");
+        QString line;
+        while ( !stream.atEnd() ) {
+            line = stream.readLine().simplified();
+	    if ( line.indexOf(key + ": ") == 0 ) {
+   		confFile.close();
+		return line.replace(key + ": ", "");
+	    }
+
+        }
+   confFile.close();
+   }
+}
+
 //===========================
 //     SYSCTL ACCESS (might require root)
 //===========================
@@ -261,3 +289,25 @@ long long General::sysctlAsInt(QString var){
    if(0!=sysctlbyname(var.toLocal8Bit(), &result, &len, NULL, 0) ){ return 0; }
    return result;
 }
+
+//===========================
+//     Misc
+//===========================
+
+QString General::bytesToHumanReadable(long long bytes)
+{
+   float num = bytes;
+   QStringList list;
+   list << "KB" << "MB" << "GB" << "TB";
+
+   QStringListIterator i(list);
+   QString unit("bytes");
+
+   while(num >= 1024.0 && i.hasNext())
+   {
+     unit = i.next();
+     num /= 1024.0;
+   }
+   return QString().setNum(num,'f',2)+" "+unit;
+}
+
