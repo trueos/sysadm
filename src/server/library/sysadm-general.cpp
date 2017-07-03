@@ -10,6 +10,10 @@
 #include "sysadm-global.h"
 
 using namespace sysadm;
+
+#define PREFIX QString("/usr/local")
+QString TRUEOS_ETCCONF(PREFIX + "/etc/trueos.conf");  // The default trueos.conf file
+
 //=================
 // RunCommand() variations
 //=================
@@ -52,6 +56,21 @@ bool General::RunQuickCommand(QString command, QStringList arguments,QString wor
   bool success = false;
   General::RunCommand(success, command, arguments, workdir, env);
   return success;
+}
+
+QStringList General::gitCMD(QString dir, QString cmd, QStringList args){
+  //Run a quick command in the proper dir and return the output
+  QProcess proc;
+  proc.setProcessChannelMode(QProcess::MergedChannels);
+  if( !dir.isEmpty() && QFile::exists(dir) ){ proc.setWorkingDirectory(dir); }
+  if(args.isEmpty()){ proc.start(cmd); }
+  else{ proc.start(cmd, args); }
+  while(!proc.waitForFinished(300)){ QCoreApplication::processEvents(); }
+  QStringList out;
+  while(proc.canReadLine()){
+    out << QString( proc.readLine() );
+  }
+  return out;
 }
 
 //=================
@@ -241,6 +260,30 @@ bool General::setConfFileValue(QString fileName, QString oldKey, QString newKey,
     return true;
 }
 
+QString General::getValFromTrueOSConf(QString key) {
+	return getValFromTOConf(TRUEOS_ETCCONF, key);
+}
+
+QString General::getValFromTOConf(QString conf, QString key) {
+  
+  // Load from conf the requested key
+  QFile confFile(conf);
+  if ( confFile.open( QIODevice::ReadOnly ) ) {
+        QTextStream stream( &confFile );
+        stream.setCodec("UTF-8");
+        QString line;
+        while ( !stream.atEnd() ) {
+            line = stream.readLine().simplified();
+	    if ( line.indexOf(key + ": ") == 0 ) {
+   		confFile.close();
+		return line.replace(key + ": ", "");
+	    }
+
+        }
+   confFile.close();
+   }
+}
+
 //===========================
 //     SYSCTL ACCESS (might require root)
 //===========================
@@ -260,4 +303,41 @@ long long General::sysctlAsInt(QString var){
    size_t len = sizeof(result);
    if(0!=sysctlbyname(var.toLocal8Bit(), &result, &len, NULL, 0) ){ return 0; }
    return result;
+}
+
+//===========================
+//     Misc
+//===========================
+
+QString General::bytesToHumanReadable(long long bytes)
+{
+   float num = bytes;
+   QStringList list;
+   list << "KB" << "MB" << "GB" << "TB";
+
+   QStringListIterator i(list);
+   QString unit("bytes");
+
+   while(num >= 1024.0 && i.hasNext())
+   {
+     unit = i.next();
+     num /= 1024.0;
+   }
+   return QString().setNum(num,'f',2)+" "+unit;
+}
+
+void General::emptyDir(QString dir){
+  QDir d(dir);
+  if(!d.exists()){ return; } //quick check to make sure directory exists first
+  //Remove all the files in this directory
+  QStringList tmp = d.entryList(QDir::Files | QDir::NoDotAndDotDot);
+  for(int i=0; i<tmp.length(); i++){
+    d.remove(tmp[i]);
+  }
+  //Now remove all the directories in this directory (recursive)
+  tmp = d.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+  for(int i=0; i<tmp.length(); i++){
+    General::emptyDir(d.absoluteFilePath(tmp[i])); //Empty this directory first
+    d.rmdir(tmp[i]); //Now try to remove it
+  }
 }
