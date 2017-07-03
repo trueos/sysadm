@@ -21,16 +21,16 @@ inline void annotations_from_ids(QStringList var_ids, QStringList val_ids, QJson
   tot.removeDuplicates();
   int index = -1;
   QSqlQuery q("SELECT annotation, annotation_id FROM annotation WHERE annotation_id IN ('"+tot.join("', '")+"')",DB);
-    while(q.next()){ 
+    while(q.next()){
 	//qDebug() << "Got query result:" << q.value("annotation_id").toString() << q.value("annotation").toString();
 	index = var_ids.indexOf(q.value("annotation_id").toString());
-	while(index>=0){ 
-	  var_ids.replace(index, q.value("annotation").toString()); 
+	while(index>=0){
+	  var_ids.replace(index, q.value("annotation").toString());
 	  index = var_ids.indexOf(q.value("annotation_id").toString());
 	}
 	index = val_ids.indexOf(q.value("annotation_id").toString());
-	while(index>=0){ 
-	  val_ids.replace(index, q.value("annotation").toString()); 
+	while(index>=0){
+	  val_ids.replace(index, q.value("annotation").toString());
 	  index = val_ids.indexOf(q.value("annotation_id").toString());
 	}
     }
@@ -70,13 +70,13 @@ inline QStringList requires_from_ids(QStringList ids, QSqlDatabase DB){
 }
 inline QString getRepoFile(QString repo){
   if(repo=="local"){  return "/var/db/pkg/local.sqlite"; }
-  else{ return ("/var/db/pkg/repo-"+repo+".sqlite"); }	
+  else{ return ("/var/db/pkg/repo-"+repo+".sqlite"); }
 }
 inline QString openDB(QString repo){
-  //This ensures that each request for a database gets its own unique connection 
+  //This ensures that each request for a database gets its own unique connection
   //  (preventing conflict between concurrent calls)
     QSqlDatabase DB = QSqlDatabase::addDatabase("QSQLITE", repo+QUuid::createUuid().toString());
-    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");	  
+    DB.setConnectOptions("QSQLITE_OPEN_READONLY=1");
     DB.setHostName("localhost");
     QString path = getRepoFile(repo);
     DB.setDatabaseName(path); //path to the database file
@@ -100,15 +100,15 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
   QJsonObject retObj;
   //if(origins.contains("math/R")){ qDebug() << "pkg_info:" << repo << category; }
   QString dbconn = openDB(repo);
-  if(!dbconn.isEmpty()){  
+  if(!dbconn.isEmpty()){
   QSqlDatabase DB = QSqlDatabase::database(dbconn);
   if(!DB.isOpen()){ return retObj; } //could not open DB (file missing?)
   //Now do all the pkg info, one pkg origin at a time
   origins.removeAll("");
   origins.removeDuplicates();
     QString q_string = "SELECT * FROM packages";
-    if(!origins.isEmpty()){ 
-      q_string.append(" WHERE origin IN ('"+origins.join("', '")+"')"); 
+    if(!origins.isEmpty()){
+      q_string.append(" WHERE origin IN ('"+origins.join("', '")+"')");
       //Also keep the ordering of the origins preserved
       /*q_string.append(" ORDER BY CASE origins ");
       for(int i=0; i<origins.length(); i++){ q_string.append("WHEN '"+origins[i]+"' THEN '"+QString::number(i+1)+"' "); }
@@ -125,7 +125,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       QJsonObject info;
       //General info
       for(int i=0; i<query.record().count(); i++){
-        info.insert(query.record().fieldName(i), query.value(i).toString() ); 
+        info.insert(query.record().fieldName(i), query.value(i).toString() );
       }
       //ANNOTATIONS
       QSqlQuery q2("SELECT tag_id, value_id FROM pkg_annotation WHERE package_id = '"+id+"'", DB);
@@ -146,7 +146,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       //DEPENDENCIES
       QSqlQuery q4("SELECT origin FROM deps WHERE package_id = '"+id+"'", DB);
       QStringList tmpList;
-       while(q4.next()){ 
+       while(q4.next()){
 	  tmpList << q4.value("origin").toString();
       } //end deps query
       if(!tmpList.isEmpty()){ info.insert("dependencies", QJsonArray::fromStringList(tmpList) ); }
@@ -218,10 +218,10 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
 QStringList PKG::pkg_search(QString repo, QString searchterm, QStringList searchexcludes, QString category){
   QString dbconn = openDB(repo);
   QStringList found;
-  if(!dbconn.isEmpty()){  
+  if(!dbconn.isEmpty()){
   QSqlDatabase DB = QSqlDatabase::database(dbconn);
   if(!DB.isOpen()){ return QStringList(); } //could not open DB (file missing?)
-  
+
   QStringList terms = searchterm.split(" ",QString::SkipEmptyParts);
   searchexcludes.removeAll("");
   QString q_string;
@@ -297,7 +297,7 @@ while(found.isEmpty() && numtry<2){
 QJsonArray PKG::list_categories(QString repo){
   QString dbconn = openDB(repo);
   QStringList found;
-  if(!dbconn.isEmpty()){  
+  if(!dbconn.isEmpty()){
   QSqlDatabase DB = QSqlDatabase::database(dbconn);
   if(!DB.isOpen()){ return QJsonArray(); } //could not open DB (file missing?)
 
@@ -313,7 +313,7 @@ QJsonArray PKG::list_categories(QString repo){
   while(query.next()){
     found << query.value("name").toString(); //need the origin for later
   }
-    
+
   //Now check all the categories to ensure that pkgs exist within it
     for(int i=0; i<found.length(); i++){
       if(origins.filter(found[i]+"/").isEmpty()){ found.removeAt(i); i--; }

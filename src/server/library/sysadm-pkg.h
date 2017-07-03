@@ -37,9 +37,9 @@ public:
 	static QJsonObject pkg_upgrade(); 				//upgrade all pkgs (use sysadm/updates if possible instead)
 	static QJsonObject pkg_audit();					//List details of vulnerable packages
 	static QJsonObject pkg_autoremove();			//Autoremove orphaned packages
-	
+
 };
-	
+
 } //end of sysadm namespace
 
 #endif
