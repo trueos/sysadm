@@ -88,11 +88,11 @@ QString EventWatcher::readFile(QString path){
   QString contents = in.readAll();
   file.close();
   if(contents.endsWith("\n")){ contents.chop(1); }
-  return contents;  
+  return contents;
 }
 
 double EventWatcher::displayToDoubleK(QString displayNumber){
-  QStringList labels; 
+  QStringList labels;
     labels << "K" << "M" << "G" << "T" << "P" << "E";
   QString clab = displayNumber.right(1); //last character is the size label
 	displayNumber.chop(1); //remove the label from the number
@@ -122,7 +122,7 @@ void EventWatcher::DispatchStarting(QString ID){
 void EventWatcher::DispatchEvent(QJsonObject obj){
   LogManager::log(LogManager::EV_DISPATCH, obj);
   //qDebug() << "Got Dispatch Finished: sending event...";
-  emit NewEvent(DISPATCHER, obj);	
+  emit NewEvent(DISPATCHER, obj);
 }
 
 // === PRIVATE SLOTS ===

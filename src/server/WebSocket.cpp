@@ -255,7 +255,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    QString user, pass;
 	    if(out.in_struct.args.toObject().contains("username")){ user = JsonValueToString(out.in_struct.args.toObject().value("username"));  }
 	    if(out.in_struct.args.toObject().contains("password")){ pass = JsonValueToString(out.in_struct.args.toObject().value("password"));  }
-	    
+
 	      //Use the given password
 	      cur_auth_tok = AUTHSYSTEM->LoginUP(host, user, pass);
     }else if(out.in_struct.name=="auth_ssl"){
@@ -294,7 +294,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
         out.CODE = RestOutputStruct::OK;
         QString msg = out.assembleMessage();
         if(SOCKET!=0 && !REQ.bridgeID.isEmpty()){
-          //BRIDGE RELAY - alternate format 
+          //BRIDGE RELAY - alternate format
           //Note that the Stage 1 SSL auth reply is only partially encrypted (specific variables only, not bulk message encryption)
           //Now add the destination ID
           msg.prepend( REQ.bridgeID+"\n");
@@ -307,10 +307,10 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     }else if(out.in_struct.name == "auth_clear"){
        return; //don't send a return message after clearing an auth (already done)
     }
-	  
+
 	  //Now check the auth and respond appropriately
 	  if(AUTHSYSTEM->checkAuth(cur_auth_tok)){
-	    //Good Authentication - return the new token 
+	    //Good Authentication - return the new token
 	    QJsonArray array;
 	      array.append(cur_auth_tok);
 	      array.append(AUTHSYSTEM->checkAuthTimeoutSecs(cur_auth_tok));
@@ -325,25 +325,25 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	    //Bad Authentication - return error
 	      out.CODE = RestOutputStruct::UNAUTHORIZED;
 	  }
-		
-	}else if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token	 
+
+	}else if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token
 	  //Now provide access to the various subsystems
 	  // First get/set the permissions flag into the input structure
 	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(cur_auth_tok);
 	  //Pre-set any output fields
-    QJsonObject outargs;	
+    QJsonObject outargs;
 	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
-      out.out_args = outargs;	  
+      out.out_args = outargs;
   }else{
 	  //Bad/No authentication
 	  out.CODE = RestOutputStruct::UNAUTHORIZED;
 	}
-	    	
+
 }else if(out.in_struct.namesp.toLower() == "events"){
 	//qDebug() << "Got Event subsytem request" << out.in_struct.args;
-          if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token	 
+          if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token
 	    //Pre-set any output fields
-            QJsonObject outargs;	
+            QJsonObject outargs;
 	    //Assemble the list of input events
 	    QStringList evlist;
 	    if(out.in_struct.args.isString()){ evlist << JsonValueToString(out.in_struct.args); }
@@ -357,14 +357,14 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	      for(int i=0; i<evlist.length(); i++){
 	        EventWatcher::EVENT_TYPE type = EventWatcher::typeFromString(evlist[i]);
 		//qDebug() << " - type:" << type;
-		if(isBridge){ 
+		if(isBridge){
                   ForwardEvents.clear();
                   if(!REQ.bridgeID.isEmpty()){ ForwardEvents = BRIDGE[REQ.bridgeID].sendEvents; }
                 }
 		if(type==EventWatcher::BADEVENT){ continue; }
 		outargs.insert(out.in_struct.name,QJsonValue(evlist[i]));
-		if(sub==1){ 
-		  ForwardEvents << type; 
+		if(sub==1){
+		  ForwardEvents << type;
 		  EventUpdate(type);
 		}else{
 		  ForwardEvents.removeAll(type);
@@ -375,7 +375,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	      out.CODE = RestOutputStruct::OK;
 	    }else{
 	      //Bad/No authentication
-	      out.CODE = RestOutputStruct::BADREQUEST;		    
+	      out.CODE = RestOutputStruct::BADREQUEST;
 	    }
           }else{
 	    //Bad/No authentication
@@ -386,7 +386,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
   //qDebug() << "Within special bridge section";
 	  out.in_struct.fullaccess = false;
 	  //Pre-set any output fields
-          QJsonObject outargs;	
+          QJsonObject outargs;
 	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
             out.out_args = outargs;
 }else if( AUTHSYSTEM->checkAuth(cur_auth_tok) ){ //validate current Authentication token
@@ -395,7 +395,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
 	  // First get/set the permissions flag into the input structure
 	  out.in_struct.fullaccess = AUTHSYSTEM->hasFullAccess(cur_auth_tok);
 	  //Pre-set any output fields
-          QJsonObject outargs;	
+          QJsonObject outargs;
 	    out.CODE = EvaluateBackendRequest(out.in_struct, &outargs);
             out.out_args = outargs;
 }else{
@@ -413,7 +413,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
   QString msg = out.assembleMessage();
   if(SOCKET!=0 && !REQ.bridgeID.isEmpty()){
    //BRIDGE RELAY - alternate format
-   msg = AUTHSYSTEM->encryptString(msg, BRIDGE[REQ.bridgeID].enc_key); 
+   msg = AUTHSYSTEM->encryptString(msg, BRIDGE[REQ.bridgeID].enc_key);
    //Now add the destination ID
    msg.prepend( REQ.bridgeID+"\n");
   }
@@ -421,7 +421,7 @@ void WebSocket::EvaluateRequest(const RestInputStruct &REQ){
     this->sendReply(msg);
     SOCKET->close(QWebSocketProtocol::CloseCodeNormal, "Too Many Authorization Failures - Try again later");
   }else{
-    this->emit SendMessage(msg);	  
+    this->emit SendMessage(msg);
   }
 }
 
@@ -489,7 +489,7 @@ QStringList WebSocket::JsonArrayToStringList(QJsonArray array){
   for(int i=0; i<array.count(); i++){
     out << JsonValueToString(array.at(i));
   }
-  return out;  
+  return out;
 }
 
 // =====================
@@ -532,10 +532,10 @@ void WebSocket::checkAuth(){
 
 void WebSocket::SocketClosing(){
   LogManager::log(LogManager::HOST,"Connection Closing: "+SockPeerIP);
-  if(idletimer->isActive()){ 
+  if(idletimer->isActive()){
     //This means the client deliberately closed the connection - not the idle timer
     //qDebug() << " - Client Closed Connection";
-    idletimer->stop(); 
+    idletimer->stop();
   }else{
     //qDebug() << "idleTimer not running";
   }
@@ -544,23 +544,23 @@ void WebSocket::SocketClosing(){
   //Reset the pointer
   if(SOCKET!=0){ SOCKET = 0;	 }
   if(TSOCKET!=0){ TSOCKET = 0; }
-  
+
   emit SocketClosed(SockID);
 }
 
 void WebSocket::EvaluateMessage(const QByteArray &msg){
   //qDebug() << "New Binary Message:";
   if(idletimer->isActive()){ idletimer->stop(); }
-  idletimer->start(); 
+  idletimer->start();
   EvaluateREST( QString(msg) );
   //qDebug() << " - Done with Binary Message";
 }
 
-void WebSocket::EvaluateMessage(const QString &msg){ 
+void WebSocket::EvaluateMessage(const QString &msg){
   //qDebug() << "New Text Message:" << msg;
   if(idletimer->isActive()){ idletimer->stop(); }
-  idletimer->start(); 
-  EvaluateREST(msg); 
+  idletimer->start();
+  EvaluateREST(msg);
   //qDebug() << " - Done with Text Message";
 }
 
@@ -609,8 +609,8 @@ void WebSocket::EvaluateTcpMessage(){
   // Check for JSON in this incoming data
   ParseIncoming();
 
-  idletimer->start(); 
-  //qDebug() << " - Done with TCP Message";	
+  idletimer->start();
+  //qDebug() << " - Done with TCP Message";
 }
 
 //SSL signal handling
