@@ -18,7 +18,7 @@ void LogManager::checkLogDir(){
     QDir dir(logd);
     dir.mkpath(logd);
   }
-  int daysold = CONFIG->value("prune_log_days_old",90).toInt(); //90 days by default
+  int daysold = CONFIG->value("prune_log_days_old",30).toInt(); //90 days by default
   if(daysold>0){
     LogManager::pruneLogs(QDate::currentDate().addDays(0-daysold));
   }
@@ -35,7 +35,7 @@ void LogManager::pruneLogs(QDate olderthan){
   for(int i=0; i<files.length(); i++){
    QDate fdate = QDate::fromString( files[i].section(".log",0,0).section("-",-3,-1), Qt::ISODate);
     //qDebug() << "Check File Date:" << fdate << olderthan;
-    if( fdate < olderthan && fdate.isValid()){ 
+    if( fdate < olderthan && fdate.isValid()){
       dir.remove(files[i]);
     }
   }

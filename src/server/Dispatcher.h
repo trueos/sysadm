@@ -15,7 +15,7 @@ class DProcess : public QProcess{
 public:
 	DProcess(QObject *parent = 0);
 	~DProcess();
-	
+
 	QString ID;
 	QStringList cmds;
 
@@ -50,14 +50,14 @@ signals:
 	//Generic signals for subsystem usage (no direct proc access later)
 	void ProcUpdate(QString, QJsonObject); // ID/log
 };
-	
+
 
 class Dispatcher : public QObject{
 	Q_OBJECT
 public:
 	enum PROC_QUEUE { NO_QUEUE = 0, PKG_QUEUE, IOCAGE_QUEUE };
 #define enum_length 3 //This needs to be the number of items  in the enum above
-	
+
 	Dispatcher();
 	~Dispatcher();
 
@@ -78,7 +78,7 @@ public slots:
 private:
 	// Queue file
 	QString queue_file;
-	
+
 	//Internal lists
 	QHash<PROC_QUEUE, QList<DProcess*> > HASH;
 
@@ -104,7 +104,7 @@ signals:
 	//Signals for private usage
 	void mkprocs(Dispatcher::PROC_QUEUE, DProcess*);
 	void checkProcs();
-	
+
 };
 
 #endif

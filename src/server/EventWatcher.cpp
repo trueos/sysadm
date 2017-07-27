@@ -40,7 +40,7 @@ void EventWatcher::start(){
   // - Life Preserver Events
   WatcherUpdate(LPLOG); //load it initially (will also add it to the watcher);
   WatcherUpdate(LPERRLOG); //load it initially (will also add it to the watcher);
-  
+
   filechecktimer->start();
   syschecktimer->start();
   QTimer::singleShot(60000, this, SLOT(CheckSystemState()) ); //wait 1 minute for networking to settle down first
@@ -64,7 +64,7 @@ QString EventWatcher::typeToString(EventWatcher::EVENT_TYPE typ){
 QJsonValue EventWatcher::lastEvent(EVENT_TYPE type){
   CheckLogFiles();
   if(HASH.contains(type)){ return HASH.value(type); }
-  else{ qDebug() << "No saved event:" << type; return QJsonValue(); }
+  else{ return QJsonValue(); }
 }
 
 // === PRIVATE ===
@@ -127,7 +127,7 @@ void EventWatcher::DispatchEvent(QJsonObject obj){
 
 // === PRIVATE SLOTS ===
 void EventWatcher::WatcherUpdate(const QString &path){
-  if(!starting){ qDebug() << "Event Watcher Update:" << path; }
+  //if(!starting){ qDebug() << "Event Watcher Update:" << path; }
   if(path==LPLOG){
     //Main Life Preserver Log File
     ReadLPLogFile();
@@ -162,8 +162,8 @@ void EventWatcher::ReadLPLogFile(){
   if( !LPlogfile.open(QIODevice::ReadOnly) ){ return; } //could not open file
   QTextStream STREAM(&LPlogfile);
   qint64 LPlog_pos = CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-log-pos",0).toLongLong();
-  if(LPlog_pos>0 && QFileInfo(LPlogfile).created() < CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-log-lastread").toDateTime() ){ 
-    STREAM.seek(LPlog_pos); 
+  if(LPlog_pos>0 && QFileInfo(LPlogfile).created() < CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-log-lastread").toDateTime() ){
+    STREAM.seek(LPlog_pos);
   }
   QStringList info = STREAM.readAll().split("\n");
   //Now save the file pointer for later
@@ -174,7 +174,7 @@ void EventWatcher::ReadLPLogFile(){
   for(int i=0; i<info.length(); i++){
     if(info[i].isEmpty()){ continue; }
     QString log = info[i];
-    if(!starting){ qDebug() << "Read LP Log File Line:" << log; }
+   // if(!starting){ qDebug() << "Read LP Log File Line:" << log; }
     //Divide up the log into it's sections
     QString timestamp = log.section(":",0,2).simplified();
     QString time = timestamp.section(" ",3,3).simplified();
@@ -243,16 +243,15 @@ void EventWatcher::ReadLPLogFile(){
         HASH.insert(122, tr("Replication Failed") ); //summary
         HASH.insert(123, tt );
         HASH.insert(124, timestamp); //full timestamp
-        HASH.insert(125, time); // time only      
+        HASH.insert(125, time); // time only
         HASH.insert(126, tr("Replication Error Log")+" <"+file+">" );
         sendLPEvent("replication", 7, timestamp+": "+tt);
     }
-	  
   }
 }
 
 void EventWatcher::ReadLPErrFile(){
-	
+
 }
 
 void EventWatcher::ReadLPRepFile(){
@@ -268,7 +267,7 @@ void EventWatcher::ReadLPRepFile(){
     //New file location
     stat.clear();
     repTotK.clear();
-    lastSize.clear();	  
+    lastSize.clear();
   }
   QStringList info = STREAM.readAll().split("\n");
   CONFIG->setValue("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-pos",STREAM.pos());
@@ -283,7 +282,7 @@ void EventWatcher::ReadLPRepFile(){
     else{ stat = line; } //only save the relevant/latest status line
   }
   if(!stat.isEmpty()){
-    //qDebug() << "New Status Message:" << stat;	    
+    //qDebug() << "New Status Message:" << stat;
     //Divide up the status message into sections
     stat.replace("\t"," ");
     QString dataset = stat.section(" ",2,2,QString::SectionSkipEmpty).section("/",0,0).simplified();
@@ -343,7 +342,7 @@ void EventWatcher::CheckSystemState(){
   }
   obj.insert("hostname",oldhostname);
 
-  //Next Check zpools  
+  //Next Check zpools
   QJsonObject zpools = sysadm::ZFS::zpool_list();
   if(!zpools.isEmpty()){
     //Scan each pool for any bad indicators
@@ -372,7 +371,7 @@ void EventWatcher::CheckSystemState(){
   if(!updates.isEmpty()){
     if(updates.value("status").toString()!="noupdates"){
       int tmp = 2;
-      if(updates.value("status").toString()=="rebootrequired"){ 
+      if(updates.value("status").toString()=="rebootrequired"){
         tmp = 9; //user input required
         //Check if the auto_update_reboot flag is set, and reboot as needed
         QJsonObject upset = sysadm::Update::readSettings();

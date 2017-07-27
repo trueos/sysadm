@@ -33,7 +33,7 @@ void DProcess::procReady(){
   rawcmds = cmds;
   proclog.insert("cmd_list",QJsonArray::fromStringList(cmds));
   proclog.insert("process_id",ID);
-  proclog.insert("state","pending");	
+  proclog.insert("state","pending");
   this->emit ProcUpdate(ID, proclog);
       uptimer->setSingleShot(false);
       uptimer->setInterval(2000); //2 second intervals for "pending" pings
@@ -42,12 +42,12 @@ void DProcess::procReady(){
 
 void DProcess::startProc(){
   cmds.removeAll(""); //make sure no empty commands
-  if(cmds.isEmpty()){ 
+  if(cmds.isEmpty()){
     proclog.insert("state","finished");
     proclog.insert("time_finished", QDateTime::currentDateTime().toString(Qt::ISODate));
     proclog.remove("current_cmd");
     emit ProcFinished(ID, proclog);
-    return; 
+    return;
   }
   if(proclog.value("state").toString()=="pending"){
     //first cmd started
@@ -66,7 +66,7 @@ void DProcess::startProc(){
 }
 
 bool DProcess::isRunning(){
-  return (this->state()!=QProcess::NotRunning);	
+  return (this->state()!=QProcess::NotRunning);
 }
 
 bool DProcess::isDone(){
@@ -90,10 +90,10 @@ void DProcess::cmdFinished(int ret, QProcess::ExitStatus status){
   //update the log before starting another command
   proclog.insert(cCmd, proclog.value(cCmd).toString().append(this->readAllStandardOutput()) );
   proclog.insert("return_codes/"+cCmd, QString::number(ret));
-  
+
   //Now run any additional commands
   //qDebug() << "Proc Finished:" << ID << success << proclog;
-  if(success && !cmds.isEmpty()){ 
+  if(success && !cmds.isEmpty()){
     emit ProcUpdate(ID, proclog);
     startProc();
   }else{
@@ -123,7 +123,7 @@ Dispatcher::Dispatcher(){
 }
 
 Dispatcher::~Dispatcher(){
-	
+
 }
 
 QJsonObject Dispatcher::listJobs(){
@@ -153,7 +153,7 @@ QJsonObject Dispatcher::listJobs(){
       }
       out.insert(qname,obj);
     }
-  } //end loop over queue types	
+  } //end loop over queue types
   return out;
 }
 
@@ -194,7 +194,7 @@ DProcess* Dispatcher::queueProcess(QString ID, QString cmd){
   return queueProcess(NO_QUEUE, ID, QStringList() << cmd);
 }
 DProcess* Dispatcher::queueProcess(QString ID, QStringList cmds){
-  return queueProcess(NO_QUEUE, ID, cmds);	
+  return queueProcess(NO_QUEUE, ID, cmds);
 }
 DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QString cmd){
   return queueProcess(queue, ID, QStringList() << cmd);
@@ -220,11 +220,11 @@ DProcess* Dispatcher::createProcess(QString ID, QStringList cmds){
 
 // === PRIVATE SLOTS ===
 void Dispatcher::mkProcs(Dispatcher::PROC_QUEUE queue, DProcess *P){
-  //qDebug() << "mkProcs()"; 
+  //qDebug() << "mkProcs()";
   QList<DProcess*> list = HASH.value(queue);
   list << P;
   //qDebug() << " - add to queue:" << queue;
-  HASH.insert(queue,list); 
+  HASH.insert(queue,list);
   connect(P, SIGNAL(ProcFinished(QString, QJsonObject)), this, SLOT(ProcFinished(QString, QJsonObject)) );
   connect(P, SIGNAL(ProcUpdate(QString, QJsonObject)), this, SLOT(ProcUpdated(QString, QJsonObject)) );
   P->procReady();
@@ -280,6 +280,6 @@ for(int i=0; i<enum_length; i++){
 	}
       } //end loop over list
     }
-    
-  } //end loop over queue types	
+
+  } //end loop over queue types
 }
