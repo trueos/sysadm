@@ -14,6 +14,20 @@ using namespace sysadm;
 // ==================
 //  INLINE FUNCTIONS
 // ==================
+inline QStringList ids_from_origins(QStringList origins, QSqlDatabase DB){
+  QSqlQuery q("SELECT id FROM packages WHERE origin IN ('"+origins.join("', '")+"')",DB);
+  QStringList out;
+  while(q.next()){ out << q.value("id").toString(); }
+  return out;
+}
+
+inline QStringList ids_from_names(QStringList names, QSqlDatabase DB){
+  QSqlQuery q("SELECT id FROM packages WHERE name IN ('"+names.join("', '")+"')",DB);
+  QStringList out;
+  while(q.next()){ out << q.value("id").toString(); }
+  return out;
+}
+
 //Get annotation variable/values
 inline void annotations_from_ids(QStringList var_ids, QStringList val_ids, QJsonObject *out, QSqlDatabase DB){
   //Note: Both input lists *must* be the same length (one variable for one value)
@@ -47,7 +61,7 @@ inline QStringList origins_from_package_ids(QStringList ids, QSqlDatabase DB){
   while(q.next()){ out << q.value("origin").toString(); }
   return out;
 }
-//Generic ID's -> Names function (known databases: users, groups, licenses, shlibs, categories )
+//Generic ID's -> Names function (known databases: users, groups, licenses, shlibs, categories, packages )
 inline QStringList names_from_ids(QStringList ids, QString db, QSqlDatabase DB){
   QSqlQuery q("SELECT name FROM "+db+" WHERE id IN ('"+ids.join("', '")+"')",DB);
   QStringList out;
@@ -68,6 +82,26 @@ inline QStringList requires_from_ids(QStringList ids, QSqlDatabase DB){
   while(q.next()){ out << q.value("require").toString(); }
   return out;
 }
+
+//conflict ID's from package ID's
+inline QStringList conflicts_from_ids(QStringList ids, QSqlDatabase DB){
+  QSqlQuery q("SELECT conflict_id FROM pkg_conflicts WHERE package_id IN ('"+ids.join("', '")+"')", DB);
+  QStringList out;
+  while(q.next()){ out << q.value("conflict_id").toString(); }
+  qDebug() << "Last Conflict detection Error:" << q.lastError().text();
+  return out;
+}
+
+//dependencies from package ID's
+inline QStringList depends_from_ids(QStringList ids, QSqlDatabase DB){
+  //Note: This returns package names, not ID's
+  QSqlQuery q("SELECT name FROM deps WHERE package_id IN ('"+ids.join("', '")+"')", DB);
+  QStringList out;
+  while(q.next()){ out << q.value("name").toString(); }
+  return out;
+}
+
+
 inline QString getRepoFile(QString repo){
   if(repo=="local"){  return "/var/db/pkg/local.sqlite"; }
   else{ return ("/var/db/pkg/repo-"+repo+".sqlite"); }
@@ -204,7 +238,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       QSqlQuery q15("SELECT require_id FROM pkg_requires WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q15.next()){ tmpList << q15.value("require_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("requires", QJsonArray::fromStringList(requires_from_ids(tmpList, DB)) ); }
+       if(!tmpList.isEmpty()){ info.insert("requires", QJsonArray::fromStringList(requires_from_ids(tmpList, DB)) ); }\
        //Now insert this information into the main object
        retObj.insert(origin,info);
   } //end loop over pkg matches
@@ -348,6 +382,75 @@ QJsonArray PKG::list_repos(bool updated){
     return list_repos(true); //try again recursively (will not try to update again)
   }
   return QJsonArray::fromStringList(found);
+}
+
+QJsonObject PKG::evaluateInstall(QStringList origins, QString repo){
+  qDebug() << "Verify Install:" << origins << repo;
+  QJsonObject out;
+  if(repo=="local" || origins.isEmpty()){ return out; } //nothing to do
+  QString dbconn = openDB(repo);
+  QString ldbconn = openDB("local");
+  if(!dbconn.isEmpty()){
+    QSqlDatabase DB = QSqlDatabase::database(dbconn);
+    QSqlDatabase LDB = QSqlDatabase::database(ldbconn);
+    if(!DB.isOpen() || !LDB.isOpen()){ return out; } //could not open DB (file missing?)
+
+    //First get the list of all packages which need to be installed (ID's) from the remote database
+    QStringList toInstall_id;
+    QStringList tmp = names_from_ids( ids_from_origins(origins, DB), "packages", DB);
+    //qDebug() << " - Initial names:" << tmp;
+    while(!tmp.isEmpty()){
+      QStringList ids = ids_from_names(tmp, DB);
+      for(int i=0; i<ids.length(); i++){
+        if(toInstall_id.contains(ids[i])){ ids.removeAt(i); i--; } //remove any duplicate/evaluated ID's
+      }
+      if(ids.isEmpty()){ break; } //stop the loop - found the last round of dependencies
+      toInstall_id << ids; //add these to the list which are going to get installed
+      tmp = depends_from_ids(ids, DB); //now get the depdendencies of these packages
+      //qDebug() << " - Iteration names:" << tmp;
+    }
+
+    //Now go through and remove any packages from the list which are already installed locally
+    QStringList names = names_from_ids(toInstall_id, "packages", DB); //same order
+    //qDebug() << " - Total Names:" << names;
+    QStringList local_names = names_from_ids( ids_from_names(names, LDB), "packages", LDB);
+    //qDebug() << " - Local Names:" << local_names;
+    for(int i=0; i<local_names.length(); i++){
+      names.removeAll(local_names[i]);
+    }
+    qDebug() << " - Filtered Names:" << names;
+    toInstall_id = ids_from_names(names, DB); //now get the shorter/filtered list of ID's (remote)
+    //qDebug() << " - Filtered ID's:" << toInstall_id;
+    //Get the list of conflicting packages which are already installed
+    QStringList conflict_ids = conflicts_from_ids(toInstall_id, DB); //also get the list of any conflicts for these packages
+      conflict_ids.removeDuplicates();
+    QStringList conflict_names = names_from_ids(conflict_ids, "packages", DB);
+    qDebug() << " - Conflicts (remote):" << conflict_ids << conflict_names;
+    out.insert("conflicts", QJsonArray::fromStringList(names_from_ids( ids_from_names(conflict_names, LDB), "packages", LDB) ) );
+    //Now assemble all the information about the packages (remote database)
+    QJsonObject install;
+    //qDebug() << "Perform Query";
+    QSqlQuery qi("SELECT * FROM packages WHERE id IN ('"+toInstall_id.join("', '")+"')", DB);
+    while(qi.next()){
+      QJsonObject obj;
+      obj.insert( "name", qi.value("name").toString());
+      obj.insert( "origin", qi.value("origin").toString());
+      obj.insert( "pkgsize", qi.value("pkgsize").toString());
+      obj.insert( "flatsize", qi.value("flatsize").toString());
+      obj.insert( "version", qi.value("version").toString());
+      obj.insert( "comment", qi.value("comment").toString());
+      install.insert(qi.value("name").toString(), obj);
+    }
+    qDebug() << "Final Install Object:" << install;
+    //qDebug() << "Last Query Error:" << qi.lastError().text();
+    //Add the info to the output object and close the databases
+    out.insert("install", install);
+    DB.close();
+    LDB.close();
+  } //force DB out of scope
+  QSqlDatabase::removeDatabase(dbconn);
+  QSqlDatabase::removeDatabase(ldbconn);
+  return out;
 }
 
 //=================

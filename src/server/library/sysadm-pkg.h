@@ -24,6 +24,8 @@ public:
 	static QStringList pkg_search(QString repo, QString searchterm, QStringList searchexcludes, QString category = "");
 	static QJsonArray list_categories(QString repo);
 	static QJsonArray list_repos(bool updated = false);
+	static QJsonObject evaluateInstall(QStringList origins, QString repo); //evaluate what will be done if these packages are installed
+
 
 	//pkg modification routines (dispatcher events for notifications)
 	static QJsonObject pkg_install(QStringList origins, QString repo);
