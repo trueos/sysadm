@@ -385,8 +385,10 @@ QJsonArray PKG::list_repos(bool updated){
 }
 
 QJsonObject PKG::evaluateInstall(QStringList origins, QString repo){
-  qDebug() << "Verify Install:" << origins << repo;
+  //qDebug() << "Verify Install:" << origins << repo;
   QJsonObject out;
+    out.insert("install_origins", QJsonArray::fromStringList(origins) );
+    out.insert("repo", repo);
   if(repo=="local" || origins.isEmpty()){ return out; } //nothing to do
   QString dbconn = openDB(repo);
   QString ldbconn = openDB("local");
@@ -418,14 +420,14 @@ QJsonObject PKG::evaluateInstall(QStringList origins, QString repo){
     for(int i=0; i<local_names.length(); i++){
       names.removeAll(local_names[i]);
     }
-    qDebug() << " - Filtered Names:" << names;
+    //qDebug() << " - Filtered Names:" << names;
     toInstall_id = ids_from_names(names, DB); //now get the shorter/filtered list of ID's (remote)
     //qDebug() << " - Filtered ID's:" << toInstall_id;
     //Get the list of conflicting packages which are already installed
     QStringList conflict_ids = conflicts_from_ids(toInstall_id, DB); //also get the list of any conflicts for these packages
       conflict_ids.removeDuplicates();
     QStringList conflict_names = names_from_ids(conflict_ids, "packages", DB);
-    qDebug() << " - Conflicts (remote):" << conflict_ids << conflict_names;
+    //qDebug() << " - Conflicts (remote):" << conflict_ids << conflict_names;
     out.insert("conflicts", QJsonArray::fromStringList(names_from_ids( ids_from_names(conflict_names, LDB), "packages", LDB) ) );
     //Now assemble all the information about the packages (remote database)
     QJsonObject install;
@@ -441,7 +443,7 @@ QJsonObject PKG::evaluateInstall(QStringList origins, QString repo){
       obj.insert( "comment", qi.value("comment").toString());
       install.insert(qi.value("name").toString(), obj);
     }
-    qDebug() << "Final Install Object:" << install;
+    //qDebug() << "Final Install Object:" << install;
     //qDebug() << "Last Query Error:" << qi.lastError().text();
     //Add the info to the output object and close the databases
     out.insert("install", install);

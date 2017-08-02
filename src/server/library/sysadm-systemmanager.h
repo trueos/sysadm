@@ -26,10 +26,12 @@ public:
 	static QJsonObject systemInfo();
 	static QJsonObject systemReboot();
 	static QJsonObject systemHalt();
+
+	static QJsonObject systemDevices();
 // static void fetchPortsTree(QStringList &cmds, QStringList &dirs);  // This is not ready yet
 // static void fetchSourceTree(QString branch, QStringList &cmds, QStringList &dirs); // This is not ready yet
 };
 	
-} //end of pcbsd namespace
+} //end of namespace
 
 #endif

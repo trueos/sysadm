@@ -262,7 +262,7 @@ QJsonObject SysMgmt::procInfo() {
   for(int i=0; i<output.length(); i++){
     if (output.at(i).contains("PID") && output.at(i).contains("USERNAME")){
       inSection = true;
-      continue;	   
+      continue;
     }
     if (!inSection)
       continue;
@@ -390,6 +390,30 @@ QJsonObject SysMgmt::systemReboot() {
   retObject.insert("response", "true");
 
   return retObject;
+}
+
+// Get all device information about the system
+QJsonObject SysMgmt::systemDevices(){
+  QJsonObject pciconf_info;
+  QStringList lines = General::RunCommand("pciconf -lv").split("\n");
+  //qDebug() << "Raw pciconf:" << lines;
+  QJsonObject cobj; QString cid;
+  for(int i=0; i<lines.length(); i++){
+    if(!lines[i].contains(" = ") && !cid.isEmpty()){ pciconf_info.insert(cid,cobj); cid.clear(); cobj = QJsonObject(); }
+    if(lines[i].contains(" = ")){
+      QString var = lines[i].section("=",0,0).simplified();
+      QString val = lines[i].section("=",1,-1).simplified();
+      if(val.startsWith("\'") && val.endsWith("\'")){ val.chop(1); val = val.remove(0,1); }
+      //qDebug() << "PCICONF LINE:" << lines[i];
+	//qDebug() << "\t\t" << var << val;
+      cobj.insert(var,val);
+    }else{
+      //New device section
+      cid = lines[i].section("@",0,0);
+    }
+  }
+  if(!cid.isEmpty() && cobj.keys().isEmpty()){ pciconf_info.insert(cid,cobj); }
+  return pciconf_info;
 }
 
 // Source Management

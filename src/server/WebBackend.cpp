@@ -529,49 +529,53 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemMgmtRequest(const QJso
 	ok = true;
         out->insert("batteryinfo", sysadm::SysMgmt::batteryInfo());
       }
-      if(act=="cpupercentage"){
+      else if(act=="cpupercentage"){
 	ok = true;
         out->insert("cpupercentage", sysadm::SysMgmt::cpuPercentage());
       }
-      if(act=="cputemps"){
+      else if(act=="cputemps"){
 	ok = true;
         out->insert("cputemps", sysadm::SysMgmt::cpuTemps());
       }
-      if(act=="externalmounts"){
+      else if(act=="externalmounts"){
 	ok = true;
         out->insert("externalmounts", sysadm::SysMgmt::externalDevicePaths());
       }
-      if(act=="halt"){
+      else if(act=="halt"){
 	ok = true;
         out->insert("halt", sysadm::SysMgmt::systemHalt());
       }
-      if(act=="killproc"){
+      else if(act=="killproc"){
 	ok = true;
         out->insert("killproc", sysadm::SysMgmt::killProc(in_args.toObject()));
       }
-      if(act=="memorystats"){
+      else if(act=="memorystats"){
 	ok = true;
         out->insert("memorystats", sysadm::SysMgmt::memoryStats());
       }
-      if(act=="procinfo"){
+      else if(act=="procinfo"){
 	ok = true;
         out->insert("procinfo", sysadm::SysMgmt::procInfo());
       }
-      if(act=="reboot"){
+      else if(act=="reboot"){
 	ok = true;
         out->insert("reboot", sysadm::SysMgmt::systemReboot());
       }
-      if(act=="setsysctl"){
+      else if(act=="setsysctl"){
 	ok = true;
         out->insert("setsysctl", sysadm::SysMgmt::setSysctl(in_args.toObject()));
       }
-      if(act=="sysctllist"){
+      else if(act=="sysctllist"){
 	ok = true;
         out->insert("sysctllist", sysadm::SysMgmt::sysctlList());
       }
-      if(act=="systeminfo"){
+      else if(act=="systeminfo"){
 	ok = true;
         out->insert("systeminfo", sysadm::SysMgmt::systemInfo());
+      }
+      else if(act=="deviceinfo"){
+        ok = true;
+        out->insert("deviceinfo", sysadm::SysMgmt::systemDevices());
       }
 
     } //end of "action" key usage
