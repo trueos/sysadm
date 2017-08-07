@@ -105,12 +105,18 @@ void DProcess::cmdFinished(int ret, QProcess::ExitStatus status){
 }
 
 void DProcess::updateLog(){
-  proclog.insert(cCmd, proclog.value(cCmd).toString().append(this->readAllStandardOutput()) );
+  QString tmp = this->readAllStandardOutput();
+  lognew.append(tmp);
+  proclog.insert(cCmd, proclog.value(cCmd).toString().append(tmp) );
   if(!uptimer->isActive()){ uptimer->start(); }
 }
 
 void DProcess::emitUpdate(){
-  emit ProcUpdate(ID, proclog);
+  QJsonObject tmp = proclog;
+  //only emit the latest changes to the log - not the full thing
+  tmp.insert(cCmd, lognew );
+  emit ProcUpdate(ID, tmp);
+  lognew.clear();
 }
 
 // ================================

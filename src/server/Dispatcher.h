@@ -35,7 +35,7 @@ public slots:
 	void startProc();
 
 private:
-	QString cCmd;
+	QString cCmd, lognew;
 	QJsonObject proclog;
 	QTimer *uptimer;
 

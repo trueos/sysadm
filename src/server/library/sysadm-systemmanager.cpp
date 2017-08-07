@@ -423,7 +423,7 @@ void SysMgmt::fetchPortsTree(QStringList &cmds, QStringList &dirs){
   cmds.clear(); dirs.clear();
   //Does Ports tree exist?  If not create it.
   if(!QFile::exists("/usr/ports")){
-    cmds << "mkdir /usr/ports"; dirs << ""; 
+    cmds << "mkdir /usr/ports"; dirs << "";
   }
   //Does a local git repo exist? If not create it.
   QString URL = "https://www.github.com/trueos/freebsd-ports.git";
@@ -442,7 +442,7 @@ void SysMgmt::fetchPortsTree(QStringList &cmds, QStringList &dirs){
   }
   //Now update the tree with git
   cmds << "git fetch --depth=1"; dirs << "/usr/ports/.git";
-  cmds << "git checkout master"; dirs << "/usr/ports"; 
+  cmds << "git checkout master"; dirs << "/usr/ports";
 }
 
 void SysMgmt::fetchSourceTree(QString branch, QStringList &cmds, QStringList &dirs, QStringList &info){
