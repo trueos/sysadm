@@ -142,7 +142,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
   origins.removeDuplicates();
     QString q_string = "SELECT * FROM packages";
     if(!origins.isEmpty()){
-      q_string.append(" WHERE origin IN ('"+origins.join("', '")+"')");
+      q_string.append(" WHERE name IN ('"+origins.join("', '")+"')");
       //Also keep the ordering of the origins preserved
       /*q_string.append(" ORDER BY CASE origins ");
       for(int i=0; i<origins.length(); i++){ q_string.append("WHEN '"+origins[i]+"' THEN '"+QString::number(i+1)+"' "); }
@@ -153,9 +153,9 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
   QSqlQuery query(q_string, DB);
     while(query.next()){
 	QString id = query.value("id").toString(); //need this pkg id for later
-	QString origin = query.value("origin").toString(); //need the origin for later
+	QString name = query.value("name").toString(); //need the origin for later
 	//if(origins.contains("math/R")){ qDebug() << "Found origin:" << origin << id; }
-      if(id.isEmpty() || origin.isEmpty()){ continue; }
+      if(id.isEmpty() || name.isEmpty()){ continue; }
       QJsonObject info;
       //General info
       for(int i=0; i<query.record().count(); i++){
@@ -168,7 +168,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
 	  tags << q2.value("tag_id").toString(); vals << q2.value("value_id").toString();
       }
       if(!tags.isEmpty()){ annotations_from_ids(tags, vals, &info, DB); }
-      if(!fullresults){ retObj.insert(origin,info); continue; } //skip the rest of the info queries
+      if(!fullresults){ retObj.insert(name,info); continue; } //skip the rest of the info queries
       //OPTIONS
       QSqlQuery q3("SELECT value, option FROM pkg_option INNER JOIN option ON pkg_option.option_id = option.option_id WHERE pkg_option.package_id = '"+id+"'", DB);
       QJsonObject options;
@@ -178,22 +178,29 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
       }
       if(!options.isEmpty()){ info.insert("options",options); }
       //DEPENDENCIES
-      QSqlQuery q4("SELECT origin FROM deps WHERE package_id = '"+id+"'", DB);
-      QStringList tmpList;
+      QSqlQuery q4("SELECT origin, name FROM deps WHERE package_id = '"+id+"'", DB);
+      QStringList tmpList, tmpListN;
        while(q4.next()){
 	  tmpList << q4.value("origin").toString();
+           tmpListN << q4.value("name").toString();
       } //end deps query
-      if(!tmpList.isEmpty()){ info.insert("dependencies", QJsonArray::fromStringList(tmpList) ); }
+      if(!tmpList.isEmpty()){
+        //info.insert("dependencies_origins", QJsonArray::fromStringList(tmpList) );
+        info.insert("dependencies", QJsonArray::fromStringList(tmpListN) );
+      }
       //FILES
       QSqlQuery q5("SELECT path FROM files WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
        while(q5.next()){  tmpList << q5.value("path").toString(); }
       if(!tmpList.isEmpty()){ info.insert("files", QJsonArray::fromStringList(tmpList) ); }
       //REVERSE DEPENDENCIES
-      QSqlQuery q6("SELECT package_id FROM deps WHERE origin = '"+origin+"'", DB);
+      QSqlQuery q6("SELECT package_id FROM deps WHERE name = '"+name+"'", DB);
       tmpList.clear();
        while(q6.next()){ tmpList << q6.value("package_id").toString(); }
-       if(!tmpList.isEmpty()){ info.insert("reverse_dependencies", QJsonArray::fromStringList(origins_from_package_ids(tmpList, DB)) ); }
+       if(!tmpList.isEmpty()){
+         //info.insert("reverse_dependencies_origins", QJsonArray::fromStringList(origins_from_package_ids(tmpList, DB)) );
+         info.insert("reverse_dependencies", QJsonArray::fromStringList(names_from_ids(tmpList, "packages", DB)) );
+       }
        //USERS
       QSqlQuery q7("SELECT user_id FROM pkg_users WHERE package_id = '"+id+"'", DB);
       tmpList.clear();
@@ -240,7 +247,7 @@ QJsonObject PKG::pkg_info(QStringList origins, QString repo, QString category, b
        while(q15.next()){ tmpList << q15.value("require_id").toString(); }
        if(!tmpList.isEmpty()){ info.insert("requires", QJsonArray::fromStringList(requires_from_ids(tmpList, DB)) ); }\
        //Now insert this information into the main object
-       retObj.insert(origin,info);
+       retObj.insert(name,info);
   } //end loop over pkg matches
   DB.close();
   }//end if dbconn exists (force DB out of scope now)
@@ -262,57 +269,57 @@ QStringList PKG::pkg_search(QString repo, QString searchterm, QStringList search
 int numtry = 0;
 while(found.isEmpty() && numtry<2){
   if(numtry<1 && !searchterm.contains(" ")){ //single-word-search (exact names never have multiple words)
-    q_string = "SELECT origin FROM packages WHERE name = '"+searchterm+"' OR origin LIKE '%/"+searchterm+"'";
+    q_string = "SELECT name FROM packages WHERE name = '"+searchterm+"' OR origin LIKE '%/"+searchterm+"'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
     if(!searchexcludes.isEmpty()){ q_string.append(" AND name NOT LIKE '%"+searchexcludes.join("%' AND name NOT LIKE '%")+"%'"); }
     q_string.append(" COLLATE NOCASE"); // Case insensitive
     QSqlQuery query(q_string, DB);
     while(query.next()){
-	found << query.value("origin").toString(); //need the origin for later
+	found << query.value("name").toString(); //need the origin for later
     }
   }
   if(found.length()<60 && numtry<1){
     //Expand the search to names containing the term
-    q_string = "SELECT origin FROM packages WHERE name LIKE '"+searchterm+"%'";
+    q_string = "SELECT name FROM packages WHERE name LIKE '"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
     if(!searchexcludes.isEmpty()){ q_string.append(" AND name NOT LIKE '%"+searchexcludes.join("%' AND name NOT LIKE '%")+"%'"); }
     QSqlQuery q2(q_string, DB);
     while(q2.next()){
-	found << q2.value("origin").toString(); //need the origin for later
+	found << q2.value("name").toString(); //need the origin for later
     }
   }
   if(found.length()<60 && numtry<1){
     //Expand the search to names containing the term
-    q_string = "SELECT origin FROM packages WHERE name LIKE '%"+searchterm+"%'";
+    q_string = "SELECT name FROM packages WHERE name LIKE '%"+searchterm+"%'";
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
     if(!searchexcludes.isEmpty()){ q_string.append(" AND name NOT LIKE '%"+searchexcludes.join("%' AND name NOT LIKE '%")+"%'"); }
     QSqlQuery q2(q_string, DB);
     while(q2.next()){
-	found << q2.value("origin").toString(); //need the origin for later
+	found << q2.value("name").toString(); //need the origin for later
     }
   }
   if(found.length()<60){
     //Expand the search to comments
-    if(terms.length()<2){ q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+searchterm+"%'"; }
-    else if(numtry==0){ q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+terms.join("%' AND comment LIKE '%")+"%'"; }
-    else if(numtry==1){ q_string = "SELECT origin FROM packages WHERE comment LIKE '%"+terms.join("%' OR comment LIKE '%")+"%'"; }
+    if(terms.length()<2){ q_string = "SELECT nameFROM packages WHERE comment LIKE '%"+searchterm+"%'"; }
+    else if(numtry==0){ q_string = "SELECT name FROM packages WHERE comment LIKE '%"+terms.join("%' AND comment LIKE '%")+"%'"; }
+    else if(numtry==1){ q_string = "SELECT name FROM packages WHERE comment LIKE '%"+terms.join("%' OR comment LIKE '%")+"%'"; }
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
     if(!searchexcludes.isEmpty()){ q_string.append(" AND comment NOT LIKE '%"+searchexcludes.join("%' AND comment NOT LIKE '%")+"%'"); }
     QSqlQuery q2(q_string, DB);
     while(q2.next()){
-	found << q2.value("origin").toString(); //need the origin for later
+	found << q2.value("name").toString(); //need the origin for later
     }
   }
   if(found.length()<100){
     //Expand the search to full descriptions
-    if(terms.length()<2){ q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+searchterm+"%'"; }
-    else if(numtry==0){ q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+terms.join("%' AND desc LIKE '%")+"%'"; }
-    else if(numtry==1){ q_string = "SELECT origin FROM packages WHERE desc LIKE '%"+terms.join("%' OR desc LIKE '%")+"%'"; }
+    if(terms.length()<2){ q_string = "SELECT name FROM packages WHERE desc LIKE '%"+searchterm+"%'"; }
+    else if(numtry==0){ q_string = "SELECT name FROM packages WHERE desc LIKE '%"+terms.join("%' AND desc LIKE '%")+"%'"; }
+    else if(numtry==1){ q_string = "SELECT name FROM packages WHERE desc LIKE '%"+terms.join("%' OR desc LIKE '%")+"%'"; }
     if(!category.isEmpty()){ q_string.append(" AND origin LIKE '"+category+"/%'"); }
     if(!searchexcludes.isEmpty()){ q_string.append(" AND desc NOT LIKE '%"+searchexcludes.join("%' AND desc NOT LIKE '%")+"%'"); }
     QSqlQuery q2(q_string, DB);
     while(q2.next()){
-	found << q2.value("origin").toString(); //need the origin for later
+	found << q2.value("name").toString(); //need the origin for later
     }
   }
   //Now bump the try count
@@ -399,7 +406,9 @@ QJsonObject PKG::evaluateInstall(QStringList origins, QString repo){
 
     //First get the list of all packages which need to be installed (ID's) from the remote database
     QStringList toInstall_id;
-    QStringList tmp = names_from_ids( ids_from_origins(origins, DB), "packages", DB);
+    QStringList tmp;
+    if(origins.first().contains("/")){ tmp = names_from_ids( ids_from_origins(origins, DB), "packages", DB); }
+    else{ tmp = origins; } //already given names
     //qDebug() << " - Initial names:" << tmp;
     while(!tmp.isEmpty()){
       QStringList ids = ids_from_names(tmp, DB);

@@ -70,17 +70,17 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   if(QFile::exists("/usr/local/sbin/iohyve")){
     out->insert("sysadm/iohyve", "read/write");
   }
-  
+
   // - zfs
   if(QFile::exists("/sbin/zfs") && QFile::exists("/sbin/zpool")){
     out->insert("sysadm/zfs", allaccess ? "read/write" : "read");
   }
-  
+
   // - pkg
   if(QFile::exists("/usr/local/sbin/pkg")){
     out->insert("sysadm/pkg", "read/write");
   }
-  
+
   // - Generic system information
   out->insert("sysadm/systemmanager","read/write");
 
@@ -187,7 +187,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSettingsRequest(const QJsonV
     pub_key = argsO.value("pub_key").toString();
     if(keys.contains("nickname")){ nickname = argsO.value("nickname").toString(); }
     if(keys.contains("email")){ email = argsO.value("email").toString(); }
-    
+
     if(!pub_key.isEmpty()){
       ok = AUTHSYSTEM->RegisterCertificate(SockAuthToken, pub_key, nickname, email);
 	    if(!ok){ return RestOutputStruct::FORBIDDEN; }
@@ -264,7 +264,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmLogsRequest(bool allaccess, 
       else if(logs[i]=="events-dispatcher"){ log = 2; }
       else if(logs[i]=="events-lifepreserver"){ log = 3; }
       else if(logs[i]=="events-state"){ log = 4; }
-      
+
       if(log>=0){
 	QStringList info = LogManager::readLog( (LogManager::LOG_FILE)(log), starttime, endtime);
 	//REMINDER of format: "[datetime]<message>"
@@ -366,7 +366,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmBEADMRequest(const QJsonValu
      }else if(act=="umountbe"){
 	ok = true;
         out->insert("umountbe", sysadm::BEADM::umountBE(in_args.toObject()));
-      } 
+      }
     } //end of "action" key usage
 
     //If nothing done - return the proper code
@@ -602,11 +602,11 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
         bool fastcheck = true;
         fastcheck = in_args.toObject().value("force").toString().toLower()!="true";
         out->insert("checkupdates", sysadm::Update::checkUpdates(fastcheck));
-	      
+
       }else if(act=="listbranches"){
 	ok = true;
         out->insert("listbranches", sysadm::Update::listBranches());
-	      
+
       }else if(act=="startupdate"){
 	ok = true;
 	out->insert("startupdate", sysadm::Update::startUpdate(in_args.toObject()) );
@@ -678,14 +678,6 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmIocageRequest(const QJsonVal
       else if(act=="cleanall"){
 	ok = true;
         out->insert("cleanall", sysadm::Iocage::cleanAll());
-      }
-      else if(act=="cleantemplates"){
-	ok = true;
-        out->insert("cleantemplates", sysadm::Iocage::cleanTemplates());
-      }
-      else if(act=="cleanreleases"){
-	ok = true;
-        out->insert("cleanreleases", sysadm::Iocage::cleanReleases());
       }
       else if(act=="cleanjails"){
 	ok = true;
