@@ -4,6 +4,11 @@
 //  Available under the 3-clause BSD license
 //  See the LICENSE file for full details
 //===========================================
+//  SysAdm source code for TrueOS
+//  Copyright (c) 2016-2017 TrueOS/iXsystems
+//  Available under the 3-clause BSD license
+//  See the LICENSE file for full details
+//===========================================
 // Note: This was almost entirely written by Tim McCormick in 2009 for
 //   the first PC-BSD library, and copied here by Ken Moore in 2015
 //===========================================
@@ -15,7 +20,7 @@
 using namespace sysadm;
 
 //====================
-//   STATIC LISTING FUNCTION 
+//   STATIC LISTING FUNCTION
 //====================
 QStringList NetDevice::listNetDevices(){
   QStringList result;
@@ -28,7 +33,7 @@ QStringList NetDevice::listNetDevices(){
      if (result.contains(ifName) == 0) result += ifName;
      ifap = ifap->ifa_next;
   }
-  //Close the 
+  //Close the structure
   freeifaddrs(ifap);
   return result;
 }
@@ -57,10 +62,10 @@ QString NetDevice::ipAsString(){
 
    strncpy(ifr.ifr_name, name.toLocal8Bit(), IFNAMSIZ);
    int s = socket(PF_INET, SOCK_DGRAM, 0);
-   
+
    ioctl(s, SIOCGIFADDR, &ifr);
    struct in_addr in = ((sockaddr_in *) &ifr.ifr_addr)->sin_addr;
-
+  close(s); //close the file descriptor
    return QString(inet_ntoa(in));
 }
 
@@ -86,7 +91,7 @@ QString NetDevice::ipv6AsString(){
   //Now get the IPv6 address in string form
   char straddr[INET6_ADDRSTRLEN];
   int err = getnameinfo(sadd, sadd->sa_len, straddr, sizeof(straddr),NULL, 0, NI_NUMERICHOST);
-  if(err!=0){ 
+  if(err!=0){
     qDebug() << "getnameinfo error:" << gai_strerror(err);
     return "";
   }else{
@@ -102,16 +107,28 @@ QString NetDevice::netmaskAsString(){
 
    strncpy(ifr.ifr_name, name.toLocal8Bit(), IFNAMSIZ);
    int s = socket(PF_INET, SOCK_DGRAM, 0);
-   
+
    ioctl(s, SIOCGIFNETMASK, &ifr);
    struct in_addr in = ((sockaddr_in *) &ifr.ifr_addr)->sin_addr;
-
+   close(s); //close the file descriptor
    return QString(inet_ntoa(in));
 }
 
 //Returns the description string for the device
 QString NetDevice::desc(){
-   return General::sysctl("dev." + devName() + "." + QString::number(devNum()) + ".%desc");
+  QString name, num, parent;
+  if( isWireless() ){ parent = getWifiParent(); }
+
+  if(!parent.isEmpty()){
+    name = num = parent;
+      uint pos = name.indexOf(QRegExp("[0-9]+$"));
+      name.truncate(pos);
+      num.remove(0,pos);
+  }else{
+    name = devName();
+    num = QString::number(devNum());
+  }
+  return General::sysctl("dev." + name + "." + num + ".%desc");
 }
 
 //Fetch the mac address as a QString
@@ -136,7 +153,7 @@ QString NetDevice::macAsString(){
 
    sdl = (sockaddr_dl *)(((if_msghdr *)buf)+1);
    ptr = (char *) LLADDR(sdl);
-   
+
    QString mac;
    for (uint i=0; i < 6; i++){
       mac += QString::number(*(ptr+i), 16).right(2).rightJustified(2, '0');
@@ -170,6 +187,7 @@ QString NetDevice::mediaStatusAsString(){
          if (ifm.ifm_status & IFM_ACTIVE) status = "active";
          else status = "no carrier";
    }
+   close(s); //close the file descriptor
    return status;
 }
 
@@ -190,8 +208,9 @@ bool NetDevice::isWireless(){
    int s = socket(AF_INET, SOCK_DGRAM, 0);
 
    ioctl(s, SIOCGIFMEDIA, &ifm);
-
-   return IFM_TYPE(ifm.ifm_active) == IFM_IEEE80211;
+  bool iswifi = (IFM_TYPE(ifm.ifm_active) == IFM_IEEE80211);
+  close(s); //close the file descriptor
+   return iswifi;
 }
 
 //Get the parent device (if this is a wireless wlan)
@@ -203,7 +222,7 @@ QString NetDevice::getWifiParent(){
 //See if the device is setup to use DHCP
 bool NetDevice::usesDHCP(){
   //The system does not keep track of how the device's address was assigned
-  //  so the closest we can get to this is to see if the system is setup to use 
+  //  so the closest we can get to this is to see if the system is setup to use
   //  DHCP on startup (in /etc/rc.conf) (Ken Moore - 6/24/15)
   return !Network::readRcConf().filter(name).filter("DHCP").isEmpty();
 }
@@ -217,8 +236,9 @@ bool NetDevice::isUp(){
    int s = socket(AF_INET, SOCK_DGRAM, 0);
 
    ioctl(s, SIOCGIFFLAGS, &ifr);
-
-   return (ifr.ifr_flags & IFF_UP) ? 1 : 0;
+   bool isup = (ifr.ifr_flags & IFF_UP);
+   close(s); //close the file descriptor
+   return  isup;
 }
 
 //Determine the number of packets received by the device

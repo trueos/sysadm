@@ -19,7 +19,7 @@ using namespace sysadm;
     //Copy over this data into the output structure
     NetworkEntry tmp;
       tmp.name = QString::fromLocal8Bit(entry->n_name);
-      for(int i=0; entry->n_aliases[i] != 0; i++){ 
+      for(int i=0; entry->n_aliases[i] != 0; i++){
         tmp.aliases << QString::fromLocal8Bit(entry->n_aliases[i]);
       }
       tmp.netnum = entry->n_net;
@@ -73,13 +73,13 @@ NetDevSettings Network::deviceRCSettings(QString dev){
 	  //IPv4/6 address can sometimes not have the "inet(6)" identifier - look through the first few values as well
 	  QStringList vals = val.split(" ",QString::SkipEmptyParts);
 	  for(int v=0; v<vals.length(); v++){
-		  
+
 	  }
 	}*/
       }else{ set.useDHCP=true; } //end of DHCP check
       //Wifi Checks
       if(vals.contains("WPA")){ set.wifisecurity=true; }
-      
+
     } //end variable checks
   } //end loop over rc.conf lines
   return set;

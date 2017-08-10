@@ -409,9 +409,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmNetworkRequest(const QJsonVa
     bool ok = false;
     if(keys.contains("action")){
       QString act = JsonValueToString(in_args.toObject().value("action"));
+      QStringList devs = sysadm::NetDevice::listNetDevices();
       if(act=="list-devices"){
 	ok = true;
-        QStringList devs = sysadm::NetDevice::listNetDevices();
 	for(int i=0; i<devs.length(); i++){
 	  sysadm::NetDevice D(devs[i]);
 	  QJsonObject obj;
@@ -425,6 +425,30 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmNetworkRequest(const QJsonVa
 	    obj.insert("is_active", D.isUp() ? "true" : "false" );
 	    obj.insert("is_dhcp", D.usesDHCP() ? "true" : "false" );
 	    obj.insert("is_wireless", D.isWireless() ? "true" : "false" );
+	  //Add this device info to the main output structure
+	  out->insert(devs[i], obj);
+	}
+
+      }else if(act=="list-settings"){
+         ok = true;
+	for(int i=0; i<devs.length(); i++){
+	  sysadm::NetDevSettings D = sysadm::Network::deviceRCSettings(devs[i]);
+	  QJsonObject obj;
+	    //assemble the information about this device into an output object
+	    obj.insert("device", D.device);
+	    obj.insert("associated_device", D.asDevice);
+	    obj.insert("use_dhcp", D.useDHCP ? "true" : "false" );
+	    obj.insert("static_ipv4", D.staticIPv4);
+	    obj.insert("static_ipv6", D.staticIPv6);
+	    obj.insert("static_netmask", D.staticNetmask);
+	    obj.insert("static_gateway", D.staticGateway);
+             if(D.wifihost){
+	      obj.insert("wifi_country", D.wifiCountry);
+	      obj.insert("wifi_ssid", D.wifiSSID);
+	      obj.insert("wifi_bssid", D.wifiBSSID);
+	      obj.insert("wifi_channel", D.wifiChannel);
+	      obj.insert("wifi_secure_only", D.wifisecurity ? "true" : "false");
+             }
 	  //Add this device info to the main output structure
 	  out->insert(devs[i], obj);
 	}

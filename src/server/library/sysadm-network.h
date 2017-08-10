@@ -38,7 +38,7 @@ struct NetDevSettings{
 //General data class for network devices
 // Note: Sources in NetDevice.cpp
 class NetDevice{
-private: 
+private:
 	QString name;
 public:
 	NetDevice(QString devName){ name = devName; }
@@ -61,7 +61,7 @@ public:
 	long packetsTx();
 	long errorsRx();
 	long errorsTx();
-	
+
 	//Setting Functions (to make changes - requires root)
 	void setUp(bool up); //Turn device on/off (temporary - not saved globally)
 
@@ -75,7 +75,6 @@ struct NetWifi{
 	QString BSSID, SSID;
 };
 
-	
 //The general-purpose class that any user/app can utilitize
 class Network{
 public:
@@ -88,11 +87,11 @@ public:
 //The class that requires overarching root permissions (usually for changes to system)
 class NetworkRoot{
 public:
-	//static bool saveNetworkEntry(NetworkEntry); //**Not implemented yet**
+	//static bool saveNetworkEntry(NetworkEntry); // **Not implemented yet**
 	static bool saveRCSettings(NetDevSettings);	//rc.conf settings (bootup)
 	static bool setIfconfigSettings(NetDevSettings); 	//ifconfig settings (temporary session)
 };
-	
+
 } //end of pcbsd namespace
 
 #endif
