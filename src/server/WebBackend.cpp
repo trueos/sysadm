@@ -433,6 +433,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmNetworkRequest(const QJsonVa
          ok = true;
 	for(int i=0; i<devs.length(); i++){
 	  sysadm::NetDevSettings D = sysadm::Network::deviceRCSettings(devs[i]);
+             if(D.device.isEmpty()){ continue; } //nothing for this device
 	  QJsonObject obj;
 	    //assemble the information about this device into an output object
 	    obj.insert("device", D.device);
@@ -447,7 +448,7 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmNetworkRequest(const QJsonVa
 	      obj.insert("wifi_ssid", D.wifiSSID);
 	      obj.insert("wifi_bssid", D.wifiBSSID);
 	      obj.insert("wifi_channel", D.wifiChannel);
-	      obj.insert("wifi_secure_only", D.wifisecurity ? "true" : "false");
+	      obj.insert("wifi_use_wpa", D.wifisecurity ? "true" : "false");
              }
 	  //Add this device info to the main output structure
 	  out->insert(devs[i], obj);

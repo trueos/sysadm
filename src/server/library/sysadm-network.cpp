@@ -57,8 +57,9 @@ NetDevSettings Network::deviceRCSettings(QString dev){
       if(val.startsWith("\"")){ val = val.remove(1); }
       if(val.endsWith("\"")){ val.chop(1); }
       val.prepend(" "); val.append(" "); //just to make additional parsing easier later - each "variable" should have whitespace on both sides
-    if( (var=="vlans_"+dev) || (var=="wlans_"+dev) ){
-      set.asDevice = val;
+    if( val.simplified()==dev && (var.startsWith("vlans_") || var.startsWith("wlans_") )){
+      set.asDevice = var.section("_",1,-1);
+      if(var.startsWith("wlans_")){ set.wifihost = true; }
     }else if(var==("ifconfig_"+dev)){
       QStringList vals = val.split(" ",QString::SkipEmptyParts);
       //This is the main settings line: lots of things to look for:
@@ -119,8 +120,50 @@ NetDevSettings Network::deviceRCSettings(QString dev){
 }*/
 
 //--------------------------------------
-bool NetworkRoot::saveRCSettings(NetDevSettings){
-  return false;
+bool NetworkRoot::saveRCSettings(NetDevSettings set){
+  if(!QFile::exists("/dev/"+set.device)){ return false; } //invalid device
+  //Create the lines which need to be put info /etc/rc.conf based on the settings
+  QStringList tags, lines, found;
+  //Related device lines
+  if(!set.asDevice.isEmpty()){
+    if(set.wifihost){ tags << "wlans_"+set.asDevice; lines << "wlans_"+set.asDevice+"=\""+set.device+"\""; }
+    else{ tags << "vlans_"+set.asDevice; lines << "vlans_"+set.asDevice+"=\""+set.device+"\""; }
+  }
+  //Main device line
+  QString tmp = "ifconfig_"+set.device+"=\"";
+  if(set.useDHCP){ tmp.append("DHCP"); }
+  else{
+    if(!set.staticIPv4.isEmpty()){ tmp.append("inet "+set.staticIPv4+" "); }
+    if(!set.staticIPv6.isEmpty()){ tmp.append("inet6 "+set.staticIPv6+" "); }
+    if(!set.staticNetmask.isEmpty()){ tmp.append("netmask "+set.staticNetmask+" "); }
+    if(!set.staticGateway.isEmpty()){ tmp.append("gateway "+set.staticGateway+" "); }
+    tmp = tmp.simplified(); //remove any excess whitespace on end
+  }
+  QString var = "ifconfig_"+set.device;
+    tags << var;
+  if(!tmp.isEmpty()){ lines << var+"=\""+tmp+"\""; }
+  else{ lines << ""; } //delete the line
+
+  //Now read rc.conf and adjust contents as needed
+  QStringList info = Network::readRcConf();
+  for(int i=0; i<info.length(); i++){
+    if(info[i].simplified().isEmpty()){ continue; }
+    QString var = info[i].section("=",0,0).simplified();
+    if( tags.contains(var) ){
+      int index = tags.indexOf(var);
+      info[i] = lines[index];
+      lines.removeAt(index);
+      found << tags.takeAt(index);
+    }else if(found.contains(var)){
+      //Duplicate line - remove this since it was already handled
+      info.removeAt(i); i--;
+    }
+  }
+  //Now add any lines which were not already found to the end of the file
+  for(int i=0; i<lines.length(); i++){
+    info << lines[i];
+  }
+  return General::writeTextFile("/etc/rc.conf", info, true);
 }
 
 //--------------------------------------
