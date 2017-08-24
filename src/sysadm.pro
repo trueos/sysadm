@@ -23,4 +23,7 @@ initd.files = init.d/sysadm init.d/sysadm-rest init.d/sysadm-bridge
 conf.path = /usr/local/etc/
 conf.extra = cp conf/sysadm.conf ${INSTALL_ROOT}/usr/local/etc/sysadm.conf.dist
 
+manpage.path=/usr/local/man/man8
+manpage.extra="gzip -c sysadm.8 > ${INSTALL_ROOT}/usr/local/man/man8/sysadm.8.gz"
+
 INSTALLS += rcd initd conf 

@@ -1,0 +1,197 @@
+.Dd August 23, 2017
+.Dt SYSADM 8
+.Os SysAdm Client
+.Sh NAME
+.Nm sysadm
+.Nd Command line client to interact with a SysAdm server
+.Sh SYNOPSIS
+.Nm
+.Op Fl u Ao username Ac
+.Op Fl p Ao password Ac
+.Op Fl ip Ao ip address Ac
+.Op Fl id Ao request identifier Ac
+.Fl n
+.Ao name Ac 
+.Fl ns
+.Ao namespace Ac 
+.Fl a
+.Ao JSON Arguments Ac
+.Nm
+.Op Fl u Ao username Ac
+.Op Fl p Ao password Ac
+.Op Fl ip Ao ip address Ac
+.Fl f 
+.Ao filename Ac
+.Nm
+.Op Fl u Ao username Ac
+.Op Fl p Ao password Ac
+.Op Fl ip Ao ip address Ac
+.Fl s
+.Sh DESCRIPTION
+The
+.Nm
+client utility communicates with the
+.Nm
+api through WebSocket
+requests in order to retrieve information about a system and other
+services.
+.Sh OPTIONS
+The
+.Nm
+client supports these options:
+.Bp
+.Bl -tag -width indent
+.It Fl n
+The
+.Em name
+is the specific class or service the request tries to access.
+It is required as part of any request.
+See the SysAdm API Reference Guide for a complete listing of names.
+.Pp
+Example:
+.Dl sysadm -n firewall -ns sysadm -a '{"action":"known_ports"}'
+.It Fl ns
+The
+.Em namespace
+is the general organization associated with the request.
+It is also required as part of any request.
+Most requests are part of the sysadm namespace.
+See the SysAdm API Reference Guide for a complete listing of possible
+namespaces.
+.Pp
+Example:
+.Dl sysadm -n dispatcher -ns rpc -a '{"action":"list"}'
+.It Fl id
+The request identifier.
+If not supplied than it is set to the number representing the order the
+requests are sent, starting with 0.
+Replies are only recieved from an id matching the id of a sent request.
+.It Fl ip
+IP address of the SysAdm server.
+The default is 127.0.0.1.
+If different from localhost, then a username and password is required.
+A SysAdm server must be running from the specified ip for a request to be sent.
+.It Fl u
+Username for the server.
+If not provided, the default is the current user on the system.
+The user must be registered with the SysAdm server for a request to be sent.
+.It Fl p
+Password to connect to the server.
+This is not required when connecting to a local host.
+.Pp
+.It Fl s
+Read full JSON from another process in the command line.
+This is used in conjunction with another command to recieve the request.
+.Pp
+Example:
+.Dl cat jsonFile | sysadm -s
+.It Fl f
+Read full JSON from a file.
+The file can connect a single WebSocket request or a JSON array.
+.Pp
+Example:
+.Dl sysadm -f jsonfile
+.It Fl a
+Arguments for the request are received from the command line.
+Always used together with -n, -ns, and -id.
+This is used for quick, single request instances.
+.Pp
+Example:
+.Dl sysadm -u admin -p password -ip 142.37.213.52 -n moused
+.Dl -ns sysadm -id klank -a '{"action":"list_devices"}'
+.El
+.Sh EXAMPLES
+This is an example of a WebSocket Request. It can be sent through the command
+line with -s or put into a file and read with -f. The order the parameters are
+listed does not matter: 
+.Pp
+.Bd -literal
+{
+   "id" : "fooid",
+   "namespace" : "sysadm",
+   "name" : "moused",
+   "args" : {
+      "action" : "list_devices"
+   }
+}
+.Ed
+.Pp
+If multiple requests are desired, then they must be placed in an array:
+.Pp
+.Bd -literal
+[ {
+  "args" : {
+     "action" : "listcron"
+  },
+  "name" : "lifepreserver",
+  "namespace" : "sysadm",
+  "id" : "fooid"
+},
+{
+  "id" : "fooid",
+  "args" : {
+     "action" : "memorystats"
+  },
+  "namespace" : "sysadm",
+  "name" : "systemmanager"
+} ]
+.Ed
+.Pp
+If the above array was sent, then the following response would return:
+.Pp
+.Bd -literal
+{
+    "args": {
+        "listcron": {
+        }
+    },
+    "id": "fooid",
+    "name": "response",
+    "namespace": "sysadm"
+}
+
+{
+    "args": {
+        "memorystats": {
+            "active": "256",
+            "cache": "0",
+            "free": "2193",
+            "inactive": "2061",
+            "wired": "3168"
+        }
+    },
+    "id": "fooid",
+    "name": "response",
+    "namespace": "sysadm"
+}
+.Ed
+.Pp
+Here is a detailed request with the corresponding WebSocket response:
+.Bd -literal
+% sysadm -u zwelch -p password -ip 127.0.0.1 -id 72 -n systemmanager -ns sysadm
+-a '{"action":"cputemps"}'
+{
+    "args": {
+        "cputemps": {
+            "acpithermal": "29.9C",
+            "cpu0": "42.0C",
+            "cpu1": "40.0C",
+            "cpu2": "40.0C",
+            "cpu3": "41.0C"
+        }
+    },
+    "id": "72",
+    "name": "response",
+    "namespace": "sysadm"
+}
+.Ed
+.Sh SEE ALSO
+.Xr sysadm-server(8)
+.Pp
+See
+.Em https://api.sysadm.us
+for details on formatting WebSocket requests and a list of
+possible names and namespaces.
+.Sh AUTHOR
+.An Zackary Welch
+.Aq welch.zackary@gmail.com
