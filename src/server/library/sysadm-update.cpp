@@ -34,9 +34,9 @@ QDateTime Update::rebootRequiredSince(){
 QJsonObject Update::checkUpdates(bool fast) {
   //NOTE: The "fast" option should only be used for automated/timed checks (to prevent doing this long check too frequently)
   QJsonObject retObject;
-  qDebug() << "Check for updates: fast=" << fast;
+  //qDebug() << "Check for updates: fast=" << fast;
   //Quick check to ensure the tool is available
-  if(!QFile::exists("/usr/local/bin/pc-updatemanager")){ 
+  if(!QFile::exists("/usr/local/bin/pc-updatemanager")){
     return retObject;
   }
   //Check if the system is waiting to reboot
@@ -76,9 +76,9 @@ QJsonObject Update::checkUpdates(bool fast) {
     //Note: This will re-use the previous check if it was less than 10 minutes ago (prevent hammering servers from user checks)
     //qDebug() << " - Use Fast Re-read (failsafe -  less than 10 minute interval)";
     output = General::readTextFile(UP_UPFILE);
-  }else{	  
+  }else{
     //qDebug() << " - Run full check";
-    //output = General::RunCommand("pc-updatemanager check").split("\n");
+    General::RunCommand("pc-updatemanager syncconf"); //always resync the config file before starting an update check
     output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
     while(output.last().simplified()==""){ output.removeLast(); }
     if(!output.last().contains("ERROR:")){ //make sure there was network access available first -  otherwise let it try again soon
@@ -86,7 +86,7 @@ QJsonObject Update::checkUpdates(bool fast) {
     }
   }
   //qDebug() << "pc-updatemanager checks:" << output;
-  
+
   QString nameval;
   int pnum=1;
   for ( int i = 0; i < output.size(); i++)
@@ -206,16 +206,16 @@ QJsonObject Update::startUpdate(QJsonObject jsin) {
     // Ruh-roh
     retObject.insert("error", "Unknown target key: " + target);
     return retObject;
-  } 
+  }
 
   // Create a unique ID for this queued action
   QString ID = QUuid::createUuid().toString();
 
   // Queue the update action
   DISPATCHER->queueProcess("sysadm_update_runupdates::"+ID, "pc-updatemanager " + flags);
-  
+
   if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //ensure the next fast update does a full check
-  
+
   // Return some details to user that the action was queued
   retObject.insert("command", "pc-updatemanger " + flags);
   retObject.insert("comment", "Task Queued");
