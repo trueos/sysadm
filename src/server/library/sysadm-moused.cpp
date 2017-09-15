@@ -46,6 +46,7 @@ QJsonObject moused::listOptions(){
   QJsonObject out;
   out.insert("emulate_button_3", QJsonArray() << "true" << "false");
   out.insert("hand_mode", QJsonArray() << "left" << "right");
+  out.insert("mouse_scroll_invert", QJsonArray() << "true" << "false");
   out.insert("virtual_scrolling", QJsonArray() << "true" << "false");
   out.insert("accel_exponential", "float min=1.0 max=2.0");
   out.insert("accel_linear", "float min=0.01 max=100.00");
@@ -53,12 +54,12 @@ QJsonObject moused::listOptions(){
   out.insert("terminate_drift_threshold_pixels", "int min=0 max=1000");
   return out;
 }
- 
+
 QJsonObject moused::readOptions(QJsonObject obj){
   QString device = obj.value("device").toString();
   //qDebug() << "Read Options for Device:" << device;
   if(device.isEmpty()){ return QJsonObject(); } //invalid inputs
-  
+
   QString val = General::getConfFileValue(_MOUSED_CONF, "moused_args_"+device+"=" );
   if(val.isEmpty()){ General::getConfFileValue(_MOUSED_SYS_CONF, "moused_flags=" ); }
   if(val.isEmpty()){ General::getConfFileValue(_MOUSED_DEFAULT_CONF, "moused_flags=" ); }
@@ -72,10 +73,13 @@ QJsonObject moused::readOptions(QJsonObject obj){
   out.insert("emulate_button_3", args.contains("-3") ? "true" : "false");
   int index = args.indexOf("-m");
   bool righthand = true;
+  bool scrollinvert = false;
   while(index>=0 && args.length() > (index+1) ){
     if(args[index+1].startsWith("1=")){ righthand = (args[index+1] == "1=1"); }
+    else if(args[index+1].startsWith("4=")){ scrollinvert = (args[index+1] == "4=5"); }
     index = args.indexOf("-m", index+1);
   }
+  out.insert("mouse_scroll_invert", scrollinvert ? "true" : "false" );
   out.insert("hand_mode", righthand ? "right" : "left");
   out.insert("virtual_scrolling", args.contains("-V") ? "true" : "false" );
 
@@ -122,6 +126,7 @@ QJsonObject moused::setOptions(QJsonObject obj){
     QString val = Cobj.value(keys[i]).toString();
     if(keys[i]=="emulate_button_3" && val=="true"){ args << "-3"; }
     else if(keys[i]=="hand_mode" && val=="left"){ args << "-m" << "1=3" << "-m" << "3=1"; }
+    else if(keys[i]=="mouse_scroll_invert" && val=="true"){ args << "-m" << "4=5" << "-m" << "5=4"; }
     else if(keys[i]=="virtual_scrolling" && val=="true"){ args << "-V" << "-H"; } //Enable both horizontal and vertical virtual scrolling
     else if(keys[i]=="accel_exponential" && val!="1.0"){ args << "-A" << val; }
     else if(keys[i]=="accel_linear" && val!="1.0"){ args << "-a" << val; } //both X and Y linear acceleration
@@ -141,8 +146,8 @@ QJsonObject moused::listActiveDevices(){
   QDir dir("/var/run");
   QJsonObject out;
   QStringList devsactive = dir.entryList(QStringList() << "moused-*.pid", QDir::Files, QDir::Name);
-  for(int i=0; i<devsactive.length(); i++){ 
-    devsactive[i] = devsactive[i].section("-",1,-1).section(".pid",0,0); 
+  for(int i=0; i<devsactive.length(); i++){
+    devsactive[i] = devsactive[i].section("-",1,-1).section(".pid",0,0);
   }
   out.insert("active_devices", QJsonArray::fromStringList(devsactive));
   return out;
