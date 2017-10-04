@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include "sysadm-global.h"
 
+
 namespace sysadm{
 
 class SysMgmt{
@@ -28,10 +29,10 @@ public:
 	static QJsonObject systemHalt();
 
 	static QJsonObject systemDevices();
-// static void fetchPortsTree(QStringList &cmds, QStringList &dirs);  // This is not ready yet
-// static void fetchSourceTree(QString branch, QStringList &cmds, QStringList &dirs); // This is not ready yet
+	static QJsonObject fetchPortsTree(QString altDir = ""); //QStringList &cmds, QStringList &dirs);
+	//static QJsonObject fetchSourceTree(QString branch, QStringList &cmds, QStringList &dirs); // This is not ready yet
 };
-	
+
 } //end of namespace
 
 #endif

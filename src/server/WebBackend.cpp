@@ -602,6 +602,12 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemMgmtRequest(const QJso
         ok = true;
         out->insert("deviceinfo", sysadm::SysMgmt::systemDevices());
       }
+      else if(act=="fetch_ports"){
+        ok = true;
+        QString altdir;
+        if(keys.contains("ports_dir")){ altdir = in_args.toObject().value("ports_dir").toString(); }
+        out->insert("fetch_ports", sysadm::SysMgmt::fetchPortsTree(altdir));
+      }
 
     } //end of "action" key usage
 

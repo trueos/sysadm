@@ -7,6 +7,8 @@
 #include "sysadm-general.h"
 #include "sysadm-systemmanager.h"
 #include "sysadm-global.h"
+//need access to the global DISPATCHER object
+#include "globals.h"
 
 using namespace sysadm;
 
@@ -65,7 +67,7 @@ QJsonObject SysMgmt::cpuPercentage() {
   QStringList result = General::RunCommand("sysctl -n kern.cp_times").split(" ");
   static QStringList last = QStringList();
   if(last.isEmpty()){
-    //need two ticks before it works properly 
+    //need two ticks before it works properly
     sleep(1);
     last = result;
     result = General::RunCommand("sysctl -n kern.cp_times").split(" ");
@@ -81,7 +83,7 @@ QJsonObject SysMgmt::cpuPercentage() {
      //Adjust/all the data to correspond to diffs from the previous check
      for(int j=0; j<5; j++){
        QString tmp = result[i-j];
-       result[i-j] = QString::number(result[i-j].toLong()-last[i-j].toLong()); 
+       result[i-j] = QString::number(result[i-j].toLong()-last[i-j].toLong());
        //need the difference between last run and this one
        sum += result[i-j].toLong();
        last[i-j] = tmp; //make sure to keep the original value around for the next run
@@ -211,7 +213,7 @@ QJsonObject SysMgmt::memoryStats() {
   QString tmp;
   long pageSize;
   bool ok;
-  
+
   // Get the page size
   tmp = General::RunCommand("sysctl -n vm.stats.vm.v_page_size").simplified();
   tmp.toLong(&ok);
@@ -417,35 +419,43 @@ QJsonObject SysMgmt::systemDevices(){
 }
 
 // Source Management
-/*
-void SysMgmt::fetchPortsTree(QStringList &cmds, QStringList &dirs){
-  //Clear the output variables
-  cmds.clear(); dirs.clear();
+
+QJsonObject SysMgmt::fetchPortsTree(QString altDir){
+//void SysMgmt::fetchPortsTree(QStringList &cmds, QStringList &dirs){
+ QJsonObject out;
+  if(altDir.isEmpty()){ altDir = "/usr/ports"; }
   //Does Ports tree exist?  If not create it.
-  if(!QFile::exists("/usr/ports")){
-    cmds << "mkdir /usr/ports"; dirs << "";
+  if(!QFile::exists(altDir)){
+    QDir dir;
+    if(!dir.mkpath(altDir) ){
+     out.insert("error","Could not create directory: "+altDir);
+     return out;
+    }
   }
   //Does a local git repo exist? If not create it.
   QString URL = "https://www.github.com/trueos/freebsd-ports.git";
-  if(QFile::exists("/usr/ports/.git")){
+  if(QFile::exists(altDir+"/.git")){
     //Check if the remote URL is correct
-    QString origin = General::gitCMD("/usr/ports", "git remote show -n origin").filter("Fetch URL:").join("").section("URL:",1,30).simplified();
+    QString origin = General::gitCMD(altDir, "git remote show -n origin").filter("Fetch URL:").join("").section("URL:",1,30).simplified();
     if(origin != URL){
-      cmds << "git remote remove origin"; dirs <<"/usr/ports";
-      cmds << "git remote add origin "+URL; dirs << "/usr/ports/.git";
+      General::gitCMD(altDir,"git",QStringList() << "remote" << "remove" << "origin");
+      General::gitCMD(altDir,"git", QStringList() << "remote" << "add" << "origin" << URL);
     }
   }else{
     //new GIT setup
-    General::emptyDir("/usr/ports");
-    cmds << "git init"; dirs << "/usr/ports"; //setup git
-    cmds << "git remote add origin "+URL; dirs << "/usr/ports/.git"; //setup TrueOS git repo
+    General::emptyDir(altDir);
+    General::gitCMD(altDir, "git", QStringList() << "init" << altDir );
+    General::gitCMD(altDir, "git", QStringList() << "remote" << "add" << "origin" << URL );
   }
   //Now update the tree with git
-  cmds << "git fetch --depth=1"; dirs << "/usr/ports/.git";
-  cmds << "git checkout master"; dirs << "/usr/ports";
+  QString ID = "system_fetch_ports_tree";
+  DISPATCHER->queueProcess(ID, QStringList() << "cd \""+altDIR+"\"" << "git fetch" << "git pull" );
+  out->insert("result","process_started");
+  out->insert("process_id",ID);
+  return out;
 }
 
-void SysMgmt::fetchSourceTree(QString branch, QStringList &cmds, QStringList &dirs, QStringList &info){
+/*void SysMgmt::fetchSourceTree(QString branch, QStringList &cmds, QStringList &dirs, QStringList &info){
   //Clear the output variables
   cmds.clear(); dirs.clear();
   //Check if the source directory even exists
@@ -469,6 +479,5 @@ void SysMgmt::fetchSourceTree(QString branch, QStringList &cmds, QStringList &di
   }
   //Now update the tree with git
   cmds << "git fetch --depth=1"; dirs << "/usr/src/.git";
-  cmds << "git checkout "+branch; dirs << "/usr/src"; 	
-}
-*/
+  cmds << "git checkout "+branch; dirs << "/usr/src";
+}*/

@@ -8,12 +8,12 @@
 #include "sysadm-iocage.h"
 #include "sysadm-global.h"
 //need access to the global DISPATCHER object
-#include "globals.h" 
+#include "globals.h"
 
 using namespace sysadm;
 
 // ============ GLOBAL OPTIONS ==============
-//  Current activation status 
+//  Current activation status
 QJsonObject Iocage::activateStatus(){
   QJsonObject retObject;
   bool success = false;
@@ -184,7 +184,7 @@ QJsonObject Iocage::listPlugins(){
 QJsonObject Iocage::fetchReleases(QJsonObject inobj){
   QJsonObject retObject;
   if(!inobj.contains("releases")){ return retObject; } //nothing to do
-  QStringList releases; 
+  QStringList releases;
   if(inobj.value("releases").isArray()){ releases = General::JsonArrayToStringList(inobj.value("releases").toArray()); }
   else if(inobj.value("releases").isString()){ releases << inobj.value("releases").toString(); }
   //Now start up each of these downloads as appropriate
