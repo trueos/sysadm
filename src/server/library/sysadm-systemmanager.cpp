@@ -449,7 +449,7 @@ QJsonObject SysMgmt::fetchPortsTree(QString altDir){
   }
   //Now update the tree with git
   QString ID = "system_fetch_ports_tree";
-  DISPATCHER->queueProcess(ID, QStringList() << "cd \""+altDir+"\"" << "git fetch" << "git pull" );
+  DISPATCHER->queueProcess(ID, "git pull origin", altDir );
   out.insert("result","process_started");
   out.insert("process_id",ID);
   return out;

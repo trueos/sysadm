@@ -196,31 +196,32 @@ void Dispatcher::stop(){
 }
 
 //Overloaded Main Calling Functions (single command, or multiple in-order commands)
-DProcess* Dispatcher::queueProcess(QString ID, QString cmd){
-  return queueProcess(NO_QUEUE, ID, QStringList() << cmd);
+DProcess* Dispatcher::queueProcess(QString ID, QString cmd, QString workdir){
+  return queueProcess(NO_QUEUE, ID, QStringList() << cmd, workdir);
 }
-DProcess* Dispatcher::queueProcess(QString ID, QStringList cmds){
-  return queueProcess(NO_QUEUE, ID, cmds);
+DProcess* Dispatcher::queueProcess(QString ID, QStringList cmds, QString workdir){
+  return queueProcess(NO_QUEUE, ID, cmds, workdir);
 }
-DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QString cmd){
-  return queueProcess(queue, ID, QStringList() << cmd);
+DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QString cmd, QString workdir){
+  return queueProcess(queue, ID, QStringList() << cmd, workdir);
 }
-DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QStringList cmds){
+DProcess* Dispatcher::queueProcess(Dispatcher::PROC_QUEUE queue, QString ID, QStringList cmds, QString workdir){
   //This is the primary queueProcess() function - all the overloads end up here to do the actual work
   //For multi-threading, need to emit a signal/slot for this action (object creations need to be in same thread as parent)
   //qDebug() << "Queue Process:" << queue << ID << cmds;
-  DProcess *P = createProcess(ID, cmds);
+  DProcess *P = createProcess(ID, cmds, workdir);
   this->emit mkprocs(queue, P);
   return P;
 }
 
 // === PRIVATE ===
 //Simplification routine for setting up a process
-DProcess* Dispatcher::createProcess(QString ID, QStringList cmds){
+DProcess* Dispatcher::createProcess(QString ID, QStringList cmds, QString workdir){
   DProcess *P = new DProcess();
     P->moveToThread(this->thread());
     P->cmds = cmds;
     P->ID = ID;
+    if(!workdir.isEmpty()){ P->setWorkingDirectory(workdir); }
   return P;
 }
 

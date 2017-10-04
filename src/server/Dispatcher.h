@@ -70,10 +70,10 @@ public slots:
 	void stop(); //save any currently-unrun processes for next time
 
 	//Main Calling Functions (single command, or multiple in-order commands)
-	DProcess* queueProcess(QString ID, QString cmd); //uses NO_QUEUE
-	DProcess* queueProcess(QString ID, QStringList cmds); //uses NO_QUEUE
-	DProcess* queueProcess(Dispatcher::PROC_QUEUE, QString ID, QString cmd);
-	DProcess* queueProcess(Dispatcher::PROC_QUEUE, QString ID, QStringList cmds);
+	DProcess* queueProcess(QString ID, QString cmd, QString workdir = ""); //uses NO_QUEUE
+	DProcess* queueProcess(QString ID, QStringList cmds, QString workdir = ""); //uses NO_QUEUE
+	DProcess* queueProcess(Dispatcher::PROC_QUEUE, QString ID, QString cmd, QString workdir = "");
+	DProcess* queueProcess(Dispatcher::PROC_QUEUE, QString ID, QStringList cmds, QString workdir = "");
 
 private:
 	// Queue file
@@ -83,7 +83,7 @@ private:
 	QHash<PROC_QUEUE, QList<DProcess*> > HASH;
 
 	//Simplification routine for setting up a process
-	DProcess* createProcess(QString ID, QStringList cmds);
+	DProcess* createProcess(QString ID, QStringList cmds, QString workdir = "");
 	QJsonObject CreateDispatcherEventNotification(QString, QJsonObject);
 
 	// Functions to do parsing out dispatcher queued tasks
