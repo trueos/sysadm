@@ -12,30 +12,24 @@
 
 using namespace sysadm;
 
-//PLEASE: Keep the functions in the same order as listed in pcbsd-general.h
-
 
 //Battery Availability
 QJsonObject SysMgmt::batteryInfo(){
   QJsonObject retObject;
   bool ok;
+  QString tmp; //temporary string for use later
 
-  int val = General::RunCommand("apm -l").toInt(&ok);
-  if ( ok && (val >= 0 && val <= 100) ) {
-    retObject.insert("battery", "true");
-  } else {
+  //Battery Charging State
+  QStringList vals = General::RunCommand("apm -alt").split("\n");
+  int state =-1;
+  if(vals.length()>=1){ state = vals[0].toInt(&ok); }
+  //Battery Charge State is 255 if no battery available
+  if (ok && state == 255 ){
     retObject.insert("battery", "false");
     return retObject;
   }
-
-  // We have a battery, return info about it
-  //Battery Charge Level
-  QString tmp;
-  tmp.setNum(val);
-  retObject.insert("level", tmp);
-
-  //Battery Charging State
-  int state = General::RunCommand("apm -a").toInt(&ok);
+  retObject.insert("battery", "true");
+  // Charging state
   if ( ok && state == 0 )
     retObject.insert("status", "offline");
   else if ( ok && state == 1 )
@@ -44,8 +38,20 @@ QJsonObject SysMgmt::batteryInfo(){
     retObject.insert("status", "backup");
   else
     retObject.insert("status", "unknown");
-
-  int timeleft = General::RunCommand("apm -t").toInt(&ok);
+  // Charging Level
+  int level = -1;
+  ok = false;
+  if(vals.length()>=2){ level = vals[1].toInt(&ok); }
+  if ( ok ) {
+    tmp.setNum(level);
+    retObject.insert("level", tmp);
+  } else {
+    retObject.insert("level", "-1");
+  }
+  // Time Left (seconds)
+  int timeleft = -1;
+  ok = false;
+  if(vals.length()>=3){ timeleft= vals[2].toInt(&ok); }
   if ( ok ) {
     tmp.setNum(timeleft);
     retObject.insert("timeleft", tmp);
