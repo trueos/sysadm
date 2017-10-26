@@ -293,6 +293,26 @@ QJsonObject SysMgmt::procInfo() {
   return retObject;
 }
 
+// Get a sysctl
+QJsonObject SysMgmt::getSysctl(QJsonObject jsin) {
+  QJsonObject retObject;
+
+  QStringList sysctl;
+  if(jsin.value("sysctl").isArray()){ sysctl = General::JsonArrayToStringList(jsin.value("sysctl").toArray()); }
+  else if(jsin.value("sysctl").isString()){ sysctl << jsin.value("sysctl").toString(); }
+  if ( sysctl.isEmpty() ) {
+    retObject.insert("error", "Missing required key 'sysctl'");
+    return retObject;
+  }
+
+  QStringList output = General::RunCommand("sysctl", sysctl).split("\n");
+  for(int i=0; i<output.length(); i++){
+    if( !output[i].contains(":") ){ continue; }
+    retObject.insert(output[i].section(":",0,0), output[i].section(":",1,-1).simplified());
+  }
+  return retObject;
+}
+
 // Set a sysctl
 QJsonObject SysMgmt::setSysctl(QJsonObject jsin) {
   QJsonObject retObject;
@@ -319,18 +339,29 @@ QJsonObject SysMgmt::sysctlList() {
   QJsonObject retObject;
 
   // This can be cleaned up and not use CLI
-  QStringList output = General::RunCommand("sysctl -W -a").split("\n");
+  QStringList output = General::RunCommand("sysctl -aW").split("\n");
+  QStringList details = General::RunCommand("sysctl -aWdt").split("\n");
 
-  QString sysctl, value;
+  QString sysctl, type, description;
   for(int i=0; i<output.length(); i++){
-    if ( output.at(i).isEmpty())
-      continue;
-
+    if ( output.at(i).isEmpty()){ continue; }
+    QJsonObject tmp;
     sysctl = output.at(i).section(":", 0, 0);
-    value = output.at(i).section(":", 1, -1).simplified();
-    retObject.insert(sysctl, value);
+    tmp.insert("value", output.at(i).section(":", 1, -1).simplified() );
+    retObject.insert(sysctl, tmp);
   }
-
+  for(int i=0; i<details.length(); i++){
+    if ( details.at(i).isEmpty() ){ continue; }
+    sysctl = details[i].section(":",0,0);
+    type = details[i].section(":",1,1).simplified();
+    description = details[i].section(":",2,-1).simplified();
+    if(retObject.contains(sysctl)){
+      QJsonObject tmp = retObject.value(sysctl).toObject();
+      tmp.insert("type", type);
+      if(!description.isEmpty()){ tmp.insert("description", description); }
+      retObject.insert(sysctl, tmp); //replace the sysctl object into the output object
+    }
+  }
   return retObject;
 }
 

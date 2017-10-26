@@ -586,6 +586,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSystemMgmtRequest(const QJso
 	ok = true;
         out->insert("reboot", sysadm::SysMgmt::systemReboot());
       }
+      /*else if(act=="getsysctl"){
+	ok = true;
+        out->insert("getsysctl", sysadm::SysMgmt::getSysctl(in_args.toObject()));
+      }*/
       else if(act=="setsysctl"){
 	ok = true;
         out->insert("setsysctl", sysadm::SysMgmt::setSysctl(in_args.toObject()));

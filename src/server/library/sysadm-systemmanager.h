@@ -22,6 +22,7 @@ public:
 	static QJsonObject killProc(QJsonObject);
 	static QJsonObject memoryStats();
 	static QJsonObject procInfo();
+	static QJsonObject getSysctl(QJsonObject);
 	static QJsonObject setSysctl(QJsonObject);
 	static QJsonObject sysctlList();
 	static QJsonObject systemInfo();
