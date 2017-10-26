@@ -313,7 +313,7 @@ QJsonObject SysMgmt::getSysctl(QJsonObject jsin) {
 
   QStringList output = General::RunCommand("sysctl", sysctl).split("\n");
   for(int i=0; i<output.length(); i++){
-    if( !output[i].contains(":") ){ continue; }
+    if( !output[i].contains(":") || output[i].contains("unknown oid") ){ continue; }
     retObject.insert(output[i].section(":",0,0), output[i].section(":",1,-1).simplified());
   }
   return retObject;

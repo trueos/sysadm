@@ -26,8 +26,11 @@ public:
 	static QJsonObject enableDevice(QJsonObject);
 	static QJsonObject disableDevice(QJsonObject);
 
+	//General system input options
+	//static int tapToClickInterval()
+
 };
-	
+
 } //end of namespace
 
 #endif
