@@ -209,24 +209,56 @@ QJsonObject moused::tapToClick(){
   out.insert("using_synaptics", usesynaptics ? "true" : "false");
   return out;
 }
-/*
-bool moused::setTapToClick(int ms){
+
+QJsonObject moused::setTapToClick(QJsonObject jsin){
+  QJsonObject out;
+  //Check the inputs first
+  if(!jsin.contains("enable") && !jsin.contains("timeout")){
+    return out;
+  }
   //Find out which sysctls need to be set (only some systems have the synaptics option)
   QJsonObject tmp;
-  tmp.insert("sysctl", QJsonArray() << _MOUSED_TTC_NORMAL << _MOUSED_TTC_SYNAPTICS  << _MOUSED_TTC_ENABLED);
+  tmp.insert("sysctl", QJsonArray() << _MOUSED_TTC_NORMAL << _MOUSED_TTC_SYNAPTICS  << _MOUSED_TTC_ENABLED << _MOUSED_TTC_ENABLE_SYNAPTICS);
   tmp = SysMgmt::getSysctl(tmp); //this will only return valid sysctls - can use it for quick filtering/detection
- QStringList sysctls = tmp.keys();
-  tmp = QJsonObject(); //clear it for re-use
-  if(ms<0){ ms = 0; } //numbers less than 0 are not valid
-  tmp.insert("value",QString::number(ms) );
-  for(int i=0; i<sysctls.length(); i++){
-    tmp.insert("sysctl",sysctls[i]);
-    SysMgmt::setSysctl(tmp);
+  QStringList sysctls = tmp.keys();
+  bool usesynaptics = false;
+  if(tmp.contains(_MOUSED_TTC_ENABLE_SYNAPTICS)){ usesynaptics = (tmp.value(_MOUSED_TTC_ENABLE_SYNAPTICS).toString().toInt()==1) && tmp.contains(_MOUSED_TTC_SYNAPTICS); }
+  bool canenable = (tmp.value(_MOUSED_TTC_ENABLED).toString()!="-1" );
+  //Update the timeout as needed
+  if(jsin.contains("timeout")){
+    int ms = jsin.value("timeout").toInt(-1); //-1 is the default non-valid number
+    if(ms<0){ ms = jsin.value("timeout").toString().toInt(); } //try a string->integer instead
+    if(ms>=0){
+      tmp = QJsonObject(); //clear it for re-use
+      tmp.insert("value",QString::number(ms) );
+      if(sysctls.contains(_MOUSED_TTC_NORMAL)){ tmp.insert("sysctl",_MOUSED_TTC_NORMAL); SysMgmt::setSysctl(tmp); }
+      if(sysctls.contains(_MOUSED_TTC_SYNAPTICS)){ tmp.insert("sysctl",_MOUSED_TTC_SYNAPTICS); SysMgmt::setSysctl(tmp); }
+      out.insert("timeout", QString::number(ms) );
+    }
   }
-  //Restart the moused daemon
-  General::RunQuickCommand("service moused restart");
-  return ( !sysctls.isEmpty() );
-}*/
+  //Enable/Disable as needed
+  if(jsin.contains("enable") && canenable ){
+    bool enable = (jsin.value("enable").toString().toLower()=="true");
+    tmp = QJsonObject(); //clear it for re-use
+    if(usesynaptics){
+      if(!sysctls.contains("timeout")){ //if we just set this, don't overwrite it
+        tmp.insert("value", enable ? "125000" : "0"); //default values for enable/disable
+        tmp.insert("sysctl", _MOUSED_TTC_SYNAPTICS);
+      }
+    }else{
+      tmp.insert("value", enable ? "1" : "0");
+      tmp.insert("sysctl", _MOUSED_TTC_ENABLED);
+    }
+    //Now make the actual change
+    if(!tmp.isEmpty()){
+      SysMgmt::setSysctl(tmp);
+      out.insert("enabled", enable ? "true" : "false");
+    }
+  }
+  //Restart the moused daemon if we made any changes
+  if(!out.isEmpty()){ General::RunQuickCommand("service moused restart"); }
+  return out;
+}
 
 QJsonObject moused::synapticsSettings(){
   QJsonObject tmp;

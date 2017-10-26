@@ -1284,9 +1284,9 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmMousedRequest(const QJsonVal
     outobj = sysadm::moused::disableDevice(in_args.toObject());
   }else if(action == "get_tap_to_click"){
     outobj = sysadm::moused::tapToClick();
-  }/*else if(action == "set_tap_to_click"){
-
-  }*/
+  }else if(action == "set_tap_to_click"){
+    outobj = sysadm::moused::setTapToClick(in_args.toObject());
+  }
 
   //check return structure for validity
   if(!outobj.keys().isEmpty()){

@@ -28,7 +28,7 @@ public:
 
 	//General system input options
 	static QJsonObject tapToClick();
-	//static bool setTapToClick(QJsonObject);
+	static QJsonObject setTapToClick(QJsonObject);
 
 	//Synaptics options
 	static QJsonObject synapticsSettings();
