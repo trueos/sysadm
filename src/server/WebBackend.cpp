@@ -1286,6 +1286,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmMousedRequest(const QJsonVal
     outobj = sysadm::moused::tapToClick();
   }else if(action == "set_tap_to_click"){
     outobj = sysadm::moused::setTapToClick(in_args.toObject());
+  }else if(action == "get_synaptics_options"){
+    outobj = sysadm::moused::synapticsSettings();
   }
 
   //check return structure for validity
