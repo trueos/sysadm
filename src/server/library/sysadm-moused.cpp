@@ -7,11 +7,22 @@
 #include "sysadm-general.h"
 #include "sysadm-moused.h"
 #include "sysadm-global.h"
+#include "sysadm-systemmanager.h"
 #include "globals.h"
 
 #define _MOUSED_CONF QString("/etc/conf.d/moused")
 #define _MOUSED_SYS_CONF QString("/etc/rc.conf")
 #define _MOUSED_DEFAULT_CONF QString("/etc/defaults/rc.conf")
+
+//Setup the Tap To Click (TTC) sysctl definitions
+#define _MOUSED_TTC_ENABLED QString("hw.psm.tap_enabled")
+#define _MOUSED_TTC_NORMAL QString("hw.psm.tap_timeout")
+#define _MOUSED_TTC_SYNAPTICS QString("hw.psm.synaptics.taphold_timeout")
+#define _MOUSED_TTC_ENABLE_SYNAPTICS QString("hw.psm.synaptics_support")
+
+//Additional Synaptics controls
+#define _MOUSED_SYNAPTICS_TOUCHPAD_OFF QString("hw.psm.synaptics.touchpad_off")
+#define _MOUSED_SYNAPTICS_TWOFINGER_SCROLL QString("hw.psm.synaptics.two_finger_scroll")
 
 using namespace sysadm;
 
@@ -170,5 +181,66 @@ QJsonObject moused::disableDevice(QJsonObject obj){
   General::RunQuickCommand("service moused."+device+" stop");
   QJsonObject out;
   out.insert("stopped", device);
+  return out;
+}
+
+QJsonObject moused::tapToClick(){
+  QJsonObject out;
+  QJsonObject tmp;
+  tmp.insert("sysctl", QJsonArray() << _MOUSED_TTC_NORMAL << _MOUSED_TTC_SYNAPTICS << _MOUSED_TTC_ENABLED << _MOUSED_TTC_ENABLE_SYNAPTICS);
+  tmp = SysMgmt::getSysctl(tmp);
+  bool usesynaptics = false;
+  int timeout = -1;
+  if(tmp.contains(_MOUSED_TTC_ENABLE_SYNAPTICS)){
+    usesynaptics = (tmp.value(_MOUSED_TTC_ENABLE_SYNAPTICS).toString().toInt()==1) && tmp.contains(_MOUSED_TTC_SYNAPTICS);
+  }
+
+  if(usesynaptics){
+    QString level = tmp.value(_MOUSED_TTC_SYNAPTICS).toString();
+    if(level.isEmpty()){ level = tmp.value(_MOUSED_TTC_NORMAL).toString(); }
+    out.insert("enabled", level.toInt()>0 ? "true" : "false" );
+    out.insert("timeout", level);
+  }else{
+    int enabled = tmp.value(_MOUSED_TTC_ENABLED).toString().toInt();
+    if(enabled<0){ out.insert("enabled", "unavailable"); }
+    else{ out.insert("enabled", (enabled==1) ? "true" : "false" ); }
+    out.insert("timeout", tmp.value(_MOUSED_TTC_NORMAL).toString() );
+  }
+  out.insert("using_synaptics", usesynaptics ? "true" : "false");
+  return out;
+}
+/*
+bool moused::setTapToClick(int ms){
+  //Find out which sysctls need to be set (only some systems have the synaptics option)
+  QJsonObject tmp;
+  tmp.insert("sysctl", QJsonArray() << _MOUSED_TTC_NORMAL << _MOUSED_TTC_SYNAPTICS  << _MOUSED_TTC_ENABLED);
+  tmp = SysMgmt::getSysctl(tmp); //this will only return valid sysctls - can use it for quick filtering/detection
+ QStringList sysctls = tmp.keys();
+  tmp = QJsonObject(); //clear it for re-use
+  if(ms<0){ ms = 0; } //numbers less than 0 are not valid
+  tmp.insert("value",QString::number(ms) );
+  for(int i=0; i<sysctls.length(); i++){
+    tmp.insert("sysctl",sysctls[i]);
+    SysMgmt::setSysctl(tmp);
+  }
+  //Restart the moused daemon
+  General::RunQuickCommand("service moused restart");
+  return ( !sysctls.isEmpty() );
+}*/
+
+QJsonObject moused::synapticsSettings(){
+  QJsonObject tmp;
+  tmp.insert("sysctl", QJsonArray() << _MOUSED_SYNAPTICS_TOUCHPAD_OFF << _MOUSED_SYNAPTICS_TWOFINGER_SCROLL << _MOUSED_TTC_ENABLE_SYNAPTICS);
+  SysMgmt::getSysctl(tmp);
+  bool touch_off = false;
+  bool two_finger_scroll = false;
+  bool enabled = false;
+  if(tmp.contains(_MOUSED_SYNAPTICS_TOUCHPAD_OFF)){ touch_off = (tmp.value(_MOUSED_SYNAPTICS_TOUCHPAD_OFF).toString().toInt()==1); }
+  if(tmp.contains(_MOUSED_SYNAPTICS_TWOFINGER_SCROLL)){ two_finger_scroll = (tmp.value(_MOUSED_SYNAPTICS_TWOFINGER_SCROLL).toString().toInt()==1); }
+  if(tmp.contains(_MOUSED_TTC_ENABLE_SYNAPTICS)){ enabled = (tmp.value(_MOUSED_TTC_ENABLE_SYNAPTICS).toString().toInt()==1); }
+  QJsonObject out;
+  out.insert("disable_touchpad", touch_off ? "true" : "false");
+  out.insert("enable_two_finger_scroll", two_finger_scroll ? "true" : "false");
+  out.insert("enable_synaptics", enabled ? "true" : "false");
   return out;
 }

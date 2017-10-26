@@ -27,7 +27,11 @@ public:
 	static QJsonObject disableDevice(QJsonObject);
 
 	//General system input options
-	//static int tapToClickInterval()
+	static QJsonObject tapToClick();
+	//static bool setTapToClick(QJsonObject);
+
+	//Synaptics options
+	static QJsonObject synapticsSettings();
 
 };
 
