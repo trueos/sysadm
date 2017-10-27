@@ -39,6 +39,11 @@ QJsonObject Update::checkUpdates(bool fast) {
   if(!QFile::exists("/usr/local/bin/pc-updatemanager")){
     return retObject;
   }
+  //See if the check for updates is currently running - just return nothing at the moment for that
+  if(DISPATCHER->isJobActive("sysadm_update_checkupdates")){
+    retObject.insert("status", "checkingforupdates");
+    return retObject;
+  }
   //Check if the system is waiting to reboot
   if(QFile::exists(UP_RBFILE)){
     retObject.insert("status","rebootrequired");
@@ -57,7 +62,7 @@ QJsonObject Update::checkUpdates(bool fast) {
       return retObject;
     }
   }
-  //Get the list of deatils from the update checks (fast/full)
+  //Get the list of details from the update checks (fast/full)
   QStringList output;
   QDateTime cdt = QDateTime::currentDateTime();
   QDateTime fdt = cdt.addDays(-1); //just enough to trip the checks below if needed
@@ -72,18 +77,23 @@ QJsonObject Update::checkUpdates(bool fast) {
     //Note: The "fast" check will only be used if the last full check was less than 12 hours earlier.
     //qDebug() << " - UseFast Re-read";
     output = General::readTextFile(UP_UPFILE);
-  }else if(secs<600 ){
-    //Note: This will re-use the previous check if it was less than 10 minutes ago (prevent hammering servers from user checks)
-    //qDebug() << " - Use Fast Re-read (failsafe -  less than 10 minute interval)";
+  }else if(secs<300 ){
+    //Note: This will re-use the previous check if it was less than 5 minutes ago (prevent hammering servers from user checks)
+    //qDebug() << " - Use Fast Re-read (failsafe -  less than 5 minute interval)";
     output = General::readTextFile(UP_UPFILE);
   }else{
     //qDebug() << " - Run full check";
-    General::RunCommand("pc-updatemanager syncconf"); //always resync the config file before starting an update check
+    QStringList cmds; cmds << "pc-updatemanager syncconf" << "pc-updatemanager pkgcheck";
+    DISPATCHER->queueProcess("sysadm_update_checkupdates", cmds );
+    retObject.insert("status", "checkingforupdates");
+    //qDebug() << " - Done starting check";
+    return retObject;
+    /*General::RunCommand("pc-updatemanager syncconf"); //always resync the config file before starting an update check
     output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
     while(output.last().simplified()==""){ output.removeLast(); }
     if(!output.last().contains("ERROR:")){ //make sure there was network access available first -  otherwise let it try again soon
       General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
-    }
+    }*/
   }
   //qDebug() << "pc-updatemanager checks:" << output;
 
@@ -137,6 +147,16 @@ QJsonObject Update::checkUpdates(bool fast) {
   retObject.insert("details", output.join("\n") ); //full details of the check for updates
   retObject.insert("last_check",QFileInfo(UP_UPFILE).lastModified().toString(Qt::ISODate) );
   return retObject;
+}
+
+void Update::saveCheckUpdateLog(QString log){
+    QStringList output = log.split("\n");
+    qDebug() << "Got Check Update Log:" << log << output;
+    while(!output.isEmpty() && output.last().simplified().isEmpty()){ output.removeLast(); }
+    if(output.isEmpty()){ return; }
+    if(!output.last().contains("ERROR:")){ //make sure there was network access available first -  otherwise let it try again soon
+      General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
+    }
 }
 
 // List available branches we can switch to

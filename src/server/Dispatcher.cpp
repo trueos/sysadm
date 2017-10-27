@@ -182,6 +182,24 @@ QJsonObject Dispatcher::killJobs(QStringList ids){
   return obj;
 }
 
+bool Dispatcher::isJobActive(QString ID){
+  //qDebug() << " - Is Job Active:" << ID;
+  for(int i=0; i<enum_length; i++){
+    PROC_QUEUE queue = static_cast<PROC_QUEUE>(i);
+    if(HASH.contains(queue)){
+      QList<DProcess*> list = HASH[queue];
+      for(int j=0; j<list.length(); j++){
+	if(ID == list[j]->ID){
+	  //qDebug() << " -- " << !list[j]->isDone();
+          return !(list[j]->isDone());
+        }
+      } //end loop over list
+    }
+  }
+  //qDebug() << " -- NO";
+  return false; //could not find process with this ID
+}
+
 void Dispatcher::start(QString queuefile){
   //Setup connections here (in case it was moved to different thread after creation)
   //connect(this, SIGNAL(mkprocs(Dispatcher::PROC_QUEUE, DProcess*)), this, SLOT(mkProcs(Dispatcher::PROC_QUEUE, DProcess*)) );
@@ -243,7 +261,7 @@ void Dispatcher::ProcFinished(QString ID, QJsonObject log){
   //qDebug() << " - Got Proc Finished Signal:" << ID;
   LogManager::log(LogManager::DISPATCH, log);
   //First emit any subsystem-specific event, falling back on the raw log
-  QJsonObject ev = CreateDispatcherEventNotification(ID,log);
+  QJsonObject ev = CreateDispatcherEventNotification(ID,log, true);
   if(!ev.isEmpty()){
     emit DispatchEvent(ev);
   }else{
@@ -254,7 +272,7 @@ void Dispatcher::ProcFinished(QString ID, QJsonObject log){
 
 void Dispatcher::ProcUpdated(QString ID, QJsonObject log){
   //See if this needs to generate an event
-  QJsonObject ev = CreateDispatcherEventNotification(ID,log);
+  QJsonObject ev = CreateDispatcherEventNotification(ID,log, false);
   if(!ev.isEmpty()){
     emit DispatchEvent(ev);
   }

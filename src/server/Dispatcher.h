@@ -63,6 +63,7 @@ public:
 
 	QJsonObject listJobs();
 	QJsonObject killJobs(QStringList ids);
+	bool isJobActive(QString ID); //returns true if a job with this ID is running/pending
 
 public slots:
 	//Main start/stop
@@ -84,7 +85,7 @@ private:
 
 	//Simplification routine for setting up a process
 	DProcess* createProcess(QString ID, QStringList cmds, QString workdir = "");
-	QJsonObject CreateDispatcherEventNotification(QString, QJsonObject);
+	QJsonObject CreateDispatcherEventNotification(QString, QJsonObject, bool);
 
 	// Functions to do parsing out dispatcher queued tasks
 	// Please keep these sorted

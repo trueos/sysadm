@@ -19,6 +19,8 @@ public:
 	static QDateTime rebootRequiredSince();
 	//Listing routines
 	static QJsonObject checkUpdates(bool fast = false);
+	static void saveCheckUpdateLog(QString);  //Internal for Dispatcher process usage - do not expose to public API
+
 	static QJsonObject listBranches();
 	//Start/stop update routine
 	static QJsonObject startUpdate(QJsonObject);
@@ -31,7 +33,7 @@ public:
 	static QJsonObject readLog(QJsonObject);
 
 };
-	
+
 }
 
 #endif

@@ -9,8 +9,11 @@
 #include "globals-qt.h"
 #include "EventWatcher.h"
 #include "Dispatcher.h"
+#include "library/sysadm-update.h"
 
-QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObject log){
+QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObject log, bool full_log){
+  //NOTE: full_log = true when the process has finished. If it is false, the process is still running and you are probably getting an incremental update of the process log
+
   //key outputs - need to set these if an event is going to be sent out
   QJsonObject args; //any arguments to send out
   QString namesp, name; //the namespace/name of the subsystem used
@@ -26,7 +29,7 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
   //Add the generic process values
   args.insert("state",log.value("state").toString());
   args.insert("process_details", log); //full process log array here
-  
+
   //Now parse the notification based on the dispatch ID or current command
   //NOTE: There might be a random string on the end of the ID (to accomodate similar process calls)
   // == sysadm/iohyve ==
@@ -37,14 +40,18 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
       //Do some parsing of the log
       parseIohyveFetchOutput(cLog,&args);
     }
-    
+
   // == sysadm/update ==
   }else if(ID.startsWith("sysadm_update")){
-    namesp = "sysadm"; name="update";
-    //No special parsing here: the pc-updatemanager output should be available as-is
-    args.insert("update_log",cLog);
-	  
-	  
+    if(ID.section("::",0,0)=="sysadm_update_runupdates"){
+      namesp = "sysadm"; name="update";
+      //No special parsing here: the pc-updatemanager output should be available as-is
+      args.insert("update_log",cLog);
+    }else if(full_log && ID.section("::",0,0)=="sysadm_update_checkupdates"){
+      //qDebug() << "Got update check process finished";
+      sysadm::Update::saveCheckUpdateLog(cLog); //save this for use later
+    }
+
   // == sysadm/pkg ==
   }else if(ID.startsWith("sysadm_pkg")){
     namesp = "sysadm"; name="pkg";
@@ -56,7 +63,7 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
 	bool hasupdates = !cLog.contains("Your packages are up to date.");
 	args.insert("updates_available", hasupdates ? "true" : "false");
       }
-      
+
     }else if(ID.section("-",0,0)=="sysadm_pkg_audit" && isFinished){
       QStringList info = cLog.split("\n");
       QStringList vuln, effects;
@@ -71,9 +78,9 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
       args.insert("vulnerable_pkgs",QJsonArray::fromStringList(vuln));
       args.insert("impacts_pkgs",QJsonArray::fromStringList(effects));
     }
-    
+
   }
-	
+
   //Now assemble the output as needed
   if(namesp.isEmpty() || name.isEmpty()){ return QJsonObject(); } //no event
   args.insert("event_system",namesp+"/"+name);
@@ -93,3 +100,7 @@ void Dispatcher::parseIohyveFetchOutput(QString outputLog, QJsonObject *out){
     break;
   }
 }
+
+/*void Dispatcher::parseUpdateCheckOutput(QString outputLog, QJsonObject *out){
+
+}*/

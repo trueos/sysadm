@@ -368,6 +368,7 @@ void EventWatcher::CheckSystemState(){
 
   //Next Check for Updates
   QJsonObject updates = sysadm::Update::checkUpdates(true); //do the "fast" version of updates
+  //qDebug() << "Health check - got updates status:" << updates;
   if(!updates.isEmpty()){
     if(updates.value("status").toString()!="noupdates"){
       int tmp = 2;
@@ -387,6 +388,8 @@ void EventWatcher::CheckSystemState(){
             }
           }
         }
+      }else if(updates.value("status").toString()=="checkingforupdates"){
+        //do nothing more here - still checking for updates
       }else if(updates.value("status").toString()!="updaterunning"){
         //updates are available - see if the auto-update flag is set, and start the updates as needed
         QJsonObject upset = sysadm::Update::readSettings();
