@@ -25,6 +25,7 @@
 #include "library/sysadm-firewall.h"
 #include "library/sysadm-moused.h"
 #include "library/sysadm-powerd.h"
+#include "library/sysadm-sourcectl.h"
 
 #define DEBUG 0
 //#define SCLISTDELIM QString("::::") //SysCache List Delimiter
@@ -44,7 +45,6 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   if(QFile::exists("/usr/local/sbin/beadm")){
     out->insert("sysadm/beadm", "read/write");
   }
-
 
   // - dispatcher (Internal to server - always available)
   //"read" is the event notifications, "write" is the ability to queue up jobs
@@ -103,6 +103,10 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   // - powerd
   if(QFile::exists("/usr/sbin/powerd")){
     out->insert("sysadm/powerd", "read/write");
+  }
+  // - sourcectl
+  if(QFile::exists("/usr/local/bin/git")){
+    out->insert("sysadm/sourcectl", "read/write");
   }
 
   return RestOutputStruct::OK;
@@ -164,6 +168,8 @@ RestOutputStruct::ExitCode WebSocket::EvaluateBackendRequest(const RestInputStru
     return EvaluateSysadmMousedRequest(IN.args, out);
   }else if(namesp=="sysadm" && name=="powerd"){
     return EvaluateSysadmPowerdRequest(IN.args, out);
+  }else if(namesp=="sysadm" && name=="sourcectl"){
+    return EvaluateSysadmSourceCTLRequest(IN.args, out);
   }else{
     return RestOutputStruct::BADREQUEST;
   }
@@ -1328,4 +1334,34 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmPowerdRequest(const QJsonVal
   }else{
     return RestOutputStruct::BADREQUEST;
   }
+}
+
+// ==== SYSADM SOURCECTL API ====
+RestOutputStruct::ExitCode WebSocket::EvaluateSysadmSourceCTLRequest(const QJsonValue in_args, QJsonObject *out){
+  QString action = in_args.toObject().value("action").toString();
+  QJsonObject outobj;
+   if(action == "downloadports"){
+    outobj = sysadm::sourcectl::downloadports();
+  }else if(action == "updateports"){
+    outobj = sysadm::sourcectl::updateports();
+  }else if(action == "deleteports"){
+    outobj = sysadm::sourcectl::deleteports();
+  }else if(action == "stopports"){
+     outobj = sysadm::sourcectl::stopports();
+  }else if(action == "downloadsource"){
+    outobj = sysadm::sourcectl::downloadsource();
+  }else if(action == "updatesource"){
+    outobj = sysadm::sourcectl::updatesource();
+  }else if(action == "deletesource"){
+    outobj = sysadm::sourcectl::deletesource();
+  }else if(action == "stopsource"){
+    outobj = sysadm::sourcectl::stopsource();
+  //check return structure for validity
+  if(!outobj.keys().isEmpty()){
+    out->insert(action, outobj);
+    return RestOutputStruct::OK;
+  }else{
+    return RestOutputStruct::BADREQUEST;
+  }
+ }
 }
