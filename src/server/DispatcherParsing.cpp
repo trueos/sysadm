@@ -90,9 +90,25 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
     }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_downloadsource"){
     //qDebug() << "Got update check process finished";
     sysadm::sourcectl::saveSourceLog(cLog); //save this for use later
-  }
-
   }else if(ID.startsWith("sysadm_sourcectl")){
+    if(ID.section("::",0,0)=="sysadm_sourcectl_updatesource"){
+      namesp = "sysadm"; name="soucectl";
+      //No special parsing here: the git output should be available as-is
+      args.insert("update_log",cLog);
+    }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_updatesource"){
+    //qDebug() << "Got update check process finished";
+    sysadm::sourcectl::saveSourceLog(cLog); //save this for use later
+    }
+  }else if(ID.startsWith("sysadm_sourcectl")){
+    if(ID.section("::",0,0)=="sysadm_sourcectl_deleteports"){
+       namesp = "sysadm"; name="soucectl";
+       //No special parsing here: the git output should be available as-is
+       args.insert("update_log",cLog);
+     }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_deleteports"){
+     //qDebug() << "Got update check process finished";
+     sysadm::sourcectl::savePortsLog(cLog); //save this for use later
+     }
+   }else if(ID.startsWith("sysadm_sourcectl")){
     if(ID.section("::",0,0)=="sysadm_sourcectl_downloadports"){
       namesp = "sysadm"; name="soucectl";
       //No special parsing here: the git output should be available as-is
@@ -100,8 +116,27 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
     }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_downloadports"){
     //qDebug() << "Got update check process finished";
     sysadm::sourcectl::savePortsLog(cLog); //save this for use later
-}
-}
+    }
+  }else if(ID.startsWith("sysadm_sourcectl")){
+    if(ID.section("::",0,0)=="sysadm_sourcectl_updateports"){
+      namesp = "sysadm"; name="soucectl";
+      //No special parsing here: the git output should be available as-is
+      args.insert("update_log",cLog);
+    }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_updateports"){
+    //qDebug() << "Got update check process finished";
+    sysadm::sourcectl::savePortsLog(cLog); //save this for use later
+    }
+   }else if(ID.startsWith("sysadm_sourcectl")){
+     if(ID.section("::",0,0)=="sysadm_sourcectl_deleteports"){
+       namesp = "sysadm"; name="soucectl";
+       //No special parsing here: the git output should be available as-is
+       args.insert("update_log",cLog);
+     }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_deleteports"){
+     //qDebug() << "Got update check process finished";
+     sysadm::sourcectl::savePortsLog(cLog); //save this for use later
+     }
+    }
+  }
 
 //Now assemble the output as needed
 if(namesp.isEmpty() || name.isEmpty()){ return QJsonObject(); } //no event
