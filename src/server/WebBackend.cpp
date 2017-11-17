@@ -650,6 +650,10 @@ RestOutputStruct::ExitCode WebSocket::EvaluateSysadmUpdateRequest(const QJsonVal
 	ok = true;
 	out->insert("stopupdate", sysadm::Update::stopUpdate() );
 
+      }else if(act=="applyupdate"){
+	ok = true;
+	out->insert("applyupdate", sysadm::Update::applyUpdates() );
+
       }else if(act=="listsettings"){
 	ok = true;
 	out->insert("listsettings", sysadm::Update::readSettings() );
