@@ -384,7 +384,7 @@ void EventWatcher::CheckSystemState(){
             QDateTime finished = sysadm::Update::rebootRequiredSince();
             QDateTime cdt = QDateTime::currentDateTime();
             if( (finished.addSecs(60*60*24)<cdt) || cdt.time().hour() == hour){ //more than 24 hours have passed, or time has come
-              sysadm::SysMgmt::systemReboot();
+              sysadm::Update::applyUpdates();
             }
           }
         }
