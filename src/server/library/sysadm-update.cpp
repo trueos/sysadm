@@ -11,7 +11,7 @@
 #include "globals.h"
 
 #define UP_PIDFILE "/tmp/.updateInProgress"
-#define UP_RBFILE "/tmp/.rebootRequired"
+#define UP_RBFILE "/tmp/.trueos-update-staged"
 #define UP_UPFILE "/tmp/.updatesAvailable"
 
 #define UP_CONFFILE "/usr/local/etc/trueos.conf"
