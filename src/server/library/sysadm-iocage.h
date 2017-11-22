@@ -46,7 +46,7 @@ public:
 	static QJsonObject capJail(QJsonObject);
 
 	static QJsonObject getJailSettings(QJsonObject);
-	
+
 };
 
 } //end of namespace

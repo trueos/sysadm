@@ -82,7 +82,7 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
   }
 
   //Now assemble the output as needed
-  if(namesp.isEmpty() || name.isEmpty()){ return QJsonObject(); } //no event
+  if(namesp.isEmpty() || name.isEmpty()  || args.isEmpty()){ return QJsonObject(); } //no event
   args.insert("event_system",namesp+"/"+name);
   return args;
 }

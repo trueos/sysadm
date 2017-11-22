@@ -140,7 +140,7 @@ QJsonObject Iocage::listPlugins(){
   bool ok = false;
   QStringList remote = General::RunCommand(ok,"iocage list -PhR").split("\n");
   QStringList local = General::RunCommand("iocage list -Ph").split("\n");
-  if(!ok && remote.first().startsWith("Traceback")){ 
+  if(!ok && remote.first().startsWith("Traceback")){
     //older version of iocage - no local browsing (remote uses the local syntax)
     remote = local;
     local.clear();
