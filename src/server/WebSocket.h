@@ -100,6 +100,8 @@ private:
 	RestOutputStruct::ExitCode EvaluateSysadmMousedRequest(const QJsonValue in_args, QJsonObject *out);
 	// -- sysadm powerd API
 	RestOutputStruct::ExitCode EvaluateSysadmPowerdRequest(const QJsonValue in_args, QJsonObject *out);
+    // -- sysadm sourcectl API
+    RestOutputStruct::ExitCode EvaluateSysadmSourceCTLRequest(const QJsonValue in_args, QJsonObject *out);
 
 private slots:
 	void sendReply(QString msg);

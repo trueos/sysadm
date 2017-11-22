@@ -267,6 +267,12 @@ QJsonObject Update::stopUpdate() {
   return ret;
 }
 
+QJsonObject Update::applyUpdates(){
+  QJsonObject ret;
+  QProcess::startDetached("pc-updatemanager startupdate");
+  ret.insert("result","rebooting to complete updates");
+  return ret;
+}
 //SETTINGS OPTIONS
 QJsonObject Update::readSettings(){
   QJsonObject ret;

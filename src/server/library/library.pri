@@ -17,7 +17,9 @@ HEADERS	+= 	$${PWD}/sysadm-global.h \
 		$${PWD}/sysadm-zfs.h \
 		$${PWD}/sysadm-pkg.h \
 		$${PWD}/sysadm-moused.h \
-		$${PWD}/sysadm-powerd.h
+                $${PWD}/sysadm-powerd.h \
+                $${PWD}/sysadm-sourcectl.h
+
 
 SOURCES	+=	$${PWD}/NetDevice.cpp \
                 $${PWD}/sysadm-general.cpp \
@@ -35,4 +37,5 @@ SOURCES	+=	$${PWD}/NetDevice.cpp \
 		$${PWD}/sysadm-zfs.cpp \
 		$${PWD}/sysadm-pkg.cpp \
 		$${PWD}/sysadm-moused.cpp \
-		$${PWD}/sysadm-powerd.cpp
+                $${PWD}/sysadm-powerd.cpp \
+                $${PWD}/sysadm-sourcectl.cpp
