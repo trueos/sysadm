@@ -1,11 +1,10 @@
-# Created by: Kris Moore <kmoore@FreeBSD.org>
 # $FreeBSD$
 
 PORTNAME=	sysadm
 PORTVERSION=	%%CHGVERSION%%
 CATEGORIES=	sysutils
 
-MAINTAINER=	kmoore@FreeBSD.org
+MAINTAINER=	jt@ixsystems.com
 COMMENT=	SysAdm API server
 
 LICENSE=	BSD3CLAUSE
