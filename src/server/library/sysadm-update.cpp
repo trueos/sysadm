@@ -13,6 +13,7 @@
 #define UP_PIDFILE "/tmp/.updateInProgress"
 #define UP_RBFILE "/tmp/.trueos-update-staged"
 #define UP_UPFILE "/tmp/.updatesAvailable"
+#define UP_UPFILE_ERR "/tmp/.updateCheckError"
 
 #define UP_CONFFILE "/usr/local/etc/trueos.conf"
 
@@ -48,6 +49,7 @@ QJsonObject Update::checkUpdates(bool fast) {
   if(QFile::exists(UP_RBFILE)){
     retObject.insert("status","rebootrequired");
     if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //ensure the next fast update does a full check
+    if(QFile::exists(UP_UPFILE_ERR)){ QFile::remove(UP_UPFILE_ERR); } //ensure the next fast update does a full check
     //Also add the information on what updates are pending
     retObject.insert("details", sysadm::General::readTextFile(UP_RBFILE).join("\n") );
     return retObject;
@@ -66,21 +68,27 @@ QJsonObject Update::checkUpdates(bool fast) {
   QStringList output;
   QDateTime cdt = QDateTime::currentDateTime();
   QDateTime fdt = cdt.addDays(-1); //just enough to trip the checks below if needed
+  bool lasterr = false;
   if(QFile::exists(UP_UPFILE)){ fdt = QFileInfo(UP_UPFILE).lastModified(); }
+  else if(QFile::exists(UP_UPFILE_ERR)){ fdt = QFileInfo(UP_UPFILE_ERR).lastModified(); lasterr = true; }
   //qDebug() << "Time Stamps (now/file):" << cdt << fdt;
   //qDebug() << " - File earlier than now:" << (fdt<cdt);
   //qDebug() << " - File +1 day earlier than now (+day):" << (fdt.addDays(1)<cdt);
   //qDebug() << " - File +1 day earlier than now (+secs):" << (fdt.addSecs(24*60)<cdt);
   //qDebug() << " - Seconds from File->Day time:" << fdt.secsTo(cdt);
   int secs = fdt.secsTo(cdt);
-  if(fast && (secs<43200) ){
-    //Note: The "fast" check will only be used if the last full check was less than 12 hours earlier.
+  if(fast && (secs<43200) && !lasterr ){
+    //Note: The "fast" check will only be used if the last full check was less than 12 hours earlier
+    // (unless the last run ended in an error - then it will use the 5-minute check below)
     //qDebug() << " - UseFast Re-read";
-    output = General::readTextFile(UP_UPFILE);
-  }else if(secs<300 ){
+    if(lasterr){output = General::readTextFile(UP_UPFILE_ERR); }
+    else{ output = General::readTextFile(UP_UPFILE); }
+
+  }else if(secs<300){
     //Note: This will re-use the previous check if it was less than 5 minutes ago (prevent hammering servers from user checks)
     //qDebug() << " - Use Fast Re-read (failsafe -  less than 5 minute interval)";
-    output = General::readTextFile(UP_UPFILE);
+    if(lasterr){ output = General::readTextFile(UP_UPFILE_ERR); }
+    else{ output = General::readTextFile(UP_UPFILE); }
   }else{
     //qDebug() << " - Run full check";
     QStringList cmds; cmds << "pc-updatemanager syncconf" << "pc-updatemanager pkgcheck";
@@ -145,7 +153,11 @@ QJsonObject Update::checkUpdates(bool fast) {
     retObject.insert("status", "updatesavailable");
   }
   retObject.insert("details", output.join("\n") ); //full details of the check for updates
-  retObject.insert("last_check",QFileInfo(UP_UPFILE).lastModified().toString(Qt::ISODate) );
+  if(QFile::exists(UP_UPFILE)){
+    retObject.insert("last_check",QFileInfo(UP_UPFILE).lastModified().toString(Qt::ISODate) );
+  }else if(QFile::exists(UP_UPFILE_ERR)){
+    retObject.insert("last_check",QFileInfo(UP_UPFILE_ERR).lastModified().toString(Qt::ISODate) );
+  }
   return retObject;
 }
 
@@ -156,6 +168,10 @@ void Update::saveCheckUpdateLog(QString log){
     if(output.isEmpty()){ return; }
     if(!output.last().contains("ERROR:")){ //make sure there was network access available first -  otherwise let it try again soon
       General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
+      if(QFile::exists(UP_UPFILE_ERR)){ QFile::remove(UP_UPFILE_ERR); } //remove any previous failed log
+    }else{
+      General::writeTextFile(UP_UPFILE_ERR,output); //save this error return for later
+      if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //remove any previous good log
     }
 }
 
@@ -332,6 +348,7 @@ QJsonObject Update::writeSettings(QJsonObject obj){
     ret.insert("result","success");
     if(clearlastCheck){
       if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //ensure the next fast update does a full check
+      if(QFile::exists(UP_UPFILE_ERR)){ QFile::remove(UP_UPFILE_ERR); } //ensure the next fast update does a full check
     }
   }else{
     ret.insert("result","error");
