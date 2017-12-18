@@ -189,12 +189,10 @@ bool General::setConfFileValue(QString fileName, QString oldKey, QString newKey,
 
     // Load the old file, find the oldKey, remove it and replace with newKey
     QFile file( oFileTmp );
-    if ( ! file.open( QIODevice::ReadOnly ) )
-        return false;
-
-    QTextStream stream( &file );
-    QString line;
-    while ( !stream.atEnd() ) {
+    if ( file.open( QIODevice::ReadOnly ) ){
+      QTextStream stream( &file );
+      QString line;
+      while ( !stream.atEnd() ) {
         line = stream.readLine(); // line of text excluding '\n'
 
         // Key is not found at all
@@ -233,10 +231,12 @@ bool General::setConfFileValue(QString fileName, QString oldKey, QString newKey,
             continue;
         }
 
+      }
+
+      file.close();
+    }else if(file.exists()){
+      return false; //could not read an existing file - permissions issue?
     }
-
-    file.close();
-
     // Didn't find the key? Write it!
     if ( ! newKey.isEmpty() )
         SavedFile << newKey;
