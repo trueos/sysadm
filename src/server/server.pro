@@ -40,3 +40,10 @@ INSTALLS += target scripts
 QMAKE_LIBDIR = /usr/local/lib/qt5 /usr/local/lib
 INCLUDEPATH += /usr/local/include
 LIBS += -L/usr/local/lib -lpam -lutil -lssl -lcrypto
+
+  #Some conf to redirect intermediate stuff in separate dirs
+  UI_DIR=./.build/ui/
+  MOC_DIR=./.build/moc/
+  OBJECTS_DIR=./.build/obj
+  RCC_DIR=./.build/rcc
+  QMAKE_DISTCLEAN += -r ./.build
