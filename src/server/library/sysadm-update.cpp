@@ -293,7 +293,7 @@ QJsonObject Update::applyUpdates(){
 QJsonObject Update::readSettings(){
   QJsonObject ret;
   QStringList knownsettings;
-  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE" << "AUTO_UPDATE_REBOOT";// << "CDN_TYPE";
+  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE" << "AUTO_UPDATE_REBOOT" << "CDN_TYPE";
 
   QStringList info = General::readTextFile(UP_CONFFILE);
   for(int i=0; i<info.length(); i++){
@@ -311,7 +311,7 @@ QJsonObject Update::writeSettings(QJsonObject obj){
   QJsonObject ret;
   //Check inputs
   QStringList knownsettings;
-  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE" << "AUTO_UPDATE_REBOOT";// << "CDN_TYPE";
+  knownsettings << "PACKAGE_SET" << "PACKAGE_URL" << "AUTO_UPDATE" << "MAXBE" << "AUTO_UPDATE_REBOOT" << "CDN_TYPE";
   QStringList keys = obj.keys();
   QStringList vals;
   bool clearlastCheck = false;
