@@ -40,7 +40,10 @@ QString General::RunCommand(bool &success, QString command, QStringList argument
   if(arguments.isEmpty()){ proc.start(command); }
   else{ proc.start(command, arguments); }
   //Wait for the process to finish (but don't block the event loop)
-  while( !proc.waitForFinished(500) ){ QCoreApplication::processEvents(); }
+  while( !proc.waitForFinished(500) ){
+    if(proc.state() != QProcess::Running){ break; } //somehow missed the finished signal    
+    QCoreApplication::processEvents(); 
+  }
   success = (proc.exitCode()==0); //return success/failure
   return QString(proc.readAllStandardOutput());
 }
