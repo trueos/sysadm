@@ -92,9 +92,10 @@ private:
     void loadRunlevels();
 
     bool enableDisableService(QString name, bool enable=false);
-    
+
     QString chroot;
     QString ip;
+    bool usingOpenRC;
 };
 }
 #endif // SERVICEMANAGER_H

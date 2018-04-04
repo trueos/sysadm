@@ -9,7 +9,8 @@ ServiceManager::ServiceManager(QString chroot, QString ip)
 {
     this->chroot = chroot;
     this->ip = ip;
-    loadRCdata();  
+    usingOpenRC = QFile::exists(chroot+"/sbin/rc-update");
+    loadRCdata();
     //loadServices();
 }
 
@@ -75,14 +76,14 @@ bool ServiceManager::Start(Service service)
     // Start the process
     QString prog;
     QStringList args;
-    bool once = !isEnabled(service);
+    bool once = !isEnabled(service) && !usingOpenRC;
     if ( chroot.isEmpty() ) {
       prog = "service";
       args << service.Directory;
-      args << "start";
+      args << (once ? "onestart" : "start") ;
     } else {
       prog = "warden";
-      args << "chroot" << ip << "service" << service.Directory << (once ? "one" : "" )+QString("start");
+      args << "chroot" << ip << "service" << service.Directory << (once ? "onestart" : "start" );
     }
     return General::RunQuickCommand(prog,args);
 }
@@ -94,14 +95,14 @@ bool ServiceManager::Stop(Service service)
     // Start the process
     QString prog;
     QStringList args;
-    bool once = !isEnabled(service);
+    bool once = !isEnabled(service) && !usingOpenRC;
     if ( chroot.isEmpty() ) {
       prog = "service";
       args << service.Directory;
-      args << "stop";
+      args << (once ? "onestop" : "stop") ;
     } else {
       prog = "warden";
-      args << "chroot" << ip << "service" << service.Directory << (once ? "one" : "" )+QString("stop");
+      args << "chroot" << ip << "service" << service.Directory << (once ? "onestop" : "stop" );
     }
     return General::RunQuickCommand(prog,args);
 }
@@ -111,7 +112,7 @@ bool ServiceManager::Restart(Service service)
     if(service.Directory.isEmpty()){ return false; }
     QString prog;
     QStringList args;
-    bool once = !isEnabled(service);
+    bool once = !isEnabled(service) && !usingOpenRC;
     if ( chroot.isEmpty() ) {
       prog = "service";
       args << service.Directory;
@@ -152,7 +153,13 @@ Service ServiceManager::loadServices(QString name)
 
     // OpenRC directories are /etc/init.d and /usr/local/etc/init.d
     QStringList stringDirs;
-    stringDirs << chroot + "/etc/init.d" << chroot + "/usr/local/etc/init.d";
+    if(usingOpenRC){
+      //OpenRC
+      stringDirs << chroot + "/etc/init.d" << chroot + "/usr/local/etc/init.d";
+    }else{
+      //FreeBSD rc.d
+      stringDirs << chroot + "/etc/rc.d" << chroot + "/usr/local/etc/rc.d";
+    }
 
     for ( QString dir: stringDirs)
     {
@@ -186,7 +193,7 @@ Service ServiceManager::loadServices(QString name)
 
                     if (line.simplified().startsWith("description=") ||
 			line.simplified().startsWith("desc=") ||
-			line.simplified().startsWith("name=")) {
+			(line.simplified().startsWith("name=") && service.Description.isEmpty()) ) {
                       service.Description = line.section("=\"",1,-1).section("\"",0,0);
                     }
                 }
@@ -245,6 +252,7 @@ void ServiceManager::loadUnusedData() {
 
 // get the services enabled for all runlevels so we can update services
 void ServiceManager::loadRunlevels() {
+  if(!usingOpenRC){ return; }
   QStringList info = sysadm::General::RunCommand("rc-status --nocolor --all").split("\n");
   QString runlevel = "default";
   for (int i=0; i<info.length(); i++) {
@@ -264,19 +272,17 @@ void ServiceManager::loadRunlevels() {
 }
 
 bool ServiceManager::enableDisableService(QString name, bool enable) {
-  QString runlevel = "default";
-  // look in services for name, see if there is a runlevel set
   // if not, use default
-  QString prog = "rc-update";
+  QString prog = usingOpenRC ? "rc-update" : "sysrc";
   QStringList args;
-  if (enable)
-    args << "add";
-  else
-    args << "delete";
-  
-  args << name;
-  args << runlevel;
-  qDebug() << prog << " " << args;
+  if(usingOpenRC){
+    if (enable){ args << "add"; }
+    else{ args << "delete"; }
+    args << name;
+  }else{
+    args << name+"_enable=\""+ (enable ? "YES" : "NO") + "\"";
+  }
+  //qDebug() << prog << " " << args;
   bool ret = sysadm::General::RunQuickCommand(prog,args);
   loadUnusedData();
   return ret;
