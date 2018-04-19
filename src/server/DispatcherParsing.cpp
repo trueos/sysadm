@@ -49,7 +49,7 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
       namesp = "sysadm"; name="update";
       //No special parsing here: the pc-updatemanager output should be available as-is
       args.insert("update_log",cLog);
-    }else if(full_log && ID.section("::",0,0)=="sysadm_update_checkupdates"){
+    }else if(isFinished && full_log && ID.section("::",0,0)=="sysadm_update_checkupdates"){
       //qDebug() << "Got update check process finished";
       sysadm::Update::saveCheckUpdateLog(cLog); //save this for use later
     }
@@ -82,66 +82,16 @@ QJsonObject Dispatcher::CreateDispatcherEventNotification(QString ID, QJsonObjec
     }
 
   // == sysadm/sourcecrl ==
-  }else if(ID.startsWith("sysadm_sourcectl")){
-    if(ID.section("::",0,0)=="sysadm_sourcectl_downloadsource"){
-      namesp = "sysadm"; name="soucectl";
-      //No special parsing here: the git output should be available as-is
-      args.insert("update_log",cLog);
-    }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_downloadsource"){
-    //qDebug() << "Got update check process finished";
-    sysadm::sourcectl::saveSourceLog(cLog); //save this for use later
-  }else if(ID.startsWith("sysadm_sourcectl")){
-    if(ID.section("::",0,0)=="sysadm_sourcectl_updatesource"){
-      namesp = "sysadm"; name="soucectl";
-      //No special parsing here: the git output should be available as-is
-      args.insert("update_log",cLog);
-    }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_updatesource"){
-    //qDebug() << "Got update check process finished";
-    sysadm::sourcectl::saveSourceLog(cLog); //save this for use later
-    }
-  }else if(ID.startsWith("sysadm_sourcectl")){
-    if(ID.section("::",0,0)=="sysadm_sourcectl_deleteports"){
-       namesp = "sysadm"; name="soucectl";
-       //No special parsing here: the git output should be available as-is
-       args.insert("update_log",cLog);
-     }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_deleteports"){
-     //qDebug() << "Got update check process finished";
-     sysadm::sourcectl::savePortsLog(cLog); //save this for use later
-     }
-   }else if(ID.startsWith("sysadm_sourcectl")){
-    if(ID.section("::",0,0)=="sysadm_sourcectl_downloadports"){
-      namesp = "sysadm"; name="soucectl";
-      //No special parsing here: the git output should be available as-is
-      args.insert("update_log",cLog);
-    }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_downloadports"){
-    //qDebug() << "Got update check process finished";
-    sysadm::sourcectl::savePortsLog(cLog); //save this for use later
-    }
-  }else if(ID.startsWith("sysadm_sourcectl")){
-    if(ID.section("::",0,0)=="sysadm_sourcectl_updateports"){
-      namesp = "sysadm"; name="soucectl";
-      //No special parsing here: the git output should be available as-is
-      args.insert("update_log",cLog);
-    }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_updateports"){
-    //qDebug() << "Got update check process finished";
-    sysadm::sourcectl::savePortsLog(cLog); //save this for use later
-    }
-   }else if(ID.startsWith("sysadm_sourcectl")){
-     if(ID.section("::",0,0)=="sysadm_sourcectl_deleteports"){
-       namesp = "sysadm"; name="soucectl";
-       //No special parsing here: the git output should be available as-is
-       args.insert("update_log",cLog);
-     }else if(full_log && ID.section("::",0,0)=="sysadm_sourcectl_deleteports"){
-     //qDebug() << "Got update check process finished";
-     sysadm::sourcectl::savePortsLog(cLog); //save this for use later
-     }
+  }else if(ID.startsWith("sysadm_sourcectl_")){
+    QString type = ID.section("::",0,0).section("_",2,-1); //type of sourcectl process
+    namesp = "sysadm"; name="sourcectl";
+    //No special parsing here: the git output should be available as-is
+    args.insert("update_log",cLog);
+    if(full_log){
+       //qDebug() << "Got update check process finished";
+       sysadm::sourcectl::savePortsLog(cLog); //save this for use later
     }
   }
-
-//Now assemble the output as needed
-if(namesp.isEmpty() || name.isEmpty()){ return QJsonObject(); } //no event
-args.insert("event_system",namesp+"/"+name);
-return args;
 
   //Now assemble the output as needed
   if(namesp.isEmpty() || name.isEmpty()  || args.isEmpty()){ return QJsonObject(); } //no event
