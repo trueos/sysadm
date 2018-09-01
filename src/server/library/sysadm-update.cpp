@@ -37,8 +37,12 @@ QJsonObject Update::checkUpdates(bool fast) {
   QJsonObject retObject;
   //qDebug() << "Check for updates: fast=" << fast;
   //Quick check to ensure the tool is available
-  if(!QFile::exists("/usr/local/bin/pc-updatemanager")){
-    return retObject;
+  QString tool = "/usr/sbin/trueos-update";
+  if(!QFile::exists(tool)){
+    tool = "/usr/local/bin/pc-updatemanager";
+    if(!QFile::exists(tool)){
+      return retObject;
+    }
   }
   //See if the check for updates is currently running - just return nothing at the moment for that
   if(DISPATCHER->isJobActive("sysadm_update_checkupdates")){
@@ -91,17 +95,16 @@ QJsonObject Update::checkUpdates(bool fast) {
     else{ output = General::readTextFile(UP_UPFILE); }
   }else{
     //qDebug() << " - Run full check";
-    QStringList cmds; cmds << "pc-updatemanager syncconf" << "pc-updatemanager pkgcheck";
+    QStringList cmds;
+    if(tool.endsWith("/pc-updatemanager")){
+      cmds << "pc-updatemanager syncconf" << "pc-updatemanager pkgcheck";
+    }else{
+      cmds << "trueos-update check";
+    }
     DISPATCHER->queueProcess("sysadm_update_checkupdates", cmds );
     retObject.insert("status", "checkingforupdates");
     //qDebug() << " - Done starting check";
     return retObject;
-    /*General::RunCommand("pc-updatemanager syncconf"); //always resync the config file before starting an update check
-    output.append( General::RunCommand("pc-updatemanager pkgcheck").split("\n") );
-    while(output.last().simplified()==""){ output.removeLast(); }
-    if(!output.last().contains("ERROR:")){ //make sure there was network access available first -  otherwise let it try again soon
-      General::writeTextFile(UP_UPFILE, output); //save this check for later "fast" updates
-    }*/
   }
   //qDebug() << "pc-updatemanager checks:" << output;
 
@@ -210,50 +213,27 @@ QJsonObject Update::listBranches() {
 QJsonObject Update::startUpdate(QJsonObject jsin) {
   QJsonObject retObject;
 
-  QStringList keys = jsin.keys();
-  if (! keys.contains("target") ) {
-    retObject.insert("error", "Missing required key 'target'");
-    return retObject;
-  }
-  // Save the target
-  QString target;
-  target = jsin.value("target").toString();
-
-  QString flags;
-  if ( target == "chbranch" ) {
-    if (! keys.contains("branch") ) {
-      retObject.insert("error", "Missing required key 'branch'");
+    //Quick check to ensure the tool is available
+  QString tool = "/usr/sbin/trueos-update";
+  QStringList flags; flags << "upgrade";
+  if(!QFile::exists(tool)){
+    tool = "/usr/local/bin/pc-updatemanager";
+    flags.clear(); flags << "pkgupdate";
+    if(!QFile::exists(tool)){
       return retObject;
     }
-    flags = "chbranch " + jsin.value("branch").toString();
-  } else if ( target == "pkgupdate" ) {
-    flags = "pkgupdate";
-/*  } else if ( target == "fbsdupdate" ) {
-    flags = "fbsdupdate";
-  } else if ( target == "fbsdupdatepkgs" ) {
-    flags = "fbsdupdatepkgs";*/
-  } else if ( target == "standalone" ) {
-    if (! keys.contains("tag") ) {
-      retObject.insert("error", "Missing required key 'tag'");
-      return retObject;
-    }
-    flags = "install " + jsin.value("tag").toString();
-  } else {
-    // Ruh-roh
-    retObject.insert("error", "Unknown target key: " + target);
-    return retObject;
   }
 
   // Create a unique ID for this queued action
   QString ID = QUuid::createUuid().toString();
 
   // Queue the update action
-  DISPATCHER->queueProcess("sysadm_update_runupdates::"+ID, "pc-updatemanager " + flags);
+  DISPATCHER->queueProcess("sysadm_update_runupdates::"+ID, tool+" "+ flags.join(" "));
 
   if(QFile::exists(UP_UPFILE)){ QFile::remove(UP_UPFILE); } //ensure the next fast update does a full check
 
   // Return some details to user that the action was queued
-  retObject.insert("command", "pc-updatemanger " + flags);
+  retObject.insert("command",  tool+" "+ flags.join(" "));
   retObject.insert("comment", "Task Queued");
   retObject.insert("queueid", ID);
   return retObject;
@@ -285,7 +265,11 @@ QJsonObject Update::stopUpdate() {
 
 QJsonObject Update::applyUpdates(){
   QJsonObject ret;
-  QProcess::startDetached("pc-updatemanager startupdate");
+  if(QFile::exists("/usr/local/sbin/pc-updatemanager")){
+    QProcess::startDetached("pc-updatemanager startupdate");
+  }else if(QFile::exists("/usr/sbin/trueos-update")){
+    QProcess::startDetached("shutdown -r now");
+  }
   ret.insert("result","rebooting to complete updates");
   return ret;
 }
