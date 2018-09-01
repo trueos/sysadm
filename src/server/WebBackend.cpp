@@ -77,7 +77,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   }
 
   // - pkg
-  if(QFile::exists("/usr/local/sbin/pkg")){
+  if(QFile::exists("/usr/local/sbin/pkg") || QFile::exists("/usr/sbin/pkg")){
     out->insert("sysadm/pkg", "read/write");
   }
 
@@ -85,7 +85,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   out->insert("sysadm/systemmanager","read/write");
 
   // - PC-BSD/TrueOS Updater
-  if(QFile::exists("/usr/local/bin/pc-updatemanager")){
+  if(QFile::exists("/usr/local/bin/pc-updatemanager") || QFile::exists("/usr/sbin/trueos-update")){
     out->insert("sysadm/update", "read/write");
   }
 
