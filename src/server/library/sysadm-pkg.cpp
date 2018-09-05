@@ -371,17 +371,23 @@ QJsonArray PKG::list_categories(QString repo){
 
 QJsonArray PKG::list_repos(bool updated){
   QString dbdir = "/var/db/pkg/repo-%1.sqlite";
-  QDir confdir("/usr/local/etc/pkg/repos");
-  QStringList confs = confdir.entryList(QStringList() << "*.conf", QDir::Files);
+  QStringList repodirs; repodirs << "/etc/pkg" << "/etc/pkg/repos" << "/usr/local/etc/pkg" << "/usr/local/etc/pkg/repos";
   QStringList found;
   found << "local"; //There is always a local database (for installed pkgs)
-  for(int i=0; i<confs.length(); i++){
-    QStringList repoinfo = General::readTextFile(confdir.absoluteFilePath(confs[i])).join("\n").split("}");
-    for(int j=0; j<repoinfo.length(); j++){
-      QString repo = repoinfo[j].section(":",0,0).simplified();
-      if(QFile::exists(dbdir.arg(repo)) && repoinfo[j].section("enabled:",1,-1).section(":",0,0).contains("true")){ found << repo; }
-    }
-  }
+  for(int d=0; d<repodirs.length(); d++){
+    if(!QFile::exists(repodirs[d])){ continue; }
+    QDir confdir(repodirs[d]);
+    QStringList confs = confdir.entryList(QStringList() << "*.conf", QDir::Files);
+    for(int i=0; i<confs.length(); i++){
+      QStringList repoinfo = General::readTextFile(confdir.absoluteFilePath(confs[i])).join("\n").split("}");
+      for(int j=0; j<repoinfo.length(); j++){
+        QString repo = repoinfo[j].section(":",0,0).simplified();
+        QString enabled = repoinfo[j].section("enabled:",1,-1).section(":",0,0).toLower();
+        bool isEnabled = (enabled.contains("yes") || enabled.contains("true"));
+        if(QFile::exists(dbdir.arg(repo)) && isEnabled){ found << repo; }
+      } //loop over repos listed in conf
+    } //loop over confs in repodir
+  } //loop over repodirs
   if(found.length()<2 && !updated){
     //Only the local repo could be found - update the package repos and try again
     DProcess* proc = DISPATCHER->queueProcess(Dispatcher::PKG_QUEUE, "internal_sysadm_pkg_repo_update_sync", "pkg update");
@@ -496,7 +502,7 @@ QJsonObject PKG::pkg_remove(QStringList origins, bool recursive){
     obj.insert("status", "pending");
     obj.insert("proc_cmd",cmd);
     obj.insert("proc_id",ID);
-  return obj;	
+  return obj;
 }
 
 QJsonObject PKG::pkg_lock(QStringList origins){
@@ -511,7 +517,7 @@ QJsonObject PKG::pkg_lock(QStringList origins){
     obj.insert("status", "pending");
     obj.insert("proc_cmd",cmd);
     obj.insert("proc_id",ID);
-  return obj;	
+  return obj;
 }
 
 QJsonObject PKG::pkg_unlock(QStringList origins){
@@ -526,7 +532,7 @@ QJsonObject PKG::pkg_unlock(QStringList origins){
     obj.insert("status", "pending");
     obj.insert("proc_cmd",cmd);
     obj.insert("proc_id",ID);
-  return obj;		
+  return obj;
 }
 
 //==================
@@ -544,7 +550,7 @@ QJsonObject PKG::pkg_update(bool force){
     obj.insert("status", "pending");
     obj.insert("proc_cmd",cmd);
     obj.insert("proc_id",ID);
-  return obj;	
+  return obj;
 }
 
 QJsonObject PKG::pkg_check_upgrade(){
@@ -558,7 +564,7 @@ QJsonObject PKG::pkg_check_upgrade(){
     obj.insert("status", "pending");
     obj.insert("proc_cmd",cmd);
     obj.insert("proc_id",ID);
-  return obj;	
+  return obj;
 }
 
 QJsonObject PKG::pkg_upgrade(){
@@ -586,7 +592,7 @@ QJsonObject PKG::pkg_audit(){
     obj.insert("status", "pending");
     obj.insert("proc_cmd",cmd);
     obj.insert("proc_id",ID);
-  return obj;	
+  return obj;
 }
 
 QJsonObject PKG::pkg_autoremove(){
@@ -600,5 +606,5 @@ QJsonObject PKG::pkg_autoremove(){
     obj.insert("status", "pending");
     obj.insert("proc_cmd",cmd);
     obj.insert("proc_id",ID);
-  return obj;	
+  return obj;
 }
