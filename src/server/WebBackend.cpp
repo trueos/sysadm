@@ -42,7 +42,7 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   out->insert("rpc/logs", allaccess ? "read/write" : "read");
 
   // - beadm
-  if(QFile::exists("/usr/local/sbin/beadm")){
+  if(QFile::exists("/usr/local/sbin/beadm") || QFile::exists("/sbin/beadm") ){
     out->insert("sysadm/beadm", "read/write");
   }
 

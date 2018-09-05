@@ -52,7 +52,7 @@ QJsonObject BEADM::listBEs() {
 
   QJsonObject BEADM::renameBE(QJsonObject jsin) {
   QJsonObject retObject;
-  
+
   QStringList keys = jsin.keys();
   if (! keys.contains("source") || ! keys.contains("target") ) {
     retObject.insert("error", "Missing required key(s) 'source / target'");
@@ -71,7 +71,7 @@ QJsonObject BEADM::listBEs() {
       return retObject;
     }
   }
-  
+
   retObject.insert("source", source);
   retObject.insert("target", target);
   return retObject;
@@ -191,7 +191,7 @@ QJsonObject BEADM::listBEs() {
   QString mountpoint;
   if (keys.contains("mountpoint") ) {
     mountpoint = jsin.value("mountpoint").toString();
-  }	
+  }
 
   QStringList output = General::RunCommand("beadm mount "+ be + " " + mountpoint).split("\n");
 
@@ -209,7 +209,7 @@ QJsonObject BEADM::listBEs() {
 
   return retObject;
  }
- 
+
  //  Unmount the given boot environment immediately.  Confirmation should be done through the client.
 
 QJsonObject BEADM::umountBE(QJsonObject jsin) {
