@@ -84,8 +84,8 @@ RestOutputStruct::ExitCode WebSocket::AvailableSubsystems(bool allaccess, QJsonO
   // - Generic system information
   out->insert("sysadm/systemmanager","read/write");
 
-  // - PC-BSD/TrueOS Updater
-  if(QFile::exists("/usr/local/bin/pc-updatemanager") || QFile::exists("/usr/sbin/trueos-update")){
+  // - Legacy PC-BSD/TrueOS Updater
+  if( QFile::exists("/usr/local/bin/pc-updatemanager") ){
     out->insert("sysadm/update", "read/write");
   }
 
