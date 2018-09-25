@@ -37,13 +37,11 @@ QJsonObject Update::checkUpdates(bool fast) {
   QJsonObject retObject;
   //qDebug() << "Check for updates: fast=" << fast;
   //Quick check to ensure the tool is available
-  QString tool = "/usr/sbin/trueos-update";
+  QString tool = "/usr/local/bin/pc-updatemanager";
   if(!QFile::exists(tool)){
-    tool = "/usr/local/bin/pc-updatemanager";
-    if(!QFile::exists(tool)){
-      return retObject;
-    }
+    return retObject;
   }
+ 
   //See if the check for updates is currently running - just return nothing at the moment for that
   if(DISPATCHER->isJobActive("sysadm_update_checkupdates")){
     retObject.insert("status", "checkingforupdates");
@@ -98,8 +96,6 @@ QJsonObject Update::checkUpdates(bool fast) {
     QStringList cmds;
     if(tool.endsWith("/pc-updatemanager")){
       cmds << "pc-updatemanager syncconf" << "pc-updatemanager pkgcheck";
-    }else{
-      cmds << "trueos-update check";
     }
     DISPATCHER->queueProcess("sysadm_update_checkupdates", cmds );
     retObject.insert("status", "checkingforupdates");
@@ -213,15 +209,11 @@ QJsonObject Update::listBranches() {
 QJsonObject Update::startUpdate(QJsonObject jsin) {
   QJsonObject retObject;
 
-    //Quick check to ensure the tool is available
-  QString tool = "/usr/sbin/trueos-update";
-  QStringList flags; flags << "upgrade";
+  //Quick check to ensure the tool is available
+  QString tool = "/usr/local/bin/pc-updatemanager";
+  QStringList flags << "pkgupdate";
   if(!QFile::exists(tool)){
-    tool = "/usr/local/bin/pc-updatemanager";
-    flags.clear(); flags << "pkgupdate";
-    if(!QFile::exists(tool)){
-      return retObject;
-    }
+    return retObject;
   }
 
   // Create a unique ID for this queued action
@@ -267,8 +259,6 @@ QJsonObject Update::applyUpdates(){
   QJsonObject ret;
   if(QFile::exists("/usr/local/sbin/pc-updatemanager")){
     QProcess::startDetached("pc-updatemanager startupdate");
-  }else if(QFile::exists("/usr/sbin/trueos-update")){
-    QProcess::startDetached("shutdown -r now");
   }
   ret.insert("result","rebooting to complete updates");
   return ret;
