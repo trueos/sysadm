@@ -211,7 +211,7 @@ QJsonObject Update::startUpdate(QJsonObject jsin) {
 
   //Quick check to ensure the tool is available
   QString tool = "/usr/local/bin/pc-updatemanager";
-  QStringList flags << "pkgupdate";
+  QStringList flags; flags << "pkgupdate";
   if(!QFile::exists(tool)){
     return retObject;
   }

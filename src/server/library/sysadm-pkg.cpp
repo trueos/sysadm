@@ -379,11 +379,13 @@ QJsonArray PKG::list_repos(bool updated){
     QDir confdir(repodirs[d]);
     QStringList confs = confdir.entryList(QStringList() << "*.conf", QDir::Files);
     for(int i=0; i<confs.length(); i++){
-      QStringList repoinfo = General::readTextFile(confdir.absoluteFilePath(confs[i])).join("\n").split("}");
+      QStringList repoinfo = General::readTextFile(confdir.absoluteFilePath(confs[i])).join("\n").split("\n}");
       for(int j=0; j<repoinfo.length(); j++){
+        //qDebug() << "Repoinfo:" << repoinfo[j];
         QString repo = repoinfo[j].section(":",0,0).simplified();
         QString enabled = repoinfo[j].section("enabled:",1,-1).section(":",0,0).toLower();
         bool isEnabled = (enabled.contains("yes") || enabled.contains("true"));
+       //qDebug() << "Checking Repo:" << repo << enabled << isEnabled;
         if(QFile::exists(dbdir.arg(repo)) && isEnabled){ found << repo; }
       } //loop over repos listed in conf
     } //loop over confs in repodir
