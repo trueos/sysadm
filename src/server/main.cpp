@@ -37,18 +37,17 @@ void MessageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
   	  break;
   case QtWarningMsg:
   	  txt = QString("WARNING: %1").arg(msg);
-          txt += "\n Context: "+QString(context.file)+" Line: "+QString(context.line)+" Function: "+QString(context.function);
   	  break;
   case QtCriticalMsg:
   	  txt = QString("CRITICAL: %1").arg(msg);
-	  txt += "\n Context: "+QString(context.file)+" Line: "+QString(context.line)+" Function: "+QString(context.function);
   	  break;
   case QtFatalMsg:
   	  txt = QString("FATAL: %1").arg(msg);
-	  txt += "\n Context: "+QString(context.file)+" Line: "+QString(context.line)+" Function: "+QString(context.function);
   	  break;
   }
-
+  if( type!=QtDebugMsg && !QString(context.file).isEmpty() ){
+    txt += "\n Context: "+QString(context.file)+" Line: "+QString(context.line)+" Function: "+QString(context.function);
+  }
   QTextStream out(&logfile);
   out << txt;
   if(!txt.endsWith("\n")){ out << "\n"; }
@@ -79,7 +78,6 @@ qDebug() << "  \"bridge_export_key [file]\": Export the public SSL key the serve
 
 int main( int argc, char ** argv )
 {
-    
     //Check whether running as root
     if( getuid() != 0){
       qDebug() << "sysadm-server must be started as root!";
@@ -121,7 +119,7 @@ int main( int argc, char ** argv )
             QSslCertificate cert(&cfile);
             cfile.close();
             if(!cert.isNull()){
-              if(i+1<argc){ 
+              if(i+1<argc){
                 i++; QString filepath = argv[i];
 	        QFile outfile(filepath);
                   outfile.open(QIODevice::WriteOnly | QIODevice::Truncate);
@@ -150,11 +148,11 @@ int main( int argc, char ** argv )
  	if(!file.open(QIODevice::ReadOnly)){ qDebug() << "Could not open file:" << file.fileName(); }
         else{
           QByteArray enc_key;
-          if(file.fileName().endsWith(".crt")){ 
-            QSslCertificate cert(&file, QSsl::Pem); 
+          if(file.fileName().endsWith(".crt")){
+            QSslCertificate cert(&file, QSsl::Pem);
             if(!cert.isNull()){ enc_key = cert.publicKey().toPem(); }
-          }else if(file.fileName().endsWith(".key")){ 
-            QSslKey key( &file, QSsl::Rsa, QSsl::Pem, QSsl::PublicKey); 
+          }else if(file.fileName().endsWith(".key")){
+            QSslKey key( &file, QSsl::Rsa, QSsl::Pem, QSsl::PublicKey);
             if(!key.isNull()){ enc_key = key.toPem(); }
            }else{
              qDebug() << "Error: Unknown file type (need .crt or .key file)";
@@ -172,13 +170,13 @@ int main( int argc, char ** argv )
 	if(QFile::exists(key)){
 	  QFile file(key);
           QByteArray pubkey;
-          if(file.open(QIODevice::ReadOnly)){  
-            QSslKey sslkey( &file, QSsl::Rsa, QSsl::Pem, QSsl::PublicKey); 
+          if(file.open(QIODevice::ReadOnly)){
+            QSslKey sslkey( &file, QSsl::Rsa, QSsl::Pem, QSsl::PublicKey);
             if(!key.isNull()){ pubkey = sslkey.toPem(); }
             else{ qDebug() << "Invalid Key file:" << file.fileName(); ok = false; }
             file.close();
           }else{ qDebug() << "Could not open file:" << file.fileName(); ok = false; }
-        }	
+        }
 	if(ok){ ok = AuthorizationManager::RegisterCertificateInternal(user, key, nickname, email); }
 	if(ok){ qDebug() << "Key Added" << user << nickname; }
         else{ qDebug() << "Could not add key"; } */
@@ -193,18 +191,20 @@ int main( int argc, char ** argv )
 
     QCoreApplication a(argc, argv);
     //Now load the config file
-    QStringList conf = ReadFile(CONFFILE).split("\n");
+    QString conf_file = CONFFILE;
+    if( !QFile::exists(conf_file) ){ conf_file.append(".dist"); } //no settings - use the default config
+    QStringList conf = ReadFile(conf_file).split("\n");
     if(!conf.filter("[internal]").isEmpty()){
       //Older QSettings file - move it to the new location
       if(QFile::exists(SETTINGSFILE)){ QFile::remove(SETTINGSFILE); } //remove the new/empty settings file
-      QFile::rename(CONFFILE, SETTINGSFILE);
+      QFile::copy(conf_file, SETTINGSFILE);
       CONFIG->sync(); //re-sync settings structure
       conf.clear(); //No config yet
     }
     //Load the settings from the config file
     // - port number
     if(port==0){
-      if(websocket){ 
+      if(websocket){
 	int index = conf.indexOf(QRegExp("PORT=*",Qt::CaseSensitive,QRegExp::Wildcard));
 	bool ok = false;
 	if(index>=0){ port = conf[index].section("=",1,1).toInt(&ok); }
@@ -213,7 +213,7 @@ int main( int argc, char ** argv )
 	int index = conf.indexOf(QRegExp("PORT_REST=*",Qt::CaseSensitive,QRegExp::Wildcard));
 	bool ok = false;
 	if(index>=0){ port = conf[index].section("=",1,1).toInt(&ok); }
-	if(port<=0 || !ok){ port = PORTNUMBER;  }	      
+	if(port<=0 || !ok){ port = PORTNUMBER;  }
       }
     }
     // - Blacklist options
@@ -238,7 +238,7 @@ int main( int argc, char ** argv )
     rg = QRegExp("BRIDGE_CONNECTIONS_ONLY=*",Qt::CaseSensitive,QRegExp::Wildcard);
     if(!conf.filter(rg).isEmpty()){
       BRIDGE_ONLY = conf.filter(rg).first().section("=",1,1).simplified().toLower()=="true";
-    }    
+    }
 
     //Setup the log file
     LogManager::checkLogDir(); //ensure the logging directory exists
@@ -254,18 +254,17 @@ int main( int argc, char ** argv )
       }
       logfile.open(QIODevice::WriteOnly | QIODevice::Append);
       qInstallMessageHandler(MessageOutput);
-      
     //Connect the background classes
     QObject::connect(DISPATCHER, SIGNAL(DispatchEvent(QJsonObject)), EVENTS, SLOT(DispatchEvent(QJsonObject)) );
     QObject::connect(DISPATCHER, SIGNAL(DispatchStarting(QString)), EVENTS, SLOT(DispatchStarting(QString)) );
-      
+
     //Create the daemon
-    qDebug() << "Starting the PC-BSD sysadm server...." << (websocket ? "(WebSocket)" : "(TCP)");
-    WebServer *w = new WebServer(); 
+    qDebug() << "Starting the sysadm server...." << (websocket ? "(WebSocket)" : "(TCP)");
+    WebServer *w = new WebServer();
     //Start the daemon
     int ret = 1; //error return value
     if( w->startServer(port, websocket) ){
-      qDebug() << " - Configuration File:" << CONFIG->fileName();
+      //qDebug() << " - Configuration File:" << CONFIG->fileName();
       QThread TBACK, TBACK2;
       EVENTS->moveToThread(&TBACK);
       DISPATCHER->moveToThread(&TBACK2);
@@ -283,7 +282,7 @@ int main( int argc, char ** argv )
     //Cleanup any globals
     delete CONFIG;
     logfile.close();
-    
+
     //Return
     return ret;
 }

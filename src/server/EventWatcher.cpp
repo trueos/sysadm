@@ -159,6 +159,7 @@ void EventWatcher::CheckLogFiles(){
 void EventWatcher::ReadLPLogFile(){
   //Open/Read any new info in the file
   QFile LPlogfile(LPLOG);
+  if( !LPlogfile.exists() ){ return; }
   if( !LPlogfile.open(QIODevice::ReadOnly) ){ return; } //could not open file
   QTextStream STREAM(&LPlogfile);
   qint64 LPlog_pos = CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-log-pos",0).toLongLong();
@@ -259,7 +260,8 @@ void EventWatcher::ReadLPRepFile(){
   QString repTotK = CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-totk","").toString();
   QString lastSize = CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-lastsize","").toString();
  //Open/Read any new info in the file
-  QFile LPlogfile(LPLOG);
+  QFile LPlogfile(tmpLPRepFile);
+  if( !LPlogfile.exists() ){ return; }
   if( !LPlogfile.open(QIODevice::ReadOnly) ){ return; } //could not open file
   QTextStream STREAM(&LPlogfile);
    qint64 LPrep_pos = CONFIG->value("internal/"+QString(WS_MODE ? "ws" : "tcp")+"/lp-rep-pos",0).toLongLong();
