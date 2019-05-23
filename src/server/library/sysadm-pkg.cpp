@@ -390,7 +390,8 @@ QJsonArray PKG::list_repos(bool updated){
         qDebug() << "Repoinfo:" << repoinfo[j];
         QString repo = repoinfo[j].section(":",0,0).simplified();
         QString enabled = repoinfo[j].section("enabled:",1,-1).section(":",0,0).toLower();
-        bool isEnabled = (enabled.contains("yes") || enabled.contains("true"));
+        bool isEnabled = true;
+        if(enabled.contains("no") || enabled.contains("false")){ isEnabled = false; }
        qDebug() << "Checking Repo:" << repo << enabled << isEnabled;
         if(QFile::exists(dbdir.arg(repo)) && isEnabled){ found << repo; }
       } //loop over repos listed in conf
